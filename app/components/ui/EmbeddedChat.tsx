@@ -176,7 +176,7 @@ export default function EmbeddedChat() {
                   {/* Message */}
                   <div className={`p-4 rounded-2xl ${
                     message.role === 'user'
-                      ? 'bg-neon-pink text-dark-gray font-medium'
+                      ? 'bg-gray-700/50 text-gray-100 border border-gray-600/30'
                       : 'bg-gray-700/50 text-gray-100 border border-gray-600/30'
                   }`}>
                     <div className="leading-relaxed text-sm prose prose-sm prose-invert max-w-none">
@@ -197,9 +197,7 @@ export default function EmbeddedChat() {
                         {message.content}
                       </ReactMarkdown>
                     </div>
-                    <p className={`text-xs mt-2 opacity-70 ${
-                      message.role === 'user' ? 'text-dark-gray/70' : 'text-gray-400'
-                    }`}>
+                    <p className="text-xs mt-2 opacity-70 text-gray-400">
                       {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
@@ -225,25 +223,23 @@ export default function EmbeddedChat() {
           </div>
         </div>
 
-        {/* Quick Questions - Fixed Height Container */}
-        <div className="px-6 py-4 border-t border-gray-600/30 min-h-[120px]">
-          {messages.length === 1 && (
-            <>
-              <p className="text-sm text-gray-400 mb-3">Quick questions to get started:</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {quickQuestions.map((question, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleQuickQuestion(question)}
-                    className="text-left p-3 text-sm bg-gray-700/30 hover:bg-gray-700/50 border border-gray-600/30 hover:border-neon-blue/50 rounded-lg text-gray-300 hover:text-white transition-all duration-200"
-                  >
-                    {question}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
+        {/* Quick Questions - Only show when needed */}
+        {messages.length === 1 && (
+          <div className="px-6 py-4 border-t border-gray-600/30">
+            <p className="text-sm text-gray-400 mb-3">Quick questions to get started:</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {quickQuestions.map((question, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleQuickQuestion(question)}
+                  className="text-left p-3 text-sm bg-gray-700/30 hover:bg-gray-700/50 border border-gray-600/30 hover:border-neon-blue/50 rounded-lg text-gray-300 hover:text-white transition-all duration-200"
+                >
+                  {question}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Input */}
         <div className="p-6 border-t border-gray-600/30 bg-dark-metal/80">
