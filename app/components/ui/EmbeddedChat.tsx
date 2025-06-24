@@ -152,7 +152,9 @@ export default function EmbeddedChat() {
       {/* Chat Container */}
       <div className="glass-panel bg-dark-metal/50 border border-gray-600/30 rounded-2xl overflow-hidden">
         {/* Messages */}
-        <div className="h-96 p-6 overflow-y-auto custom-scrollbar">
+        <div className={`p-6 overflow-y-auto custom-scrollbar transition-all duration-300 ${
+          messages.length === 1 ? 'h-96' : 'h-[480px]'
+        }`}>
           <div className="space-y-6">
             {messages.map((message) => (
               <div
