@@ -121,14 +121,14 @@ export default function FloatingChat() {
     <div className="fixed bottom-6 right-6 z-50">
       {/* Chat Window */}
       <div
-        className={`absolute bottom-32 right-0 w-96 h-[500px] bg-dark-metal border-2 border-gray-600/30 rounded-2xl shadow-2xl transform transition-all duration-500 ease-in-out ${
+        className={`absolute bottom-32 right-0 w-96 h-[500px] bg-dark-metal border-2 border-gray-600/30 rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-500 ease-in-out ${
           isOpen 
             ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' 
             : 'opacity-0 scale-95 translate-y-4 pointer-events-none'
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-600/30 bg-dark-metal/80 rounded-t-2xl">
+        <div className="flex items-center justify-between p-4 border-b border-gray-600/30 bg-dark-metal">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-neon-blue/20 border border-neon-blue/50 flex items-center justify-center">
               <MessageCircle className="w-5 h-5 text-neon-blue" />
@@ -147,7 +147,7 @@ export default function FloatingChat() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 p-4 h-[340px] overflow-y-auto custom-scrollbar">
+        <div className="flex-1 p-4 h-[340px] overflow-y-auto custom-scrollbar bg-dark-metal">
           <div className="space-y-4">
             {messages.map((message) => (
               <div
@@ -202,7 +202,7 @@ export default function FloatingChat() {
         </div>
 
         {/* Input */}
-        <div className="p-4 border-t border-gray-600/30 bg-dark-metal/80 rounded-b-2xl">
+        <div className="p-4 border-t border-gray-600/30 bg-dark-metal">
           <div className="flex items-end gap-3">
             <div className="flex-1">
               <textarea
