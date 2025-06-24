@@ -18,11 +18,21 @@ export default function EmbeddedChat() {
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }
 
   useEffect(() => {
-    scrollToBottom()
+    // Only scroll if user is near the bottom of the chat container
+    if (messagesEndRef.current) {
+      const container = messagesEndRef.current.closest('.overflow-y-auto')
+      if (container) {
+        const { scrollTop, scrollHeight, clientHeight } = container
+        const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100
+        if (isNearBottom) {
+          scrollToBottom()
+        }
+      }
+    }
   }, [messages])
 
   useEffect(() => {

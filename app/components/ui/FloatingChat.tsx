@@ -183,24 +183,24 @@ export default function FloatingChat() {
 
         {/* Input */}
         <div className="p-4 border-t border-gray-600/30 bg-dark-metal/80 rounded-b-2xl">
-          <div className="flex items-end gap-2">
-            <div className="flex-1 relative">
+          <div className="flex items-end gap-3">
+            <div className="flex-1">
               <textarea
                 ref={inputRef}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Ask about our supercars, packages, or VIP services..."
-                className="w-full p-4 pr-12 bg-gray-700/50 border border-gray-600/30 rounded-lg text-white placeholder-gray-400 text-sm resize-none focus:outline-none focus:border-neon-blue/50 focus:ring-1 focus:ring-neon-blue/50 transition-all duration-200"
-                rows={2}
-                style={{ minHeight: '60px', maxHeight: '120px' }}
+                className="w-full p-4 bg-gray-700/50 border border-gray-600/30 rounded-lg text-white placeholder-gray-400 text-sm resize-none focus:outline-none focus:border-neon-blue/50 focus:ring-1 focus:ring-neon-blue/50 transition-all duration-200"
+                rows={3}
+                style={{ minHeight: '80px', maxHeight: '140px' }}
                 disabled={isLoading}
               />
             </div>
             <button
               onClick={handleSendMessage}
               disabled={!inputValue.trim() || isLoading}
-              className="w-11 h-11 bg-neon-blue hover:bg-neon-blue/80 disabled:bg-gray-600/50 disabled:cursor-not-allowed rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-105 disabled:scale-100"
+              className="w-12 h-12 bg-neon-blue hover:bg-neon-blue/80 disabled:bg-gray-600/50 disabled:cursor-not-allowed rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-105 disabled:scale-100 flex-shrink-0"
             >
               <Send className="w-5 h-5 text-dark-gray" />
             </button>
