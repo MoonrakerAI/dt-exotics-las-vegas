@@ -20,7 +20,6 @@ export default function Navbar() {
   }, [])
 
   const navigationItems = [
-    { name: 'Home', href: '/' },
     { name: 'Fleet', href: '/#cars' },
     { name: 'Bachelor Parties', href: '/bachelor-party' },
     { name: 'Birthdays', href: '/birthday' },
@@ -55,8 +54,14 @@ export default function Navbar() {
           }`}>
             {/* Logo */}
             <div className="flex items-center">
-              <a href="/" className="text-2xl font-tech font-black text-white hover:text-neon-blue transition-colors duration-300">
-                DT <span className="text-neon-blue">EXOTICS</span>
+              <a href="/" className="flex items-center hover:opacity-80 transition-opacity duration-300">
+                <img 
+                  src="/images/logo/DT Exotics LV Logo Transparent.png" 
+                  alt="DT Exotics Las Vegas"
+                  className={`transition-all duration-500 ${
+                    isScrolled ? 'h-10' : 'h-12'
+                  }`}
+                />
               </a>
             </div>
 

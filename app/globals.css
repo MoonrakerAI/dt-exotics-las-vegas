@@ -13,7 +13,7 @@
 
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: 100px; /* Account for navbar height */
+    scroll-padding-top: 50px; /* Account for navbar height - halfway between original and previous */
   }
 
   body {

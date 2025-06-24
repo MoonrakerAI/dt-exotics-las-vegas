@@ -10,9 +10,13 @@ export default function Footer() {
         <div className="grid md:grid-cols-3 gap-12 mb-8">
           {/* Left Section - Branding */}
           <div>
-            <h3 className="text-2xl font-tech font-black text-neon-blue mb-4">
-              DT EXOTICS
-            </h3>
+            <div className="mb-4">
+              <img 
+                src="/images/logo/DT Exotics LV Logo Transparent.png" 
+                alt="DT Exotics Las Vegas"
+                className="h-16 mb-2"
+              />
+            </div>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
               Las Vegas's premier luxury supercar rental experience. Where automotive dreams become reality on the world's most iconic streets.
             </p>

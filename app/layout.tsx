@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   title: 'DT Exotics Las Vegas - Premium Supercar Rentals',
   description: 'Experience the thrill of driving the world\'s most exclusive supercars in Las Vegas. Lamborghini, Ferrari, McLaren, and more available for rent.',
   keywords: 'supercar rental, Las Vegas, exotic car rental, Lamborghini rental, Ferrari rental, luxury car rental',
+  icons: {
+    icon: '/images/logo/DT Exotics Logo Icon.png',
+    apple: '/images/logo/DT Exotics Logo Icon.png',
+  },
   openGraph: {
     title: 'DT Exotics Las Vegas - Premium Supercar Rentals',
     description: 'Experience the thrill of driving the world\'s most exclusive supercars in Las Vegas.',
