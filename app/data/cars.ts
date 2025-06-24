@@ -199,41 +199,41 @@ export const cars: Car[] = [
     available: true
   },
   {
-    id: 'mercedes-glc-amg',
-    brand: 'Mercedes-Benz',
-    model: 'GLC AMG',
-    year: 2021,
+    id: 'audi-sq8',
+    brand: 'Audi',
+    model: 'SQ8',
+    year: 2024,
     category: 'Performance SUV',
     stats: {
-      horsepower: 429,
-      torque: 384,
+      horsepower: 349,
+      torque: 369,
       topSpeed: 155,
-      acceleration: 5.3,
-      engine: '3.0L Turbo I6 + EQ Boost',
+      acceleration: 4.8,
+      engine: '3.0L Turbo V6',
       drivetrain: 'AWD',
       doors: 4
     },
     features: [
-      'AMG Performance 4MATIC+',
-      'AIRMATIC Suspension',
-      'AMG Track Pace',
-      'Burmester Sound System',
-      'AMG Night Package'
+      'Quattro All-Wheel Drive',
+      'Air Suspension',
+      'Virtual Cockpit',
+      'Matrix LED Headlights',
+      'Premium Plus Package'
     ],
     price: {
-      daily: 549,
-      weekly: 3299
+      daily: 499,
+      weekly: 2999
     },
     images: {
-      main: '/cars/Mercedes GLC AMG 2021 (White)/pics/GLE - Edited.png',
+      main: '/cars/Audi SQ8 2024 (Black)/pics/Audi SQ8 - Edited (1).png',
       gallery: []
     },
     videos: {
-      showcase: '/cars/Mercedes GLC AMG 2021 (White)/vids/showcase.mp4'
+      showcase: '/cars/Audi SQ8 2024 (Black)/vids/showcase.mp4'
     },
     audio: {
-      startup: '/cars/Mercedes GLC AMG 2021 (White)/audio/startup.mp3',
-      rev: '/cars/Mercedes GLC AMG 2021 (White)/audio/rev.mp3'
+      startup: '/cars/Audi SQ8 2024 (Black)/audio/startup.mp3',
+      rev: '/cars/Audi SQ8 2024 (Black)/audio/rev.mp3'
     },
     available: true
   },
@@ -277,41 +277,41 @@ export const cars: Car[] = [
     available: true
   },
   {
-    id: 'audi-sq8',
-    brand: 'Audi',
-    model: 'SQ8',
-    year: 2024,
+    id: 'mercedes-glc-amg',
+    brand: 'Mercedes-Benz',
+    model: 'GLC AMG',
+    year: 2021,
     category: 'Performance SUV',
     stats: {
-      horsepower: 349,
-      torque: 369,
+      horsepower: 429,
+      torque: 384,
       topSpeed: 155,
-      acceleration: 4.8,
-      engine: '3.0L Turbo V6',
+      acceleration: 5.3,
+      engine: '3.0L Turbo I6 + EQ Boost',
       drivetrain: 'AWD',
       doors: 4
     },
     features: [
-      'Quattro All-Wheel Drive',
-      'Air Suspension',
-      'Virtual Cockpit',
-      'Matrix LED Headlights',
-      'Premium Plus Package'
+      'AMG Performance 4MATIC+',
+      'AIRMATIC Suspension',
+      'AMG Track Pace',
+      'Burmester Sound System',
+      'AMG Night Package'
     ],
     price: {
-      daily: 499,
-      weekly: 2999
+      daily: 549,
+      weekly: 3299
     },
     images: {
-      main: '/cars/Audi SQ8 2024 (Black)/pics/Audi SQ8 - Edited (1).png',
+      main: '/cars/Mercedes GLC AMG 2021 (White)/pics/GLE - Edited.png',
       gallery: []
     },
     videos: {
-      showcase: '/cars/Audi SQ8 2024 (Black)/vids/showcase.mp4'
+      showcase: '/cars/Mercedes GLC AMG 2021 (White)/vids/showcase.mp4'
     },
     audio: {
-      startup: '/cars/Audi SQ8 2024 (Black)/audio/startup.mp3',
-      rev: '/cars/Audi SQ8 2024 (Black)/audio/rev.mp3'
+      startup: '/cars/Mercedes GLC AMG 2021 (White)/audio/startup.mp3',
+      rev: '/cars/Mercedes GLC AMG 2021 (White)/audio/rev.mp3'
     },
     available: true
   }

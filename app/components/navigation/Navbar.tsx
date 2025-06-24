@@ -50,7 +50,7 @@ export default function Navbar() {
       }`}>
         <div className="max-w-[1400px] mx-auto px-4">
           <div className={`flex items-center justify-between transition-all duration-500 ${
-            isScrolled ? 'py-5' : 'py-8'
+            isScrolled ? 'py-4' : 'py-6'
           }`}>
             {/* Logo */}
             <div className="flex items-center">
@@ -59,7 +59,7 @@ export default function Navbar() {
                   src="/images/logo/DT Exotics LV Logo Transparent.png" 
                   alt="DT Exotics Las Vegas"
                   className={`transition-all duration-500 ${
-                    isScrolled ? 'h-12' : 'h-16'
+                    isScrolled ? 'h-10' : 'h-14'
                   }`}
                 />
               </a>
