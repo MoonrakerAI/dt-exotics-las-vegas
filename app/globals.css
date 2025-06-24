@@ -1,0 +1,173 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --neon-blue: 0, 255, 255;
+    --neon-pink: 255, 0, 255;
+    --neon-green: 0, 255, 0;
+  }
+
+
+  body {
+    @apply bg-dark-gray text-gray-100 font-body;
+    background-image: 
+      radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(255, 0, 255, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(0, 255, 0, 0.02) 0%, transparent 50%);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-tech;
+  }
+}
+
+@layer components {
+  .neon-text {
+    @apply text-neon-blue;
+    text-shadow: 
+      0 0 10px rgba(var(--neon-blue), 0.8),
+      0 0 20px rgba(var(--neon-blue), 0.6),
+      0 0 30px rgba(var(--neon-blue), 0.4),
+      0 0 40px rgba(var(--neon-blue), 0.2);
+  }
+
+  .neon-text-magenta {
+    @apply text-neon-pink;
+    text-shadow: 
+      0 0 10px rgba(var(--neon-pink), 0.8),
+      0 0 20px rgba(var(--neon-pink), 0.6),
+      0 0 30px rgba(var(--neon-pink), 0.4),
+      0 0 40px rgba(var(--neon-pink), 0.2);
+  }
+
+  .neon-border {
+    @apply border-2 border-neon-blue;
+    box-shadow: 
+      0 0 10px rgba(var(--neon-blue), 0.8),
+      inset 0 0 10px rgba(var(--neon-blue), 0.2);
+  }
+
+  .metal-panel {
+    @apply bg-dark-metal rounded-lg p-6;
+    background-image: 
+      linear-gradient(145deg, rgba(255,255,255,0.05) 0%, transparent 50%),
+      linear-gradient(to bottom, #1a1a1a, #2d2d2d);
+    box-shadow: 
+      0 4px 6px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-panel {
+    @apply backdrop-blur-md bg-black/30 border border-white/10 rounded-lg;
+  }
+
+  .btn-primary {
+    @apply px-8 py-4 font-tech font-semibold uppercase tracking-wider;
+    @apply bg-neon-blue text-black;
+    @apply rounded-lg transition-all duration-300;
+    @apply hover:shadow-[0_0_30px_rgba(0,255,255,0.8)] hover:scale-105;
+    @apply active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply px-8 py-4 font-tech font-semibold uppercase tracking-wider;
+    @apply bg-transparent text-neon-blue border-2 border-neon-blue;
+    @apply rounded-lg transition-all duration-300;
+    @apply hover:bg-neon-blue hover:text-dark-gray;
+    @apply hover:shadow-[0_0_30px_rgba(0,255,255,0.8)];
+  }
+}
+
+@layer utilities {
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-neon-blue to-neon-pink bg-clip-text text-transparent;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slideIn {
+    animation: slideIn 0.4s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+}
+
+/* Date Picker Styles */
+.react-datepicker-wrapper {
+  @apply w-full;
+}
+
+.react-datepicker__input-container input {
+  @apply w-full;
+}
+
+.react-datepicker {
+  @apply bg-dark-metal border border-metal-gray !important;
+  @apply font-body !important;
+}
+
+.react-datepicker__header {
+  @apply bg-metal-gray border-b border-dark-gray !important;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name {
+  @apply text-gray-100 !important;
+}
+
+.react-datepicker__day {
+  @apply text-gray-300 hover:bg-neon-blue hover:text-dark-gray !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  @apply bg-neon-blue text-dark-gray !important;
+}
+
+.react-datepicker__day--disabled {
+  @apply text-gray-600 !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  @apply border-gray-400 !important;
+}
