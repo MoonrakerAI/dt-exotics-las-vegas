@@ -5,6 +5,7 @@ import ProcessSection from './components/sections/ProcessSection'
 import CarSelector from './components/sections/CarSelector'
 import VIPServicesSection from './components/sections/VIPServicesSection'
 import EmbeddedChat from './components/ui/EmbeddedChat'
+import ContactInfoBoxes from './components/sections/ContactInfoBoxes'
 import FAQSection from './components/sections/FAQSection'
 import Footer from './components/sections/Footer'
 import PreventAutoScroll from './components/ui/PreventAutoScroll'
@@ -22,6 +23,7 @@ export default function Home() {
       <section className="py-20 px-4 relative" id="contact">
         <div className="max-w-[1200px] mx-auto">
           <EmbeddedChat />
+          <ContactInfoBoxes />
         </div>
       </section>
       <FAQSection />
