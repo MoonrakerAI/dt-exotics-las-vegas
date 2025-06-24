@@ -2,8 +2,5 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "npm install",
-  "env": {
-    "RESEND_API_KEY": "@resend-api-key"
-  }
+  "installCommand": "npm install"
 }
