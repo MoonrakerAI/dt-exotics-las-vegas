@@ -7,10 +7,12 @@ import VIPServicesSection from './components/sections/VIPServicesSection'
 import EmbeddedChat from './components/ui/EmbeddedChat'
 import FAQSection from './components/sections/FAQSection'
 import Footer from './components/sections/Footer'
+import PreventAutoScroll from './components/ui/PreventAutoScroll'
 
 export default function Home() {
   return (
     <main className="relative">
+      <PreventAutoScroll />
       <Navbar />
       <HeroSection />
       <ExperienceSection />

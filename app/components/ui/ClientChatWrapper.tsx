@@ -2,10 +2,10 @@
 
 import dynamic from 'next/dynamic'
 
-const FloatingChat = dynamic(() => import('./FloatingChat'), {
+const FloatingChatNew = dynamic(() => import('./FloatingChatNew'), {
   ssr: false,
 })
 
 export default function ClientChatWrapper() {
-  return <FloatingChat />
+  return <FloatingChatNew />
 }
