@@ -4,18 +4,15 @@ import { useEffect } from 'react'
 
 export default function PreventAutoScroll() {
   useEffect(() => {
-    // Add loaded class after preventing scroll
-    document.documentElement.classList.add('loaded')
+    // Only run on homepage (pathname is '/')
+    if (window.location.pathname !== '/') {
+      return
+    }
     
     // Immediately scroll to top
     window.scrollTo(0, 0)
     document.documentElement.scrollTop = 0
     document.body.scrollTop = 0
-    
-    // Disable scroll restoration
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual'
-    }
     
     // Remove any hash from URL without triggering scroll
     if (window.location.hash) {
@@ -33,25 +30,10 @@ export default function PreventAutoScroll() {
     forceTop()
     requestAnimationFrame(forceTop)
     
-    const timeouts = [0, 10, 50, 100, 200]
+    const timeouts = [10, 50, 100]
     timeouts.forEach(delay => {
       setTimeout(forceTop, delay)
     })
-    
-    // Also prevent any scroll on page show (back/forward navigation)
-    const handlePageShow = (e: PageTransitionEvent) => {
-      if (e.persisted) {
-        forceTop()
-      }
-    }
-    
-    window.addEventListener('pageshow', handlePageShow)
-    
-    // Clean up on unmount
-    return () => {
-      window.removeEventListener('pageshow', handlePageShow)
-      document.documentElement.classList.add('loaded')
-    }
   }, [])
 
   return null

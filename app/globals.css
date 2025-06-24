@@ -15,13 +15,6 @@
     scroll-behavior: smooth;
     scroll-padding-top: 50px; /* Account for navbar height - halfway between original and previous */
   }
-  
-  /* Prevent auto-scroll on page load */
-  html:not(.loaded) {
-    overflow: hidden !important;
-    position: fixed !important;
-    width: 100% !important;
-  }
 
   body {
     @apply bg-dark-gray text-gray-100 font-body;

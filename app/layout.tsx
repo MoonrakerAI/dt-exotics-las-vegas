@@ -24,25 +24,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              // Force scroll to top before page loads
-              window.scrollTo(0, 0);
-              document.documentElement.scrollTop = 0;
-              document.body.scrollTop = 0;
-              if (window.history) {
-                window.history.scrollRestoration = 'manual';
-              }
-              // Remove hash from URL
-              if (window.location.hash) {
-                window.history.replaceState(null, '', window.location.pathname);
-              }
-            `,
-          }}
-        />
-      </head>
       <body className="min-h-screen antialiased">
         <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-metal-gray/20 via-dark-gray to-dark-gray pointer-events-none" />
         {children}
