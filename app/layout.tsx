@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import ClientChatWrapper from './components/ui/ClientChatWrapper'
+import ScrollToTop from './components/ui/ScrollToTop'
 
 export const metadata: Metadata = {
   title: 'DT Exotics Las Vegas - Premium Supercar Rentals',
@@ -13,26 +14,16 @@ export const metadata: Metadata = {
   },
 }
 
-'use client'
-
-import { useEffect } from 'react'
-import { usePathname } from 'next/navigation'
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const pathname = usePathname()
-  
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [pathname])
-
   return (
     <html lang="en" className="scroll-smooth">
       <body className="min-h-screen antialiased">
         <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-metal-gray/20 via-dark-gray to-dark-gray pointer-events-none" />
+        <ScrollToTop />
         {children}
         <ClientChatWrapper />
       </body>
