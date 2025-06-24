@@ -121,7 +121,7 @@ export default function FloatingChat() {
     <div className="fixed bottom-6 right-6 z-50">
       {/* Chat Window */}
       <div
-        className={`absolute bottom-32 right-0 w-96 h-[500px] bg-dark-metal border-2 border-gray-600/30 rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-500 ease-in-out ${
+        className={`absolute bottom-20 right-0 w-96 h-[500px] bg-dark-metal border-2 border-gray-600/30 rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-500 ease-in-out ${
           isOpen 
             ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' 
             : 'opacity-0 scale-95 translate-y-4 pointer-events-none'
