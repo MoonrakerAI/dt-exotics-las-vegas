@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import ClientChatWrapper from './components/ui/ClientChatWrapper'
 
 export const metadata: Metadata = {
   title: 'DT Exotics Las Vegas - Premium Supercar Rentals',
@@ -22,6 +23,7 @@ export default function RootLayout({
       <body className="min-h-screen antialiased">
         <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-metal-gray/20 via-dark-gray to-dark-gray pointer-events-none" />
         {children}
+        <ClientChatWrapper />
       </body>
     </html>
   )
