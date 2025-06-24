@@ -267,10 +267,7 @@ export default function EmbeddedChat() {
           </div>
           
           {/* Footer */}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-600/20">
-            <p className="text-xs text-gray-500">
-              Powered by Claude AI • Available 24/7
-            </p>
+          <div className="flex items-center justify-end mt-4 pt-4 border-t border-gray-600/20">
             <p className="text-xs text-gray-500">
               For urgent needs: <a href="sms:+17027208948" className="text-neon-blue hover:underline">(702) 720-8948</a>
             </p>
