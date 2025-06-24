@@ -277,7 +277,7 @@ export default function VegasTours() {
                   <ul className="space-y-1">
                     {destination.highlights.map((highlight, highlightIndex) => (
                       <li key={highlightIndex} className="flex items-start gap-2 text-gray-400 text-xs">
-                        <div className="w-1 h-1 bg-neon-blue rounded-full mt-2 flex-shrink-0" />
+                        <div className="w-1 h-1 bg-neon-pink rounded-full mt-2 flex-shrink-0" />
                         <span>{highlight}</span>
                       </li>
                     ))}
@@ -329,7 +329,7 @@ export default function VegasTours() {
                 <ul className="space-y-3 mb-8">
                   {tour.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start gap-3 text-gray-300">
-                      <div className="w-2 h-2 bg-neon-blue rounded-full mt-2 flex-shrink-0" />
+                      <div className="w-2 h-2 bg-neon-pink rounded-full mt-2 flex-shrink-0" />
                       <span className="text-sm">{feature}</span>
                     </li>
                   ))}

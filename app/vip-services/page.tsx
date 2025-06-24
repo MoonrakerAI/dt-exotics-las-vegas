@@ -275,10 +275,11 @@ export default function VIPServices() {
 
           <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-8">
             {services.map((service, index) => (
-              <div key={index} className="glass-panel bg-dark-metal/50 p-8 border border-gray-600/30 hover:border-neon-blue hover:shadow-[0_0_15px_rgba(0,255,255,0.3)] transition-all duration-700 rounded-2xl">
+              <div key={index} className="glass-panel bg-dark-metal/50 p-8 text-center group border border-gray-600/30 group-hover:border-neon-blue group-hover:shadow-[0_0_15px_rgba(0,255,255,0.3)] transition-all duration-700 rounded-2xl">
                 <div className="text-center mb-6">
-                  <div className="w-20 h-20 mx-auto mb-4 rounded-full border-2 border-gray-600/30 hover:border-neon-blue flex items-center justify-center bg-dark-metal transition-all duration-700 group hover:scale-110 hover:shadow-[0_0_20px_rgba(0,255,255,0.4)]">
-                    <service.icon className="w-10 h-10 text-neon-blue" />
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-full border-2 border-gray-600/30 group-hover:border-neon-blue flex items-center justify-center bg-dark-metal relative group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(0,255,255,0.4)] transition-all duration-700">
+                    <div className="absolute inset-0 rounded-full bg-neon-blue/10 blur-xl group-hover:bg-neon-blue/30" />
+                    <service.icon className="w-10 h-10 text-neon-blue relative z-10" />
                   </div>
                   <h3 className="text-xl font-tech font-bold text-white mb-3">
                     {service.title}
@@ -291,7 +292,7 @@ export default function VIPServices() {
                 <ul className="space-y-2">
                   {service.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start gap-2 text-gray-400 text-xs">
-                      <div className="w-1 h-1 bg-neon-blue rounded-full mt-2 flex-shrink-0" />
+                      <div className="w-1 h-1 bg-neon-pink rounded-full mt-2 flex-shrink-0" />
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -349,7 +350,7 @@ export default function VIPServices() {
                   <h4 className="text-neon-pink font-tech font-semibold text-sm">INCLUDES:</h4>
                   {pkg.includes.map((item, itemIndex) => (
                     <div key={itemIndex} className="flex items-start gap-3 text-gray-300">
-                      <CheckCircle className="w-4 h-4 text-neon-blue mt-0.5 flex-shrink-0" />
+                      <div className="w-2 h-2 bg-neon-pink rounded-full mt-2 flex-shrink-0" />
                       <span className="text-sm">{item}</span>
                     </div>
                   ))}
