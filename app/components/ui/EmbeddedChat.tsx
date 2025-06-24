@@ -2,6 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { MessageCircle, Send, Loader2, Sparkles } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeHighlight from 'rehype-highlight'
 
 interface Message {
   id: string
@@ -138,7 +141,7 @@ export default function EmbeddedChat() {
           </div>
         </div>
         <h2 className="text-3xl md:text-4xl font-tech font-black text-white mb-2">
-          AI CONCIERGE CHAT
+          AI CONCIERGE <span className="neon-text">CHAT</span>
         </h2>
         <p className="text-lg text-gray-400 max-w-2xl mx-auto">
           Get instant answers about our luxury supercars, packages, pricing, and VIP services. 
@@ -160,25 +163,40 @@ export default function EmbeddedChat() {
                   {/* Avatar */}
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                     message.role === 'user' 
-                      ? 'bg-neon-blue/20 border border-neon-blue/50' 
-                      : 'bg-neon-pink/20 border border-neon-pink/50'
+                      ? 'bg-neon-pink/20 border border-neon-pink/50' 
+                      : 'bg-neon-blue/20 border border-neon-blue/50'
                   }`}>
                     {message.role === 'user' ? (
-                      <div className="w-6 h-6 bg-neon-blue rounded-full" />
+                      <div className="w-6 h-6 bg-neon-pink rounded-full" />
                     ) : (
-                      <MessageCircle className="w-5 h-5 text-neon-pink" />
+                      <MessageCircle className="w-5 h-5 text-neon-blue" />
                     )}
                   </div>
 
                   {/* Message */}
                   <div className={`p-4 rounded-2xl ${
                     message.role === 'user'
-                      ? 'bg-neon-blue text-dark-gray font-medium'
+                      ? 'bg-neon-pink text-dark-gray font-medium'
                       : 'bg-gray-700/50 text-gray-100 border border-gray-600/30'
                   }`}>
-                    <p className="leading-relaxed whitespace-pre-wrap text-sm">
-                      {message.content}
-                    </p>
+                    <div className="leading-relaxed text-sm prose prose-sm prose-invert max-w-none">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeHighlight]}
+                        components={{
+                          p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                          ul: ({ children }) => <ul className="mb-2 pl-4 list-disc">{children}</ul>,
+                          ol: ({ children }) => <ol className="mb-2 pl-4 list-decimal">{children}</ol>,
+                          li: ({ children }) => <li className="mb-1">{children}</li>,
+                          strong: ({ children }) => <strong className="text-neon-blue font-semibold">{children}</strong>,
+                          em: ({ children }) => <em className="text-neon-pink italic">{children}</em>,
+                          code: ({ children }) => <code className="bg-gray-800/50 px-1 py-0.5 rounded text-neon-green text-xs">{children}</code>,
+                          pre: ({ children }) => <pre className="bg-gray-800/50 p-3 rounded-lg overflow-x-auto text-xs">{children}</pre>,
+                        }}
+                      >
+                        {message.content}
+                      </ReactMarkdown>
+                    </div>
                     <p className={`text-xs mt-2 opacity-70 ${
                       message.role === 'user' ? 'text-dark-gray/70' : 'text-gray-400'
                     }`}>
@@ -191,8 +209,8 @@ export default function EmbeddedChat() {
             {isLoading && (
               <div className="flex justify-start">
                 <div className="flex gap-3 max-w-[85%]">
-                  <div className="w-10 h-10 rounded-full bg-neon-pink/20 border border-neon-pink/50 flex items-center justify-center flex-shrink-0">
-                    <MessageCircle className="w-5 h-5 text-neon-pink" />
+                  <div className="w-10 h-10 rounded-full bg-neon-blue/20 border border-neon-blue/50 flex items-center justify-center flex-shrink-0">
+                    <MessageCircle className="w-5 h-5 text-neon-blue" />
                   </div>
                   <div className="bg-gray-700/50 text-gray-100 border border-gray-600/30 p-4 rounded-2xl">
                     <div className="flex items-center gap-3">
@@ -207,23 +225,25 @@ export default function EmbeddedChat() {
           </div>
         </div>
 
-        {/* Quick Questions */}
-        {messages.length === 1 && (
-          <div className="px-6 py-4 border-t border-gray-600/30">
-            <p className="text-sm text-gray-400 mb-3">Quick questions to get started:</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {quickQuestions.map((question, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleQuickQuestion(question)}
-                  className="text-left p-3 text-sm bg-gray-700/30 hover:bg-gray-700/50 border border-gray-600/30 hover:border-neon-blue/50 rounded-lg text-gray-300 hover:text-white transition-all duration-200"
-                >
-                  {question}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Quick Questions - Fixed Height Container */}
+        <div className="px-6 py-4 border-t border-gray-600/30 min-h-[120px]">
+          {messages.length === 1 && (
+            <>
+              <p className="text-sm text-gray-400 mb-3">Quick questions to get started:</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {quickQuestions.map((question, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleQuickQuestion(question)}
+                    className="text-left p-3 text-sm bg-gray-700/30 hover:bg-gray-700/50 border border-gray-600/30 hover:border-neon-blue/50 rounded-lg text-gray-300 hover:text-white transition-all duration-200"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
 
         {/* Input */}
         <div className="p-6 border-t border-gray-600/30 bg-dark-metal/80">

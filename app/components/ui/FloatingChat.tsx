@@ -2,6 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeHighlight from 'rehype-highlight'
 
 interface Message {
   id: string
@@ -154,11 +157,28 @@ export default function FloatingChat() {
                 <div
                   className={`max-w-[80%] p-3 rounded-lg text-sm ${
                     message.role === 'user'
-                      ? 'bg-neon-blue text-dark-gray font-medium'
+                      ? 'bg-neon-pink text-dark-gray font-medium'
                       : 'bg-gray-700/50 text-gray-100 border border-gray-600/30'
                   }`}
                 >
-                  <p className="leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                  <div className="leading-relaxed prose prose-sm prose-invert max-w-none">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeHighlight]}
+                      components={{
+                        p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+                        ul: ({ children }) => <ul className="mb-1 pl-3 list-disc">{children}</ul>,
+                        ol: ({ children }) => <ol className="mb-1 pl-3 list-decimal">{children}</ol>,
+                        li: ({ children }) => <li className="mb-0.5">{children}</li>,
+                        strong: ({ children }) => <strong className="text-neon-blue font-semibold">{children}</strong>,
+                        em: ({ children }) => <em className="text-neon-pink italic">{children}</em>,
+                        code: ({ children }) => <code className="bg-gray-800/50 px-1 py-0.5 rounded text-neon-green text-xs">{children}</code>,
+                        pre: ({ children }) => <pre className="bg-gray-800/50 p-2 rounded overflow-x-auto text-xs">{children}</pre>,
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
                   <p className={`text-xs mt-1 opacity-70 ${
                     message.role === 'user' ? 'text-dark-gray/70' : 'text-gray-400'
                   }`}>
