@@ -348,7 +348,7 @@ export default function BirthdayRentals() {
                   </h3>
                   <div className="text-neon-blue font-tech text-sm mb-1">{pkg.occasion}</div>
                   <div className="text-gray-400 text-sm mb-4">{pkg.duration}</div>
-                  <div className="text-4xl font-tech font-black text-white">
+                  <div className="text-4xl font-tech font-black text-neon-blue">
                     {pkg.price}
                     <span className="text-lg text-gray-400 font-normal">/experience</span>
                   </div>
@@ -357,7 +357,7 @@ export default function BirthdayRentals() {
                 <ul className="space-y-3 mb-8">
                   {pkg.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start gap-3 text-gray-300">
-                      <div className="w-2 h-2 bg-neon-pink rounded-full mt-2 flex-shrink-0" />
+                      <div className="w-2 h-2 bg-neon-blue rounded-full mt-2 flex-shrink-0" />
                       <span className="text-sm">{feature}</span>
                     </li>
                   ))}

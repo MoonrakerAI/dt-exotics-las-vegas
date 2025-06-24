@@ -291,7 +291,7 @@ export default function VIPServices() {
                 <ul className="space-y-2">
                   {service.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start gap-2 text-gray-400 text-xs">
-                      <div className="w-1 h-1 bg-neon-pink rounded-full mt-2 flex-shrink-0" />
+                      <div className="w-1 h-1 bg-neon-blue rounded-full mt-2 flex-shrink-0" />
                       <span>{feature}</span>
                     </li>
                   ))}

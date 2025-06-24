@@ -292,7 +292,7 @@ export default function CorporateServices() {
                   <h3 className="text-2xl font-tech font-bold text-white mb-4">
                     {service.title}
                   </h3>
-                  <div className="text-3xl font-tech font-black text-white mb-6">
+                  <div className="text-3xl font-tech font-black text-neon-blue mb-6">
                     {service.price}
                   </div>
                 </div>
@@ -300,7 +300,7 @@ export default function CorporateServices() {
                 <ul className="space-y-3 mb-8">
                   {service.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start gap-3 text-gray-300">
-                      <div className="w-2 h-2 bg-neon-pink rounded-full mt-2 flex-shrink-0" />
+                      <div className="w-2 h-2 bg-neon-blue rounded-full mt-2 flex-shrink-0" />
                       <span className="text-sm">{feature}</span>
                     </li>
                   ))}
