@@ -26,6 +26,7 @@ export default function Navbar() {
     { name: 'Birthdays', href: '/birthday' },
     { name: 'Corporate', href: '/corporate' },
     { name: 'Vegas Tours', href: '/vegas-tours' },
+    { name: 'VIP Services', href: '/vip-services' },
     { name: 'Partners', href: '/partners' },
     { name: 'Contact', href: '/#contact' }
   ]
