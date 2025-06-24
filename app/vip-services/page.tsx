@@ -382,9 +382,10 @@ export default function VIPServices() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-20 h-20 mx-auto mb-6 rounded-full border-2 border-neon-pink bg-dark-metal flex items-center justify-center">
-                <Phone className="w-10 h-10 text-neon-pink" />
+            <div className="text-center group">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-full border-2 border-gray-600/30 group-hover:border-neon-pink bg-dark-metal flex items-center justify-center relative group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(255,0,255,0.4)] transition-all duration-700">
+                <div className="absolute inset-0 rounded-full bg-neon-pink/10 blur-xl group-hover:bg-neon-pink/30" />
+                <Phone className="w-10 h-10 text-neon-pink relative z-10" />
               </div>
               <h3 className="text-xl font-tech font-bold text-white mb-3">
                 Personal Consultation
@@ -395,9 +396,10 @@ export default function VIPServices() {
               </p>
             </div>
 
-            <div className="text-center">
-              <div className="w-20 h-20 mx-auto mb-6 rounded-full border-2 border-neon-pink bg-dark-metal flex items-center justify-center">
-                <Shield className="w-10 h-10 text-neon-pink" />
+            <div className="text-center group">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-full border-2 border-gray-600/30 group-hover:border-neon-pink bg-dark-metal flex items-center justify-center relative group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(255,0,255,0.4)] transition-all duration-700">
+                <div className="absolute inset-0 rounded-full bg-neon-pink/10 blur-xl group-hover:bg-neon-pink/30" />
+                <Shield className="w-10 h-10 text-neon-pink relative z-10" />
               </div>
               <h3 className="text-xl font-tech font-bold text-white mb-3">
                 Seamless Execution
@@ -408,9 +410,10 @@ export default function VIPServices() {
               </p>
             </div>
 
-            <div className="text-center">
-              <div className="w-20 h-20 mx-auto mb-6 rounded-full border-2 border-neon-pink bg-dark-metal flex items-center justify-center">
-                <Sparkles className="w-10 h-10 text-neon-pink" />
+            <div className="text-center group">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-full border-2 border-gray-600/30 group-hover:border-neon-pink bg-dark-metal flex items-center justify-center relative group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(255,0,255,0.4)] transition-all duration-700">
+                <div className="absolute inset-0 rounded-full bg-neon-pink/10 blur-xl group-hover:bg-neon-pink/30" />
+                <Sparkles className="w-10 h-10 text-neon-pink relative z-10" />
               </div>
               <h3 className="text-xl font-tech font-bold text-white mb-3">
                 24/7 Support
