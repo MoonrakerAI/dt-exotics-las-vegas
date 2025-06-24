@@ -150,11 +150,9 @@ export default function EmbeddedChat() {
       </div>
 
       {/* Chat Container */}
-      <div className="glass-panel bg-dark-metal/50 border border-gray-600/30 rounded-2xl overflow-hidden">
+      <div className="glass-panel bg-dark-metal/50 border border-gray-600/30 rounded-2xl overflow-hidden h-[700px] flex flex-col">
         {/* Messages */}
-        <div className={`p-6 overflow-y-auto custom-scrollbar transition-all duration-300 ${
-          messages.length === 1 ? 'h-96' : 'h-[480px]'
-        }`}>
+        <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
           <div className="space-y-6">
             {messages.map((message) => (
               <div
@@ -227,7 +225,7 @@ export default function EmbeddedChat() {
 
         {/* Quick Questions - Only show when needed */}
         {messages.length === 1 && (
-          <div className="px-6 py-4 border-t border-gray-600/30">
+          <div className="flex-shrink-0 px-6 py-4 border-t border-gray-600/30">
             <p className="text-sm text-gray-400 mb-3">Quick questions to get started:</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {quickQuestions.map((question, index) => (
@@ -244,7 +242,7 @@ export default function EmbeddedChat() {
         )}
 
         {/* Input */}
-        <div className="p-6 border-t border-gray-600/30 bg-dark-metal/80">
+        <div className="flex-shrink-0 p-6 border-t border-gray-600/30 bg-dark-metal/80">
           <div className="flex items-end gap-3">
             <div className="flex-1 relative">
               <textarea

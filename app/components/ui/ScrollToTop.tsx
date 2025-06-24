@@ -1,42 +1,20 @@
 'use client'
 
 import { useEffect } from 'react'
-import { usePathname } from 'next/navigation'
 
 export default function ScrollToTop() {
-  const pathname = usePathname()
-  
+  // Only run once on initial page load
   useEffect(() => {
-    // Force scroll to top immediately on route change
-    window.scrollTo(0, 0)
-    document.documentElement.scrollTop = 0
-    document.body.scrollTop = 0
-    
-    // Multiple attempts to ensure it works
-    const timer1 = setTimeout(() => {
-      window.scrollTo(0, 0)
-      document.documentElement.scrollTop = 0
-      document.body.scrollTop = 0
-    }, 0)
-    
-    const timer2 = setTimeout(() => {
-      window.scrollTo(0, 0)
-      document.documentElement.scrollTop = 0
-      document.body.scrollTop = 0
-    }, 100)
-    
-    return () => {
-      clearTimeout(timer1)
-      clearTimeout(timer2)
+    // Check if this is a fresh page load (not navigation)
+    if (window.history.scrollRestoration) {
+      window.history.scrollRestoration = 'manual'
     }
-  }, [pathname])
-
-  // Also handle on component mount
-  useEffect(() => {
+    
+    // Only scroll to top on initial mount
     window.scrollTo(0, 0)
     document.documentElement.scrollTop = 0
     document.body.scrollTop = 0
-  }, [])
+  }, []) // Empty dependency array means this only runs once on mount
 
   return null
 }
