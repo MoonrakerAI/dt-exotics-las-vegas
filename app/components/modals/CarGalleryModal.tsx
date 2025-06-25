@@ -81,11 +81,11 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
           </div>
           
           {/* Gallery Content */}
-          <div className="relative aspect-video bg-black">
+          <div className="flex flex-col bg-black">
             {mediaItems.length > 0 ? (
               <>
                 {/* Main Display */}
-                <div className="relative w-full h-full flex items-center justify-center">
+                <div className="relative flex-1 flex items-center justify-center min-h-[300px] sm:min-h-[400px] md:min-h-[500px] p-4 pb-0">
                   <img 
                     src={mediaItems[currentIndex]} 
                     alt={`${car.brand} ${car.model} - Image ${currentIndex + 1}`}
@@ -113,13 +113,13 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                 
                 {/* Thumbnail Navigation */}
                 {mediaItems.length > 1 && (
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-4">
+                  <div className="flex-shrink-0 bg-black/70 p-4 border-t border-gray-800">
                     <div className="flex gap-2 justify-center overflow-x-auto scrollbar-hide">
                       {mediaItems.map((item, index) => (
                         <button
                           key={index}
                           onClick={() => setCurrentIndex(index)}
-                          className={`flex-shrink-0 w-20 h-14 rounded overflow-hidden border-2 transition-all duration-200 ${
+                          className={`flex-shrink-0 w-16 h-12 sm:w-20 sm:h-14 rounded overflow-hidden border-2 transition-all duration-200 ${
                             index === currentIndex 
                               ? 'border-neon-blue shadow-[0_0_10px_rgba(0,255,255,0.5)]' 
                               : 'border-gray-600 hover:border-gray-400'
@@ -137,7 +137,7 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                 )}
               </>
             ) : (
-              <div className="flex items-center justify-center h-full">
+              <div className="flex items-center justify-center min-h-[400px]">
                 <p className="text-gray-400 font-tech">No images available</p>
               </div>
             )}

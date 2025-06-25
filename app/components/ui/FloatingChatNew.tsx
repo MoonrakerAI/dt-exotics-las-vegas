@@ -144,8 +144,8 @@ export default function FloatingChatNew() {
 
       {/* Chat Window - Positioned independently */}
       {isOpen && (
-        <div className="fixed bottom-28 right-6 z-50 w-96">
-          <div className="bg-dark-metal border-2 border-gray-600/30 rounded-2xl shadow-2xl flex flex-col h-[560px] animate-fadeIn">
+        <div className="fixed bottom-28 right-2 sm:right-6 z-50 w-[calc(100vw-1rem)] sm:w-96 max-w-md">
+          <div className="bg-dark-metal border-2 border-gray-600/30 rounded-2xl shadow-2xl flex flex-col h-[560px] animate-fadeIn mx-auto">
             {/* Header - Fixed height */}
             <div className="flex items-center justify-between p-4 border-b border-gray-600/30 bg-dark-metal rounded-t-2xl flex-shrink-0">
               <div className="flex items-center gap-3">
