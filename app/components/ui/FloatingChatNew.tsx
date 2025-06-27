@@ -194,7 +194,7 @@ export default function FloatingChatNew() {
                     <div
                       className={`max-w-[80%] p-3 rounded-lg text-sm ${
                         message.role === 'user'
-                          ? 'bg-neon-blue text-dark-gray font-medium'
+                          ? 'bg-neon-blue text-black font-medium'
                           : 'bg-gray-700/50 text-gray-100 border border-gray-600/30'
                       }`}
                     >
@@ -216,8 +216,8 @@ export default function FloatingChatNew() {
                           {message.content}
                         </ReactMarkdown>
                       </div>
-                      <p className={`text-xs mt-1 opacity-70 ${
-                        message.role === 'user' ? 'text-dark-gray/70' : 'text-gray-400'
+                      <p className={`text-xs mt-1 ${
+                        message.role === 'user' ? 'text-black/70' : 'text-gray-400 opacity-70'
                       }`}>
                         {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>

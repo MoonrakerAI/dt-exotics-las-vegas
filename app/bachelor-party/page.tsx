@@ -190,7 +190,7 @@ export default function BachelorPartyRentals() {
         {/* Content */}
         <div className="relative z-20 flex h-full items-center justify-center px-4 pb-20">
           <div className="text-center max-w-5xl mx-auto">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-tech font-black mb-4 sm:mb-6 leading-tight">
+            <h1 className="text-4xl md:text-6xl font-tech font-black mb-6">
               <span className="text-white">BACHELOR PARTY</span><br />
               <span className="neon-text">SUPERCARS</span>
             </h1>

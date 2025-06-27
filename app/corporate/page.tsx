@@ -203,14 +203,14 @@ export default function CorporateServices() {
         </div>
 
         {/* Content */}
-        <div className="relative z-20 flex h-full items-center justify-center px-4">
+        <div className="relative z-20 flex h-full items-center justify-center px-4 pb-20">
           <div className="text-center max-w-5xl mx-auto">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-tech font-black mb-6">
+            <h1 className="text-4xl md:text-6xl font-tech font-black mb-6">
               <span className="text-white">CORPORATE</span><br />
               <span className="neon-text">EXCELLENCE</span>
             </h1>
             
-            <p className="text-lg md:text-xl lg:text-2xl text-white mb-12 font-light max-w-4xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white mb-8 sm:mb-12 font-light max-w-4xl mx-auto leading-relaxed">
               Elevate your business image with luxury transportation solutions that make every interaction memorable and every impression lasting.
             </p>
 

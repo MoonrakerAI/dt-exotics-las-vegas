@@ -29,7 +29,7 @@ export default function HeroSection() {
       <div className="relative z-20 flex h-full items-center justify-center px-4 pb-20">
         <div className="text-center max-w-4xl mx-auto">
           <h1 
-            className={`text-5xl md:text-7xl lg:text-8xl font-tech font-black mb-6 transition-all duration-1000 transform ${
+            className={`text-6xl md:text-8xl lg:text-9xl font-tech font-black mb-6 transition-all duration-1000 transform ${
               isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
             }`}
           >
