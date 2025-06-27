@@ -20,21 +20,28 @@ export default function EmbeddedChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  const scrollToNewMessage = () => {
+    // Find the last assistant message and scroll to its top
+    const lastAssistantMessage = messages[messages.length - 1]
+    if (lastAssistantMessage && lastAssistantMessage.role === 'assistant') {
+      setTimeout(() => {
+        const container = messagesEndRef.current?.closest('.overflow-y-auto')
+        if (container) {
+          const messageElements = container.querySelectorAll('[data-message-id]')
+          const lastMessageElement = messageElements[messageElements.length - 1]
+          if (lastMessageElement) {
+            lastMessageElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }
+        }
+      }, 100)
+    }
   }
 
   useEffect(() => {
-    // Only scroll if user is near the bottom of the chat container
-    if (messagesEndRef.current) {
-      const container = messagesEndRef.current.closest('.overflow-y-auto')
-      if (container) {
-        const { scrollTop, scrollHeight, clientHeight } = container
-        const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100
-        if (isNearBottom) {
-          scrollToBottom()
-        }
-      }
+    // Only scroll for new assistant messages
+    const lastMessage = messages[messages.length - 1]
+    if (lastMessage && lastMessage.role === 'assistant') {
+      scrollToNewMessage()
     }
   }, [messages])
 
@@ -157,17 +164,18 @@ export default function EmbeddedChat() {
             {messages.map((message) => (
               <div
                 key={message.id}
+                data-message-id={message.id}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div className={`flex gap-3 max-w-[85%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                   {/* Avatar */}
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                     message.role === 'user' 
-                      ? 'bg-neon-pink/20 border border-neon-pink/50' 
+                      ? 'bg-neon-blue/20 border border-neon-blue/50' 
                       : 'bg-neon-blue/20 border border-neon-blue/50'
                   }`}>
                     {message.role === 'user' ? (
-                      <div className="w-6 h-6 bg-neon-pink rounded-full" />
+                      <div className="w-6 h-6 bg-neon-blue rounded-full" />
                     ) : (
                       <MessageCircle className="w-5 h-5 text-neon-blue" />
                     )}

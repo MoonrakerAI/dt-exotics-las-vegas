@@ -21,12 +21,29 @@ export default function FloatingChatNew() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  const scrollToNewMessage = () => {
+    // Find the last assistant message and scroll to its top
+    const lastAssistantMessage = messages[messages.length - 1]
+    if (lastAssistantMessage && lastAssistantMessage.role === 'assistant') {
+      setTimeout(() => {
+        const container = messagesEndRef.current?.closest('.overflow-y-auto')
+        if (container) {
+          const messageElements = container.querySelectorAll('[data-message-id]')
+          const lastMessageElement = messageElements[messageElements.length - 1]
+          if (lastMessageElement) {
+            lastMessageElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }
+        }
+      }, 100)
+    }
   }
 
   useEffect(() => {
-    scrollToBottom()
+    // Only scroll for new assistant messages
+    const lastMessage = messages[messages.length - 1]
+    if (lastMessage && lastMessage.role === 'assistant') {
+      scrollToNewMessage()
+    }
   }, [messages])
 
   useEffect(() => {
@@ -171,12 +188,13 @@ export default function FloatingChatNew() {
                 {messages.map((message) => (
                   <div
                     key={message.id}
+                    data-message-id={message.id}
                     className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
                       className={`max-w-[80%] p-3 rounded-lg text-sm ${
                         message.role === 'user'
-                          ? 'bg-neon-pink text-dark-gray font-medium'
+                          ? 'bg-neon-blue text-dark-gray font-medium'
                           : 'bg-gray-700/50 text-gray-100 border border-gray-600/30'
                       }`}
                     >
