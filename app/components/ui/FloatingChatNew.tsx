@@ -194,11 +194,11 @@ export default function FloatingChatNew() {
                     <div
                       className={`max-w-[80%] p-3 rounded-lg text-sm ${
                         message.role === 'user'
-                          ? 'bg-neon-blue text-black font-medium'
+                          ? 'bg-neon-blue text-black font-medium [&_*]:text-black'
                           : 'bg-gray-700/50 text-gray-100 border border-gray-600/30'
                       }`}
                     >
-                      <div className="leading-relaxed prose prose-sm prose-invert max-w-none">
+                      <div className={`leading-relaxed ${message.role === 'user' ? '' : 'prose prose-sm prose-invert'} max-w-none`}>
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           rehypePlugins={[rehypeHighlight]}

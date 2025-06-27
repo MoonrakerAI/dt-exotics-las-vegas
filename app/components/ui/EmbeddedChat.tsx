@@ -38,10 +38,12 @@ export default function EmbeddedChat() {
   }
 
   useEffect(() => {
-    // Only scroll for new assistant messages
-    const lastMessage = messages[messages.length - 1]
-    if (lastMessage && lastMessage.role === 'assistant') {
-      scrollToNewMessage()
+    // Only scroll for new assistant messages after initial mount
+    if (messages.length > 1) {
+      const lastMessage = messages[messages.length - 1]
+      if (lastMessage && lastMessage.role === 'assistant') {
+        scrollToNewMessage()
+      }
     }
   }, [messages])
 

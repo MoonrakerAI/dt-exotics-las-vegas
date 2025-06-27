@@ -3,7 +3,7 @@
 import Navbar from '../components/navigation/Navbar'
 import Footer from '../components/sections/Footer'
 import { Watch, Utensils, Plane, Music, Sparkles, Shield, Phone, ChevronDown, CheckCircle } from 'lucide-react'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 interface FAQAccordionProps {
   id: string
@@ -57,6 +57,11 @@ function FAQAccordion({ id, question, answer, isOpen, onToggle, faqRef }: FAQAcc
 export default function VIPServices() {
   const [openFAQ, setOpenFAQ] = useState<string | null>(null)
   const faqRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
+
+  // Ensure page starts at top
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   const faqs = [
     {
