@@ -204,7 +204,7 @@ export default function VIPServices() {
 
   const additionalServices = [
     "VIP casino host services",
-    "Lakers/Raiders/Knights games luxury boxes", 
+    "Sports luxury boxes", 
     "Spa and wellness experiences",
     "Personal shopping at Crystals",
     "Show tickets with backstage access",

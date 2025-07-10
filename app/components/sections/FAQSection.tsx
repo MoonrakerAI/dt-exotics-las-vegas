@@ -42,7 +42,7 @@ export default function FAQSection() {
     {
       id: 'outside-vegas',
       question: 'Can I take the car outside of Las Vegas?',
-      answer: 'Yes, but restrictions apply depending on the destination. Please discuss your travel plans with us in advance.'
+      answer: 'Due to liabilities you may not take any of the cars out of Las Vegas.'
     },
     {
       id: 'delivery-pickup',
@@ -52,7 +52,7 @@ export default function FAQSection() {
     {
       id: 'tickets-tolls',
       question: 'What happens if I get a ticket or toll charge?',
-      answer: 'All tickets, tolls, or violations incurred during the rental period are the renter\'s responsibility. Fees will be charged accordingly.'
+      answer: 'There are NO tolls in Las Vegas.'
     },
     {
       id: 'cancellation-policy',

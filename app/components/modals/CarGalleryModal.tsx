@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useEffect, useState, useRef } from 'react'
+import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react'
 import { Car } from '@/app/data/cars'
 
 interface CarGalleryModalProps {
@@ -13,35 +13,76 @@ interface CarGalleryModalProps {
 export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModalProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [mediaItems, setMediaItems] = useState<string[]>([])
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
+  const [zoom, setZoom] = useState(1)
+  const [panX, setPanX] = useState(0)
+  const [panY, setPanY] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const [lastTap, setLastTap] = useState(0)
+  const imageRef = useRef<HTMLImageElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     console.log('Modal state changed:', { isOpen, car: car?.model })
   }, [isOpen, car])
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  useEffect(() => {
     if (car && isOpen) {
-      // Combine main image and gallery images
-      const allMedia = [car.images.main, ...car.images.gallery].filter(Boolean)
-      setMediaItems(allMedia)
+      // Use only gallery images, exclude main image
+      const galleryMedia = car.images.gallery.filter(Boolean)
+      setMediaItems(galleryMedia)
       setCurrentIndex(0)
+      // Reset zoom and pan when modal opens or car changes
+      setZoom(1)
+      setPanX(0)
+      setPanY(0)
     }
   }, [car, isOpen])
 
+  // Reset zoom and pan when image changes
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+    setZoom(1)
+    setPanX(0)
+    setPanY(0)
+  }, [currentIndex])
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        handlePrevious()
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        handleNext()
+      }
     }
     
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape)
+      document.addEventListener('keydown', handleKeyDown)
       document.body.style.overflow = 'hidden'
     }
     
     return () => {
-      document.removeEventListener('keydown', handleEscape)
+      document.removeEventListener('keydown', handleKeyDown)
       document.body.style.overflow = 'unset'
     }
-  }, [isOpen, onClose])
+  }, [isOpen, onClose, mediaItems.length])
 
   if (!isOpen || !car) return null
 
@@ -53,6 +94,102 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
     setCurrentIndex((prev) => (prev === mediaItems.length - 1 ? 0 : prev + 1))
   }
 
+  // Zoom functions
+  const handleZoomIn = () => {
+    setZoom(prev => Math.min(prev * 1.5, 4)) // Max zoom 4x
+  }
+
+  const handleZoomOut = () => {
+    setZoom(prev => Math.max(prev / 1.5, 1)) // Min zoom 1x
+  }
+
+  const handleZoomReset = () => {
+    setZoom(1)
+    setPanX(0)
+    setPanY(0)
+  }
+
+  // Mouse/touch pan handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoom > 1) {
+      setIsDragging(true)
+      setDragStart({ x: e.clientX - panX, y: e.clientY - panY })
+    }
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && zoom > 1) {
+      setPanX(e.clientX - dragStart.x)
+      setPanY(e.clientY - dragStart.y)
+    }
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  // Double-tap zoom for mobile
+  const handleDoubleTap = () => {
+    const now = Date.now()
+    const DOUBLE_TAP_DELAY = 300
+    
+    if (now - lastTap < DOUBLE_TAP_DELAY) {
+      if (zoom === 1) {
+        setZoom(2)
+      } else {
+        handleZoomReset()
+      }
+    }
+    setLastTap(now)
+  }
+
+  // Touch event handlers
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (zoom > 1) {
+      // Handle panning when zoomed
+      const touch = e.targetTouches[0]
+      setDragStart({ x: touch.clientX - panX, y: touch.clientY - panY })
+      setIsDragging(true)
+    } else {
+      // Handle swipe navigation when not zoomed
+      setTouchEnd(null)
+      setTouchStart(e.targetTouches[0].clientX)
+    }
+    
+    // Handle double-tap
+    handleDoubleTap()
+  }
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (zoom > 1 && isDragging) {
+      // Handle panning
+      const touch = e.targetTouches[0]
+      setPanX(touch.clientX - dragStart.x)
+      setPanY(touch.clientY - dragStart.y)
+    } else if (zoom === 1) {
+      // Handle swipe detection
+      setTouchEnd(e.targetTouches[0].clientX)
+    }
+  }
+
+  const onTouchEnd = () => {
+    if (zoom > 1) {
+      setIsDragging(false)
+    } else {
+      // Handle swipe navigation
+      if (!touchStart || !touchEnd) return
+      const distance = touchStart - touchEnd
+      const isLeftSwipe = distance > 50
+      const isRightSwipe = distance < -50
+
+      if (isLeftSwipe) {
+        handleNext()
+      } else if (isRightSwipe) {
+        handlePrevious()
+      }
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
@@ -62,10 +199,10 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
       />
       
       {/* Modal */}
-      <div className="relative w-full max-w-6xl mx-4 animate-slideIn">
-        <div className="bg-dark-metal border border-neon-blue/30 rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(0,255,255,0.3)]">
+      <div className="relative w-full max-w-6xl mx-2 sm:mx-4 animate-slideIn max-h-[95vh] sm:max-h-[90vh] flex flex-col">
+        <div className="bg-dark-metal border border-neon-blue/30 rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(0,255,255,0.3)] flex flex-col h-full">
           {/* Header */}
-          <div className="bg-black/50 px-6 py-4 flex items-center justify-between border-b border-gray-800">
+          <div className="bg-black/50 px-6 py-4 flex items-center justify-between border-b border-gray-800 flex-shrink-0">
             <div>
               <h2 className="text-2xl font-tech font-bold text-white">
                 {car.brand} {car.model}
@@ -81,19 +218,60 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
           </div>
           
           {/* Gallery Content */}
-          <div className="flex flex-col bg-black">
+          <div className="flex flex-col bg-black flex-1 min-h-0">
             {mediaItems.length > 0 ? (
               <>
                 {/* Main Display */}
-                <div className="relative flex-1 flex items-center justify-center min-h-[300px] sm:min-h-[400px] md:min-h-[500px] p-4 pb-0">
+                <div 
+                  ref={containerRef}
+                  className="relative flex-1 flex items-center justify-center p-4 pb-0 min-h-0 sm:min-h-[200px] overflow-hidden"
+                  onTouchStart={onTouchStart}
+                  onTouchMove={onTouchMove}
+                  onTouchEnd={onTouchEnd}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseUp}
+                  style={{
+                    maxHeight: isMobile ? 'calc(95vh - 320px)' : 'calc(90vh - 280px)',
+                    minHeight: '150px',
+                    cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
+                  }}
+                >
                   <img 
+                    ref={imageRef}
                     src={mediaItems[currentIndex]} 
                     alt={`${car.brand} ${car.model} - Image ${currentIndex + 1}`}
-                    className="max-w-full max-h-full object-contain"
+                    className="max-w-full max-h-full object-contain select-none transition-transform duration-200"
+                    draggable={false}
+                    loading="eager"
+                    decoding="async"
+                    style={{
+                      transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`,
+                      transformOrigin: 'center center'
+                    }}
                   />
                   
-                  {/* Navigation Arrows */}
+                  {/* Preload next and previous images for smoother navigation */}
                   {mediaItems.length > 1 && (
+                    <>
+                      {/* Preload next image */}
+                      <link 
+                        rel="preload" 
+                        as="image" 
+                        href={mediaItems[(currentIndex + 1) % mediaItems.length]} 
+                      />
+                      {/* Preload previous image */}
+                      <link 
+                        rel="preload" 
+                        as="image" 
+                        href={mediaItems[(currentIndex - 1 + mediaItems.length) % mediaItems.length]} 
+                      />
+                    </>
+                  )}
+                  
+                  {/* Navigation Arrows - only show when not zoomed */}
+                  {mediaItems.length > 1 && zoom === 1 && (
                     <>
                       <button
                         onClick={handlePrevious}
@@ -108,6 +286,39 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                         <ChevronRight className="w-6 h-6 text-gray-400 group-hover:text-neon-blue" />
                       </button>
                     </>
+                  )}
+
+                  {/* Zoom Controls */}
+                  <div className="absolute top-4 right-4 flex flex-col gap-2">
+                    <button
+                      onClick={handleZoomIn}
+                      disabled={zoom >= 4}
+                      className="p-2 bg-black/50 hover:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
+                    >
+                      <ZoomIn className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
+                    </button>
+                    <button
+                      onClick={handleZoomOut}
+                      disabled={zoom <= 1}
+                      className="p-2 bg-black/50 hover:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
+                    >
+                      <ZoomOut className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
+                    </button>
+                    {zoom > 1 && (
+                      <button
+                        onClick={handleZoomReset}
+                        className="p-2 bg-black/50 hover:bg-black/70 rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
+                      >
+                        <RotateCcw className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Zoom indicator */}
+                  {zoom > 1 && (
+                    <div className="absolute bottom-4 left-4 px-3 py-1 bg-black/70 rounded-full border border-gray-600">
+                      <span className="text-neon-blue text-sm font-tech">{Math.round(zoom * 100)}%</span>
+                    </div>
                   )}
                 </div>
                 
@@ -129,6 +340,8 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                             src={item} 
                             alt={`Thumbnail ${index + 1}`}
                             className="w-full h-full object-cover"
+                            loading="lazy"
+                            decoding="async"
                           />
                         </button>
                       ))}
@@ -144,7 +357,7 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
           </div>
           
           {/* Car Details */}
-          <div className="p-6 border-t border-gray-800">
+          <div className="p-6 border-t border-gray-800 flex-shrink-0">
             <div className="grid grid-cols-3 gap-6">
               <div className="text-center">
                 <p className="text-gray-400 text-sm mb-1">Power</p>

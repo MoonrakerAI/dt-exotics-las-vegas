@@ -142,15 +142,45 @@ export const cars: Car[] = [
       weekly: 3999
     },
     images: {
-      main: '/cars/Chevy Corvette C8 2024 (Red)/pics/Untitled Design - 1 - Edited.png',
-      gallery: []
+      main: '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - Main.png',
+      gallery: [
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 1.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 2.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 3.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 4.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 5.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 6.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 7.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 8.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 9.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 10.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 11.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 12.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 13.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 14.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 15.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 16.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 17.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 18.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 19.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 20.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 21.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 22.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 23.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 24.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 25.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 26.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 27.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 28.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 29.jpg'
+      ]
     },
     videos: {
       showcase: '/cars/Chevy Corvette C8 2024 (Red)/vids/showcase.mp4'
     },
     audio: {
-      startup: '/cars/Chevy Corvette C8 2024 (Red)/audio/startup.mp3',
-      rev: '/cars/Chevy Corvette C8 2024 (Red)/audio/rev.mp3'
+      startup: '/cars/Chevy Corvette C8 2024 (Red)/audio/C8 - Cold Start.wav',
+      rev: '/cars/Chevy Corvette C8 2024 (Red)/audio/C8 - Rev.wav'
     },
     available: true
   },

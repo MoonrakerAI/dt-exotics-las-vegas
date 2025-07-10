@@ -12,9 +12,9 @@ export default function Footer() {
           <div>
             <div className="mb-4 flex justify-center md:justify-start">
               <img 
-                src="/images/logo/DT Exotics LV Logo Transparent.png" 
+                src="/images/logo/DT Exotics Logo Full.png" 
                 alt="DT Exotics Las Vegas"
-                className="h-16 mb-2"
+                className="h-24 mb-2"
               />
             </div>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">

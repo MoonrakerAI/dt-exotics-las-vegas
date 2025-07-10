@@ -9,6 +9,15 @@ export default function PreventAutoScroll() {
       return
     }
     
+    // Check if we have a valid anchor hash
+    const hash = window.location.hash
+    const hasValidAnchor = hash && document.querySelector(hash)
+    
+    // If there's a valid anchor, let the browser handle it normally
+    if (hasValidAnchor) {
+      return
+    }
+    
     // Prevent all scroll events temporarily
     const preventScroll = (e: Event) => {
       e.preventDefault()
@@ -19,11 +28,6 @@ export default function PreventAutoScroll() {
     window.scrollTo(0, 0)
     document.documentElement.scrollTop = 0
     document.body.scrollTop = 0
-    
-    // Remove any hash from URL without triggering scroll
-    if (window.location.hash) {
-      window.history.replaceState(null, '', window.location.pathname)
-    }
     
     // Temporarily block all scroll events
     window.addEventListener('scroll', preventScroll, { passive: false })

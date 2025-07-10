@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { MessageCircle, X, Send, Loader2 } from 'lucide-react'
+import { MessageSquare, X, Send, Loader2 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
@@ -142,11 +142,14 @@ export default function FloatingChatNew() {
         <button
           onClick={toggleChat}
           className={`w-16 h-16 bg-neon-blue hover:bg-neon-blue/80 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 group ${
-            isOpen ? 'rotate-0' : 'hover:shadow-[0_0_25px_rgba(0,255,255,0.5)]'
+            isOpen ? 'rotate-0' : ''
           }`}
+          style={{
+            animation: !isOpen ? 'chatPulseGlow 2s ease-in-out infinite' : undefined
+          }}
         >
           <div className={`transition-all duration-500 ${isOpen ? 'rotate-180 scale-0' : 'rotate-0 scale-100'}`}>
-            <MessageCircle className="w-8 h-8 text-dark-gray" />
+            <MessageSquare className="w-8 h-8 text-dark-gray" />
           </div>
           <div className={`absolute transition-all duration-500 ${isOpen ? 'rotate-0 scale-100' : 'rotate-180 scale-0'}`}>
             <X className="w-8 h-8 text-dark-gray" />
@@ -167,7 +170,7 @@ export default function FloatingChatNew() {
             <div className="flex items-center justify-between p-4 border-b border-gray-600/30 bg-dark-metal rounded-t-2xl flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-neon-blue/20 border border-neon-blue/50 flex items-center justify-center">
-                  <MessageCircle className="w-5 h-5 text-neon-blue" />
+                  <MessageSquare className="w-5 h-5 text-neon-blue" />
                 </div>
                 <div>
                   <h3 className="font-tech font-bold text-white text-sm">DT Exotics AI</h3>
@@ -267,7 +270,7 @@ export default function FloatingChatNew() {
         </div>
       )}
 
-      {/* Custom scrollbar styles */}
+      {/* Custom scrollbar styles and animations */}
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;
@@ -281,6 +284,15 @@ export default function FloatingChatNew() {
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(0, 255, 255, 0.5);
+        }
+        
+        @keyframes chatPulseGlow {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), 0 0 40px rgba(0, 255, 255, 0.1);
+          }
+          50% {
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6), 0 0 60px rgba(0, 255, 255, 0.3);
+          }
         }
       `}</style>
     </>
