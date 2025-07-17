@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
@@ -45,27 +45,48 @@ function BookingFormInner() {
   const selectedCar = cars.find(car => car.id === formData.carId)
 
   const calculatePricing = () => {
-    if (!selectedCar || !formData.startDate || !formData.endDate) return
+    console.log('Calculating pricing...', {
+      selectedCar: selectedCar?.id,
+      startDate: formData.startDate,
+      endDate: formData.endDate
+    })
+    
+    if (!selectedCar || !formData.startDate || !formData.endDate) {
+      console.log('Missing data for pricing calculation')
+      return
+    }
 
     const start = new Date(formData.startDate)
     const end = new Date(formData.endDate)
     const timeDiff = end.getTime() - start.getTime()
     const totalDays = Math.ceil(timeDiff / (1000 * 3600 * 24))
     
+    console.log('Date calculation:', { start, end, timeDiff, totalDays })
+    
     if (totalDays > 0) {
       const subtotal = totalDays * selectedCar.price.daily
       const depositAmount = Math.round(subtotal * 0.30)
       const finalAmount = subtotal - depositAmount
       
-      setPricing({
+      const newPricing = {
         dailyRate: selectedCar.price.daily,
         totalDays,
         subtotal,
         depositAmount,
         finalAmount
-      })
+      }
+      
+      console.log('Setting pricing:', newPricing)
+      setPricing(newPricing)
     }
   }
+
+  // Calculate pricing when component mounts or when key values change
+  useEffect(() => {
+    if (selectedCar && formData.startDate && formData.endDate) {
+      calculatePricing()
+    }
+  }, [selectedCar, formData.startDate, formData.endDate])
 
   const handleInputChange = (field: string, value: string) => {
     if (field.startsWith('customer.')) {
@@ -84,7 +105,7 @@ function BookingFormInner() {
       }))
     }
 
-    if (field === 'startDate' || field === 'endDate') {
+    if (field === 'startDate' || field === 'endDate' || field === 'carId') {
       setTimeout(calculatePricing, 100)
     }
   }
@@ -103,6 +124,8 @@ function BookingFormInner() {
       return
     }
 
+    // Ensure pricing is calculated before moving to step 2
+    calculatePricing()
     setStep(2)
   }
 
@@ -115,6 +138,8 @@ function BookingFormInner() {
       return
     }
 
+    // Ensure pricing is calculated before moving to step 3
+    calculatePricing()
     setStep(3)
   }
 
@@ -383,6 +408,8 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [succeeded, setSucceeded] = useState(false)
+
+  console.log('PaymentStep received pricing:', pricing)
 
   // Check if Stripe and Elements are loaded
   if (!stripe || !elements) {
