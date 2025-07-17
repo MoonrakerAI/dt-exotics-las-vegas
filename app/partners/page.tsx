@@ -303,7 +303,7 @@ export default function VehiclePartnership() {
                       className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
                     />
                     <div className="flex justify-between text-sm text-gray-400 mt-1">
-                      <span>$75,000</span>
+                      <span>$60,000</span>
                       <span className="text-white font-tech">${calculatorValues.vehicleValue.toLocaleString()}</span>
                       <span>$500,000</span>
                     </div>
@@ -323,7 +323,7 @@ export default function VehiclePartnership() {
                       className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
                     />
                     <div className="flex justify-between text-sm text-gray-400 mt-1">
-                      <span>$400</span>
+                      <span>$200</span>
                       <span className="text-white font-tech">${calculatorValues.dailyRate}/day</span>
                       <span>$3,000</span>
                     </div>
