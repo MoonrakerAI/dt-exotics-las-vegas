@@ -110,7 +110,7 @@ export default function BachelorPartyRentals() {
       title: "The Squad Package",
       cars: "2-3 Supercars",
       duration: "4 Hours",
-      price: "$2,999",
+      price: "Price upon inquiry",
       features: [
         "Multiple exotic vehicles for the group",
         "Professional photography session",
@@ -123,7 +123,7 @@ export default function BachelorPartyRentals() {
       title: "The Legend Package", 
       cars: "4-5 Supercars",
       duration: "6 Hours",
-      price: "$4,999",
+      price: "Price upon inquiry",
       features: [
         "Full fleet for larger groups",
         "Dedicated concierge service",
@@ -137,7 +137,7 @@ export default function BachelorPartyRentals() {
       title: "The Epic Package",
       cars: "6+ Supercars",
       duration: "8 Hours", 
-      price: "$7,999",
+      price: "Price upon inquiry",
       features: [
         "Ultimate supercar convoy experience",
         "Personal event coordinator",
@@ -425,7 +425,7 @@ export default function BachelorPartyRentals() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 
-              href="sms:+17027208948" 
+              href="sms:+17025180924" 
               className="btn-primary inline-block"
             >
               TEXT US NOW

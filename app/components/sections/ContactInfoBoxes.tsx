@@ -8,7 +8,7 @@ export default function ContactInfoBoxes() {
           </svg>
         </div>
         <p className="font-tech text-sm mb-1 text-white">CALL US</p>
-        <p className="text-gray-400">(702) 720-8948</p>
+        <p className="text-gray-400">(702) 518-0924</p>
       </div>
       <div className="glass-panel bg-dark-metal/50 p-6 text-center group border border-gray-600/30 group-hover:border-neon-blue group-hover:shadow-[0_0_15px_rgba(0,255,255,0.3)] transition-all duration-700">
         <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-gray-600/30 group-hover:border-neon-blue flex items-center justify-center bg-dark-metal group-hover:shadow-[0_0_20px_rgba(0,255,255,0.4)] transition-all duration-700">

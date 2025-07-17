@@ -24,7 +24,6 @@ export default function Navbar() {
     { name: 'Bachelor Parties', href: '/bachelor-party' },
     { name: 'Birthdays', href: '/birthday' },
     { name: 'Corporate', href: '/corporate' },
-    { name: 'Vegas Tours', href: '/vegas-tours' },
     { name: 'VIP Services', href: '/vip-services' },
     { name: 'Partners', href: '/partners' },
     { name: 'Contact', href: '/#contact' }
@@ -85,7 +84,7 @@ export default function Navbar() {
             {/* CTA Button */}
             <div className="hidden lg:flex items-center">
               <a 
-                href="sms:+17027208948" 
+                href="sms:+17025180924" 
                 className="btn-primary text-sm px-6 py-3"
               >
                 TEXT US NOW
@@ -160,7 +159,7 @@ export default function Navbar() {
             {/* Footer CTA */}
             <div className="p-6 border-t border-gray-800">
               <a 
-                href="sms:+17027208948" 
+                href="sms:+17025180924" 
                 className="btn-primary w-full text-center"
                 onClick={toggleMobileMenu}
               >

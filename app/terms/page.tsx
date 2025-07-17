@@ -121,7 +121,7 @@ export default function TermsOfService() {
               <div className="text-gray-300 leading-relaxed">
                 <p className="mb-2">For questions regarding these Terms of Service, please contact us:</p>
                 <div className="space-y-2">
-                  <p><span className="text-neon-blue font-tech">Phone:</span> (702) 720-8948</p>
+                  <p><span className="text-neon-blue font-tech">Phone:</span> (702) 518-0924</p>
                   <p><span className="text-neon-blue font-tech">Email:</span> contact@dtexoticslv.com</p>
                   <p><span className="text-neon-blue font-tech">Location:</span> Las Vegas, Nevada</p>
                 </div>

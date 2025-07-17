@@ -158,7 +158,7 @@ export default function PrivacyPolicy() {
               <div className="text-gray-300 leading-relaxed">
                 <p className="mb-4">If you have questions about this Privacy Policy or wish to exercise your rights, please contact us:</p>
                 <div className="space-y-2">
-                  <p><span className="text-neon-blue font-tech">Phone:</span> (702) 720-8948</p>
+                  <p><span className="text-neon-blue font-tech">Phone:</span> (702) 518-0924</p>
                   <p><span className="text-neon-blue font-tech">Email:</span> contact@dtexoticslv.com</p>
                   <p><span className="text-neon-blue font-tech">Location:</span> Las Vegas, Nevada</p>
                 </div>

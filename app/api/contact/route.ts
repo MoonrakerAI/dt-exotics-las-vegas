@@ -50,7 +50,7 @@ export async function POST(req: Request) {
           <li>Selected Car: ${selectedCar}</li>
           <li>Rental Period: ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}</li>
         </ul>
-        <p>If you have any immediate questions, please call us at (702) 720-8948.</p>
+        <p>If you have any immediate questions, please call us at (702) 518-0924.</p>
         <p>Best regards,<br>DT Exotics Las Vegas</p>
       `,
     })

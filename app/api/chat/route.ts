@@ -164,7 +164,7 @@ DT Exotics Las Vegas specializes in luxury supercar rentals and VIP experiences 
 - Potential earnings: $6,000-$37,500+ annually
 
 ## CONTACT & BOOKING
-- Phone/Text: (702) 720-8948 (24/7)
+- Phone/Text: (702) 518-0924 (24/7)
 - Location: Las Vegas, Nevada
 - Website: dtexoticslv.com
 - Primary driver must be 21+ with valid license
@@ -178,7 +178,7 @@ DT Exotics Las Vegas specializes in luxury supercar rentals and VIP experiences 
 - Custom itinerary planning available
 - Fuel, maintenance, and insurance included
 
-Always provide accurate pricing and vehicle information. For real-time availability and bookings, direct customers to text (702) 720-8948. Be enthusiastic about creating luxury experiences while staying factual about our actual services and fleet.`
+Always provide accurate pricing and vehicle information. For real-time availability and bookings, direct customers to text (702) 518-0924. Be enthusiastic about creating luxury experiences while staying factual about our actual services and fleet.`
 
 export async function POST(req: Request) {
   try {
@@ -186,7 +186,7 @@ export async function POST(req: Request) {
 
     if (!anthropic) {
       return NextResponse.json(
-        { error: 'AI service temporarily unavailable. Please contact us directly at (702) 720-8948.' },
+        { error: 'AI service temporarily unavailable. Please contact us directly at (702) 518-0924.' },
         { status: 503 }
       )
     }
@@ -225,7 +225,7 @@ export async function POST(req: Request) {
     console.error('Chat API error:', error)
     return NextResponse.json(
       { 
-        error: 'I apologize, but I\'m having trouble responding right now. Please text us directly at (702) 720-8948 for immediate assistance with your luxury car rental needs!',
+        error: 'I apologize, but I\'m having trouble responding right now. Please text us directly at (702) 518-0924 for immediate assistance with your luxury car rental needs!',
         success: false 
       },
       { status: 500 }

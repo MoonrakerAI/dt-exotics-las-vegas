@@ -78,7 +78,7 @@ export default function FloatingChat() {
         const errorMessage: Message = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: data.error || 'Sorry, I encountered an error. Please text us at (702) 720-8948 for immediate assistance.',
+          content: data.error || 'Sorry, I encountered an error. Please text us at (702) 518-0924 for immediate assistance.',
           timestamp: new Date()
         }
         setMessages(prev => [...prev, errorMessage])
@@ -87,7 +87,7 @@ export default function FloatingChat() {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Sorry, I\'m having trouble connecting right now. Please text us at (702) 720-8948 for immediate assistance with your luxury car rental needs.',
+        content: 'Sorry, I\'m having trouble connecting right now. Please text us at (702) 518-0924 for immediate assistance with your luxury car rental needs.',
         timestamp: new Date()
       }
       setMessages(prev => [...prev, errorMessage])

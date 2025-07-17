@@ -108,7 +108,7 @@ export default function CorporateServices() {
   const services = [
     {
       title: "Executive Transportation",
-      price: "From $599/day",
+      price: "Price upon inquiry",
       features: [
         "Premium luxury vehicle selection",
         "Professional chauffeur service",
@@ -119,7 +119,7 @@ export default function CorporateServices() {
     },
     {
       title: "Client Entertainment", 
-      price: "From $1,299/event",
+      price: "Price upon inquiry",
       features: [
         "Impressive client experiences",
         "Multiple vehicle fleet options",
@@ -130,7 +130,7 @@ export default function CorporateServices() {
     },
     {
       title: "Corporate Events",
-      price: "Custom Pricing",
+      price: "Price upon inquiry",
       features: [
         "Product launch experiences",
         "Team building adventures",
@@ -454,7 +454,7 @@ export default function CorporateServices() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 
-              href="sms:+17027208948" 
+              href="sms:+17025180924" 
               className="btn-primary inline-block"
             >
               CONTACT US

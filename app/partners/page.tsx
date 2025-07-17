@@ -58,8 +58,8 @@ export default function VehiclePartnership() {
   const [openFAQ, setOpenFAQ] = useState<string | null>(null)
   const faqRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
   const [calculatorValues, setCalculatorValues] = useState({
-    vehicleValue: 150000,
-    dailyRate: 800,
+    vehicleValue: 60000,
+    dailyRate: 200,
     monthlyDays: 15
   })
 
@@ -69,19 +69,20 @@ export default function VehiclePartnership() {
     if (vehicleValue >= 400000) return Math.round((vehicleValue * 0.005) / 50) * 50 // Ultra-luxury: ~0.5% of value per day
     if (vehicleValue >= 250000) return Math.round((vehicleValue * 0.004) / 50) * 50 // Super-luxury: ~0.4% of value per day
     if (vehicleValue >= 150000) return Math.round((vehicleValue * 0.0035) / 50) * 50 // High-end luxury: ~0.35% of value per day
-    return Math.round((vehicleValue * 0.003) / 50) * 50 // Entry luxury: ~0.3% of value per day
+    if (vehicleValue >= 60000) return Math.max(Math.round((vehicleValue * 0.003) / 50) * 50, 200) // Entry luxury: ~0.3% of value per day, minimum $200
+    return 200 // Minimum daily rate
   }
 
   const faqs = [
     {
       id: 'vehicle-requirements',
       question: 'What vehicles qualify for the partnership program?',
-      answer: 'We accept luxury and exotic vehicles valued at $75,000+, typically 7 years old or newer. This includes brands like Ferrari, Lamborghini, McLaren, Porsche, Audi R8, BMW i8, Mercedes AMG, and other high-end sports cars. Vehicles must be well-maintained with clean titles and current registration.'
+      answer: 'We accept luxury and exotic vehicles valued at $60,000+, typically 7 years old or newer. This includes brands like Ferrari, Lamborghini, McLaren, Porsche, Audi R8, BMW i8, Mercedes AMG, and other high-end sports cars. Vehicles must be well-maintained with clean titles and current registration.'
     },
     {
       id: 'insurance-coverage',
       question: 'How does insurance work for my vehicle?',
-      answer: 'DT Exotics carries comprehensive commercial insurance that fully covers your vehicle during rental periods. This includes collision, comprehensive, and liability coverage. Your personal insurance remains unaffected, and you avoid the gaps and limitations common with peer-to-peer platforms like Turo.'
+      answer: 'Investors maintain their current personal insurance on their vehicle. When your vehicle is rented, renters must provide their own full coverage insurance throughout the entire rental period. We conduct thorough verification with the client\'s insurance company to ensure proper coverage. There is no liability on DT Exotics or the investor during rental periods.'
     },
     {
       id: 'vehicle-safety',
@@ -101,7 +102,7 @@ export default function VehiclePartnership() {
     {
       id: 'maintenance-responsibility',
       question: 'Who handles maintenance and repairs?',
-      answer: 'Routine maintenance is coordinated through our network of certified luxury car technicians, with costs shared based on usage. Any damage during rentals is covered by our commercial insurance. We maintain detailed service records and ensure your vehicle receives proper care.'
+      answer: 'Maintenance responsibilities are discussed during contract negotiations and may vary by investor. Typically, investors continue to handle and schedule all maintenance for their vehicles. However, we can offer access to our network of repair shops and services, which can save you money by avoiding dealership pricing for routine maintenance. We can also arrange to take over maintenance responsibilities if preferred.'
     }
   ]
 
@@ -286,7 +287,7 @@ export default function VehiclePartnership() {
                     </label>
                     <input
                       type="range"
-                      min="75000"
+                      min="60000"
                       max="500000"
                       step="5000"
                       value={calculatorValues.vehicleValue}
@@ -314,7 +315,7 @@ export default function VehiclePartnership() {
                     </label>
                     <input
                       type="range"
-                      min="400"
+                      min="200"
                       max="3000"
                       step="50"
                       value={calculatorValues.dailyRate}
@@ -662,7 +663,7 @@ export default function VehiclePartnership() {
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-neon-blue mt-1 flex-shrink-0" />
                   <div>
-                    <div className="text-white font-semibold">$75,000+ Value</div>
+                    <div className="text-white font-semibold">$60,000+ Value</div>
                     <div className="text-gray-400 text-sm">Current market value minimum</div>
                   </div>
                 </div>
@@ -744,7 +745,7 @@ export default function VehiclePartnership() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 
-              href="sms:+17027208948" 
+              href="sms:+17025180924" 
               className="btn-primary inline-block"
             >
               CONTACT US TODAY

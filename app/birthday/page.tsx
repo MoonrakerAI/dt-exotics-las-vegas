@@ -110,7 +110,7 @@ export default function BirthdayRentals() {
       title: "Milestone Moment",
       occasion: "21st, 30th, 40th Birthday",
       duration: "3 Hours",
-      price: "$899",
+      price: "Price upon inquiry",
       features: [
         "Single exotic supercar experience",
         "Professional birthday photoshoot",
@@ -123,7 +123,7 @@ export default function BirthdayRentals() {
       title: "Birthday Royalty", 
       occasion: "50th, 60th+ Celebrations",
       duration: "5 Hours",
-      price: "$1,499",
+      price: "Price upon inquiry",
       features: [
         "Premium luxury vehicle selection",
         "VIP restaurant reservations",
@@ -137,7 +137,7 @@ export default function BirthdayRentals() {
       title: "Epic Birthday Bash",
       occasion: "Group Celebrations",
       duration: "Full Day", 
-      price: "$2,999",
+      price: "Price upon inquiry",
       features: [
         "Multiple supercars for the crew",
         "Scenic drive to Red Rock Canyon",
@@ -456,7 +456,7 @@ export default function BirthdayRentals() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 
-              href="sms:+17027208948" 
+              href="sms:+17025180924" 
               className="btn-primary inline-block"
             >
               TEXT US NOW

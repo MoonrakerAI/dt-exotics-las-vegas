@@ -52,7 +52,7 @@ export default function FAQSection() {
     {
       id: 'tickets-tolls',
       question: 'What happens if I get a ticket or toll charge?',
-      answer: 'There are NO tolls in Las Vegas.'
+      answer: 'There are NO tolls in Las Vegas. All renters will be held accountable for any tickets received when renting our vehicles.'
     },
     {
       id: 'cancellation-policy',

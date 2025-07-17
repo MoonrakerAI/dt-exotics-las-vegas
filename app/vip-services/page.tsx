@@ -117,7 +117,7 @@ export default function VIPServices() {
       title: "Luxury Watch & Jewelry Rental",
       description: "Complete your look with Rolex, Patek Philippe, Cartier, and other prestigious timepieces.",
       features: [
-        "Premium watch collection from $250/day",
+        "Premium watch collection - price upon inquiry",
         "Diamond jewelry for special occasions",
         "Secure delivery to your hotel",
         "Full insurance coverage included"
@@ -161,7 +161,7 @@ export default function VIPServices() {
   const packages = [
     {
       name: "Vegas Mogul",
-      price: "$5,000-$7,500",
+      price: "Price upon inquiry",
       duration: "Per Day",
       description: "The ultimate power player experience",
       includes: [
@@ -174,7 +174,7 @@ export default function VIPServices() {
     },
     {
       name: "High Roller Weekend",
-      price: "$15,000-$25,000",
+      price: "Price upon inquiry",
       duration: "3 Days",
       description: "No expense spared luxury weekend",
       includes: [
@@ -188,7 +188,7 @@ export default function VIPServices() {
     },
     {
       name: "Bachelor Party Elite",
-      price: "$3,500-$5,000",
+      price: "Price upon inquiry",
       duration: "Per Person",
       description: "Legendary celebration package",
       includes: [
@@ -476,7 +476,7 @@ export default function VIPServices() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 
-              href="sms:+17027208948" 
+              href="sms:+17025180924" 
               className="btn-primary inline-block"
             >
               TEXT US NOW

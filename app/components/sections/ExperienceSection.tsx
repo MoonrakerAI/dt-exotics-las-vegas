@@ -31,7 +31,7 @@ export default function ExperienceSection() {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <a 
-            href="sms:+17027208948" 
+            href="sms:+17025180924" 
             className="btn-primary inline-block"
           >
             TEXT US NOW

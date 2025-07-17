@@ -101,7 +101,7 @@ export default function EmbeddedChat() {
         const errorMessage: Message = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: data.error || 'Sorry, I encountered an error. Please text us at (702) 720-8948 for immediate assistance.',
+          content: data.error || 'Sorry, I encountered an error. Please text us at (702) 518-0924 for immediate assistance.',
           timestamp: new Date()
         }
         setMessages(prev => [...prev, errorMessage])
@@ -110,7 +110,7 @@ export default function EmbeddedChat() {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Sorry, I\'m having trouble connecting right now. Please text us at (702) 720-8948 for immediate assistance with your luxury car rental needs.',
+        content: 'Sorry, I\'m having trouble connecting right now. Please text us at (702) 518-0924 for immediate assistance with your luxury car rental needs.',
         timestamp: new Date()
       }
       setMessages(prev => [...prev, errorMessage])
@@ -279,7 +279,7 @@ export default function EmbeddedChat() {
           {/* Footer */}
           <div className="flex items-center justify-end mt-4 pt-4 border-t border-gray-600/20">
             <p className="text-xs text-gray-500">
-              For urgent needs: <a href="sms:+17027208948" className="text-neon-blue hover:underline">(702) 720-8948</a>
+              For urgent needs: <a href="sms:+17025180924" className="text-neon-blue hover:underline">(702) 518-0924</a>
             </p>
           </div>
         </div>
