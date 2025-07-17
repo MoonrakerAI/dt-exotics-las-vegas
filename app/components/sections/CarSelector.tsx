@@ -129,7 +129,7 @@ function CarCard({ car, onOpenModal, onPlaySound, playingAudio }: {
         </div>
 
         {/* Sound Controls */}
-        <div className="px-8 pb-8">
+        <div className="px-8 pb-6">
           <div className="flex gap-2 pt-2">
             <button
               onClick={(e) => {
@@ -192,6 +192,17 @@ function CarCard({ car, onOpenModal, onPlaySound, playingAudio }: {
               </span>
             </button>
           </div>
+        </div>
+
+        {/* Book Now Button */}
+        <div className="px-8 pb-8">
+          <a
+            href={`/book-rental?car=${car.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="btn-primary w-full text-center block"
+          >
+            Book Now
+          </a>
         </div>
       </div>
     </div>
