@@ -12,7 +12,7 @@ function isAdminAuthenticated(request: NextRequest): boolean {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   if (!isAdminAuthenticated(request)) {
     return NextResponse.json(
@@ -22,7 +22,8 @@ export async function GET(
   }
 
   try {
-    const rental = await rentalDB.getRental(params.id);
+    const { id } = await params;
+    const rental = await rentalDB.getRental(id);
     
     if (!rental) {
       return NextResponse.json(

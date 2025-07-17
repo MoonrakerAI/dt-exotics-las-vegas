@@ -12,7 +12,7 @@ function isAdminAuthenticated(request: NextRequest): boolean {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   if (!isAdminAuthenticated(request)) {
     return NextResponse.json(
@@ -23,8 +23,9 @@ export async function POST(
 
   try {
     const { captureAmount } = await request.json();
+    const { id } = await params;
 
-    const rental = await rentalDB.getRental(params.id);
+    const rental = await rentalDB.getRental(id);
     if (!rental) {
       return NextResponse.json(
         { error: 'Rental not found' },
@@ -41,7 +42,7 @@ export async function POST(
     );
 
     // Update rental status
-    await rentalDB.updateRental(rental.id, {
+    await rentalDB.updateRental(id, {
       payment: {
         ...rental.payment,
         depositStatus: 'captured'

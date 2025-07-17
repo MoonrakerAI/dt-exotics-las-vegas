@@ -12,7 +12,7 @@ function isAdminAuthenticated(request: NextRequest): boolean {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   if (!isAdminAuthenticated(request)) {
     return NextResponse.json(
@@ -23,8 +23,9 @@ export async function POST(
 
   try {
     const { finalAmount, additionalCharges } = await request.json();
+    const { id } = await params;
 
-    const rental = await rentalDB.getRental(params.id);
+    const rental = await rentalDB.getRental(id);
     if (!rental) {
       return NextResponse.json(
         { error: 'Rental not found' },
@@ -102,7 +103,7 @@ export async function POST(
       // Save the payment intent that needs authentication
       const paymentIntent = (error as any).payment_intent;
       
-      await rentalDB.updateRental(params.id, {
+      await rentalDB.updateRental(id, {
         payment: {
           ...rental.payment,
           finalPaymentIntentId: paymentIntent.id,
