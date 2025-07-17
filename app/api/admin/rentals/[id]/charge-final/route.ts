@@ -21,11 +21,13 @@ export async function POST(
     );
   }
 
-  try {
-    const { finalAmount, additionalCharges } = await request.json();
-    const { id } = await params;
+  const { finalAmount, additionalCharges } = await request.json();
+  const { id } = await params;
 
-    const rental = await rentalDB.getRental(id);
+  let rental: any;
+
+  try {
+    rental = await rentalDB.getRental(id);
     if (!rental) {
       return NextResponse.json(
         { error: 'Rental not found' },
@@ -122,7 +124,7 @@ export async function POST(
     }
 
     return NextResponse.json(
-      { error: 'Failed to charge final amount: ' + error.message },
+      { error: 'Failed to charge final amount: ' + (error instanceof Error ? error.message : 'Unknown error') },
       { status: 500 }
     );
   }

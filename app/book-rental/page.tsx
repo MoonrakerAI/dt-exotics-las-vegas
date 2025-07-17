@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
@@ -13,7 +13,7 @@ import { CreateRentalRequest } from '../types/rental'
 
 const stripePromise = loadStripe(stripePublishableKey)
 
-function BookingForm() {
+function BookingFormInner() {
   const searchParams = useSearchParams()
   const preselectedCarId = searchParams.get('car')
   
@@ -352,6 +352,14 @@ function BookingForm() {
         />
       </Elements>
     </div>
+  )
+}
+
+function BookingForm() {
+  return (
+    <Suspense fallback={<div className="text-center py-12"><p className="text-gray-400">Loading...</p></div>}>
+      <BookingFormInner />
+    </Suspense>
   )
 }
 

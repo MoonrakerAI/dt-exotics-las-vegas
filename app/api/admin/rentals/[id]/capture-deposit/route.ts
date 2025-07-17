@@ -57,7 +57,7 @@ export async function POST(
           id: paymentIntent.id,
           status: paymentIntent.status,
           amount: paymentIntent.amount,
-          amountCaptured: paymentIntent.amount_captured
+          amountCapturable: paymentIntent.amount_capturable
         }
       }
     });

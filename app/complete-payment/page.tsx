@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
@@ -108,7 +108,7 @@ function PaymentForm({ clientSecret }: { clientSecret: string }) {
   )
 }
 
-export default function CompletePaymentPage() {
+function CompletePaymentPageInner() {
   const searchParams = useSearchParams()
   const clientSecret = searchParams.get('pi')
 
@@ -153,5 +153,13 @@ export default function CompletePaymentPage() {
       </div>
       <Footer />
     </div>
+  )
+}
+
+export default function CompletePaymentPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-dark-gray"><div className="pt-32 pb-16 px-4"><div className="max-w-4xl mx-auto text-center"><p className="text-gray-400">Loading...</p></div></div></div>}>
+      <CompletePaymentPageInner />
+    </Suspense>
   )
 }

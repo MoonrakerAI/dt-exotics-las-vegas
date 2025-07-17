@@ -46,12 +46,7 @@ export async function GET(
           status: paymentIntent.status,
           amount: paymentIntent.amount,
           captureMethod: paymentIntent.capture_method,
-          paymentMethod: paymentIntent.payment_method,
-          charges: paymentIntent.charges.data.map(charge => ({
-            id: charge.id,
-            status: charge.status,
-            captureDeadline: charge.payment_method_details?.card?.capture_before
-          }))
+          paymentMethod: paymentIntent.payment_method
         }
       }
     });
