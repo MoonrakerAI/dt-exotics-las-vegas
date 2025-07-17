@@ -9,6 +9,7 @@ import Footer from '../components/sections/Footer'
 import { cars } from '../data/cars'
 import { stripePublishableKey } from '../lib/stripe'
 import { formatCurrency, validateRentalDates } from '../lib/rental-utils'
+import { getCarImage } from '../lib/image-utils'
 import { CreateRentalRequest } from '../types/rental'
 
 const stripePromise = loadStripe(stripePublishableKey).then(stripe => {
@@ -59,7 +60,7 @@ function BookingFormInner() {
     const start = new Date(formData.startDate)
     const end = new Date(formData.endDate)
     const timeDiff = end.getTime() - start.getTime()
-    const totalDays = Math.ceil(timeDiff / (1000 * 3600 * 24))
+    const totalDays = Math.max(1, Math.ceil(timeDiff / (1000 * 3600 * 24)))
     
     console.log('Date calculation:', { start, end, timeDiff, totalDays })
     
@@ -105,8 +106,42 @@ function BookingFormInner() {
       }))
     }
 
+    // Calculate pricing after state update
     if (field === 'startDate' || field === 'endDate' || field === 'carId') {
-      setTimeout(calculatePricing, 100)
+      setTimeout(() => {
+        const updatedFormData = { ...formData };
+        if (field.startsWith('customer.')) {
+          const customerField = field.replace('customer.', '');
+          updatedFormData.customer = { ...updatedFormData.customer, [customerField]: value };
+        } else {
+          updatedFormData[field] = value;
+        }
+        
+        const updatedCar = cars.find(car => car.id === (field === 'carId' ? value : formData.carId));
+        if (updatedCar && updatedFormData.startDate && updatedFormData.endDate) {
+          const start = new Date(updatedFormData.startDate);
+          const end = new Date(updatedFormData.endDate);
+          const timeDiff = end.getTime() - start.getTime();
+          const totalDays = Math.max(1, Math.ceil(timeDiff / (1000 * 3600 * 24)));
+          
+          if (totalDays > 0) {
+            const subtotal = totalDays * updatedCar.price.daily;
+            const depositAmount = Math.round(subtotal * 0.30);
+            const finalAmount = subtotal - depositAmount;
+            
+            const newPricing = {
+              dailyRate: updatedCar.price.daily,
+              totalDays,
+              subtotal,
+              depositAmount,
+              finalAmount
+            };
+            
+            console.log('Setting pricing:', newPricing);
+            setPricing(newPricing);
+          }
+        }
+      }, 50);
     }
   }
 
@@ -184,7 +219,7 @@ function BookingFormInner() {
         <div className="glass-panel p-8 mb-8">
           <h2 className="text-2xl font-tech font-bold text-white mb-6">Select Your Rental</h2>
           
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
+          <div className="space-y-6 mb-6">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Select Car
@@ -203,30 +238,46 @@ function BookingFormInner() {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Start Date
-              </label>
-              <input
-                type="date"
-                value={formData.startDate}
-                onChange={(e) => handleInputChange('startDate', e.target.value)}
-                min={new Date().toISOString().split('T')[0]}
-                className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-              />
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Start Date
+                </label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    value={formData.startDate}
+                    onChange={(e) => handleInputChange('startDate', e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none cursor-pointer"
+                    style={{ 
+                      WebkitAppearance: 'none',
+                      MozAppearance: 'textfield',
+                      colorScheme: 'dark'
+                    }}
+                  />
+                </div>
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                End Date
-              </label>
-              <input
-                type="date"
-                value={formData.endDate}
-                onChange={(e) => handleInputChange('endDate', e.target.value)}
-                min={formData.startDate || new Date().toISOString().split('T')[0]}
-                className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  End Date
+                </label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    value={formData.endDate}
+                    onChange={(e) => handleInputChange('endDate', e.target.value)}
+                    min={formData.startDate || new Date().toISOString().split('T')[0]}
+                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none cursor-pointer"
+                    style={{ 
+                      WebkitAppearance: 'none',
+                      MozAppearance: 'textfield',
+                      colorScheme: 'dark'
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -234,9 +285,14 @@ function BookingFormInner() {
             <div className="glass-panel p-6 mb-6">
               <div className="flex items-center gap-4 mb-4">
                 <img 
-                  src={selectedCar.images.main} 
+                  src={getCarImage(selectedCar)} 
                   alt={`${selectedCar.brand} ${selectedCar.model}`}
                   className="w-24 h-16 object-cover rounded-lg"
+                  onError={(e) => {
+                    // Fallback to generic image if specific image fails
+                    const img = e.target as HTMLImageElement;
+                    img.src = '/cars/fallback/generic-car.jpg';
+                  }}
                 />
                 <div>
                   <h3 className="text-xl font-tech font-bold text-white">
@@ -492,16 +548,31 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
       {/* Booking Summary */}
       <div className="glass-panel p-6 mb-6">
         <h3 className="text-lg font-tech font-semibold text-white mb-4">Booking Summary</h3>
+        
+        {/* Car Image and Details */}
+        <div className="flex items-center gap-4 mb-6">
+          <img 
+            src={getCarImage(selectedCar)} 
+            alt={`${selectedCar?.brand} ${selectedCar?.model}`}
+            className="w-20 h-14 object-cover rounded-lg"
+            onError={(e) => {
+              const img = e.target as HTMLImageElement;
+              img.src = '/cars/fallback/generic-car.jpg';
+            }}
+          />
+          <div>
+            <h4 className="text-white font-semibold text-lg">{selectedCar?.brand} {selectedCar?.model}</h4>
+            <p className="text-gray-400 text-sm">{selectedCar?.year} • {selectedCar?.category}</p>
+          </div>
+        </div>
+        
         <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <p className="text-gray-400 text-sm">Vehicle</p>
-            <p className="text-white font-semibold">{selectedCar?.brand} {selectedCar?.model}</p>
-          </div>
-          <div>
-            <p className="text-gray-400 text-sm">Dates</p>
+            <p className="text-gray-400 text-sm">Rental Period</p>
             <p className="text-white font-semibold">
               {new Date(formData.startDate).toLocaleDateString()} - {new Date(formData.endDate).toLocaleDateString()}
             </p>
+            <p className="text-gray-400 text-xs mt-1">{pricing ? `${pricing.totalDays} days` : '--'}</p>
           </div>
           <div>
             <p className="text-gray-400 text-sm">Total Amount</p>
@@ -510,6 +581,10 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
           <div>
             <p className="text-gray-400 text-sm">Deposit Due Now</p>
             <p className="text-neon-blue font-semibold">{pricing ? formatCurrency(pricing.depositAmount) : '--'}</p>
+          </div>
+          <div>
+            <p className="text-gray-400 text-sm">Remaining Balance</p>
+            <p className="text-white font-semibold">{pricing ? formatCurrency(pricing.finalAmount) : '--'}</p>
           </div>
         </div>
       </div>
