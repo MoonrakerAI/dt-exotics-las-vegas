@@ -7,6 +7,14 @@ import { CreateRentalRequest, RentalBooking } from '@/app/types/rental';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if Stripe is configured
+    if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === 'sk_test_dummy') {
+      return NextResponse.json(
+        { error: 'Payment system not configured. Please contact support.' },
+        { status: 500 }
+      );
+    }
+    
     const body: CreateRentalRequest = await request.json();
     
     // Validate request data
@@ -156,6 +164,29 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error creating deposit intent:', error);
+    
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      if (error.message.includes('Invalid API key')) {
+        return NextResponse.json(
+          { error: 'Payment system configuration error. Please check environment variables.' },
+          { status: 500 }
+        );
+      }
+      
+      if (error.message.includes('stripe')) {
+        return NextResponse.json(
+          { error: 'Payment processing error: ' + error.message },
+          { status: 500 }
+        );
+      }
+      
+      return NextResponse.json(
+        { error: 'Server error: ' + error.message },
+        { status: 500 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
