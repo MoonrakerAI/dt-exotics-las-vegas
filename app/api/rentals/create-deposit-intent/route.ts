@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       setup_future_usage: 'off_session', // Save payment method for later
       payment_method_types: ['card'],
       description: `Rental Deposit - ${car.brand} ${car.model} (${car.year}) | ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()} | ${pricing.totalDays} days @ $${pricing.dailyRate}/day`,
-      statement_descriptor: 'DT EXOTICS RENTAL',
+      statement_descriptor_suffix: 'RENTAL',
       metadata: {
         rental_id: rentalId,
         car_id: carId,
