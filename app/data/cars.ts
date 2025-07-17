@@ -33,6 +33,7 @@ export interface Car {
 }
 
 export const cars: Car[] = [
+  // LAMBORGHINI - Ultra-Premium Supercars
   {
     id: 'lambo-huracan-spyder',
     brand: 'Lamborghini',
@@ -115,75 +116,127 @@ export const cars: Car[] = [
     },
     available: true
   },
+
+  // PORSCHE - Premium Sports Cars
   {
-    id: 'corvette-c8',
-    brand: 'Chevrolet',
-    model: 'Corvette C8 Stingray',
-    year: 2024,
+    id: 'porsche-911-992',
+    brand: 'Porsche',
+    model: '911 992',
+    year: 2022,
     category: 'Sports Car',
     stats: {
-      horsepower: 500,
-      torque: 470,
-      topSpeed: 194,
-      acceleration: 2.9,
-      engine: '6.2L V8',
+      horsepower: 379,
+      torque: 331,
+      topSpeed: 182,
+      acceleration: 4.0,
+      engine: '3.0L Twin-Turbo Flat-6',
       drivetrain: 'RWD',
       doors: 2
     },
     features: [
-      'Mid-Engine Design',
-      'Magnetic Ride Control',
-      'Performance Traction Management',
-      'Launch Control',
-      'Z51 Performance Package'
+      'Next-Generation 911',
+      'Wet Mode',
+      'Sport Chrono Package',
+      'PASM Sport Suspension',
+      'Porsche Communication Management 6.0'
     ],
     price: {
       daily: 699,
-      weekly: 3999
+      weekly: 4199
     },
     images: {
-      main: '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - Main.png',
-      gallery: [
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 1.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 2.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 3.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 4.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 5.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 6.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 7.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 8.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 9.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 10.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 11.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 12.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 13.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 14.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 15.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 16.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 17.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 18.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 19.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 20.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 21.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 22.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 23.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 24.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 25.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 26.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 27.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 28.jpg',
-        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 29.jpg'
-      ]
+      main: '/cars/Porsche 911 992 2022/pics/Porsche 911 992 - Main.png',
+      gallery: []
     },
     videos: {
-      showcase: '/cars/Chevy Corvette C8 2024 (Red)/vids/showcase.mp4'
+      showcase: '/cars/Porsche 911 992 2022/vids/showcase.mp4'
     },
     audio: {
-      startup: '/cars/Chevy Corvette C8 2024 (Red)/audio/C8 - Cold Start.wav',
-      rev: '/cars/Chevy Corvette C8 2024 (Red)/audio/C8 - Rev.wav'
+      startup: '/cars/Porsche 911 992 2022/audio/startup.mp3',
+      rev: '/cars/Porsche 911 992 2022/audio/rev.mp3'
     },
     available: true
   },
+  {
+    id: 'porsche-911-carrera',
+    brand: 'Porsche',
+    model: '911 Carrera',
+    year: 2013,
+    category: 'Sports Car',
+    stats: {
+      horsepower: 350,
+      torque: 287,
+      topSpeed: 179,
+      acceleration: 4.6,
+      engine: '3.4L Flat-6',
+      drivetrain: 'RWD',
+      doors: 2
+    },
+    features: [
+      'Classic 911 Design',
+      'Sport Chrono Package',
+      'PASM Suspension',
+      'Porsche Communication Management',
+      'Sport Seats Plus'
+    ],
+    price: {
+      daily: 579,
+      weekly: 3499
+    },
+    images: {
+      main: '/cars/Porsche 911 Carrera 2013/pics/Porsche 911 Carrera - Main.png',
+      gallery: []
+    },
+    videos: {
+      showcase: '/cars/Porsche 911 Carrera 2013/vids/showcase.mp4'
+    },
+    audio: {
+      startup: '/cars/Porsche 911 Carrera 2013/audio/startup.mp3',
+      rev: '/cars/Porsche 911 Carrera 2013/audio/rev.mp3'
+    },
+    available: true
+  },
+  {
+    id: 'porsche-cayman-gts',
+    brand: 'Porsche',
+    model: 'Cayman GTS',
+    year: 2016,
+    category: 'Sports Car',
+    stats: {
+      horsepower: 340,
+      torque: 280,
+      topSpeed: 177,
+      acceleration: 4.6,
+      engine: '3.4L Flat-6',
+      drivetrain: 'RWD',
+      doors: 2
+    },
+    features: [
+      'Sport Chrono Package',
+      'PASM Adaptive Suspension',
+      'Sport Design Package',
+      'Alcantara Interior',
+      'Sport Exhaust System'
+    ],
+    price: {
+      daily: 499,
+      weekly: 2999
+    },
+    images: {
+      main: '/cars/Porsche Cayman GTS 2016/pics/Porsche Cayman GTS - Main.png',
+      gallery: []
+    },
+    videos: {
+      showcase: '/cars/Porsche Cayman GTS 2016/vids/showcase.mp4'
+    },
+    audio: {
+      startup: '/cars/Porsche Cayman GTS 2016/audio/startup.mp3',
+      rev: '/cars/Porsche Cayman GTS 2016/audio/rev.mp3'
+    },
+    available: true
+  },
+
+  // AUDI - Performance Luxury
   {
     id: 'audi-r8-black-panther',
     brand: 'Audi',
@@ -225,6 +278,45 @@ export const cars: Car[] = [
     audio: {
       startup: '/cars/Audi R8 2021 (Black Panther)/audio/startup.mp3',
       rev: '/cars/Audi R8 2021 (Black Panther)/audio/rev.mp3'
+    },
+    available: true
+  },
+  {
+    id: 'audi-sq8-etron',
+    brand: 'Audi',
+    model: 'SQ8 e-tron',
+    year: 2024,
+    category: 'Electric Performance SUV',
+    stats: {
+      horsepower: 496,
+      torque: 718,
+      topSpeed: 130,
+      acceleration: 4.5,
+      engine: 'Tri-Motor Electric',
+      drivetrain: 'AWD',
+      doors: 4
+    },
+    features: [
+      'Electric Performance',
+      'Quattro All-Wheel Drive',
+      'Air Suspension',
+      'Virtual Cockpit Plus',
+      'Matrix LED Headlights'
+    ],
+    price: {
+      daily: 549,
+      weekly: 3299
+    },
+    images: {
+      main: '/cars/Audi SQ8 e-tron 2024/pics/Audi SQ8 e-tron - Main.png',
+      gallery: []
+    },
+    videos: {
+      showcase: '/cars/Audi SQ8 e-tron 2024/vids/showcase.mp4'
+    },
+    audio: {
+      startup: '/cars/Audi SQ8 e-tron 2024/audio/startup.mp3',
+      rev: '/cars/Audi SQ8 e-tron 2024/audio/rev.mp3'
     },
     available: true
   },
@@ -306,45 +398,8 @@ export const cars: Car[] = [
     },
     available: true
   },
-  {
-    id: 'mercedes-glc-amg',
-    brand: 'Mercedes-Benz',
-    model: 'GLC AMG',
-    year: 2021,
-    category: 'Performance SUV',
-    stats: {
-      horsepower: 429,
-      torque: 384,
-      topSpeed: 155,
-      acceleration: 5.3,
-      engine: '3.0L Turbo I6 + EQ Boost',
-      drivetrain: 'AWD',
-      doors: 4
-    },
-    features: [
-      'AMG Performance 4MATIC+',
-      'AIRMATIC Suspension',
-      'AMG Track Pace',
-      'Burmester Sound System',
-      'AMG Night Package'
-    ],
-    price: {
-      daily: 549,
-      weekly: 3299
-    },
-    images: {
-      main: '/cars/Mercedes GLC AMG 2021 (White)/pics/GLE - Edited.png',
-      gallery: []
-    },
-    videos: {
-      showcase: '/cars/Mercedes GLC AMG 2021 (White)/vids/showcase.mp4'
-    },
-    audio: {
-      startup: '/cars/Mercedes GLC AMG 2021 (White)/audio/startup.mp3',
-      rev: '/cars/Mercedes GLC AMG 2021 (White)/audio/rev.mp3'
-    },
-    available: true
-  },
+
+  // MERCEDES-BENZ - Luxury Performance
   {
     id: 'mercedes-g550',
     brand: 'Mercedes-Benz',
@@ -381,6 +436,45 @@ export const cars: Car[] = [
     audio: {
       startup: '/cars/Mercedes G550 2021/audio/startup.mp3',
       rev: '/cars/Mercedes G550 2021/audio/rev.mp3'
+    },
+    available: true
+  },
+  {
+    id: 'mercedes-glc-amg',
+    brand: 'Mercedes-Benz',
+    model: 'GLC AMG',
+    year: 2021,
+    category: 'Performance SUV',
+    stats: {
+      horsepower: 429,
+      torque: 384,
+      topSpeed: 155,
+      acceleration: 5.3,
+      engine: '3.0L Turbo I6 + EQ Boost',
+      drivetrain: 'AWD',
+      doors: 4
+    },
+    features: [
+      'AMG Performance 4MATIC+',
+      'AIRMATIC Suspension',
+      'AMG Track Pace',
+      'Burmester Sound System',
+      'AMG Night Package'
+    ],
+    price: {
+      daily: 549,
+      weekly: 3299
+    },
+    images: {
+      main: '/cars/Mercedes GLC AMG 2021 (White)/pics/GLE - Edited.png',
+      gallery: []
+    },
+    videos: {
+      showcase: '/cars/Mercedes GLC AMG 2021 (White)/vids/showcase.mp4'
+    },
+    audio: {
+      startup: '/cars/Mercedes GLC AMG 2021 (White)/audio/startup.mp3',
+      rev: '/cars/Mercedes GLC AMG 2021 (White)/audio/rev.mp3'
     },
     available: true
   },
@@ -423,162 +517,79 @@ export const cars: Car[] = [
     },
     available: true
   },
+
+  // CHEVROLET - American Performance
   {
-    id: 'porsche-cayman-gts',
-    brand: 'Porsche',
-    model: 'Cayman GTS',
-    year: 2016,
+    id: 'corvette-c8',
+    brand: 'Chevrolet',
+    model: 'Corvette C8 Stingray',
+    year: 2024,
     category: 'Sports Car',
     stats: {
-      horsepower: 340,
-      torque: 280,
-      topSpeed: 177,
-      acceleration: 4.6,
-      engine: '3.4L Flat-6',
+      horsepower: 500,
+      torque: 470,
+      topSpeed: 194,
+      acceleration: 2.9,
+      engine: '6.2L V8',
       drivetrain: 'RWD',
       doors: 2
     },
     features: [
-      'Sport Chrono Package',
-      'PASM Adaptive Suspension',
-      'Sport Design Package',
-      'Alcantara Interior',
-      'Sport Exhaust System'
-    ],
-    price: {
-      daily: 499,
-      weekly: 2999
-    },
-    images: {
-      main: '/cars/Porsche Cayman GTS 2016/pics/Porsche Cayman GTS - Main.png',
-      gallery: []
-    },
-    videos: {
-      showcase: '/cars/Porsche Cayman GTS 2016/vids/showcase.mp4'
-    },
-    audio: {
-      startup: '/cars/Porsche Cayman GTS 2016/audio/startup.mp3',
-      rev: '/cars/Porsche Cayman GTS 2016/audio/rev.mp3'
-    },
-    available: true
-  },
-  {
-    id: 'porsche-911-carrera',
-    brand: 'Porsche',
-    model: '911 Carrera',
-    year: 2013,
-    category: 'Sports Car',
-    stats: {
-      horsepower: 350,
-      torque: 287,
-      topSpeed: 179,
-      acceleration: 4.6,
-      engine: '3.4L Flat-6',
-      drivetrain: 'RWD',
-      doors: 2
-    },
-    features: [
-      'Classic 911 Design',
-      'Sport Chrono Package',
-      'PASM Suspension',
-      'Porsche Communication Management',
-      'Sport Seats Plus'
-    ],
-    price: {
-      daily: 579,
-      weekly: 3499
-    },
-    images: {
-      main: '/cars/Porsche 911 Carrera 2013/pics/Porsche 911 Carrera - Main.png',
-      gallery: []
-    },
-    videos: {
-      showcase: '/cars/Porsche 911 Carrera 2013/vids/showcase.mp4'
-    },
-    audio: {
-      startup: '/cars/Porsche 911 Carrera 2013/audio/startup.mp3',
-      rev: '/cars/Porsche 911 Carrera 2013/audio/rev.mp3'
-    },
-    available: true
-  },
-  {
-    id: 'porsche-911-992',
-    brand: 'Porsche',
-    model: '911 992',
-    year: 2022,
-    category: 'Sports Car',
-    stats: {
-      horsepower: 379,
-      torque: 331,
-      topSpeed: 182,
-      acceleration: 4.0,
-      engine: '3.0L Twin-Turbo Flat-6',
-      drivetrain: 'RWD',
-      doors: 2
-    },
-    features: [
-      'Next-Generation 911',
-      'Wet Mode',
-      'Sport Chrono Package',
-      'PASM Sport Suspension',
-      'Porsche Communication Management 6.0'
+      'Mid-Engine Design',
+      'Magnetic Ride Control',
+      'Performance Traction Management',
+      'Launch Control',
+      'Z51 Performance Package'
     ],
     price: {
       daily: 699,
-      weekly: 4199
+      weekly: 3999
     },
     images: {
-      main: '/cars/Porsche 911 992 2022/pics/Porsche 911 992 - Main.png',
-      gallery: []
+      main: '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - Main.png',
+      gallery: [
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 1.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 2.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 3.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 4.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 5.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 6.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 7.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 8.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 9.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 10.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 11.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 12.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 13.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 14.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 15.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 16.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 17.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 18.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 19.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 20.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 21.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 22.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 23.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 24.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 25.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 26.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 27.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 28.jpg',
+        '/cars/Chevy Corvette C8 2024 (Red)/pics/Chevy Corvette C8 2024 (Red) - 29.jpg'
+      ]
     },
     videos: {
-      showcase: '/cars/Porsche 911 992 2022/vids/showcase.mp4'
+      showcase: '/cars/Chevy Corvette C8 2024 (Red)/vids/showcase.mp4'
     },
     audio: {
-      startup: '/cars/Porsche 911 992 2022/audio/startup.mp3',
-      rev: '/cars/Porsche 911 992 2022/audio/rev.mp3'
+      startup: '/cars/Chevy Corvette C8 2024 (Red)/audio/C8 - Cold Start.wav',
+      rev: '/cars/Chevy Corvette C8 2024 (Red)/audio/C8 - Rev.wav'
     },
     available: true
   },
-  {
-    id: 'audi-sq8-etron',
-    brand: 'Audi',
-    model: 'SQ8 e-tron',
-    year: 2024,
-    category: 'Electric Performance SUV',
-    stats: {
-      horsepower: 496,
-      torque: 718,
-      topSpeed: 130,
-      acceleration: 4.5,
-      engine: 'Tri-Motor Electric',
-      drivetrain: 'AWD',
-      doors: 4
-    },
-    features: [
-      'Electric Performance',
-      'Quattro All-Wheel Drive',
-      'Air Suspension',
-      'Virtual Cockpit Plus',
-      'Matrix LED Headlights'
-    ],
-    price: {
-      daily: 549,
-      weekly: 3299
-    },
-    images: {
-      main: '/cars/Audi SQ8 e-tron 2024/pics/Audi SQ8 e-tron - Main.png',
-      gallery: []
-    },
-    videos: {
-      showcase: '/cars/Audi SQ8 e-tron 2024/vids/showcase.mp4'
-    },
-    audio: {
-      startup: '/cars/Audi SQ8 e-tron 2024/audio/startup.mp3',
-      rev: '/cars/Audi SQ8 e-tron 2024/audio/rev.mp3'
-    },
-    available: true
-  },
+
+  // LAND ROVER - Luxury SUV
   {
     id: 'land-rover-range-rover',
     brand: 'Land Rover',
