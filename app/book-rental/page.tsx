@@ -391,6 +391,9 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-neon-blue mb-4"></div>
           <p className="text-gray-400">Loading secure payment form...</p>
+          <p className="text-red-400 text-sm mt-2">
+            If this persists, check if Stripe keys are configured in environment variables
+          </p>
         </div>
       </div>
     )
