@@ -62,6 +62,8 @@ export async function POST(
       payment_method: paymentMethod.id,
       off_session: true,
       confirm: true,
+      description: `Final Rental Payment - ${rental.car.brand} ${rental.car.model} (${rental.car.year}) | ${new Date(rental.rentalDates.startDate).toLocaleDateString()} - ${new Date(rental.rentalDates.endDate).toLocaleDateString()} | Balance: $${finalAmount}${additionalCharges ? ` + Additional: $${additionalCharges}` : ''}`,
+      statement_descriptor: 'DT EXOTICS RENTAL',
       metadata: {
         rental_id: rental.id,
         charge_type: 'final_rental_charge',

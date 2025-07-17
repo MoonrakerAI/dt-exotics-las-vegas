@@ -88,6 +88,8 @@ export async function POST(request: NextRequest) {
       customer: stripeCustomer.id,
       setup_future_usage: 'off_session', // Save payment method for later
       payment_method_types: ['card'],
+      description: `Rental Deposit - ${car.brand} ${car.model} (${car.year}) | ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()} | ${pricing.totalDays} days @ $${pricing.dailyRate}/day`,
+      statement_descriptor: 'DT EXOTICS RENTAL',
       metadata: {
         rental_id: rentalId,
         car_id: carId,

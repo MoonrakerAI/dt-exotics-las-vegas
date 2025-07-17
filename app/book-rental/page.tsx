@@ -532,19 +532,21 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
 
   if (succeeded) {
     return (
-      <div className="text-center">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500 flex items-center justify-center">
-          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
+      <div className="glass-panel p-8 mb-8">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500 flex items-center justify-center">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-tech font-bold text-white mb-4">Booking Confirmed!</h2>
+          <p className="text-gray-400 mb-6">
+            Your deposit has been processed and your rental is confirmed. You will receive a confirmation email shortly.
+          </p>
+          <a href="/" className="btn-primary inline-block">
+            Return to Home
+          </a>
         </div>
-        <h2 className="text-2xl font-tech font-bold text-white mb-4">Booking Confirmed!</h2>
-        <p className="text-gray-400 mb-6">
-          Your deposit has been processed and your rental is confirmed. You will receive a confirmation email shortly.
-        </p>
-        <a href="/" className="btn-primary inline-block">
-          Return to Home
-        </a>
       </div>
     )
   }
