@@ -11,7 +11,14 @@ import { stripePublishableKey } from '../lib/stripe'
 import { formatCurrency, validateRentalDates } from '../lib/rental-utils'
 import { CreateRentalRequest } from '../types/rental'
 
-const stripePromise = loadStripe(stripePublishableKey)
+const stripePromise = loadStripe(stripePublishableKey).then(stripe => {
+  if (!stripe) {
+    console.error('Stripe failed to load. Check your publishable key:', stripePublishableKey);
+  } else {
+    console.log('Stripe loaded successfully with key:', stripePublishableKey);
+  }
+  return stripe;
+})
 
 function BookingFormInner() {
   const searchParams = useSearchParams()
@@ -116,6 +123,8 @@ function BookingFormInner() {
     setError('')
 
     try {
+      console.log('Creating deposit intent with data:', formData)
+      
       const response = await fetch('/api/rentals/create-deposit-intent', {
         method: 'POST',
         headers: {
@@ -124,7 +133,11 @@ function BookingFormInner() {
         body: JSON.stringify(formData)
       })
 
+      console.log('Response status:', response.status)
+      console.log('Response headers:', response.headers)
+
       const data = await response.json()
+      console.log('Response data:', data)
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create booking')
@@ -132,6 +145,7 @@ function BookingFormInner() {
 
       return data.data
     } catch (err) {
+      console.error('Error creating deposit intent:', err)
       setError(err instanceof Error ? err.message : 'Failed to create booking')
       return null
     } finally {
@@ -370,6 +384,18 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
   const [error, setError] = useState('')
   const [succeeded, setSucceeded] = useState(false)
 
+  // Check if Stripe and Elements are loaded
+  if (!stripe || !elements) {
+    return (
+      <div className="glass-panel p-8 mb-8">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-neon-blue mb-4"></div>
+          <p className="text-gray-400">Loading secure payment form...</p>
+        </div>
+      </div>
+    )
+  }
+
   const selectedCar = cars.find(car => car.id === formData.carId)
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -449,11 +475,11 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
           </div>
           <div>
             <p className="text-gray-400 text-sm">Total Amount</p>
-            <p className="text-white font-semibold">{formatCurrency(pricing.subtotal)}</p>
+            <p className="text-white font-semibold">{pricing ? formatCurrency(pricing.subtotal) : '--'}</p>
           </div>
           <div>
             <p className="text-gray-400 text-sm">Deposit Due Now</p>
-            <p className="text-neon-blue font-semibold">{formatCurrency(pricing.depositAmount)}</p>
+            <p className="text-neon-blue font-semibold">{pricing ? formatCurrency(pricing.depositAmount) : '--'}</p>
           </div>
         </div>
       </div>
@@ -482,8 +508,8 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
 
         <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
           <p className="text-blue-400 text-sm">
-            <strong>Deposit Authorization:</strong> We'll authorize {formatCurrency(pricing.depositAmount)} on your card without charging it. 
-            The remaining {formatCurrency(pricing.finalAmount)} will be charged at the end of your rental period.
+            <strong>Deposit Authorization:</strong> We'll authorize {pricing ? formatCurrency(pricing.depositAmount) : '$0'} on your card without charging it. 
+            The remaining {pricing ? formatCurrency(pricing.finalAmount) : '$0'} will be charged at the end of your rental period.
           </p>
         </div>
 
@@ -510,7 +536,7 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
                 : 'bg-neon-blue text-black hover:shadow-[0_0_30px_rgba(0,255,255,0.8)]'
             }`}
           >
-            {processing ? 'Processing...' : `Authorize ${formatCurrency(pricing.depositAmount)} Deposit`}
+            {processing ? 'Processing...' : `Authorize ${pricing ? formatCurrency(pricing.depositAmount) : '$0'} Deposit`}
           </button>
         </div>
       </form>
