@@ -285,7 +285,7 @@ function BookingFormInner() {
             <div className="glass-panel p-6 mb-6">
               <div className="flex items-center gap-4 mb-4">
                 <img 
-                  src={getCarImage(selectedCar)} 
+                  src={selectedCar ? getCarImage(selectedCar) : '/cars/fallback/generic-car.jpg'} 
                   alt={`${selectedCar.brand} ${selectedCar.model}`}
                   className="w-24 h-16 object-cover rounded-lg"
                   onError={(e) => {
@@ -552,7 +552,7 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
         {/* Car Image and Details */}
         <div className="flex items-center gap-4 mb-6">
           <img 
-            src={getCarImage(selectedCar)} 
+            src={selectedCar ? getCarImage(selectedCar) : '/cars/fallback/generic-car.jpg'} 
             alt={`${selectedCar?.brand} ${selectedCar?.model}`}
             className="w-20 h-14 object-cover rounded-lg"
             onError={(e) => {
