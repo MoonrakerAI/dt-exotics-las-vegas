@@ -255,6 +255,10 @@ function BookingFormInner() {
                       MozAppearance: 'textfield',
                       colorScheme: 'dark'
                     }}
+                    onClick={(e) => {
+                      // Ensure the date picker opens when clicking anywhere on the field
+                      e.currentTarget.showPicker?.();
+                    }}
                   />
                 </div>
               </div>
@@ -274,6 +278,10 @@ function BookingFormInner() {
                       WebkitAppearance: 'none',
                       MozAppearance: 'textfield',
                       colorScheme: 'dark'
+                    }}
+                    onClick={(e) => {
+                      // Ensure the date picker opens when clicking anywhere on the field
+                      e.currentTarget.showPicker?.();
                     }}
                   />
                 </div>
