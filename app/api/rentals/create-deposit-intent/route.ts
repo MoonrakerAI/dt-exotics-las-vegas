@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import stripe from '@/app/lib/stripe';
 import { cars } from '@/app/data/cars';
 import { calculateRentalPricing, validateRentalDates, generateRentalId } from '@/app/lib/rental-utils';
-import rentalDB from '@/app/lib/database';
+import kvRentalDB from '@/app/lib/kv-database';
 import { CreateRentalRequest, RentalBooking } from '@/app/types/rental';
 
 export async function POST(request: NextRequest) {
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check availability
-    const isAvailable = await rentalDB.isCarAvailable(carId, startDate, endDate);
+    const isAvailable = await kvRentalDB.isCarAvailable(carId, startDate, endDate);
     if (!isAvailable) {
       return NextResponse.json(
         { error: 'Car is not available for selected dates' },
@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date().toISOString()
     };
 
-    await rentalDB.createRental(rental);
+    await kvRentalDB.createRental(rental);
 
     return NextResponse.json({
       success: true,

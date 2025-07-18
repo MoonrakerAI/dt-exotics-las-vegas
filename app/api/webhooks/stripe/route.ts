@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import stripe from '@/app/lib/stripe';
-import rentalDB from '@/app/lib/database';
+import kvRentalDB from '@/app/lib/kv-database';
 import { headers } from 'next/headers';
 
 export async function POST(request: NextRequest) {
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 async function handlePaymentIntentSucceeded(paymentIntent: any) {
   console.log('Payment succeeded:', paymentIntent.id);
   
-  const rental = await rentalDB.getRentalByPaymentIntent(paymentIntent.id);
+  const rental = await kvRentalDB.getRentalByPaymentIntent(paymentIntent.id);
   if (!rental) {
     console.error('Rental not found for payment intent:', paymentIntent.id);
     return;
@@ -76,7 +76,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
   // Update rental status based on payment type
   if (rental.payment.depositPaymentIntentId === paymentIntent.id) {
     // Deposit payment succeeded
-    await rentalDB.updateRental(rental.id, {
+    await kvRentalDB.updateRental(rental.id, {
       payment: {
         ...rental.payment,
         depositStatus: 'authorized'
@@ -85,7 +85,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
     });
   } else if (rental.payment.finalPaymentIntentId === paymentIntent.id) {
     // Final payment succeeded
-    await rentalDB.updateRental(rental.id, {
+    await kvRentalDB.updateRental(rental.id, {
       payment: {
         ...rental.payment,
         finalPaymentStatus: 'succeeded'
@@ -98,7 +98,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
 async function handlePaymentIntentFailed(paymentIntent: any) {
   console.log('Payment failed:', paymentIntent.id);
   
-  const rental = await rentalDB.getRentalByPaymentIntent(paymentIntent.id);
+  const rental = await kvRentalDB.getRentalByPaymentIntent(paymentIntent.id);
   if (!rental) {
     console.error('Rental not found for payment intent:', paymentIntent.id);
     return;
@@ -107,7 +107,7 @@ async function handlePaymentIntentFailed(paymentIntent: any) {
   // Update rental status based on payment type
   if (rental.payment.depositPaymentIntentId === paymentIntent.id) {
     // Deposit payment failed
-    await rentalDB.updateRental(rental.id, {
+    await kvRentalDB.updateRental(rental.id, {
       payment: {
         ...rental.payment,
         depositStatus: 'failed'
@@ -116,7 +116,7 @@ async function handlePaymentIntentFailed(paymentIntent: any) {
     });
   } else if (rental.payment.finalPaymentIntentId === paymentIntent.id) {
     // Final payment failed
-    await rentalDB.updateRental(rental.id, {
+    await kvRentalDB.updateRental(rental.id, {
       payment: {
         ...rental.payment,
         finalPaymentStatus: 'failed'
@@ -128,7 +128,7 @@ async function handlePaymentIntentFailed(paymentIntent: any) {
 async function handlePaymentIntentRequiresAction(paymentIntent: any) {
   console.log('Payment requires action:', paymentIntent.id);
   
-  const rental = await rentalDB.getRentalByPaymentIntent(paymentIntent.id);
+  const rental = await kvRentalDB.getRentalByPaymentIntent(paymentIntent.id);
   if (!rental) {
     console.error('Rental not found for payment intent:', paymentIntent.id);
     return;
@@ -141,13 +141,13 @@ async function handlePaymentIntentRequiresAction(paymentIntent: any) {
 async function handlePaymentIntentCanceled(paymentIntent: any) {
   console.log('Payment canceled:', paymentIntent.id);
   
-  const rental = await rentalDB.getRentalByPaymentIntent(paymentIntent.id);
+  const rental = await kvRentalDB.getRentalByPaymentIntent(paymentIntent.id);
   if (!rental) {
     console.error('Rental not found for payment intent:', paymentIntent.id);
     return;
   }
 
-  await rentalDB.updateRental(rental.id, {
+  await kvRentalDB.updateRental(rental.id, {
     status: 'cancelled'
   });
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import rentalDB from '@/app/lib/database';
+import kvRentalDB from '@/app/lib/kv-database';
 
 // Simple admin authentication - in production, use proper JWT or session management
 function isAdminAuthenticated(request: NextRequest): boolean {
@@ -26,11 +26,11 @@ export async function GET(request: NextRequest) {
     let rentals;
 
     if (status) {
-      rentals = await rentalDB.getRentalsByStatus(status as any);
+      rentals = await kvRentalDB.getRentalsByStatus(status as any);
     } else if (startDate && endDate) {
-      rentals = await rentalDB.getRentalsByDateRange(startDate, endDate);
+      rentals = await kvRentalDB.getRentalsByDateRange(startDate, endDate);
     } else {
-      rentals = await rentalDB.getAllRentals();
+      rentals = await kvRentalDB.getAllRentals();
     }
 
     // Sort by creation date (newest first)

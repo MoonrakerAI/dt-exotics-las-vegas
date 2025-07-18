@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import rentalDB from '@/app/lib/database';
+import kvRentalDB from '@/app/lib/kv-database';
 import stripe from '@/app/lib/stripe';
 
 // Simple admin authentication
@@ -23,7 +23,7 @@ export async function GET(
 
   try {
     const { id } = await params;
-    const rental = await rentalDB.getRental(id);
+    const rental = await kvRentalDB.getRental(id);
     
     if (!rental) {
       return NextResponse.json(

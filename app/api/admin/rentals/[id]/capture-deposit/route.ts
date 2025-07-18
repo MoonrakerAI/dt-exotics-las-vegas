@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import rentalDB from '@/app/lib/database';
+import kvRentalDB from '@/app/lib/kv-database';
 import stripe from '@/app/lib/stripe';
 
 // Simple admin authentication
@@ -25,7 +25,7 @@ export async function POST(
     const { captureAmount } = await request.json();
     const { id } = await params;
 
-    const rental = await rentalDB.getRental(id);
+    const rental = await kvRentalDB.getRental(id);
     if (!rental) {
       return NextResponse.json(
         { error: 'Rental not found' },
@@ -42,7 +42,7 @@ export async function POST(
     );
 
     // Update rental status
-    await rentalDB.updateRental(id, {
+    await kvRentalDB.updateRental(id, {
       payment: {
         ...rental.payment,
         depositStatus: 'captured'
