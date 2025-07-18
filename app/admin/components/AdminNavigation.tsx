@@ -13,6 +13,7 @@ import {
   Calendar,
   CreditCard
 } from 'lucide-react'
+import { ClientAuth } from '../../lib/client-auth'
 
 const navItems = [
   { 
@@ -53,15 +54,9 @@ export default function AdminNavigation() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/auth/me', {
-        credentials: 'include',
-        cache: 'no-store'
-      })
-      if (response.ok) {
-        const data = await response.json()
-        if (data.user) {
-          setUser(data.user)
-        }
+      const user = await ClientAuth.getCurrentUser()
+      if (user) {
+        setUser(user)
       }
     } catch (error) {
       console.error('Auth check failed:', error)
@@ -80,7 +75,7 @@ export default function AdminNavigation() {
 
   const handleSignOut = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' })
+      await ClientAuth.logout()
       router.push('/admin/login')
       router.refresh()
     } catch (error) {

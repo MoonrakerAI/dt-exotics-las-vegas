@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Lock, Mail, Eye, EyeOff } from 'lucide-react'
+import { ClientAuth } from '../../lib/client-auth'
 
 function LoginForm() {
   const [email, setEmail] = useState('')
@@ -21,29 +22,14 @@ function LoginForm() {
     setError('')
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          callbackUrl
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(data.error || 'Login failed')
+      const result = await ClientAuth.login(email, password, callbackUrl)
+      
+      if (!result.success) {
+        setError(result.error || 'Login failed')
       } else {
-        console.log('Login successful, redirecting to:', data.redirectUrl)
-        // Add a small delay to ensure cookie is set
-        setTimeout(() => {
-          router.push(data.redirectUrl)
-          router.refresh()
-        }, 100)
+        console.log('Login successful, redirecting to:', result.redirectUrl)
+        router.push(result.redirectUrl || '/admin')
+        router.refresh()
       }
     } catch (error) {
       setError('An error occurred. Please try again.')

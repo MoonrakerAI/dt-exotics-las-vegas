@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { formatCurrency } from '../lib/rental-utils'
 import { RentalBooking } from '../types/rental'
+import { ClientAuth } from '../lib/client-auth'
 
 interface AdminDashboardProps {
   rentals: RentalBooking[]
@@ -183,22 +184,13 @@ export default function AdminDashboard() {
 
   const checkAuthAndFetchData = async () => {
     try {
-      const authResponse = await fetch('/api/auth/me', {
-        credentials: 'include',
-        cache: 'no-store'
-      })
+      const user = await ClientAuth.getCurrentUser()
       
-      if (authResponse.ok) {
-        const authData = await authResponse.json()
-        if (authData.user) {
-          setUser(authData.user)
-          await fetchRentals()
-        } else {
-          console.log('No user in response')
-          window.location.href = '/admin/login'
-        }
+      if (user) {
+        setUser(user)
+        await fetchRentals()
       } else {
-        console.log('Auth response not ok:', authResponse.status)
+        console.log('No authenticated user found')
         window.location.href = '/admin/login'
       }
     } catch (error) {

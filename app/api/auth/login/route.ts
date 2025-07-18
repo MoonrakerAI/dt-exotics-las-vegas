@@ -27,7 +27,8 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ 
       success: true, 
       user,
-      redirectUrl 
+      redirectUrl,
+      token: sessionToken // Also return token for localStorage backup
     })
     
     response.cookies.set('admin-session', sessionToken, {

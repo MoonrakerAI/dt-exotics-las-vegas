@@ -3,7 +3,16 @@ import { validateSession } from '../../../lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
-    const sessionToken = request.cookies.get('admin-session')?.value
+    // Try cookie first
+    let sessionToken = request.cookies.get('admin-session')?.value
+    
+    // Fallback to Authorization header
+    if (!sessionToken) {
+      const authHeader = request.headers.get('authorization')
+      if (authHeader?.startsWith('Bearer ')) {
+        sessionToken = authHeader.substring(7)
+      }
+    }
     
     if (!sessionToken) {
       return NextResponse.json({ user: null }, { status: 401 })
