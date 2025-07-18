@@ -76,15 +76,26 @@ export class ClientAuth {
   }
 
   static async getCurrentUser(): Promise<User | null> {
+    // Prevent execution during SSR/build
+    if (typeof window === 'undefined') {
+      return null
+    }
+
     try {
-      // Try cookie-based auth first
+      // Try cookie-based auth first with timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+
       let response = await fetch('/api/auth/me', {
         credentials: 'include',
         cache: 'no-store',
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        signal: controller.signal
       })
+
+      clearTimeout(timeoutId)
 
       if (response.ok) {
         const data = await response.json()
@@ -95,13 +106,19 @@ export class ClientAuth {
         // Try token-based auth as fallback only if cookie auth fails with 401
         const token = this.getToken()
         if (token) {
+          const controller2 = new AbortController()
+          const timeoutId2 = setTimeout(() => controller2.abort(), 10000)
+          
           response = await fetch('/api/auth/me', {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json'
             },
-            cache: 'no-store'
+            cache: 'no-store',
+            signal: controller2.signal
           })
+
+          clearTimeout(timeoutId2)
 
           if (response.ok) {
             const data = await response.json()
@@ -117,7 +134,11 @@ export class ClientAuth {
 
       return null
     } catch (error) {
-      console.error('Auth check error:', error)
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error('Auth request timed out')
+      } else {
+        console.error('Auth check error:', error)
+      }
       return null
     }
   }

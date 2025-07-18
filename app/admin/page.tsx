@@ -194,17 +194,19 @@ export default function AdminDashboard() {
         await fetchRentals()
       } else {
         console.log('No authenticated user found, redirecting to login')
-        // Use router instead of window.location for better UX
-        setTimeout(() => {
+        setAuthLoading(false)
+        // Immediate redirect without setTimeout to prevent hanging
+        if (typeof window !== 'undefined') {
           window.location.href = '/admin/login'
-        }, 1000)
+        }
       }
     } catch (error) {
       console.error('Auth check failed:', error)
       setAuthLoading(false)
-      setTimeout(() => {
+      // Immediate redirect on error
+      if (typeof window !== 'undefined') {
         window.location.href = '/admin/login'
-      }, 1000)
+      }
     }
   }
 
