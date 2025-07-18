@@ -184,8 +184,8 @@ export default function VehiclePartnership() {
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-dark-gray/60 z-10" />
           <img
-            src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="Luxury cars in garage"
+            src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="Business handshake partnership in Las Vegas luxury setting"
             className="h-full w-full object-cover"
           />
         </div>

@@ -196,8 +196,8 @@ export default function CorporateServices() {
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-dark-gray/60 z-10" />
           <img
-            src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="Corporate executive with luxury car"
+            src="https://images.unsplash.com/photo-1569154941061-e231b4725ef1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="Las Vegas Strip at night with bright lights and luxury atmosphere"
             className="h-full w-full object-cover"
           />
         </div>
