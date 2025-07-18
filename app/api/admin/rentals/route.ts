@@ -11,16 +11,30 @@ function isAdminAuthenticated(request: NextRequest): boolean {
   
   const token = authHeader.substring(7);
   
-  // Allow both the new session tokens and the legacy admin token
+  // Allow the legacy admin token
   const adminToken = process.env.ADMIN_TOKEN || 'admin-secret-token';
   if (token === adminToken) {
     return true;
   }
   
-  // Validate session token format (our tokens are base64 encoded)
+  // Validate the simple auth token format (base64 encoded timestamp-userid-identifier)
   try {
-    const sessionData = JSON.parse(Buffer.from(token, 'base64').toString());
-    return sessionData.user && sessionData.user.role === 'admin' && sessionData.expires > Date.now();
+    const decoded = Buffer.from(token, 'base64').toString();
+    const parts = decoded.split('-');
+    
+    // Expected format: timestamp-userid-dt-exotics
+    if (parts.length === 3 && parts[2] === 'dt-exotics') {
+      const timestamp = parseInt(parts[0]);
+      const userId = parts[1];
+      
+      // Check if token is not too old (24 hours)
+      const tokenAge = Date.now() - timestamp;
+      const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+      
+      return tokenAge < maxAge && userId === '1'; // Admin user ID is '1'
+    }
+    
+    return false;
   } catch {
     return false;
   }
