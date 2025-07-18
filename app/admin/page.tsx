@@ -177,6 +177,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [filter, setFilter] = useState('all')
+  const [authLoading, setAuthLoading] = useState(true)
 
   useEffect(() => {
     checkAuthAndFetchData()
@@ -184,27 +185,37 @@ export default function AdminDashboard() {
 
   const checkAuthAndFetchData = async () => {
     try {
+      setAuthLoading(true)
       const user = await ClientAuth.getCurrentUser()
       
       if (user) {
         setUser(user)
+        setAuthLoading(false)
         await fetchRentals()
       } else {
-        console.log('No authenticated user found')
-        window.location.href = '/admin/login'
+        console.log('No authenticated user found, redirecting to login')
+        // Use router instead of window.location for better UX
+        setTimeout(() => {
+          window.location.href = '/admin/login'
+        }, 1000)
       }
     } catch (error) {
       console.error('Auth check failed:', error)
-      window.location.href = '/admin/login'
+      setAuthLoading(false)
+      setTimeout(() => {
+        window.location.href = '/admin/login'
+      }, 1000)
     }
   }
 
-  if (!user) {
+  if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-dark-gray flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-neon-blue"></div>
-          <p className="text-gray-400 mt-4">Loading...</p>
+          <p className="text-gray-400 mt-4">
+            {authLoading ? 'Authenticating...' : 'Redirecting to login...'}
+          </p>
         </div>
       </div>
     )

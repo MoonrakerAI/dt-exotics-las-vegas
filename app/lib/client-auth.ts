@@ -80,7 +80,10 @@ export class ClientAuth {
       // Try cookie-based auth first
       let response = await fetch('/api/auth/me', {
         credentials: 'include',
-        cache: 'no-store'
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       })
 
       if (response.ok) {
@@ -88,22 +91,26 @@ export class ClientAuth {
         if (data.user) {
           return data.user
         }
-      }
+      } else if (response.status === 401) {
+        // Try token-based auth as fallback only if cookie auth fails with 401
+        const token = this.getToken()
+        if (token) {
+          response = await fetch('/api/auth/me', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            cache: 'no-store'
+          })
 
-      // Fallback to token-based auth
-      const token = this.getToken()
-      if (token) {
-        response = await fetch('/api/auth/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          cache: 'no-store'
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          if (data.user) {
-            return data.user
+          if (response.ok) {
+            const data = await response.json()
+            if (data.user) {
+              return data.user
+            }
+          } else if (response.status === 401) {
+            // Both auth methods failed, clear invalid token
+            this.removeToken()
           }
         }
       }
