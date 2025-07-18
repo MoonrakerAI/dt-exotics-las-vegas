@@ -1,7 +1,7 @@
 'use client'
 
-import { useSession, signOut } from 'next-auth/react'
-import { usePathname } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { 
   LayoutDashboard, 
@@ -42,19 +42,45 @@ const navItems = [
 ]
 
 export default function AdminNavigation() {
-  const { data: session, status } = useSession()
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const pathname = usePathname()
+  const router = useRouter()
 
-  if (status === 'loading') {
+  useEffect(() => {
+    checkAuth()
+  }, [])
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch('/api/auth/me')
+      if (response.ok) {
+        const data = await response.json()
+        setUser(data.user)
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
     return null
   }
 
-  if (!session?.user || pathname === '/admin/login') {
+  if (!user || pathname === '/admin/login') {
     return null
   }
 
-  const handleSignOut = () => {
-    signOut({ callbackUrl: '/admin/login' })
+  const handleSignOut = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+      router.push('/admin/login')
+      router.refresh()
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
   }
 
   return (
@@ -108,10 +134,10 @@ export default function AdminNavigation() {
               </div>
               <div className="hidden md:block">
                 <p className="text-sm font-medium text-white">
-                  {session.user.name}
+                  {user.name}
                 </p>
                 <p className="text-xs text-gray-400">
-                  {session.user.email}
+                  {user.email}
                 </p>
               </div>
             </div>

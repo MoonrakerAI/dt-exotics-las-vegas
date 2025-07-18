@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, Suspense } from 'react'
-import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Lock, Mail, Eye, EyeOff } from 'lucide-react'
 
@@ -22,16 +21,25 @@ function LoginForm() {
     setError('')
 
     try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          callbackUrl
+        }),
       })
 
-      if (result?.error) {
-        setError('Invalid email or password')
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || 'Login failed')
       } else {
-        router.push(callbackUrl)
+        router.push(data.redirectUrl)
+        router.refresh()
       }
     } catch (error) {
       setError('An error occurred. Please try again.')

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
 import { formatCurrency } from '../lib/rental-utils'
 import { RentalBooking } from '../types/rental'
 
@@ -172,13 +171,33 @@ function RentalCard({ rental }: { rental: RentalBooking }) {
 }
 
 export default function AdminDashboard() {
-  const { data: session, status } = useSession()
+  const [user, setUser] = useState<any>(null)
   const [rentals, setRentals] = useState<RentalBooking[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [filter, setFilter] = useState('all')
 
-  if (status === 'loading') {
+  useEffect(() => {
+    checkAuthAndFetchData()
+  }, [])
+
+  const checkAuthAndFetchData = async () => {
+    try {
+      const authResponse = await fetch('/api/auth/me')
+      if (authResponse.ok) {
+        const authData = await authResponse.json()
+        setUser(authData.user)
+        await fetchRentals()
+      } else {
+        window.location.href = '/admin/login'
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error)
+      window.location.href = '/admin/login'
+    }
+  }
+
+  if (!user) {
     return (
       <div className="min-h-screen bg-dark-gray flex items-center justify-center">
         <div className="text-center">
@@ -189,13 +208,11 @@ export default function AdminDashboard() {
     )
   }
 
-  if (!session?.user) {
-    return null
-  }
-
   useEffect(() => {
-    fetchRentals()
-  }, [filter])
+    if (user) {
+      fetchRentals()
+    }
+  }, [filter, user])
 
   const fetchRentals = async () => {
     setLoading(true)
