@@ -208,8 +208,8 @@ export default function BirthdayRentals() {
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-dark-gray/60 z-10" />
           <img
-            src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="Birthday celebration with friends surprising with luxury car gift"
+            src="https://images.unsplash.com/photo-1464349153735-7db50ed83c84?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="Birthday party celebration with friends and cake"
             className="h-full w-full object-cover"
           />
         </div>
