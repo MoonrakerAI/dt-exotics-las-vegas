@@ -181,8 +181,8 @@ export default function BachelorPartyRentals() {
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-dark-gray/60 z-10" />
           <img
-            src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="Group of guys celebrating and having fun in Las Vegas"
+            src="https://images.unsplash.com/photo-1514362453360-8f94243c9996?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="Group of men celebrating bachelor party in Las Vegas"
             className="h-full w-full object-cover"
           />
         </div>
