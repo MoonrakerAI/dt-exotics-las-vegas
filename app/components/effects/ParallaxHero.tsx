@@ -30,7 +30,7 @@ export default function ParallaxHero({ imageSrc, alt, children }: ParallaxHeroPr
           alt={alt}
           className="h-[120%] w-full object-cover"
           style={{
-            transform: `translateY(${offsetY * 0.5}px)`,
+            transform: `translateY(${offsetY * 0.25}px)`,
             willChange: 'transform'
           }}
         />
