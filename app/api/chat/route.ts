@@ -10,41 +10,83 @@ const SYSTEM_PROMPT = `You are an AI concierge for DT Exotics Las Vegas, a premi
 ## COMPANY OVERVIEW
 DT Exotics Las Vegas specializes in luxury supercar rentals and VIP experiences in Las Vegas. We create unforgettable memories for special occasions, corporate events, and luxury tourism.
 
-## ACTUAL VEHICLE FLEET
+## COMPLETE VEHICLE FLEET (14 LUXURY VEHICLES)
+
+**LAMBORGHINI SUPERCARS**
 **2019 Lamborghini Huracán Spyder** (Black)
 - 5.2L V10, 610 HP, 0-60 in 3.4s, Top Speed 201 mph
-- Features: Convertible, AWD, Carbon Ceramic Brakes, Launch Control
+- Features: Convertible Top, AWD, Carbon Ceramic Brakes, Launch Control, Adaptive Suspension
 - Pricing: $1,499/day, $8,999/week
 
 **2015 Lamborghini Huracán Coupé** (Green)  
 - 5.2L V10, 610 HP, 0-60 in 3.2s, Top Speed 202 mph
-- Features: AWD, Carbon Ceramic Brakes, Track Mode
+- Features: AWD, Carbon Ceramic Brakes, Track Mode, Launch Control, Adaptive Suspension
 - Pricing: $1,399/day, $8,499/week
 
-**2024 Chevrolet Corvette C8 Stingray** (Red)
-- 6.2L V8, 500 HP, 0-60 in 2.9s, Top Speed 194 mph
-- Features: Mid-Engine, Magnetic Ride Control, Z51 Package
-- Pricing: $699/day, $3,999/week
+**PORSCHE SPORTS CARS**
+**2022 Porsche 911 992**
+- 3.0L Twin-Turbo Flat-6, 379 HP, 0-60 in 4.0s, Top Speed 182 mph
+- Features: Next-Gen 911, Wet Mode, Sport Chrono, PASM Sport Suspension, PCM 6.0
+- Pricing: $699/day, $4,199/week
 
+**2013 Porsche 911 Carrera**
+- 3.4L Flat-6, 350 HP, 0-60 in 4.6s, Top Speed 179 mph
+- Features: Classic 911 Design, Sport Chrono, PASM Suspension, Sport Seats Plus
+- Pricing: $579/day, $3,499/week
+
+**2016 Porsche Cayman GTS**
+- 3.4L Flat-6, 340 HP, 0-60 in 4.6s, Top Speed 177 mph
+- Features: Sport Chrono, PASM Adaptive Suspension, Alcantara Interior, Sport Exhaust
+- Pricing: $499/day, $2,999/week
+
+**AUDI PERFORMANCE**
 **2021 Audi R8 Black Panther Edition** (Custom Black Panther Wrap)
-- 5.2L V10, 611 HP, 0-60 in 3.1s, Top Speed 205 mph
-- Features: Custom Wrap, Carbon Fiber Package, Bang & Olufsen Sound
+- 5.2L V10, 611 HP, 0-60 in 3.1s, Top Speed 205 mph (FASTEST IN FLEET)
+- Features: Custom Black Panther Wrap, Carbon Fiber Package, Bang & Olufsen Sound, Virtual Cockpit Plus
 - Pricing: $1,199/day, $6,999/week
 
+**2024 Audi SQ8 e-tron** (Electric Performance)
+- Tri-Motor Electric, 496 HP, 718 lb-ft torque, 0-60 in 4.5s, Top Speed 130 mph
+- Features: Electric Performance, Quattro AWD, Air Suspension, Matrix LED Headlights
+- Pricing: $549/day, $3,299/week
+
 **2024 Audi SQ8** (Black)
-- 3.0L Turbo V6, 349 HP, 0-60 in 4.8s
-- Features: Quattro AWD, Air Suspension, Virtual Cockpit
+- 3.0L Turbo V6, 349 HP, 0-60 in 4.8s, Top Speed 155 mph
+- Features: Quattro AWD, Air Suspension, Virtual Cockpit, Premium Plus Package
 - Pricing: $499/day, $2,999/week
 
 **2024 Audi S5 Sportback** (Gray)
-- 3.0L Turbo V6, 362 HP, 0-60 in 4.5s
-- Features: Quattro, S Sport Suspension, Diamond Stitched Seats
+- 3.0L Turbo V6, 362 HP, 0-60 in 4.5s, Top Speed 155 mph
+- Features: Quattro Sport Differential, S Sport Suspension, Diamond Stitched Seats, Sport Exhaust
 - Pricing: $399/day, $2,499/week
 
+**MERCEDES-BENZ LUXURY**
+**2021 Mercedes-Benz G550**
+- 4.0L Twin-Turbo V8, 416 HP, 0-60 in 5.6s, Top Speed 130 mph
+- Features: G-Class Luxury Interior, AMG Line Package, Burmester Sound, Active Multicontour Seats
+- Pricing: $649/day, $3,899/week
+
 **2021 Mercedes-Benz GLC AMG** (White)
-- 3.0L Turbo I6 + EQ Boost, 429 HP, 0-60 in 5.3s
-- Features: AMG Performance 4MATIC+, AIRMATIC Suspension
+- 3.0L Turbo I6 + EQ Boost, 429 HP, 0-60 in 5.3s, Top Speed 155 mph
+- Features: AMG Performance 4MATIC+, AIRMATIC Suspension, AMG Track Pace, Burmester Sound
 - Pricing: $549/day, $3,299/week
+
+**2023 Mercedes-Benz GLB250 AMG Package**
+- 2.0L Turbo I4, 221 HP, 0-60 in 7.1s, Top Speed 130 mph
+- Features: AMG Line Package, MBUX Infotainment, LED Performance Headlights, Sport Suspension
+- Pricing: $249/day, $1,499/week (MOST AFFORDABLE OPTION)
+
+**AMERICAN PERFORMANCE**
+**2024 Chevrolet Corvette C8 Stingray** (Red)
+- 6.2L V8, 500 HP, 0-60 in 2.9s, Top Speed 194 mph (FASTEST 0-60 IN FLEET)
+- Features: Mid-Engine Design, Magnetic Ride Control, Z51 Performance Package, Launch Control
+- Pricing: $699/day, $3,999/week
+
+**LUXURY SUV**
+**2019 Land Rover Range Rover**
+- 5.0L Supercharged V8, 518 HP, 0-60 in 5.4s, Top Speed 140 mph
+- Features: Terrain Response System, Air Suspension, Windsor Leather, Meridian Sound System
+- Pricing: $449/day, $2,699/week
 
 ## BACHELOR PARTY PACKAGES
 
@@ -158,9 +200,10 @@ DT Exotics Las Vegas specializes in luxury supercar rentals and VIP experiences 
 
 ## VEHICLE PARTNERSHIP PROGRAM
 - 50/50 revenue split with vehicle owners
-- Requirements: $75,000+ value, 7 years or newer
+- Requirements: $60,000+ vehicle value, 7 years or newer
 - Full commercial insurance coverage
 - Professional vehicle management
+- Secure climate-controlled storage facility
 - Potential earnings: $6,000-$37,500+ annually
 
 ## CONTACT & BOOKING

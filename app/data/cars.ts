@@ -630,39 +630,4 @@ export const cars: Car[] = [
     available: true
   },
 
-  // TEST VEHICLE - For payment system testing
-  {
-    id: 'test-vehicle',
-    brand: 'Test',
-    model: 'Payment System Test',
-    year: 2024,
-    category: 'Test Vehicle',
-    stats: {
-      horsepower: 1,
-      torque: 1,
-      topSpeed: 1,
-      acceleration: 1.0,
-      engine: 'Test Engine',
-      drivetrain: 'Test',
-      doors: 2
-    },
-    features: [
-      'Payment System Testing',
-      'Webhook Testing',
-      'Stripe Integration Test',
-      'Low Cost Testing',
-      'Easy Removal'
-    ],
-    price: {
-      daily: 1,
-      weekly: 7
-    },
-    images: {
-      main: '/cars/fallback/generic-car.jpg',
-      gallery: []
-    },
-    videos: {},
-    audio: {},
-    available: true
-  }
 ]
