@@ -30,6 +30,7 @@ export interface Car {
     rev?: string
   }
   available: boolean
+  showOnHomepage?: boolean
 }
 
 export const cars: Car[] = [
@@ -630,4 +631,40 @@ export const cars: Car[] = [
     available: true
   },
 
+  // TEST VEHICLE - For payment system testing (hidden from homepage)
+  {
+    id: 'test-vehicle',
+    brand: 'Test',
+    model: 'Payment System Test',
+    year: 2024,
+    category: 'Test Vehicle',
+    stats: {
+      horsepower: 100,
+      torque: 100,
+      topSpeed: 100,
+      acceleration: 10.0,
+      engine: '1.0L Test Engine',
+      drivetrain: 'FWD',
+      doors: 4
+    },
+    features: [
+      'Payment System Testing',
+      'Webhook Testing',
+      'Stripe Integration Test',
+      'Low Cost Testing',
+      'Easy Removal'
+    ],
+    price: {
+      daily: 1,
+      weekly: 7
+    },
+    images: {
+      main: '/cars/fallback-generic-car.jpg',
+      gallery: []
+    },
+    videos: {},
+    audio: {},
+    available: true,
+    showOnHomepage: false
+  }
 ]

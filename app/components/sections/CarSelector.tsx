@@ -283,7 +283,7 @@ export default function CarSelector() {
 
         {/* Car Grid - 3 per row */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cars.map((car) => (
+          {cars.filter(car => car.showOnHomepage !== false).map((car) => (
             <CarCard
               key={car.id}
               car={car}
