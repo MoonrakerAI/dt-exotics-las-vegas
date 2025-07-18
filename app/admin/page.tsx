@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { formatCurrency } from '../lib/rental-utils'
 import { RentalBooking } from '../types/rental'
 
@@ -171,10 +172,26 @@ function RentalCard({ rental }: { rental: RentalBooking }) {
 }
 
 export default function AdminDashboard() {
+  const { data: session, status } = useSession()
   const [rentals, setRentals] = useState<RentalBooking[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [filter, setFilter] = useState('all')
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-dark-gray flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-neon-blue"></div>
+          <p className="text-gray-400 mt-4">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!session?.user) {
+    return null
+  }
 
   useEffect(() => {
     fetchRentals()
@@ -214,17 +231,16 @@ export default function AdminDashboard() {
   })
 
   return (
-    <div className="min-h-screen bg-dark-gray">
-      <div className="pt-8 pb-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-4xl font-tech font-bold text-white mb-4">
-              Admin <span className="neon-text">Dashboard</span>
-            </h1>
-            <p className="text-xl text-gray-400">
-              Manage rental bookings and payments
-            </p>
-          </div>
+    <div className="pt-8 pb-16 px-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-4xl font-tech font-bold text-white mb-4">
+            Dashboard <span className="neon-text">Overview</span>
+          </h1>
+          <p className="text-xl text-gray-400">
+            Manage rental bookings and payments
+          </p>
+        </div>
 
           <div className="mb-6">
             <div className="flex gap-2 mb-4">
@@ -268,6 +284,5 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
-    </div>
   )
 }
