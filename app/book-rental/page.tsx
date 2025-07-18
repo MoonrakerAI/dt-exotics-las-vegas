@@ -539,9 +539,9 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-2xl font-tech font-bold text-white mb-4">Booking Confirmed!</h2>
+          <h2 className="text-2xl font-tech font-bold text-white mb-4">Deposit Confirmed!</h2>
           <p className="text-gray-400 mb-6">
-            Your deposit has been processed and your rental is confirmed. You will receive a confirmation email shortly.
+            Your deposit has been processed successfully. We will contact you shortly to confirm vehicle availability and finalize your rental details.
           </p>
           <a href="/" className="btn-primary inline-block">
             Return to Home
