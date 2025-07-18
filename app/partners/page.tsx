@@ -2,6 +2,7 @@
 
 import Navbar from '../components/navigation/Navbar'
 import Footer from '../components/sections/Footer'
+import ParallaxHero from '../components/effects/ParallaxHero'
 import { Car, DollarSign, Shield, Clock, TrendingUp, CheckCircle, Calculator, Users, ChevronDown, FileText, Search, HandshakeIcon, Zap } from 'lucide-react'
 import { useState, useRef } from 'react'
 
@@ -179,18 +180,10 @@ export default function VehiclePartnership() {
     <main className="relative min-h-screen">
       <Navbar />
       {/* Hero Section */}
-      <section className="relative h-screen w-full overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-dark-gray/60 z-10" />
-          <img
-            src="/images/hero/Partners Hero.avif"
-            alt="Partnership opportunities with DT Exotics"
-            className="h-full w-full object-cover"
-          />
-        </div>
-
-        {/* Content */}
+      <ParallaxHero
+        imageSrc="/images/hero/Partners Hero.avif"
+        alt="Partnership opportunities with DT Exotics"
+      >
         <div className="relative z-20 flex h-full items-center justify-center px-4 pb-20">
           <div className="text-center max-w-5xl mx-auto">
             <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-tech font-black mb-6">
@@ -224,7 +217,7 @@ export default function VehiclePartnership() {
 
         {/* Fade transition */}
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent to-[#0A0A0A] pointer-events-none" />
-      </section>
+      </ParallaxHero>
 
       {/* Benefits Section */}
       <section className="py-20 px-4 relative">
