@@ -222,7 +222,7 @@ export default function VIPServices() {
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-dark-gray/60 z-10" />
           <img
-            src="/images/hero/VIP Services Hero.avif"
+            src="/images/hero/VIP Services.avif"
             alt="Exclusive VIP services and luxury lifestyle"
             className="h-full w-full object-cover"
           />
