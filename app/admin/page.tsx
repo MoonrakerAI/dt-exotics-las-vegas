@@ -88,7 +88,7 @@ function RentalCard({ rental }: { rental: RentalBooking }) {
   }
 
   return (
-    <div className="glass-panel p-6 mb-6">
+    <div className="glass-panel bg-dark-metal/50 p-6 mb-6 border border-gray-600/30 rounded-2xl">
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-xl font-tech font-bold text-white">
@@ -218,25 +218,26 @@ export default function AdminDashboard() {
   return (
     <div className="pt-8 pb-16 px-4">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
+        <div className="glass-panel bg-dark-metal/30 p-8 mb-8 border border-gray-600/30 rounded-2xl backdrop-blur-sm">
           <h1 className="text-4xl font-tech font-bold text-white mb-4">
             Dashboard <span className="neon-text">Overview</span>
           </h1>
-          <p className="text-xl text-gray-400">
+          <p className="text-xl text-gray-300">
             Manage rental bookings and payments
           </p>
         </div>
 
-          <div className="mb-6">
-            <div className="flex gap-2 mb-4">
+          <div className="glass-panel bg-dark-metal/20 p-6 mb-6 border border-gray-600/30 rounded-2xl backdrop-blur-sm">
+            <h3 className="text-lg font-tech font-semibold text-white mb-4">Filter Rentals</h3>
+            <div className="flex flex-wrap gap-2">
               {['all', 'pending', 'confirmed', 'active', 'completed', 'cancelled'].map(status => (
                 <button
                   key={status}
                   onClick={() => setFilter(status)}
-                  className={`px-4 py-2 rounded-lg font-tech font-medium transition-all duration-300 ${
+                  className={`px-4 py-2 rounded-lg font-tech font-medium transition-all duration-300 border ${
                     filter === status
-                      ? 'bg-neon-blue text-black'
-                      : 'bg-dark-metal text-gray-400 hover:text-white'
+                      ? 'bg-neon-blue text-black border-neon-blue shadow-[0_0_10px_rgba(0,255,255,0.3)]'
+                      : 'bg-dark-metal/50 text-gray-300 border-gray-600/30 hover:text-white hover:border-gray-500/50'
                   }`}
                 >
                   {status.toUpperCase()}
@@ -246,19 +247,19 @@ export default function AdminDashboard() {
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-              <p className="text-red-400">{error}</p>
+            <div className="glass-panel bg-red-500/10 p-4 mb-6 border border-red-500/30 rounded-2xl backdrop-blur-sm">
+              <p className="text-red-300">{error}</p>
             </div>
           )}
 
           {loading ? (
-            <div className="text-center py-12">
+            <div className="glass-panel bg-dark-metal/20 p-12 border border-gray-600/30 rounded-2xl backdrop-blur-sm text-center">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-neon-blue"></div>
-              <p className="text-gray-400 mt-4">Loading rentals...</p>
+              <p className="text-gray-300 mt-4">Loading rentals...</p>
             </div>
           ) : filteredRentals.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-400 text-lg">No rentals found</p>
+            <div className="glass-panel bg-dark-metal/20 p-12 border border-gray-600/30 rounded-2xl backdrop-blur-sm text-center">
+              <p className="text-gray-300 text-lg">No rentals found</p>
             </div>
           ) : (
             <div>

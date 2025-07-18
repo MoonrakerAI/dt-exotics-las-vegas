@@ -23,9 +23,9 @@ export default function AdminLayout({
   // Wrap other admin pages with AuthGuard
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-dark-gray">
+      <div className="min-h-screen bg-gradient-to-br from-dark-gray via-dark-metal to-dark-gray">
         <AdminNavigation />
-        <main>{children}</main>
+        <main className="relative">{children}</main>
       </div>
     </AuthGuard>
   )

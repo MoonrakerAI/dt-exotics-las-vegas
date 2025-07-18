@@ -90,8 +90,12 @@ export default function AdminNavigation() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/admin" className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-neon-blue rounded-lg flex items-center justify-center">
-                <Car className="w-5 h-5 text-black font-bold" />
+              <div className="w-8 h-8 flex items-center justify-center">
+                <img
+                  src="/images/logo/DT Exotics Logo Icon.png"
+                  alt="DT Exotics"
+                  className="w-8 h-8 object-contain"
+                />
               </div>
               <div>
                 <h1 className="text-lg font-tech font-bold text-white">
