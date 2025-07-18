@@ -38,8 +38,12 @@ function LoginForm() {
       if (!response.ok) {
         setError(data.error || 'Login failed')
       } else {
-        router.push(data.redirectUrl)
-        router.refresh()
+        console.log('Login successful, redirecting to:', data.redirectUrl)
+        // Add a small delay to ensure cookie is set
+        setTimeout(() => {
+          router.push(data.redirectUrl)
+          router.refresh()
+        }, 100)
       }
     } catch (error) {
       setError('An error occurred. Please try again.')

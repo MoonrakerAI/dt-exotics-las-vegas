@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCurrentUser } from '../../../lib/auth'
+import { validateSession } from '../../../lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await getCurrentUser()
+    const sessionToken = request.cookies.get('admin-session')?.value
+    
+    if (!sessionToken) {
+      return NextResponse.json({ user: null }, { status: 401 })
+    }
+    
+    const user = await validateSession(sessionToken)
     
     if (!user) {
       return NextResponse.json({ user: null }, { status: 401 })

@@ -53,10 +53,15 @@ export default function AdminNavigation() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/auth/me')
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include',
+        cache: 'no-store'
+      })
       if (response.ok) {
         const data = await response.json()
-        setUser(data.user)
+        if (data.user) {
+          setUser(data.user)
+        }
       }
     } catch (error) {
       console.error('Auth check failed:', error)

@@ -183,12 +183,22 @@ export default function AdminDashboard() {
 
   const checkAuthAndFetchData = async () => {
     try {
-      const authResponse = await fetch('/api/auth/me')
+      const authResponse = await fetch('/api/auth/me', {
+        credentials: 'include',
+        cache: 'no-store'
+      })
+      
       if (authResponse.ok) {
         const authData = await authResponse.json()
-        setUser(authData.user)
-        await fetchRentals()
+        if (authData.user) {
+          setUser(authData.user)
+          await fetchRentals()
+        } else {
+          console.log('No user in response')
+          window.location.href = '/admin/login'
+        }
       } else {
+        console.log('Auth response not ok:', authResponse.status)
         window.location.href = '/admin/login'
       }
     } catch (error) {
