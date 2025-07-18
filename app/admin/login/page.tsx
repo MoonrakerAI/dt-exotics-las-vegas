@@ -3,7 +3,7 @@
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Lock, Mail, Eye, EyeOff } from 'lucide-react'
-import { ClientAuth } from '../../lib/client-auth'
+import { SimpleAuth } from '../../lib/simple-auth'
 
 function LoginForm() {
   const [email, setEmail] = useState('')
@@ -22,13 +22,13 @@ function LoginForm() {
     setError('')
 
     try {
-      const result = await ClientAuth.login(email, password, callbackUrl)
+      const result = await SimpleAuth.login(email, password)
       
       if (!result.success) {
         setError(result.error || 'Login failed')
       } else {
-        console.log('Login successful, redirecting to:', result.redirectUrl)
-        router.push(result.redirectUrl || '/admin')
+        console.log('Login successful, redirecting to admin')
+        router.push(callbackUrl || '/admin')
         router.refresh()
       }
     } catch (error) {

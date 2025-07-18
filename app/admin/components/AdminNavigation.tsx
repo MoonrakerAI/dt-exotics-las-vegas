@@ -13,7 +13,7 @@ import {
   Calendar,
   CreditCard
 } from 'lucide-react'
-import { ClientAuth } from '../../lib/client-auth'
+import { SimpleAuth } from '../../lib/simple-auth'
 
 const navItems = [
   { 
@@ -52,9 +52,9 @@ export default function AdminNavigation() {
     checkAuth()
   }, [])
 
-  const checkAuth = async () => {
+  const checkAuth = () => {
     try {
-      const user = await ClientAuth.getCurrentUser()
+      const user = SimpleAuth.getCurrentUser()
       if (user) {
         setUser(user)
       }
@@ -73,9 +73,9 @@ export default function AdminNavigation() {
     return null
   }
 
-  const handleSignOut = async () => {
+  const handleSignOut = () => {
     try {
-      await ClientAuth.logout()
+      SimpleAuth.logout()
       router.push('/admin/login')
       router.refresh()
     } catch (error) {

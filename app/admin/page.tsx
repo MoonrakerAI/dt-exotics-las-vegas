@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { formatCurrency } from '../lib/rental-utils'
 import { RentalBooking } from '../types/rental'
-import { ClientAuth } from '../lib/client-auth'
+import { SimpleAuth } from '../lib/simple-auth'
 
 interface AdminDashboardProps {
   rentals: RentalBooking[]
@@ -172,62 +172,14 @@ function RentalCard({ rental }: { rental: RentalBooking }) {
 }
 
 export default function AdminDashboard() {
-  const [user, setUser] = useState<any>(null)
   const [rentals, setRentals] = useState<RentalBooking[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [filter, setFilter] = useState('all')
-  const [authLoading, setAuthLoading] = useState(true)
 
   useEffect(() => {
-    checkAuthAndFetchData()
-  }, [])
-
-  const checkAuthAndFetchData = async () => {
-    try {
-      setAuthLoading(true)
-      const user = await ClientAuth.getCurrentUser()
-      
-      if (user) {
-        setUser(user)
-        setAuthLoading(false)
-        await fetchRentals()
-      } else {
-        console.log('No authenticated user found, redirecting to login')
-        setAuthLoading(false)
-        // Immediate redirect without setTimeout to prevent hanging
-        if (typeof window !== 'undefined') {
-          window.location.href = '/admin/login'
-        }
-      }
-    } catch (error) {
-      console.error('Auth check failed:', error)
-      setAuthLoading(false)
-      // Immediate redirect on error
-      if (typeof window !== 'undefined') {
-        window.location.href = '/admin/login'
-      }
-    }
-  }
-
-  if (authLoading || !user) {
-    return (
-      <div className="min-h-screen bg-dark-gray flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-neon-blue"></div>
-          <p className="text-gray-400 mt-4">
-            {authLoading ? 'Authenticating...' : 'Redirecting to login...'}
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  useEffect(() => {
-    if (user) {
-      fetchRentals()
-    }
-  }, [filter, user])
+    fetchRentals()
+  }, [filter])
 
   const fetchRentals = async () => {
     setLoading(true)
@@ -238,9 +190,10 @@ export default function AdminDashboard() {
         ? '/api/admin/rentals' 
         : `/api/admin/rentals?status=${filter}`
 
+      const token = SimpleAuth.getToken()
       const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_TOKEN || 'admin-secret-token'}`
+          'Authorization': `Bearer ${token || 'admin-secret-token'}`
         }
       })
 
@@ -249,7 +202,7 @@ export default function AdminDashboard() {
       }
 
       const data = await response.json()
-      setRentals(data.data)
+      setRentals(data.data || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch rentals')
     } finally {
