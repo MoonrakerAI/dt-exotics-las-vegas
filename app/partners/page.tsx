@@ -184,8 +184,8 @@ export default function VehiclePartnership() {
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-dark-gray/60 z-10" />
           <img
-            src="https://images.unsplash.com/photo-1556761175-4b46a572b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="Professional business meeting and partnership collaboration"
+            src="/images/hero/Partners Hero.avif"
+            alt="Partnership opportunities with DT Exotics"
             className="h-full w-full object-cover"
           />
         </div>

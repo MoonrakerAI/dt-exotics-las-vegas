@@ -222,8 +222,8 @@ export default function VIPServices() {
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-dark-gray/60 z-10" />
           <img
-            src="https://images.unsplash.com/photo-1541532713592-79a0317b6b77?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="Exclusive VIP nightclub party with luxury atmosphere"
+            src="/images/hero/VIP Services Hero.avif"
+            alt="Exclusive VIP services and luxury lifestyle"
             className="h-full w-full object-cover"
           />
         </div>
