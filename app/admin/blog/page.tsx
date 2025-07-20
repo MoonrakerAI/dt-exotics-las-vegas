@@ -514,7 +514,19 @@ export default function BlogAdmin() {
                   const scheduledPosts = posts.filter(post => post.status === 'scheduled')
                   console.log('All scheduled posts:', scheduledPosts.map(p => ({ id: p.id, scheduledFor: p.scheduledFor, status: p.status })))
                   
-                  const validScheduledPosts = scheduledPosts.filter(post => post.scheduledFor && new Date(post.scheduledFor) > new Date())
+                  // Always parse as UTC (assume scheduledFor is in ISO 8601 or add 'Z' if missing)
+                  const parseUTC = (dateStr: string | undefined | null): Date | null => {
+                    if (!dateStr) return null;
+                    // If no timezone, add 'Z' to treat as UTC
+                    return new Date(dateStr.match(/Z|[+-]\d{2}:?\d{2}$/) ? dateStr : dateStr + 'Z');
+                  };
+                  const now = new Date();
+                  const validScheduledPosts = scheduledPosts.filter(post => {
+                    const parsed = parseUTC(post.scheduledFor);
+                    const isFuture = parsed && parsed > now;
+                    console.log(`Post ${post.id} scheduledFor:`, post.scheduledFor, 'Parsed:', parsed, 'Now:', now, 'Is future:', isFuture);
+                    return isFuture;
+                  });
                   console.log('Valid future scheduled posts:', validScheduledPosts.map(p => ({ id: p.id, scheduledFor: p.scheduledFor })))
                   
                   if (validScheduledPosts.length === 0) {
@@ -525,10 +537,15 @@ export default function BlogAdmin() {
                     }
                     return 'None'
                   }
-                  const nextPost = validScheduledPosts.sort((a, b) => 
-                    new Date(a.scheduledFor!).getTime() - new Date(b.scheduledFor!).getTime()
-                  )[0]
-                  return new Date(nextPost.scheduledFor!).toLocaleDateString() + ' ' + new Date(nextPost.scheduledFor!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                  const nextPost = validScheduledPosts.sort((a, b) => {
+                    const aDate = parseUTC(a.scheduledFor);
+                    const bDate = parseUTC(b.scheduledFor);
+                    if (!aDate || !bDate) return 0;
+                    return aDate.getTime() - bDate.getTime();
+                  })[0];
+                  const nextDate = parseUTC(nextPost.scheduledFor);
+                  if (!nextDate) return 'Invalid date';
+                  return nextDate.toLocaleDateString() + ' ' + nextDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 })()}
               </div>
             </div>
