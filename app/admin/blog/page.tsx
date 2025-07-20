@@ -70,10 +70,12 @@ export default function BlogAdmin() {
 
       if (response.ok) {
         const data = await response.json()
+        console.log('Loaded posts data:', data)
         setPosts(data.posts || data)
         
         // Calculate stats
         const allPosts = data.posts || data
+        console.log('All posts after save:', allPosts.map((p: BlogPost) => ({ id: p.id, status: p.status, scheduledFor: p.scheduledFor })))
         setStats({
           total: allPosts.length,
           published: allPosts.filter((p: BlogPost) => p.status === 'published').length,
@@ -178,8 +180,10 @@ export default function BlogAdmin() {
   const handleSavePost = async (savedPost: BlogPost) => {
     setShowEditor(false)
     setEditingPost(null)
+    console.log('Saving post, reloading data...')
     await loadPosts() // Reload the posts list
     await updatePostCounts() // Update post counts for categories and tags
+    console.log('Data reloaded after save')
   }
 
   const handleCancelEdit = () => {
