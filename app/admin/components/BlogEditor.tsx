@@ -75,6 +75,7 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
     featuredImage: post?.featuredImage || '',
     categories: post?.categories || [],
     tags: post?.tags || [],
+    scheduledFor: post?.scheduledFor || '',
     author: post?.author || { name: 'Primary Admin', email: 'admin@dtexoticslv.com' },
     seo: {
       metaTitle: post?.seo.metaTitle || '',
@@ -683,9 +684,29 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
                     >
                       <option value="draft">Draft</option>
                       <option value="published">Published</option>
+                      <option value="scheduled">Scheduled</option>
                       <option value="archived">Archived</option>
                     </select>
                   </div>
+                  
+                  {/* Schedule Date */}
+                  {formData.status === 'scheduled' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Schedule Date & Time
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={formData.scheduledFor}
+                        onChange={(e) => setFormData(prev => ({ ...prev, scheduledFor: e.target.value }))}
+                        className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                        min={new Date().toISOString().slice(0, 16)}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Post will be published automatically at this time
+                      </p>
+                    </div>
+                  )}
                   
                   <div className="flex items-center space-x-3">
                     <label className="flex items-center space-x-2">

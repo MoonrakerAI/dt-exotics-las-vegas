@@ -138,7 +138,7 @@ class BlogDatabase {
     return posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
-  async getPostsByStatus(status: 'draft' | 'published' | 'archived'): Promise<BlogPost[]> {
+  async getPostsByStatus(status: 'draft' | 'published' | 'archived' | 'scheduled'): Promise<BlogPost[]> {
     const postIds = await kv.smembers(this.POSTS_BY_STATUS_PREFIX + status);
     
     if (postIds.length === 0) return [];
@@ -154,6 +154,24 @@ class BlogDatabase {
 
   async getPublishedPosts(): Promise<BlogPost[]> {
     return this.getPostsByStatus('published');
+  }
+
+  async getScheduledPosts(): Promise<BlogPost[]> {
+    return this.getPostsByStatus('scheduled');
+  }
+
+  async publishScheduledPosts(): Promise<void> {
+    const scheduledPosts = await this.getScheduledPosts();
+    const now = new Date();
+
+    for (const post of scheduledPosts) {
+      if (post.scheduledFor && new Date(post.scheduledFor) <= now) {
+        await this.updatePost(post.id, {
+          status: 'published',
+          publishedAt: new Date().toISOString()
+        });
+      }
+    }
   }
 
   async getPostsByCategory(category: string): Promise<BlogPost[]> {

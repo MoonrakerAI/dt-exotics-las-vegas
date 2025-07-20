@@ -99,9 +99,8 @@ export default function AdminNavigation() {
               </div>
               <div>
                 <h1 className="text-lg font-tech font-bold text-white">
-                  DT EXOTICS
+                  ADMIN PANEL
                 </h1>
-                <p className="text-xs text-gray-400">Admin Panel</p>
               </div>
             </Link>
           </div>

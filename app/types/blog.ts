@@ -19,12 +19,13 @@ export interface BlogPost {
     noIndex: boolean
     noFollow: boolean
   }
-  status: 'draft' | 'published' | 'archived'
+  status: 'draft' | 'published' | 'archived' | 'scheduled'
   featured: boolean
   featuredImage?: string
   categories: string[]
   tags: string[]
   publishedAt?: string
+  scheduledFor?: string
   createdAt: string
   updatedAt: string
 }

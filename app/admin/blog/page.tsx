@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { SimpleAuth } from '../../lib/simple-auth'
-import { Plus, Edit, Trash2, Eye, Calendar, Search, Filter, Tag, FolderOpen, X } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, Calendar, Search, Filter, Tag, FolderOpen, X, Clock } from 'lucide-react'
 import { BlogPost, BlogCategory, BlogTag } from '../../types/blog'
 import BlogEditor from '../components/BlogEditor'
 
@@ -10,6 +10,7 @@ export default function BlogAdmin() {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
+  const [showScheduled, setShowScheduled] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [showEditor, setShowEditor] = useState(false)
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null)
@@ -17,6 +18,7 @@ export default function BlogAdmin() {
     total: 0,
     published: 0,
     draft: 0,
+    scheduled: 0,
     archived: 0
   })
   const [categories, setCategories] = useState<BlogCategory[]>([])
@@ -76,6 +78,7 @@ export default function BlogAdmin() {
           total: allPosts.length,
           published: allPosts.filter((p: BlogPost) => p.status === 'published').length,
           draft: allPosts.filter((p: BlogPost) => p.status === 'draft').length,
+          scheduled: allPosts.filter((p: BlogPost) => p.status === 'scheduled').length,
           archived: allPosts.filter((p: BlogPost) => p.status === 'archived').length
         })
       } else {
@@ -156,6 +159,7 @@ export default function BlogAdmin() {
     switch (status) {
       case 'published': return 'text-green-400'
       case 'draft': return 'text-yellow-400'
+      case 'scheduled': return 'text-blue-400'
       case 'archived': return 'text-gray-400'
       default: return 'text-gray-400'
     }
@@ -444,7 +448,7 @@ export default function BlogAdmin() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
             <div className="bg-dark-metal/30 p-4 rounded-lg border border-gray-600/20 text-center">
               <div className="text-2xl font-tech font-bold text-white">{stats.total}</div>
               <div className="text-gray-400 text-sm">Total Posts</div>
@@ -458,6 +462,10 @@ export default function BlogAdmin() {
               <div className="text-gray-400 text-sm">Drafts</div>
             </div>
             <div className="bg-dark-metal/30 p-4 rounded-lg border border-gray-600/20 text-center">
+              <div className="text-2xl font-tech font-bold text-blue-400">{stats.scheduled}</div>
+              <div className="text-gray-400 text-sm">Scheduled</div>
+            </div>
+            <div className="bg-dark-metal/30 p-4 rounded-lg border border-gray-600/20 text-center">
               <div className="text-2xl font-tech font-bold text-gray-400">{stats.archived}</div>
               <div className="text-gray-400 text-sm">Archived</div>
             </div>
@@ -465,7 +473,7 @@ export default function BlogAdmin() {
 
           {/* Filter Buttons */}
           <div className="flex flex-wrap gap-2">
-            {['all', 'published', 'draft', 'archived'].map(status => (
+            {['all', 'published', 'draft', 'scheduled', 'archived'].map(status => (
               <button
                 key={status}
                 onClick={() => setFilter(status)}
@@ -479,6 +487,36 @@ export default function BlogAdmin() {
               </button>
             ))}
           </div>
+
+          {/* Scheduled Posts Summary */}
+          {posts.filter(post => post.status === 'scheduled').length > 0 && (
+            <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Clock className="w-5 h-5 text-blue-400" />
+                  <span className="text-blue-400 font-medium">
+                    {posts.filter(post => post.status === 'scheduled').length} Scheduled Posts
+                  </span>
+                </div>
+                <button
+                  onClick={() => setFilter('scheduled')}
+                  className="text-blue-400 hover:text-blue-300 transition-colors text-sm"
+                >
+                  View All →
+                </button>
+              </div>
+              <div className="mt-2 text-sm text-gray-400">
+                Next scheduled: {(() => {
+                  const scheduledPosts = posts.filter(post => post.status === 'scheduled')
+                  if (scheduledPosts.length === 0) return 'None'
+                  const nextPost = scheduledPosts.sort((a, b) => 
+                    new Date(a.scheduledFor || '').getTime() - new Date(b.scheduledFor || '').getTime()
+                  )[0]
+                  return nextPost.scheduledFor ? new Date(nextPost.scheduledFor).toLocaleDateString() : 'Unknown'
+                })()}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Category and Tag Management */}
@@ -730,7 +768,12 @@ export default function BlogAdmin() {
                       <span className="text-gray-500">By {post.author.name}</span>
                       <span className="text-gray-500 flex items-center">
                         <Calendar className="w-4 h-4 mr-1" />
-                        {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'Not published'}
+                        {post.status === 'scheduled' && post.scheduledFor 
+                          ? `Scheduled: ${new Date(post.scheduledFor).toLocaleDateString()}`
+                          : post.publishedAt 
+                            ? new Date(post.publishedAt).toLocaleDateString() 
+                            : 'Not published'
+                        }
                       </span>
                       <span className={`font-medium ${getStatusColor(post.status)}`}>
                         {post.status.toUpperCase()}
