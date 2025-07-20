@@ -545,7 +545,9 @@ export default function BlogAdmin() {
                   })[0];
                   const nextDate = parseUTC(nextPost.scheduledFor);
                   if (!nextDate) return 'Invalid date';
-                  return nextDate.toLocaleDateString() + ' ' + nextDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                  const localString = nextDate.toLocaleDateString() + ' ' + nextDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+                  const vegasString = nextDate.toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' }) + ' ' + nextDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Los_Angeles', timeZoneName: 'short' });
+                  return `Local: ${localString} | Las Vegas: ${vegasString}`;
                 })()}
               </div>
             </div>
