@@ -545,8 +545,8 @@ export default function BlogAdmin() {
                   })[0];
                   const nextDate = parseUTC(nextPost.scheduledFor);
                   if (!nextDate) return 'Invalid date';
-                  const utcString = nextDate.toLocaleDateString('en-US', { timeZone: 'UTC' }) + ' ' + nextDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC', timeZoneName: 'short' });
-                  return `UTC: ${utcString}`;
+                  // Show only local time
+                  return nextDate.toLocaleDateString() + ' ' + nextDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
                 })()}
               </div>
             </div>
