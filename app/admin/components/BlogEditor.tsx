@@ -16,7 +16,8 @@ import {
   Settings,
   Globe,
   Hash,
-  EyeOff
+  EyeOff,
+  Link
 } from 'lucide-react'
 import { BlogPost, BlogCategory, BlogTag } from '../../types/blog'
 
@@ -45,6 +46,7 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
     featuredImage: post?.featuredImage || '',
     categories: post?.categories || [],
     tags: post?.tags || [],
+    author: post?.author || { name: 'Primary Admin', email: 'admin@dtexoticslv.com' },
     seo: {
       metaTitle: post?.seo.metaTitle || '',
       metaDescription: post?.seo.metaDescription || '',
@@ -370,8 +372,71 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
 
           <div className="flex">
             {/* Main Content */}
-            <div className={`flex-1 ${showSeoPanel ? 'w-2/3' : 'w-full'}`}>
-              <div className="p-6 space-y-6">
+            {previewMode ? (
+              <div className="flex-1">
+                <div className="p-6">
+                  {/* Preview Header */}
+                  <div className="glass-panel bg-dark-metal/50 p-8 mb-8 border border-gray-600/30 rounded-2xl">
+                    <div className="flex items-center space-x-4 text-sm text-gray-400 mb-4">
+                      <span>By {formData.author?.name || 'Primary Admin'}</span>
+                      <span>•</span>
+                      <span>{new Date().toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}</span>
+                      {formData.categories.length > 0 && (
+                        <>
+                          <span>•</span>
+                          <span>{formData.categories.join(', ')}</span>
+                        </>
+                      )}
+                    </div>
+                    
+                    <h1 className="text-4xl md:text-5xl font-tech font-bold text-white mb-6">
+                      {formData.title || 'Untitled Post'}
+                    </h1>
+                    
+                    <p className="text-xl text-gray-300 mb-6">
+                      {formData.excerpt || 'No excerpt provided'}
+                    </p>
+
+                    {/* Tags */}
+                    {formData.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {formData.tags.map((tag, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-neon-blue/10 text-neon-blue text-sm rounded-full border border-neon-blue/20"
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Preview Content */}
+                  <div className="glass-panel bg-dark-metal/50 p-8 border border-gray-600/30 rounded-2xl">
+                    <div 
+                      className="prose prose-invert prose-lg max-w-none text-gray-300 leading-relaxed"
+                      dangerouslySetInnerHTML={{ 
+                        __html: (formData.content || 'No content yet')
+                          .replace(/\n/g, '<br>')
+                          .replace(/#{1,6}\s+(.+)/g, '<h1>$1</h1>')
+                          .replace(/\*\*(.+)\*\*/g, '<strong>$1</strong>')
+                          .replace(/\*(.+)\*/g, '<em>$1</em>')
+                          .replace(/`(.+)`/g, '<code class="bg-gray-800 px-2 py-1 rounded">$1</code>')
+                          .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="w-full h-auto rounded-lg my-4" />')
+                          .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-neon-blue hover:text-neon-blue/80 underline" target="_blank" rel="noopener noreferrer">$1</a>')
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className={`flex-1 ${showSeoPanel ? 'w-2/3' : 'w-full'}`}>
+                <div className="p-6 space-y-6">
                 {/* Title */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -557,16 +622,62 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Content *
                   </label>
+                  <div className="mb-2 flex space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const imageUrl = prompt('Enter image URL:')
+                        if (imageUrl) {
+                          const imageMarkdown = `\n![Image](${imageUrl})\n`
+                          setFormData(prev => ({
+                            ...prev,
+                            content: prev.content + imageMarkdown
+                          }))
+                        }
+                      }}
+                      className="px-3 py-2 bg-neon-blue/20 text-neon-blue border border-neon-blue/30 rounded-lg hover:bg-neon-blue/30 transition-colors text-sm flex items-center space-x-1"
+                    >
+                      <Upload className="w-3 h-3" />
+                      <span>Insert Image</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const linkText = prompt('Enter link text:')
+                        const linkUrl = prompt('Enter link URL:')
+                        if (linkText && linkUrl) {
+                          const linkMarkdown = `[${linkText}](${linkUrl})`
+                          setFormData(prev => ({
+                            ...prev,
+                            content: prev.content + linkMarkdown
+                          }))
+                        }
+                      }}
+                      className="px-3 py-2 bg-green-500/20 text-green-300 border border-green-500/30 rounded-lg hover:bg-green-500/30 transition-colors text-sm flex items-center space-x-1"
+                    >
+                      <Link className="w-3 h-3" />
+                      <span>Insert Link</span>
+                    </button>
+                  </div>
                   <textarea
                     value={formData.content}
                     onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
                     rows={20}
                     className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none font-mono text-sm"
-                    placeholder="Write your blog post content here... (Markdown supported)"
+                    placeholder="Write your blog post content here... (Markdown supported)
+
+Quick formatting:
+- **bold text**
+- *italic text*
+- [link text](url)
+- ![image alt](image_url)
+- # Heading 1
+- ## Heading 2"
                   />
                 </div>
               </div>
             </div>
+            )}
 
             {/* SEO Panel */}
             {showSeoPanel && (
