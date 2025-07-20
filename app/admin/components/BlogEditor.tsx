@@ -507,6 +507,28 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
                     </label>
                     <div className="space-y-2">
                       <div className="flex space-x-2">
+                        <select
+                          value=""
+                          onChange={(e) => {
+                            if (e.target.value && !formData.categories.includes(e.target.value)) {
+                              setFormData(prev => ({
+                                ...prev,
+                                categories: [...prev.categories, e.target.value]
+                              }))
+                            }
+                          }}
+                          className="flex-1 px-3 py-2 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none text-sm"
+                        >
+                          <option value="">Select existing category...</option>
+                          {categories
+                            .filter(cat => !formData.categories.includes(cat.name))
+                            .map((category) => (
+                              <option key={category.id} value={category.name}>
+                                {category.name}
+                              </option>
+                            ))}
+                        </select>
+                        <span className="text-gray-400 text-sm px-2 py-2">or</span>
                         <input
                           type="text"
                           value={newCategory}
@@ -550,6 +572,28 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
                     </label>
                     <div className="space-y-2">
                       <div className="flex space-x-2">
+                        <select
+                          value=""
+                          onChange={(e) => {
+                            if (e.target.value && !formData.tags.includes(e.target.value)) {
+                              setFormData(prev => ({
+                                ...prev,
+                                tags: [...prev.tags, e.target.value]
+                              }))
+                            }
+                          }}
+                          className="flex-1 px-3 py-2 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none text-sm"
+                        >
+                          <option value="">Select existing tag...</option>
+                          {tags
+                            .filter(tag => !formData.tags.includes(tag.name))
+                            .map((tag) => (
+                              <option key={tag.id} value={tag.name}>
+                                {tag.name}
+                              </option>
+                            ))}
+                        </select>
+                        <span className="text-gray-400 text-sm px-2 py-2">or</span>
                         <input
                           type="text"
                           value={newTag}

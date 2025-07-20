@@ -25,6 +25,10 @@ export default function BlogAdmin() {
   const [showTagManager, setShowTagManager] = useState(false)
   const [newCategory, setNewCategory] = useState('')
   const [newTag, setNewTag] = useState('')
+  const [editingCategory, setEditingCategory] = useState<string | null>(null)
+  const [editingTag, setEditingTag] = useState<string | null>(null)
+  const [editCategoryName, setEditCategoryName] = useState('')
+  const [editTagName, setEditTagName] = useState('')
 
   useEffect(() => {
     loadPosts()
@@ -280,6 +284,82 @@ export default function BlogAdmin() {
     }
   }
 
+  const startEditCategory = (category: BlogCategory) => {
+    setEditingCategory(category.id)
+    setEditCategoryName(category.name)
+  }
+
+  const saveEditCategory = async () => {
+    if (!editingCategory || !editCategoryName.trim()) return
+
+    try {
+      const token = localStorage.getItem('dt-admin-token')
+      const response = await fetch(`/api/admin/blog/categories/${editingCategory}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ name: editCategoryName.trim() })
+      })
+
+      if (response.ok) {
+        setEditingCategory(null)
+        setEditCategoryName('')
+        loadCategoriesAndTags()
+      } else {
+        const error = await response.json()
+        alert(`Error: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error updating category:', error)
+      alert('Error updating category')
+    }
+  }
+
+  const cancelEditCategory = () => {
+    setEditingCategory(null)
+    setEditCategoryName('')
+  }
+
+  const startEditTag = (tag: BlogTag) => {
+    setEditingTag(tag.id)
+    setEditTagName(tag.name)
+  }
+
+  const saveEditTag = async () => {
+    if (!editingTag || !editTagName.trim()) return
+
+    try {
+      const token = localStorage.getItem('dt-admin-token')
+      const response = await fetch(`/api/admin/blog/tags/${editingTag}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ name: editTagName.trim() })
+      })
+
+      if (response.ok) {
+        setEditingTag(null)
+        setEditTagName('')
+        loadCategoriesAndTags()
+      } else {
+        const error = await response.json()
+        alert(`Error: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error updating tag:', error)
+      alert('Error updating tag')
+    }
+  }
+
+  const cancelEditTag = () => {
+    setEditingTag(null)
+    setEditTagName('')
+  }
+
   if (showEditor) {
     return (
       <BlogEditor
@@ -411,17 +491,57 @@ export default function BlogAdmin() {
                       key={category.id}
                       className="flex items-center justify-between p-3 bg-dark-metal/30 rounded-lg border border-gray-600/20"
                     >
-                      <div>
-                        <span className="text-white font-medium">{category.name}</span>
-                        <span className="text-gray-400 text-sm ml-2">({category.postCount} posts)</span>
-                      </div>
-                      <button
-                        onClick={() => deleteCategory(category.id)}
-                        className="text-gray-400 hover:text-red-400 transition-colors"
-                        title="Delete category"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+                      {editingCategory === category.id ? (
+                        <div className="flex items-center space-x-2 flex-1">
+                          <input
+                            type="text"
+                            value={editCategoryName}
+                            onChange={(e) => setEditCategoryName(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && saveEditCategory()}
+                            className="flex-1 px-2 py-1 bg-dark-metal border border-gray-600 rounded text-white focus:border-neon-blue focus:outline-none text-sm"
+                            autoFocus
+                          />
+                          <button
+                            onClick={saveEditCategory}
+                            className="text-green-400 hover:text-green-300 transition-colors"
+                            title="Save"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={cancelEditCategory}
+                            className="text-gray-400 hover:text-white transition-colors"
+                            title="Cancel"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex-1">
+                            <span className="text-white font-medium">{category.name}</span>
+                            <span className="text-gray-400 text-sm ml-2">({category.postCount} posts)</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <button
+                              onClick={() => startEditCategory(category)}
+                              className="text-gray-400 hover:text-neon-blue transition-colors"
+                              title="Edit category"
+                            >
+                              <Edit className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={() => deleteCategory(category.id)}
+                              className="text-gray-400 hover:text-red-400 transition-colors"
+                              title="Delete category"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -469,17 +589,57 @@ export default function BlogAdmin() {
                       key={tag.id}
                       className="flex items-center justify-between p-3 bg-dark-metal/30 rounded-lg border border-gray-600/20"
                     >
-                      <div>
-                        <span className="text-white font-medium">{tag.name}</span>
-                        <span className="text-gray-400 text-sm ml-2">({tag.postCount} posts)</span>
-                      </div>
-                      <button
-                        onClick={() => deleteTag(tag.id)}
-                        className="text-gray-400 hover:text-red-400 transition-colors"
-                        title="Delete tag"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+                      {editingTag === tag.id ? (
+                        <div className="flex items-center space-x-2 flex-1">
+                          <input
+                            type="text"
+                            value={editTagName}
+                            onChange={(e) => setEditTagName(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && saveEditTag()}
+                            className="flex-1 px-2 py-1 bg-dark-metal border border-gray-600 rounded text-white focus:border-neon-blue focus:outline-none text-sm"
+                            autoFocus
+                          />
+                          <button
+                            onClick={saveEditTag}
+                            className="text-green-400 hover:text-green-300 transition-colors"
+                            title="Save"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={cancelEditTag}
+                            className="text-gray-400 hover:text-white transition-colors"
+                            title="Cancel"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex-1">
+                            <span className="text-white font-medium">{tag.name}</span>
+                            <span className="text-gray-400 text-sm ml-2">({tag.postCount} posts)</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <button
+                              onClick={() => startEditTag(tag)}
+                              className="text-gray-400 hover:text-neon-blue transition-colors"
+                              title="Edit tag"
+                            >
+                              <Edit className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={() => deleteTag(tag.id)}
+                              className="text-gray-400 hover:text-red-400 transition-colors"
+                              title="Delete tag"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
