@@ -82,6 +82,8 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
     const body = await request.json();
+    console.log('API received body:', body);
+    console.log('API received scheduledFor:', body.scheduledFor);
 
     // Check if post exists
     const existingPost = await blogDB.getPost(id);
@@ -94,6 +96,7 @@ export async function PUT(
 
     // Validate blog post data
     const validation = validateBlogPost(body);
+    console.log('Validation result:', validation);
     if (!validation.valid) {
       return NextResponse.json(
         { error: validation.error },
@@ -102,6 +105,8 @@ export async function PUT(
     }
 
     const postData = validation.sanitizedValue;
+    console.log('PostData after validation:', postData);
+    console.log('PostData scheduledFor:', postData.scheduledFor);
 
     // Check if slug already exists (but not for the same post)
     if (postData.slug !== existingPost.slug) {
