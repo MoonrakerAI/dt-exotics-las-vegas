@@ -513,7 +513,14 @@ export default function BlogAdmin() {
                   const validScheduledPosts = scheduledPosts.filter(post => post.scheduledFor && new Date(post.scheduledFor) > new Date())
                   console.log('Valid future scheduled posts:', validScheduledPosts.map(p => ({ id: p.id, scheduledFor: p.scheduledFor })))
                   
-                  if (validScheduledPosts.length === 0) return 'None'
+                  if (validScheduledPosts.length === 0) {
+                    // Check if there are scheduled posts without dates
+                    const postsWithoutDates = scheduledPosts.filter(post => !post.scheduledFor)
+                    if (postsWithoutDates.length > 0) {
+                      return `${postsWithoutDates.length} post(s) need scheduled date`
+                    }
+                    return 'None'
+                  }
                   const nextPost = validScheduledPosts.sort((a, b) => 
                     new Date(a.scheduledFor!).getTime() - new Date(b.scheduledFor!).getTime()
                   )[0]
