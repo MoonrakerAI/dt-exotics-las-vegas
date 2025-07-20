@@ -64,6 +64,10 @@ class BlogDatabase {
       updatedAt: new Date().toISOString()
     };
 
+    console.log(`[updatePost] postId: ${postId}`);
+    console.log(`[updatePost] updates:`, updates);
+    console.log(`[updatePost] updatedPost:`, updatedPost);
+
     // Remove from old status index if status changed
     if (updates.status && updates.status !== existing.status) {
       await kv.srem(this.POSTS_BY_STATUS_PREFIX + existing.status, postId);
