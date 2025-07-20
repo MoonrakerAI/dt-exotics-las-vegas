@@ -1,32 +1,64 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import Navbar from '../components/navigation/Navbar'
 import Footer from '../components/sections/Footer'
-import { blogPosts, blogCategories, blogTags } from '../data/blog'
 import { Calendar, User, Tag, ArrowRight } from 'lucide-react'
+import { BlogPost, BlogCategory, BlogTag } from '../types/blog'
 
 export default function BlogPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedTag, setSelectedTag] = useState<string>('all')
+  const [posts, setPosts] = useState<BlogPost[]>([])
+  const [categories, setCategories] = useState<BlogCategory[]>([])
+  const [tags, setTags] = useState<BlogTag[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const filteredPosts = blogPosts.filter(post => {
+  useEffect(() => {
+    loadBlogData()
+  }, [])
+
+  const loadBlogData = async () => {
+    try {
+      const [postsRes, categoriesRes, tagsRes] = await Promise.all([
+        fetch('/api/blog'),
+        fetch('/api/blog/categories'),
+        fetch('/api/blog/tags')
+      ])
+
+      if (postsRes.ok) {
+        const postsData = await postsRes.json()
+        setPosts(postsData)
+      }
+
+      if (categoriesRes.ok) {
+        const categoriesData = await categoriesRes.json()
+        setCategories(categoriesData)
+      }
+
+      if (tagsRes.ok) {
+        const tagsData = await tagsRes.json()
+        setTags(tagsData)
+      }
+    } catch (error) {
+      console.error('Error loading blog data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const filteredPosts = posts.filter(post => {
     if (post.status !== 'published') return false
     
-    const categoryMatch = selectedCategory === 'all' || post.categories.some(cat => 
-      blogCategories.find(c => c.id === selectedCategory)?.name === cat
-    )
-    
-    const tagMatch = selectedTag === 'all' || post.tags.some(tag => 
-      blogTags.find(t => t.id === selectedTag)?.name === tag
-    )
+    const categoryMatch = selectedCategory === 'all' || post.categories.includes(selectedCategory)
+    const tagMatch = selectedTag === 'all' || post.tags.includes(selectedTag)
     
     return categoryMatch && tagMatch
   })
 
-  const featuredPost = blogPosts.find(post => post.featured && post.status === 'published')
+  const featuredPost = posts.find(post => post.featured && post.status === 'published')
 
   return (
     <main className="relative min-h-screen">
@@ -172,12 +204,12 @@ export default function BlogPage() {
                   >
                     All Categories
                   </button>
-                  {blogCategories.map((category) => (
+                  {categories.map((category) => (
                     <button
                       key={category.id}
-                      onClick={() => setSelectedCategory(category.id)}
+                      onClick={() => setSelectedCategory(category.slug)}
                       className={`block w-full text-left px-3 py-2 rounded transition-colors duration-200 ${
-                        selectedCategory === category.id
+                        selectedCategory === category.slug
                           ? 'bg-neon-blue text-black'
                           : 'text-gray-300 hover:text-white hover:bg-dark-gray/50'
                       }`}
@@ -202,12 +234,12 @@ export default function BlogPage() {
                   >
                     All
                   </button>
-                  {blogTags.slice(0, 10).map((tag) => (
+                  {tags.slice(0, 10).map((tag) => (
                     <button
                       key={tag.id}
-                      onClick={() => setSelectedTag(tag.id)}
+                      onClick={() => setSelectedTag(tag.slug)}
                       className={`px-3 py-1 rounded-full text-sm transition-colors duration-200 ${
-                        selectedTag === tag.id
+                        selectedTag === tag.slug
                           ? 'bg-neon-blue text-black'
                           : 'bg-gray-600/30 text-gray-300 hover:bg-gray-600/50'
                       }`}

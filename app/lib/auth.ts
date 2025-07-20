@@ -154,3 +154,30 @@ export function getAllAdminUsers(): User[] {
     return ADMIN_PASSWORD_HASHES[userIndex] // Only return users with configured passwords
   })
 }
+
+// JWT verification function for API routes
+export async function verifyJWT(token: string): Promise<User | null> {
+  try {
+    const payload = jwt.verify(token, JWT_SECRET!, { algorithms: ['HS256'] }) as any
+    
+    if (payload.exp < Math.floor(Date.now() / 1000)) {
+      return null // Token expired
+    }
+    
+    // Find the user in our admin list
+    const user = ADMIN_USERS.find(u => u.id === payload.userId)
+    
+    if (!user) {
+      return null
+    }
+    
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    }
+  } catch (error) {
+    return null
+  }
+}

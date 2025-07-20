@@ -2,33 +2,79 @@
 
 import { useState, useEffect } from 'react'
 import { SimpleAuth } from '../../lib/simple-auth'
-import { Plus, Edit, Trash2, Eye, Calendar } from 'lucide-react'
-
-interface BlogPost {
-  id: string
-  title: string
-  slug: string
-  content: string
-  excerpt: string
-  author: string
-  publishedAt: string
-  status: 'draft' | 'published' | 'archived'
-  tags: string[]
-  seoTitle: string
-  seoDescription: string
-  featuredImage?: string
-}
+import { Plus, Edit, Trash2, Eye, Calendar, Search, Filter } from 'lucide-react'
+import { BlogPost } from '../../types/blog'
+import BlogEditor from '../components/BlogEditor'
 
 export default function BlogAdmin() {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showEditor, setShowEditor] = useState(false)
+  const [editingPost, setEditingPost] = useState<BlogPost | null>(null)
+  const [stats, setStats] = useState({
+    total: 0,
+    published: 0,
+    draft: 0,
+    archived: 0
+  })
 
   useEffect(() => {
-    // Simulate loading blog posts
-    setLoading(false)
-    setPosts([]) // Empty for now - would connect to CMS/database
-  }, [])
+    loadPosts()
+  }, [filter, searchQuery])
+
+  const loadPosts = async () => {
+    setLoading(true)
+    try {
+      const token = localStorage.getItem('admin-token')
+      if (!token) {
+        console.error('No admin token found')
+        return
+      }
+
+      let url = '/api/admin/blog'
+      const params = new URLSearchParams()
+      
+      if (filter !== 'all') {
+        params.append('status', filter)
+      }
+      
+      if (searchQuery) {
+        params.append('search', searchQuery)
+      }
+      
+      if (params.toString()) {
+        url += `?${params.toString()}`
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setPosts(data.posts || data)
+        
+        // Calculate stats
+        const allPosts = data.posts || data
+        setStats({
+          total: allPosts.length,
+          published: allPosts.filter((p: BlogPost) => p.status === 'published').length,
+          draft: allPosts.filter((p: BlogPost) => p.status === 'draft').length,
+          archived: allPosts.filter((p: BlogPost) => p.status === 'archived').length
+        })
+      } else {
+        console.error('Failed to load posts')
+      }
+    } catch (error) {
+      console.error('Error loading posts:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -37,6 +83,64 @@ export default function BlogAdmin() {
       case 'archived': return 'text-gray-400'
       default: return 'text-gray-400'
     }
+  }
+
+  const handleCreatePost = () => {
+    setEditingPost(null)
+    setShowEditor(true)
+  }
+
+  const handleEditPost = (post: BlogPost) => {
+    setEditingPost(post)
+    setShowEditor(true)
+  }
+
+  const handleSavePost = (savedPost: BlogPost) => {
+    setShowEditor(false)
+    setEditingPost(null)
+    loadPosts() // Reload the posts list
+  }
+
+  const handleCancelEdit = () => {
+    setShowEditor(false)
+    setEditingPost(null)
+  }
+
+  const handleDeletePost = async (postId: string) => {
+    if (!confirm('Are you sure you want to delete this post?')) {
+      return
+    }
+
+    try {
+      const token = localStorage.getItem('admin-token')
+      const response = await fetch(`/api/admin/blog/${postId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        loadPosts() // Reload the posts list
+      } else {
+        const error = await response.json()
+        alert(`Error: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error)
+      alert('Error deleting post')
+    }
+  }
+
+  if (showEditor) {
+    return (
+      <BlogEditor
+        post={editingPost || undefined}
+        mode={editingPost ? 'edit' : 'create'}
+        onSave={handleSavePost}
+        onCancel={handleCancelEdit}
+      />
+    )
   }
 
   return (
@@ -52,7 +156,10 @@ export default function BlogAdmin() {
                 Create and manage blog posts with SEO optimization
               </p>
             </div>
-            <button className="btn-primary flex items-center space-x-2">
+            <button 
+              onClick={handleCreatePost}
+              className="btn-primary flex items-center space-x-2"
+            >
               <Plus className="w-5 h-5" />
               <span>New Post</span>
             </button>
@@ -60,7 +167,43 @@ export default function BlogAdmin() {
         </div>
 
         <div className="glass-panel bg-dark-metal/20 p-6 mb-6 border border-gray-600/30 rounded-2xl backdrop-blur-sm">
-          <h3 className="text-lg font-tech font-semibold text-white mb-4">Filter Posts</h3>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+            <h3 className="text-lg font-tech font-semibold text-white">Filter & Search</h3>
+            
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search posts..."
+                className="w-full lg:w-80 pl-10 pr-4 py-2 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-dark-metal/30 p-4 rounded-lg border border-gray-600/20 text-center">
+              <div className="text-2xl font-tech font-bold text-white">{stats.total}</div>
+              <div className="text-gray-400 text-sm">Total Posts</div>
+            </div>
+            <div className="bg-dark-metal/30 p-4 rounded-lg border border-gray-600/20 text-center">
+              <div className="text-2xl font-tech font-bold text-green-400">{stats.published}</div>
+              <div className="text-gray-400 text-sm">Published</div>
+            </div>
+            <div className="bg-dark-metal/30 p-4 rounded-lg border border-gray-600/20 text-center">
+              <div className="text-2xl font-tech font-bold text-yellow-400">{stats.draft}</div>
+              <div className="text-gray-400 text-sm">Drafts</div>
+            </div>
+            <div className="bg-dark-metal/30 p-4 rounded-lg border border-gray-600/20 text-center">
+              <div className="text-2xl font-tech font-bold text-gray-400">{stats.archived}</div>
+              <div className="text-gray-400 text-sm">Archived</div>
+            </div>
+          </div>
+
+          {/* Filter Buttons */}
           <div className="flex flex-wrap gap-2">
             {['all', 'published', 'draft', 'archived'].map(status => (
               <button
@@ -89,7 +232,10 @@ export default function BlogAdmin() {
               <Edit className="w-16 h-16 text-gray-500 mx-auto mb-4" />
               <h3 className="text-xl font-tech font-semibold text-white mb-2">No Blog Posts Yet</h3>
               <p className="text-gray-400 mb-6">Start creating amazing content for your audience</p>
-              <button className="btn-primary flex items-center space-x-2 mx-auto">
+              <button 
+                onClick={handleCreatePost}
+                className="btn-primary flex items-center space-x-2 mx-auto"
+              >
                 <Plus className="w-5 h-5" />
                 <span>Create Your First Post</span>
               </button>
@@ -122,10 +268,10 @@ export default function BlogAdmin() {
                     <h3 className="text-xl font-tech font-bold text-white mb-2">{post.title}</h3>
                     <p className="text-gray-400 mb-2">{post.excerpt}</p>
                     <div className="flex items-center space-x-4 text-sm">
-                      <span className="text-gray-500">By {post.author}</span>
+                      <span className="text-gray-500">By {post.author.name}</span>
                       <span className="text-gray-500 flex items-center">
                         <Calendar className="w-4 h-4 mr-1" />
-                        {new Date(post.publishedAt).toLocaleDateString()}
+                        {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'Not published'}
                       </span>
                       <span className={`font-medium ${getStatusColor(post.status)}`}>
                         {post.status.toUpperCase()}
@@ -133,13 +279,25 @@ export default function BlogAdmin() {
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    <button className="p-2 text-gray-400 hover:text-neon-blue transition-colors">
+                    <button 
+                      onClick={() => window.open(`/blog/${post.slug}`, '_blank')}
+                      className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
+                      title="View Post"
+                    >
                       <Eye className="w-4 h-4" />
                     </button>
-                    <button className="p-2 text-gray-400 hover:text-neon-blue transition-colors">
+                    <button 
+                      onClick={() => handleEditPost(post)}
+                      className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
+                      title="Edit Post"
+                    >
                       <Edit className="w-4 h-4" />
                     </button>
-                    <button className="p-2 text-gray-400 hover:text-red-400 transition-colors">
+                    <button 
+                      onClick={() => handleDeletePost(post.id)}
+                      className="p-2 text-gray-400 hover:text-red-400 transition-colors"
+                      title="Delete Post"
+                    >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>

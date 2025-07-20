@@ -110,6 +110,12 @@ export const rentalCreationRateLimiter = new RateLimiter({
   keyPrefix: 'rate_limit:rental'
 });
 
+export const adminApiRateLimiter = new RateLimiter({
+  windowMs: 60 * 1000, // 1 minute
+  maxRequests: 200, // 200 requests per minute for admin API
+  keyPrefix: 'rate_limit:admin_api'
+});
+
 // Helper function to get client identifier
 export function getClientIdentifier(request: Request): string {
   const forwarded = request.headers.get('x-forwarded-for');

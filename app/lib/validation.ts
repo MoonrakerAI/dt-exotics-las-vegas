@@ -293,3 +293,232 @@ export function validateRentalRequest(data: any): ValidationResult {
     }
   };
 } 
+
+// Blog post validation
+export interface BlogPostData {
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  status: 'draft' | 'published' | 'archived';
+  featured: boolean;
+  featuredImage?: string;
+  categories: string[];
+  tags: string[];
+  seo: {
+    metaTitle: string;
+    metaDescription: string;
+    keywords: string[];
+    ogTitle: string;
+    ogDescription: string;
+    ogImage?: string;
+    canonicalUrl?: string;
+    noIndex: boolean;
+    noFollow: boolean;
+  };
+}
+
+export function validateBlogPost(data: any): ValidationResult {
+  if (!data || typeof data !== 'object') {
+    return { valid: false, error: 'Invalid blog post data' };
+  }
+
+  // Validate title
+  if (!data.title || typeof data.title !== 'string') {
+    return { valid: false, error: 'Title is required' };
+  }
+
+  const title = data.title.trim();
+  if (title.length < 5) {
+    return { valid: false, error: 'Title must be at least 5 characters' };
+  }
+
+  if (title.length > 200) {
+    return { valid: false, error: 'Title is too long (max 200 characters)' };
+  }
+
+  // Validate slug
+  if (!data.slug || typeof data.slug !== 'string') {
+    return { valid: false, error: 'Slug is required' };
+  }
+
+  const slug = data.slug.trim().toLowerCase();
+  const slugRegex = /^[a-z0-9-]+$/;
+  if (!slugRegex.test(slug)) {
+    return { valid: false, error: 'Slug can only contain lowercase letters, numbers, and hyphens' };
+  }
+
+  if (slug.length < 3) {
+    return { valid: false, error: 'Slug must be at least 3 characters' };
+  }
+
+  if (slug.length > 100) {
+    return { valid: false, error: 'Slug is too long (max 100 characters)' };
+  }
+
+  // Validate excerpt
+  if (!data.excerpt || typeof data.excerpt !== 'string') {
+    return { valid: false, error: 'Excerpt is required' };
+  }
+
+  const excerpt = data.excerpt.trim();
+  if (excerpt.length < 10) {
+    return { valid: false, error: 'Excerpt must be at least 10 characters' };
+  }
+
+  if (excerpt.length > 500) {
+    return { valid: false, error: 'Excerpt is too long (max 500 characters)' };
+  }
+
+  // Validate content
+  if (!data.content || typeof data.content !== 'string') {
+    return { valid: false, error: 'Content is required' };
+  }
+
+  const content = data.content.trim();
+  if (content.length < 50) {
+    return { valid: false, error: 'Content must be at least 50 characters' };
+  }
+
+  if (content.length > 50000) {
+    return { valid: false, error: 'Content is too long (max 50,000 characters)' };
+  }
+
+  // Validate status
+  if (!['draft', 'published', 'archived'].includes(data.status)) {
+    return { valid: false, error: 'Invalid status. Must be draft, published, or archived' };
+  }
+
+  // Validate featured flag
+  if (typeof data.featured !== 'boolean') {
+    return { valid: false, error: 'Featured must be a boolean value' };
+  }
+
+  // Validate categories
+  if (!Array.isArray(data.categories)) {
+    return { valid: false, error: 'Categories must be an array' };
+  }
+
+  if (data.categories.length === 0) {
+    return { valid: false, error: 'At least one category is required' };
+  }
+
+  if (data.categories.length > 10) {
+    return { valid: false, error: 'Too many categories (max 10)' };
+  }
+
+  for (const category of data.categories) {
+    if (typeof category !== 'string' || category.trim().length === 0) {
+      return { valid: false, error: 'Invalid category format' };
+    }
+  }
+
+  // Validate tags
+  if (!Array.isArray(data.tags)) {
+    return { valid: false, error: 'Tags must be an array' };
+  }
+
+  if (data.tags.length > 20) {
+    return { valid: false, error: 'Too many tags (max 20)' };
+  }
+
+  for (const tag of data.tags) {
+    if (typeof tag !== 'string' || tag.trim().length === 0) {
+      return { valid: false, error: 'Invalid tag format' };
+    }
+  }
+
+  // Validate SEO data
+  if (!data.seo || typeof data.seo !== 'object') {
+    return { valid: false, error: 'SEO data is required' };
+  }
+
+  const seo = data.seo;
+
+  // Validate meta title
+  if (!seo.metaTitle || typeof seo.metaTitle !== 'string') {
+    return { valid: false, error: 'SEO meta title is required' };
+  }
+
+  if (seo.metaTitle.length > 60) {
+    return { valid: false, error: 'SEO meta title is too long (max 60 characters)' };
+  }
+
+  // Validate meta description
+  if (!seo.metaDescription || typeof seo.metaDescription !== 'string') {
+    return { valid: false, error: 'SEO meta description is required' };
+  }
+
+  if (seo.metaDescription.length > 160) {
+    return { valid: false, error: 'SEO meta description is too long (max 160 characters)' };
+  }
+
+  // Validate keywords
+  if (!Array.isArray(seo.keywords)) {
+    return { valid: false, error: 'SEO keywords must be an array' };
+  }
+
+  if (seo.keywords.length > 20) {
+    return { valid: false, error: 'Too many SEO keywords (max 20)' };
+  }
+
+  for (const keyword of seo.keywords) {
+    if (typeof keyword !== 'string' || keyword.trim().length === 0) {
+      return { valid: false, error: 'Invalid SEO keyword format' };
+    }
+  }
+
+  // Validate OG title
+  if (!seo.ogTitle || typeof seo.ogTitle !== 'string') {
+    return { valid: false, error: 'Open Graph title is required' };
+  }
+
+  if (seo.ogTitle.length > 95) {
+    return { valid: false, error: 'Open Graph title is too long (max 95 characters)' };
+  }
+
+  // Validate OG description
+  if (!seo.ogDescription || typeof seo.ogDescription !== 'string') {
+    return { valid: false, error: 'Open Graph description is required' };
+  }
+
+  if (seo.ogDescription.length > 200) {
+    return { valid: false, error: 'Open Graph description is too long (max 200 characters)' };
+  }
+
+  // Validate boolean flags
+  if (typeof seo.noIndex !== 'boolean') {
+    return { valid: false, error: 'SEO noIndex must be a boolean value' };
+  }
+
+  if (typeof seo.noFollow !== 'boolean') {
+    return { valid: false, error: 'SEO noFollow must be a boolean value' };
+  }
+
+  // Sanitize and return
+  return {
+    valid: true,
+    sanitizedValue: {
+      title: title,
+      slug: slug,
+      excerpt: excerpt,
+      content: content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ''), // XSS protection
+      status: data.status,
+      featured: data.featured,
+      featuredImage: data.featuredImage || undefined,
+      categories: data.categories.map((cat: string) => cat.trim()),
+      tags: data.tags.map((tag: string) => tag.trim()),
+      seo: {
+        metaTitle: seo.metaTitle.trim(),
+        metaDescription: seo.metaDescription.trim(),
+        keywords: seo.keywords.map((kw: string) => kw.trim()),
+        ogTitle: seo.ogTitle.trim(),
+        ogDescription: seo.ogDescription.trim(),
+        ogImage: seo.ogImage || undefined,
+        canonicalUrl: seo.canonicalUrl || undefined,
+        noIndex: seo.noIndex,
+        noFollow: seo.noFollow
+      }
+    }
+  };
+} 
