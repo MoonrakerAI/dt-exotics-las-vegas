@@ -198,9 +198,16 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
       const url = mode === 'create' ? '/api/admin/blog' : `/api/admin/blog/${post?.id}`
       const method = mode === 'create' ? 'POST' : 'PUT'
       
-      console.log('Saving formData:', formData)
+      // Convert scheduledFor from local time to UTC ISO string before saving
+      let dataToSave = { ...formData };
+      if (dataToSave.status === 'scheduled' && dataToSave.scheduledFor) {
+        const localDate = new Date(dataToSave.scheduledFor);
+        dataToSave.scheduledFor = localDate.toISOString();
+      }
+      
+      console.log('Saving formData:', dataToSave)
       console.log('Original post scheduledFor:', post?.scheduledFor)
-      console.log('FormData scheduledFor:', formData.scheduledFor)
+      console.log('FormData scheduledFor:', dataToSave.scheduledFor)
       
       const response = await fetch(url, {
         method,
@@ -208,7 +215,7 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('dt-admin-token')}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(dataToSave)
       })
 
       if (response.ok) {
