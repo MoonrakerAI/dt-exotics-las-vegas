@@ -110,9 +110,23 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
 
   const loadCategoriesAndTags = async () => {
     try {
+      const token = localStorage.getItem('dt-admin-token')
+      if (!token) {
+        console.error('No admin token found')
+        return
+      }
+
       const [categoriesRes, tagsRes] = await Promise.all([
-        fetch('/api/admin/blog/categories'),
-        fetch('/api/admin/blog/tags')
+        fetch('/api/admin/blog/categories', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }),
+        fetch('/api/admin/blog/tags', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
       ])
       
       if (categoriesRes.ok) {
@@ -139,7 +153,7 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`
+          'Authorization': `Bearer ${localStorage.getItem('dt-admin-token')}`
         },
         body: JSON.stringify(formData)
       })
@@ -173,7 +187,7 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
       const response = await fetch(`/api/admin/blog/${post.id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`
+          'Authorization': `Bearer ${localStorage.getItem('dt-admin-token')}`
         }
       })
 
@@ -199,7 +213,7 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`
+          'Authorization': `Bearer ${localStorage.getItem('dt-admin-token')}`
         },
         body: JSON.stringify({ name: newCategory.trim() })
       })
@@ -226,7 +240,7 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`
+          'Authorization': `Bearer ${localStorage.getItem('dt-admin-token')}`
         },
         body: JSON.stringify({ name: newTag.trim() })
       })

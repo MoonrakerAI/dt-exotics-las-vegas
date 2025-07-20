@@ -27,7 +27,7 @@ export default function BlogAdmin() {
   const loadPosts = async () => {
     setLoading(true)
     try {
-      const token = localStorage.getItem('admin-token')
+      const token = localStorage.getItem('dt-admin-token')
       if (!token) {
         console.error('No admin token found')
         return
@@ -112,7 +112,7 @@ export default function BlogAdmin() {
     }
 
     try {
-      const token = localStorage.getItem('admin-token')
+      const token = localStorage.getItem('dt-admin-token')
       const response = await fetch(`/api/admin/blog/${postId}`, {
         method: 'DELETE',
         headers: {
