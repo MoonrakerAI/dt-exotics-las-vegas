@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import jwt from 'jsonwebtoken'
 
 export interface User {
   id: string
@@ -8,42 +9,104 @@ export interface User {
   role: string
 }
 
-// Demo admin user - in production, use a proper database
-const ADMIN_USER: User = {
-  id: "1",
-  email: "chris@moonraker.ai",
-  name: "Chris Morin",
-  role: "admin"
+// Get admin credentials from environment variables
+const JWT_SECRET = process.env.JWT_SECRET
+
+if (!JWT_SECRET) {
+  throw new Error('Missing required environment variable: JWT_SECRET')
 }
 
-const ADMIN_PASSWORD = "AI2025!"
+// Multiple admin users configuration
+const ADMIN_USERS: User[] = [
+  {
+    id: "1",
+    email: process.env.ADMIN_EMAIL_1 || "admin@dtexoticslv.com",
+    name: "Primary Admin",
+    role: "admin"
+  },
+  {
+    id: "2", 
+    email: process.env.ADMIN_EMAIL_2 || "manager@dtexoticslv.com",
+    name: "Manager",
+    role: "admin"
+  },
+  {
+    id: "3",
+    email: process.env.ADMIN_EMAIL_3 || "support@dtexoticslv.com", 
+    name: "Support Admin",
+    role: "admin"
+  }
+]
+
+// Admin password hashes (corresponding to ADMIN_EMAIL_1, ADMIN_EMAIL_2, ADMIN_EMAIL_3)
+const ADMIN_PASSWORD_HASHES = [
+  process.env.ADMIN_PASSWORD_HASH_1,
+  process.env.ADMIN_PASSWORD_HASH_2, 
+  process.env.ADMIN_PASSWORD_HASH_3
+]
 
 export async function validateCredentials(email: string, password: string): Promise<User | null> {
-  if (email === ADMIN_USER.email && password === ADMIN_PASSWORD) {
-    return ADMIN_USER
+  // Find the admin user by email
+  const adminUser = ADMIN_USERS.find(user => user.email.toLowerCase() === email.toLowerCase())
+  
+  if (!adminUser) {
+    return null
   }
+
+  // Get the corresponding password hash
+  const userIndex = ADMIN_USERS.findIndex(user => user.email.toLowerCase() === email.toLowerCase())
+  const passwordHash = ADMIN_PASSWORD_HASHES[userIndex]
+  
+  if (!passwordHash) {
+    return null
+  }
+
+  // Hash the provided password and compare
+  const crypto = await import('crypto')
+  const hashedPassword = crypto.createHash('sha256').update(password).digest('hex')
+  
+  if (hashedPassword === passwordHash) {
+    return adminUser
+  }
+  
   return null
 }
 
 export async function createSession(user: User): Promise<string> {
-  // In production, use proper JWT signing with a secret
-  const sessionData = {
-    user,
-    expires: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+  const payload = {
+    userId: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
   }
-  return Buffer.from(JSON.stringify(sessionData)).toString('base64')
+  
+  return jwt.sign(payload, JWT_SECRET!, { algorithm: 'HS256' })
 }
 
 export async function validateSession(sessionToken: string): Promise<User | null> {
   try {
-    const sessionData = JSON.parse(Buffer.from(sessionToken, 'base64').toString())
+    const payload = jwt.verify(sessionToken, JWT_SECRET!, { algorithms: ['HS256'] }) as any
     
-    if (sessionData.expires < Date.now()) {
-      return null // Session expired
+    if (payload.exp < Math.floor(Date.now() / 1000)) {
+      return null // Token expired
     }
     
-    return sessionData.user
-  } catch {
+    // Find the user in our admin list
+    const user = ADMIN_USERS.find(u => u.id === payload.userId)
+    
+    if (!user) {
+      return null
+    }
+    
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    }
+  } catch (error) {
     return null
   }
 }
@@ -82,4 +145,12 @@ export function createLogoutResponse(redirectTo: string = '/admin/login'): NextR
   const response = NextResponse.redirect(new URL(redirectTo, process.env.NEXTAUTH_URL || 'http://localhost:3000'))
   response.cookies.delete('admin-session')
   return response
+}
+
+// Helper function to get all admin users (for display purposes)
+export function getAllAdminUsers(): User[] {
+  return ADMIN_USERS.filter(user => {
+    const userIndex = ADMIN_USERS.findIndex(u => u.id === user.id)
+    return ADMIN_PASSWORD_HASHES[userIndex] // Only return users with configured passwords
+  })
 }

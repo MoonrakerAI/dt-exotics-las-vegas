@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import kvRentalDB from '@/app/lib/kv-database';
 import stripe from '@/app/lib/stripe';
+import { validateSession } from '@/app/lib/auth';
 
-// Simple admin authentication - check for valid admin session token
-function isAdminAuthenticated(request: NextRequest): boolean {
+// Secure admin authentication using JWT
+async function isAdminAuthenticated(request: NextRequest): Promise<boolean> {
   const authHeader = request.headers.get('authorization');
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -12,30 +13,9 @@ function isAdminAuthenticated(request: NextRequest): boolean {
   
   const token = authHeader.substring(7);
   
-  // Allow the legacy admin token
-  const adminToken = process.env.ADMIN_TOKEN || 'admin-secret-token';
-  if (token === adminToken) {
-    return true;
-  }
-  
-  // Validate the simple auth token format (base64 encoded timestamp-userid-identifier)
   try {
-    const decoded = Buffer.from(token, 'base64').toString();
-    const parts = decoded.split('-');
-    
-    // Expected format: timestamp-userid-dt-exotics
-    if (parts.length === 3 && parts[2] === 'dt-exotics') {
-      const timestamp = parseInt(parts[0]);
-      const userId = parts[1];
-      
-      // Check if token is not too old (24 hours)
-      const tokenAge = Date.now() - timestamp;
-      const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-      
-      return tokenAge < maxAge && userId === '1'; // Admin user ID is '1'
-    }
-    
-    return false;
+    const user = await validateSession(token);
+    return user !== null && user.role === 'admin';
   } catch {
     return false;
   }
@@ -45,7 +25,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!isAdminAuthenticated(request)) {
+  if (!(await isAdminAuthenticated(request))) {
     return NextResponse.json(
       { error: 'Unauthorized' },
       { status: 401 }
@@ -63,6 +43,22 @@ export async function POST(
       return NextResponse.json(
         { error: 'Rental not found' },
         { status: 404 }
+      );
+    }
+
+    // Validate final amount
+    if (!finalAmount || finalAmount <= 0) {
+      return NextResponse.json(
+        { error: 'Invalid final amount' },
+        { status: 400 }
+      );
+    }
+
+    // Validate additional charges
+    if (additionalCharges && additionalCharges < 0) {
+      return NextResponse.json(
+        { error: 'Invalid additional charges' },
+        { status: 400 }
       );
     }
 
@@ -85,7 +81,8 @@ export async function POST(
     // Calculate total amount
     const totalAmount = finalAmount + (additionalCharges || 0);
 
-    // Create new payment intent for final charge
+    // Create new payment intent for final charge with idempotency key
+    const idempotencyKey = `final_charge_${rental.id}_${Date.now()}`;
     const paymentIntent = await stripe.paymentIntents.create({
       amount: totalAmount * 100, // Convert to cents
       currency: 'usd',
@@ -102,6 +99,8 @@ export async function POST(
         actual_final_amount: totalAmount.toString(),
         additional_charges: (additionalCharges || 0).toString()
       }
+    }, {
+      idempotencyKey
     });
 
     // Update rental with final payment info
@@ -133,7 +132,7 @@ export async function POST(
   } catch (error) {
     console.error('Error charging final amount:', error);
     
-    // Handle authentication required error
+    // Handle authentication required error (3D Secure)
     if (error instanceof Error && error.message.includes('authentication_required')) {
       // Save the payment intent that needs authentication
       const paymentIntent = (error as any).payment_intent;
@@ -151,9 +150,17 @@ export async function POST(
         requiresAuth: true,
         data: {
           clientSecret: paymentIntent.client_secret,
-          message: 'Customer authentication required'
+          message: 'Customer authentication required for 3D Secure'
         }
       });
+    }
+
+    // Handle other Stripe errors
+    if (error instanceof Error && error.message.includes('stripe')) {
+      return NextResponse.json(
+        { error: 'Payment processing error: ' + error.message },
+        { status: 400 }
+      );
     }
 
     return NextResponse.json(

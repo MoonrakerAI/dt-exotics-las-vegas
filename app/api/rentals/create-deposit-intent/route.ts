@@ -1,12 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import stripe from '@/app/lib/stripe';
 import { cars } from '@/app/data/cars';
-import { calculateRentalPricing, validateRentalDates, generateRentalId } from '@/app/lib/rental-utils';
+import { calculateRentalPricing, generateRentalId } from '@/app/lib/rental-utils';
 import kvRentalDB from '@/app/lib/kv-database';
+import { validateRentalRequest } from '@/app/lib/validation';
+import { rentalCreationRateLimiter, getClientIdentifier } from '@/app/lib/rate-limit';
 import { CreateRentalRequest, RentalBooking } from '@/app/types/rental';
 
 export async function POST(request: NextRequest) {
   try {
+    // Apply rate limiting
+    const clientId = getClientIdentifier(request);
+    const rateLimitResult = await rentalCreationRateLimiter.checkLimit(clientId);
+    
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Too many rental requests. Please try again later.',
+          resetTime: rateLimitResult.resetTime
+        },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+            'X-RateLimit-Reset': rateLimitResult.resetTime.toString()
+          }
+        }
+      )
+    }
+
     // Check if Stripe is configured
     if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === 'sk_test_dummy') {
       return NextResponse.json(
@@ -15,26 +37,19 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const body: CreateRentalRequest = await request.json();
+    const body = await request.json();
     
-    // Validate request data
-    const { carId, startDate, endDate, customer } = body;
-    
-    if (!carId || !startDate || !endDate || !customer) {
+    // Validate and sanitize input data
+    const validation = validateRentalRequest(body);
+    if (!validation.valid) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: validation.error },
         { status: 400 }
       );
     }
 
-    // Validate dates
-    const dateValidation = validateRentalDates(startDate, endDate);
-    if (!dateValidation.valid) {
-      return NextResponse.json(
-        { error: dateValidation.error },
-        { status: 400 }
-      );
-    }
+    const sanitizedData = validation.sanitizedValue as CreateRentalRequest;
+    const { carId, startDate, endDate, customer } = sanitizedData;
 
     // Find the car
     const car = cars.find(c => c.id === carId);
@@ -159,6 +174,11 @@ export async function POST(request: NextRequest) {
           pricing: rental.pricing,
           customer: rental.customer
         }
+      }
+    }, {
+      headers: {
+        'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+        'X-RateLimit-Reset': rateLimitResult.resetTime.toString()
       }
     });
 

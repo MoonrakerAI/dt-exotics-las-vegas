@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import kvRentalDB from '@/app/lib/kv-database';
 import stripe from '@/app/lib/stripe';
+import { validateSession } from '@/app/lib/auth';
 
-// Simple admin authentication - check for valid admin session token
-function isAdminAuthenticated(request: NextRequest): boolean {
+// Secure admin authentication using JWT
+async function isAdminAuthenticated(request: NextRequest): Promise<boolean> {
   const authHeader = request.headers.get('authorization');
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -12,30 +13,9 @@ function isAdminAuthenticated(request: NextRequest): boolean {
   
   const token = authHeader.substring(7);
   
-  // Allow the legacy admin token
-  const adminToken = process.env.ADMIN_TOKEN || 'admin-secret-token';
-  if (token === adminToken) {
-    return true;
-  }
-  
-  // Validate the simple auth token format (base64 encoded timestamp-userid-identifier)
   try {
-    const decoded = Buffer.from(token, 'base64').toString();
-    const parts = decoded.split('-');
-    
-    // Expected format: timestamp-userid-dt-exotics
-    if (parts.length === 3 && parts[2] === 'dt-exotics') {
-      const timestamp = parseInt(parts[0]);
-      const userId = parts[1];
-      
-      // Check if token is not too old (24 hours)
-      const tokenAge = Date.now() - timestamp;
-      const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-      
-      return tokenAge < maxAge && userId === '1'; // Admin user ID is '1'
-    }
-    
-    return false;
+    const user = await validateSession(token);
+    return user !== null && user.role === 'admin';
   } catch {
     return false;
   }
@@ -45,7 +25,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!isAdminAuthenticated(request)) {
+  if (!(await isAdminAuthenticated(request))) {
     return NextResponse.json(
       { error: 'Unauthorized' },
       { status: 401 }
@@ -64,11 +44,35 @@ export async function POST(
       );
     }
 
-    // Capture the deposit payment
-    const paymentIntent = await stripe.paymentIntents.capture(
+    // Validate capture amount
+    if (captureAmount && (captureAmount <= 0 || captureAmount > rental.pricing.depositAmount)) {
+      return NextResponse.json(
+        { error: 'Invalid capture amount' },
+        { status: 400 }
+      );
+    }
+
+    // Get the payment intent to validate its status
+    const paymentIntent = await stripe.paymentIntents.retrieve(
+      rental.payment.depositPaymentIntentId
+    );
+
+    if (paymentIntent.status !== 'requires_capture') {
+      return NextResponse.json(
+        { error: 'Payment intent is not in a capturable state' },
+        { status: 400 }
+      );
+    }
+
+    // Capture the deposit payment with idempotency key
+    const idempotencyKey = `capture_${rental.id}_${Date.now()}`;
+    const capturedPaymentIntent = await stripe.paymentIntents.capture(
       rental.payment.depositPaymentIntentId,
       {
         amount_to_capture: captureAmount ? captureAmount * 100 : undefined
+      },
+      {
+        idempotencyKey
       }
     );
 
@@ -85,10 +89,10 @@ export async function POST(
       success: true,
       data: {
         paymentIntent: {
-          id: paymentIntent.id,
-          status: paymentIntent.status,
-          amount: paymentIntent.amount,
-          amountCapturable: paymentIntent.amount_capturable
+          id: capturedPaymentIntent.id,
+          status: capturedPaymentIntent.status,
+          amount: capturedPaymentIntent.amount,
+          amountCapturable: capturedPaymentIntent.amount_capturable
         }
       }
     });
