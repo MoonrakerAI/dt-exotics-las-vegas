@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { SimpleAuth } from '../../lib/simple-auth'
-import { Plus, Edit, Trash2, Eye, Calendar, Search, Filter } from 'lucide-react'
-import { BlogPost } from '../../types/blog'
+import { Plus, Edit, Trash2, Eye, Calendar, Search, Filter, Tag, FolderOpen, X } from 'lucide-react'
+import { BlogPost, BlogCategory, BlogTag } from '../../types/blog'
 import BlogEditor from '../components/BlogEditor'
 
 export default function BlogAdmin() {
@@ -19,9 +19,16 @@ export default function BlogAdmin() {
     draft: 0,
     archived: 0
   })
+  const [categories, setCategories] = useState<BlogCategory[]>([])
+  const [tags, setTags] = useState<BlogTag[]>([])
+  const [showCategoryManager, setShowCategoryManager] = useState(false)
+  const [showTagManager, setShowTagManager] = useState(false)
+  const [newCategory, setNewCategory] = useState('')
+  const [newTag, setNewTag] = useState('')
 
   useEffect(() => {
     loadPosts()
+    loadCategoriesAndTags()
   }, [filter, searchQuery])
 
   const loadPosts = async () => {
@@ -73,6 +80,41 @@ export default function BlogAdmin() {
       console.error('Error loading posts:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadCategoriesAndTags = async () => {
+    try {
+      const token = localStorage.getItem('dt-admin-token')
+      if (!token) {
+        console.error('No admin token found')
+        return
+      }
+
+      const [categoriesRes, tagsRes] = await Promise.all([
+        fetch('/api/admin/blog/categories', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }),
+        fetch('/api/admin/blog/tags', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+      ])
+      
+      if (categoriesRes.ok) {
+        const categoriesData = await categoriesRes.json()
+        setCategories(categoriesData)
+      }
+      
+      if (tagsRes.ok) {
+        const tagsData = await tagsRes.json()
+        setTags(tagsData)
+      }
+    } catch (error) {
+      console.error('Error loading categories and tags:', error)
     }
   }
 
@@ -129,6 +171,112 @@ export default function BlogAdmin() {
     } catch (error) {
       console.error('Error deleting post:', error)
       alert('Error deleting post')
+    }
+  }
+
+  const addCategory = async () => {
+    if (!newCategory.trim()) return
+
+    try {
+      const token = localStorage.getItem('dt-admin-token')
+      const response = await fetch('/api/admin/blog/categories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ name: newCategory.trim() })
+      })
+
+      if (response.ok) {
+        setNewCategory('')
+        loadCategoriesAndTags()
+      } else {
+        const error = await response.json()
+        alert(`Error: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error adding category:', error)
+      alert('Error adding category')
+    }
+  }
+
+  const deleteCategory = async (categoryId: string) => {
+    if (!confirm('Are you sure you want to delete this category? This will affect all posts using it.')) {
+      return
+    }
+
+    try {
+      const token = localStorage.getItem('dt-admin-token')
+      const response = await fetch(`/api/admin/blog/categories/${categoryId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        loadCategoriesAndTags()
+      } else {
+        const error = await response.json()
+        alert(`Error: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error deleting category:', error)
+      alert('Error deleting category')
+    }
+  }
+
+  const addTag = async () => {
+    if (!newTag.trim()) return
+
+    try {
+      const token = localStorage.getItem('dt-admin-token')
+      const response = await fetch('/api/admin/blog/tags', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ name: newTag.trim() })
+      })
+
+      if (response.ok) {
+        setNewTag('')
+        loadCategoriesAndTags()
+      } else {
+        const error = await response.json()
+        alert(`Error: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error adding tag:', error)
+      alert('Error adding tag')
+    }
+  }
+
+  const deleteTag = async (tagId: string) => {
+    if (!confirm('Are you sure you want to delete this tag? This will affect all posts using it.')) {
+      return
+    }
+
+    try {
+      const token = localStorage.getItem('dt-admin-token')
+      const response = await fetch(`/api/admin/blog/tags/${tagId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        loadCategoriesAndTags()
+      } else {
+        const error = await response.json()
+        alert(`Error: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error deleting tag:', error)
+      alert('Error deleting tag')
     }
   }
 
@@ -218,6 +366,125 @@ export default function BlogAdmin() {
                 {status.toUpperCase()}
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* Category and Tag Management */}
+        <div className="grid md:grid-cols-2 gap-6 mb-6">
+          {/* Categories */}
+          <div className="glass-panel bg-dark-metal/20 p-6 border border-gray-600/30 rounded-2xl backdrop-blur-sm">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-tech font-semibold text-white flex items-center space-x-2">
+                <FolderOpen className="w-5 h-5" />
+                <span>Categories ({categories.length})</span>
+              </h3>
+              <button
+                onClick={() => setShowCategoryManager(!showCategoryManager)}
+                className="text-neon-blue hover:text-white transition-colors"
+              >
+                {showCategoryManager ? 'Hide' : 'Manage'}
+              </button>
+            </div>
+            
+            {showCategoryManager && (
+              <div className="space-y-4">
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && addCategory()}
+                    placeholder="New category name..."
+                    className="flex-1 px-3 py-2 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none text-sm"
+                  />
+                  <button
+                    onClick={addCategory}
+                    className="px-4 py-2 bg-neon-blue/20 text-neon-blue border border-neon-blue/30 rounded-lg hover:bg-neon-blue/30 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+                
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {categories.map((category) => (
+                    <div
+                      key={category.id}
+                      className="flex items-center justify-between p-3 bg-dark-metal/30 rounded-lg border border-gray-600/20"
+                    >
+                      <div>
+                        <span className="text-white font-medium">{category.name}</span>
+                        <span className="text-gray-400 text-sm ml-2">({category.postCount} posts)</span>
+                      </div>
+                      <button
+                        onClick={() => deleteCategory(category.id)}
+                        className="text-gray-400 hover:text-red-400 transition-colors"
+                        title="Delete category"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Tags */}
+          <div className="glass-panel bg-dark-metal/20 p-6 border border-gray-600/30 rounded-2xl backdrop-blur-sm">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-tech font-semibold text-white flex items-center space-x-2">
+                <Tag className="w-5 h-5" />
+                <span>Tags ({tags.length})</span>
+              </h3>
+              <button
+                onClick={() => setShowTagManager(!showTagManager)}
+                className="text-neon-blue hover:text-white transition-colors"
+              >
+                {showTagManager ? 'Hide' : 'Manage'}
+              </button>
+            </div>
+            
+            {showTagManager && (
+              <div className="space-y-4">
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={newTag}
+                    onChange={(e) => setNewTag(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                    placeholder="New tag name..."
+                    className="flex-1 px-3 py-2 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none text-sm"
+                  />
+                  <button
+                    onClick={addTag}
+                    className="px-4 py-2 bg-neon-blue/20 text-neon-blue border border-neon-blue/30 rounded-lg hover:bg-neon-blue/30 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+                
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {tags.map((tag) => (
+                    <div
+                      key={tag.id}
+                      className="flex items-center justify-between p-3 bg-dark-metal/30 rounded-lg border border-gray-600/20"
+                    >
+                      <div>
+                        <span className="text-white font-medium">{tag.name}</span>
+                        <span className="text-gray-400 text-sm ml-2">({tag.postCount} posts)</span>
+                      </div>
+                      <button
+                        onClick={() => deleteTag(tag.id)}
+                        className="text-gray-400 hover:text-red-400 transition-colors"
+                        title="Delete tag"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

@@ -207,9 +207,9 @@ export default function BlogPage() {
                   {categories.map((category) => (
                     <button
                       key={category.id}
-                      onClick={() => setSelectedCategory(category.slug)}
+                      onClick={() => setSelectedCategory(category.name)}
                       className={`block w-full text-left px-3 py-2 rounded transition-colors duration-200 ${
-                        selectedCategory === category.slug
+                        selectedCategory === category.name
                           ? 'bg-neon-blue text-black'
                           : 'text-gray-300 hover:text-white hover:bg-dark-gray/50'
                       }`}
@@ -237,9 +237,9 @@ export default function BlogPage() {
                   {tags.slice(0, 10).map((tag) => (
                     <button
                       key={tag.id}
-                      onClick={() => setSelectedTag(tag.slug)}
+                      onClick={() => setSelectedTag(tag.name)}
                       className={`px-3 py-1 rounded-full text-sm transition-colors duration-200 ${
-                        selectedTag === tag.slug
+                        selectedTag === tag.name
                           ? 'bg-neon-blue text-black'
                           : 'bg-gray-600/30 text-gray-300 hover:bg-gray-600/50'
                       }`}

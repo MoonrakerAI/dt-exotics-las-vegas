@@ -26,6 +26,7 @@ export default function Navbar() {
     { name: 'Corporate', href: '/corporate' },
     { name: 'VIP Services', href: '/vip-services' },
     { name: 'Partners', href: '/partners' },
+    { name: 'Blog', href: '/blog' },
     { name: 'Contact', href: '/#contact' }
   ]
 
