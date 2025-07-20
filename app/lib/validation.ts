@@ -523,6 +523,7 @@ export function validateBlogPost(data: any): ValidationResult {
       status: data.status,
       featured: data.featured,
       featuredImage: data.featuredImage || undefined,
+      scheduledFor: data.scheduledFor || undefined,
       categories: data.categories.map((cat: string) => cat.trim()),
       tags: data.tags.map((tag: string) => tag.trim()),
       seo: {
