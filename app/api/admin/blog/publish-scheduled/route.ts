@@ -15,7 +15,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Publish scheduled posts
+    console.log('Starting scheduled posts publishing process...')
     await blogDB.publishScheduledPosts()
+    console.log('Scheduled posts publishing process completed')
 
     // Get updated stats
     const stats = await blogDB.getStats()

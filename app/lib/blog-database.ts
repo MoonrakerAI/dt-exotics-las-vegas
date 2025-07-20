@@ -163,13 +163,21 @@ class BlogDatabase {
   async publishScheduledPosts(): Promise<void> {
     const scheduledPosts = await this.getScheduledPosts();
     const now = new Date();
-
+    
+    console.log(`Checking ${scheduledPosts.length} scheduled posts at ${now.toISOString()}`);
+    
     for (const post of scheduledPosts) {
+      console.log(`Checking post "${post.title}" (${post.id}): scheduledFor=${post.scheduledFor}, now=${now.toISOString()}`);
+      
       if (post.scheduledFor && new Date(post.scheduledFor) <= now) {
+        console.log(`Publishing post "${post.title}" (${post.id})`);
         await this.updatePost(post.id, {
           status: 'published',
           publishedAt: new Date().toISOString()
         });
+        console.log(`Successfully published post "${post.title}" (${post.id})`);
+      } else {
+        console.log(`Post "${post.title}" (${post.id}) not ready for publishing yet`);
       }
     }
   }
