@@ -4,10 +4,11 @@
   "framework": "nextjs",
   "installCommand": "npm install",
   "alias": ["dt-exotics-las-vegas.vercel.app", "dt-exotics-website.vercel.app"],
-  "crons": [
+  "cron": [
     {
       "path": "/api/admin/blog/publish-scheduled",
-      "schedule": "* * * * *"
+      "schedule": "*/1 * * * *",
+      "method": "POST"
     }
   ]
 }
