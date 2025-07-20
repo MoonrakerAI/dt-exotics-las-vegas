@@ -300,9 +300,10 @@ export interface BlogPostData {
   slug: string;
   excerpt: string;
   content: string;
-  status: 'draft' | 'published' | 'archived';
+  status: 'draft' | 'published' | 'archived' | 'scheduled';
   featured: boolean;
   featuredImage?: string;
+  scheduledFor?: string;
   categories: string[];
   tags: string[];
   seo: {
@@ -385,13 +386,29 @@ export function validateBlogPost(data: any): ValidationResult {
   }
 
   // Validate status
-  if (!['draft', 'published', 'archived'].includes(data.status)) {
-    return { valid: false, error: 'Invalid status. Must be draft, published, or archived' };
+  if (!['draft', 'published', 'archived', 'scheduled'].includes(data.status)) {
+    return { valid: false, error: 'Invalid status. Must be draft, published, scheduled, or archived' };
   }
 
   // Validate featured flag
   if (typeof data.featured !== 'boolean') {
     return { valid: false, error: 'Featured must be a boolean value' };
+  }
+
+  // Validate scheduledFor when status is scheduled
+  if (data.status === 'scheduled') {
+    if (!data.scheduledFor || typeof data.scheduledFor !== 'string') {
+      return { valid: false, error: 'Scheduled date and time is required when status is scheduled' };
+    }
+    
+    const scheduledDate = new Date(data.scheduledFor);
+    if (isNaN(scheduledDate.getTime())) {
+      return { valid: false, error: 'Invalid scheduled date format' };
+    }
+    
+    if (scheduledDate <= new Date()) {
+      return { valid: false, error: 'Scheduled date must be in the future' };
+    }
   }
 
   // Validate categories

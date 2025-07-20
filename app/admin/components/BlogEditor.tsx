@@ -699,8 +699,17 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
                         type="datetime-local"
                         value={formData.scheduledFor}
                         onChange={(e) => setFormData(prev => ({ ...prev, scheduledFor: e.target.value }))}
-                        className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                        className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none cursor-pointer"
                         min={new Date().toISOString().slice(0, 16)}
+                        style={{ 
+                          WebkitAppearance: 'none',
+                          MozAppearance: 'textfield',
+                          colorScheme: 'dark'
+                        }}
+                        onClick={(e) => {
+                          // Ensure the datetime picker opens when clicking anywhere on the field
+                          e.currentTarget.showPicker?.();
+                        }}
                       />
                       <p className="text-xs text-gray-500 mt-1">
                         Post will be published automatically at this time
