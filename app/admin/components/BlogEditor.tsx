@@ -198,6 +198,10 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
       const url = mode === 'create' ? '/api/admin/blog' : `/api/admin/blog/${post?.id}`
       const method = mode === 'create' ? 'POST' : 'PUT'
       
+      console.log('Saving formData:', formData)
+      console.log('Original post scheduledFor:', post?.scheduledFor)
+      console.log('FormData scheduledFor:', formData.scheduledFor)
+      
       const response = await fetch(url, {
         method,
         headers: {
