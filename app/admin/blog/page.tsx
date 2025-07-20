@@ -507,12 +507,12 @@ export default function BlogAdmin() {
               </div>
               <div className="mt-2 text-sm text-gray-400">
                 Next scheduled: {(() => {
-                  const scheduledPosts = posts.filter(post => post.status === 'scheduled')
+                  const scheduledPosts = posts.filter(post => post.status === 'scheduled' && post.scheduledFor)
                   if (scheduledPosts.length === 0) return 'None'
                   const nextPost = scheduledPosts.sort((a, b) => 
-                    new Date(a.scheduledFor || '').getTime() - new Date(b.scheduledFor || '').getTime()
+                    new Date(a.scheduledFor!).getTime() - new Date(b.scheduledFor!).getTime()
                   )[0]
-                  return nextPost.scheduledFor ? new Date(nextPost.scheduledFor).toLocaleDateString() : 'Unknown'
+                  return new Date(nextPost.scheduledFor!).toLocaleDateString() + ' ' + new Date(nextPost.scheduledFor!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 })()}
               </div>
             </div>
