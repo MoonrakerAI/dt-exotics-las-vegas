@@ -6,8 +6,9 @@ import { adminApiRateLimiter, getClientIdentifier } from '@/app/lib/rate-limit';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     // Apply rate limiting
     const clientId = getClientIdentifier(request);
@@ -56,8 +57,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     // Apply rate limiting
     const clientId = getClientIdentifier(request);
@@ -81,8 +83,6 @@ export async function PUT(
     if (!user) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
-
-    const { id } = params;
     const body = await request.json();
 
     // Check if post exists
@@ -144,8 +144,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     // Apply rate limiting
     const clientId = getClientIdentifier(request);
@@ -169,8 +170,6 @@ export async function DELETE(
     if (!user) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
-
-    const { id } = params;
 
     // Check if post exists
     const existingPost = await blogDB.getPost(id);

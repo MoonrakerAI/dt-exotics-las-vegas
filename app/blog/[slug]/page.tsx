@@ -3,13 +3,14 @@ import blogDB from '../../lib/blog-database'
 import { Metadata } from 'next'
 
 interface BlogPostPageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
-  const post = await blogDB.getPostBySlug(params.slug)
+  const { slug } = await params;
+  const post = await blogDB.getPostBySlug(slug)
   
   if (!post || post.status !== 'published') {
     return {
@@ -48,7 +49,8 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const post = await blogDB.getPostBySlug(params.slug)
+  const { slug } = await params;
+  const post = await blogDB.getPostBySlug(slug)
   
   if (!post || post.status !== 'published') {
     notFound()
