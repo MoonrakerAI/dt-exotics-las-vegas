@@ -113,6 +113,9 @@ export async function POST(request: NextRequest) {
       postCount: 0
     });
 
+    // Update post counts after creating new tag
+    await blogDB.updateTagCounts();
+
     return NextResponse.json(newTag, { status: 201 });
 
   } catch (error) {

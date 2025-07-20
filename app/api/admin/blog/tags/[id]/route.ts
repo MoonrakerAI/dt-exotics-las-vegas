@@ -27,6 +27,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const updatedTag = await blogDB.updateTag(id, { name: body.name })
     
     if (updatedTag) {
+      // Update post counts after tag update
+      await blogDB.updateTagCounts()
       return NextResponse.json(updatedTag)
     } else {
       return NextResponse.json({ error: 'Tag not found' }, { status: 404 })
@@ -60,6 +62,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const success = await blogDB.deleteTag(id)
     
     if (success) {
+      // Update post counts after tag deletion
+      await blogDB.updateTagCounts()
       return NextResponse.json({ message: 'Tag deleted successfully' })
     } else {
       return NextResponse.json({ error: 'Tag not found' }, { status: 404 })

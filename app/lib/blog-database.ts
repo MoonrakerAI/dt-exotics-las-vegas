@@ -321,39 +321,29 @@ class BlogDatabase {
   }
 
   // Utility Methods
-  private async updateCategoryCounts(): Promise<void> {
+  async updateCategoryCounts(): Promise<void> {
     const categories = await this.getAllCategories();
+    const allPosts = await this.getAllPosts();
     
     for (const category of categories) {
-      const postIds = await kv.smembers(this.POSTS_BY_CATEGORY_PREFIX + category.slug);
-      const publishedPosts = [];
+      const postCount = allPosts.filter(post => 
+        post.categories.includes(category.name)
+      ).length;
       
-      for (const postId of postIds) {
-        const post = await this.getPost(postId as string);
-        if (post && post.status === 'published') {
-          publishedPosts.push(post);
-        }
-      }
-      
-      await this.updateCategory(category.id, { postCount: publishedPosts.length });
+      await this.updateCategory(category.id, { postCount });
     }
   }
 
-  private async updateTagCounts(): Promise<void> {
+  async updateTagCounts(): Promise<void> {
     const tags = await this.getAllTags();
+    const allPosts = await this.getAllPosts();
     
     for (const tag of tags) {
-      const postIds = await kv.smembers(this.POSTS_BY_TAG_PREFIX + tag.slug);
-      const publishedPosts = [];
+      const postCount = allPosts.filter(post => 
+        post.tags.includes(tag.name)
+      ).length;
       
-      for (const postId of postIds) {
-        const post = await this.getPost(postId as string);
-        if (post && post.status === 'published') {
-          publishedPosts.push(post);
-        }
-      }
-      
-      await this.updateTag(tag.id, { postCount: publishedPosts.length });
+      await this.updateTag(tag.id, { postCount });
     }
   }
 

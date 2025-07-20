@@ -33,6 +33,7 @@ export default function BlogAdmin() {
   useEffect(() => {
     loadPosts()
     loadCategoriesAndTags()
+    updatePostCounts() // Update post counts on initial load
   }, [filter, searchQuery])
 
   const loadPosts = async () => {
@@ -122,6 +123,35 @@ export default function BlogAdmin() {
     }
   }
 
+  const updatePostCounts = async () => {
+    try {
+      const token = localStorage.getItem('dt-admin-token')
+      if (!token) {
+        console.error('No admin token found')
+        return
+      }
+
+      await Promise.all([
+        fetch('/api/admin/blog/categories/update-counts', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }),
+        fetch('/api/admin/blog/tags/update-counts', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+      ])
+      // Reload categories and tags to get updated counts
+      loadCategoriesAndTags()
+    } catch (error) {
+      console.error('Error updating post counts:', error)
+    }
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'published': return 'text-green-400'
@@ -141,10 +171,11 @@ export default function BlogAdmin() {
     setShowEditor(true)
   }
 
-  const handleSavePost = (savedPost: BlogPost) => {
+  const handleSavePost = async (savedPost: BlogPost) => {
     setShowEditor(false)
     setEditingPost(null)
-    loadPosts() // Reload the posts list
+    await loadPosts() // Reload the posts list
+    await updatePostCounts() // Update post counts for categories and tags
   }
 
   const handleCancelEdit = () => {
@@ -167,7 +198,8 @@ export default function BlogAdmin() {
       })
 
       if (response.ok) {
-        loadPosts() // Reload the posts list
+        await loadPosts() // Reload the posts list
+        await updatePostCounts() // Update post counts for categories and tags
       } else {
         const error = await response.json()
         alert(`Error: ${error.error}`)

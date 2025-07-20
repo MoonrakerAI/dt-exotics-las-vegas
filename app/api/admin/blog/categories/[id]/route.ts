@@ -27,6 +27,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const updatedCategory = await blogDB.updateCategory(id, { name: body.name })
     
     if (updatedCategory) {
+      // Update post counts after category update
+      await blogDB.updateCategoryCounts()
       return NextResponse.json(updatedCategory)
     } else {
       return NextResponse.json({ error: 'Category not found' }, { status: 404 })
@@ -60,6 +62,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const success = await blogDB.deleteCategory(id)
     
     if (success) {
+      // Update post counts after category deletion
+      await blogDB.updateCategoryCounts()
       return NextResponse.json({ message: 'Category deleted successfully' })
     } else {
       return NextResponse.json({ error: 'Category not found' }, { status: 404 })

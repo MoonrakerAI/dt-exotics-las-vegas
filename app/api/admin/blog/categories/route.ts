@@ -114,6 +114,9 @@ export async function POST(request: NextRequest) {
       postCount: 0
     });
 
+    // Update post counts after creating new category
+    await blogDB.updateCategoryCounts();
+
     return NextResponse.json(newCategory, { status: 201 });
 
   } catch (error) {
