@@ -33,8 +33,6 @@ export async function GET(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const { id } = params;
-
     // Get the blog post
     const post = await blogDB.getPost(id);
     if (!post) {
