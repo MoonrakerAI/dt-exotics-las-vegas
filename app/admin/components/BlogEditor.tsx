@@ -147,6 +147,23 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
         return
       }
 
+      // First update post counts
+      await Promise.all([
+        fetch('/api/admin/blog/categories/update-counts', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }),
+        fetch('/api/admin/blog/tags/update-counts', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+      ])
+
+      // Then load categories and tags with updated counts
       const [categoriesRes, tagsRes] = await Promise.all([
         fetch('/api/admin/blog/categories', {
           headers: {
@@ -521,7 +538,7 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
                 </div>
 
                 {/* Categories and Tags */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className={`grid gap-6 ${showSeoPanel ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
                   {/* Categories */}
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -546,7 +563,7 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
                             .filter(cat => !formData.categories.includes(cat.name))
                             .map((category) => (
                               <option key={category.id} value={category.name}>
-                                {category.name}
+                                {category.name} ({category.postCount || 0} posts)
                               </option>
                             ))}
                         </select>
@@ -611,7 +628,7 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
                             .filter(tag => !formData.tags.includes(tag.name))
                             .map((tag) => (
                               <option key={tag.id} value={tag.name}>
-                                {tag.name}
+                                {tag.name} ({tag.postCount || 0} posts)
                               </option>
                             ))}
                         </select>

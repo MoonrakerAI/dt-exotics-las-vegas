@@ -30,7 +30,7 @@ export default function BlogPage() {
 
       if (postsRes.ok) {
         const postsData = await postsRes.json()
-        setPosts(postsData)
+        setPosts(postsData.posts || postsData)
       }
 
       if (categoriesRes.ok) {
@@ -78,8 +78,16 @@ export default function BlogPage() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 py-16">
-        <div className="grid lg:grid-cols-4 gap-8">
+      {loading ? (
+        <div className="max-w-7xl mx-auto px-4 py-16">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-neon-blue mb-4"></div>
+            <p className="text-gray-300 text-lg">Loading blog posts...</p>
+          </div>
+        </div>
+      ) : (
+        <div className="max-w-7xl mx-auto px-4 py-16">
+          <div className="grid lg:grid-cols-4 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-3">
             {/* Featured Post */}
@@ -267,6 +275,7 @@ export default function BlogPage() {
           </div>
         </div>
       </div>
+      )}
 
       <Footer />
     </main>
