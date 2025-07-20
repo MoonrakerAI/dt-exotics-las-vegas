@@ -507,9 +507,14 @@ export default function BlogAdmin() {
               </div>
               <div className="mt-2 text-sm text-gray-400">
                 Next scheduled: {(() => {
-                  const scheduledPosts = posts.filter(post => post.status === 'scheduled' && post.scheduledFor)
-                  if (scheduledPosts.length === 0) return 'None'
-                  const nextPost = scheduledPosts.sort((a, b) => 
+                  const scheduledPosts = posts.filter(post => post.status === 'scheduled')
+                  console.log('All scheduled posts:', scheduledPosts.map(p => ({ id: p.id, scheduledFor: p.scheduledFor, status: p.status })))
+                  
+                  const validScheduledPosts = scheduledPosts.filter(post => post.scheduledFor && new Date(post.scheduledFor) > new Date())
+                  console.log('Valid future scheduled posts:', validScheduledPosts.map(p => ({ id: p.id, scheduledFor: p.scheduledFor })))
+                  
+                  if (validScheduledPosts.length === 0) return 'None'
+                  const nextPost = validScheduledPosts.sort((a, b) => 
                     new Date(a.scheduledFor!).getTime() - new Date(b.scheduledFor!).getTime()
                   )[0]
                   return new Date(nextPost.scheduledFor!).toLocaleDateString() + ' ' + new Date(nextPost.scheduledFor!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
