@@ -21,6 +21,35 @@ import {
 } from 'lucide-react'
 import { BlogPost, BlogCategory, BlogTag } from '../../types/blog'
 
+function parseMarkdown(content: string): string {
+  return content
+    // Headers
+    .replace(/^#{1}\s+(.+)$/gm, '<h1 class="text-3xl font-tech font-bold text-white mb-6 mt-8">$1</h1>')
+    .replace(/^#{2}\s+(.+)$/gm, '<h2 class="text-2xl font-tech font-bold text-white mb-4 mt-6">$1</h2>')
+    .replace(/^#{3}\s+(.+)$/gm, '<h3 class="text-xl font-tech font-semibold text-white mb-3 mt-5">$1</h3>')
+    .replace(/^#{4}\s+(.+)$/gm, '<h4 class="text-lg font-tech font-semibold text-white mb-2 mt-4">$1</h4>')
+    .replace(/^#{5}\s+(.+)$/gm, '<h5 class="text-base font-tech font-semibold text-white mb-2 mt-3">$1</h5>')
+    .replace(/^#{6}\s+(.+)$/gm, '<h6 class="text-sm font-tech font-semibold text-white mb-2 mt-3">$1</h6>')
+    // Bold and italic
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-white">$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em class="italic">$1</em>')
+    // Code
+    .replace(/`(.+?)`/g, '<code class="bg-gray-800 px-2 py-1 rounded text-sm font-mono">$1</code>')
+    // Images
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="w-full h-auto rounded-lg my-4" />')
+    // Links
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-neon-blue hover:text-neon-blue/80 underline" target="_blank" rel="noopener noreferrer">$1</a>')
+    // Convert line breaks to paragraphs
+    .split('\n\n')
+    .map(paragraph => {
+      if (paragraph.trim().startsWith('<h')) {
+        return paragraph.trim()
+      }
+      return `<p class="text-base text-gray-300 leading-relaxed mb-4">${paragraph.trim().replace(/\n/g, '<br>')}</p>`
+    })
+    .join('')
+}
+
 interface BlogEditorProps {
   post?: BlogPost
   onSave?: (post: BlogPost) => void
@@ -419,16 +448,9 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
                   {/* Preview Content */}
                   <div className="glass-panel bg-dark-metal/50 p-8 border border-gray-600/30 rounded-2xl">
                     <div 
-                      className="prose prose-invert prose-lg max-w-none text-gray-300 leading-relaxed"
+                      className="prose prose-invert max-w-none text-gray-300 leading-relaxed"
                       dangerouslySetInnerHTML={{ 
-                        __html: (formData.content || 'No content yet')
-                          .replace(/\n/g, '<br>')
-                          .replace(/#{1,6}\s+(.+)/g, '<h1>$1</h1>')
-                          .replace(/\*\*(.+)\*\*/g, '<strong>$1</strong>')
-                          .replace(/\*(.+)\*/g, '<em>$1</em>')
-                          .replace(/`(.+)`/g, '<code class="bg-gray-800 px-2 py-1 rounded">$1</code>')
-                          .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="w-full h-auto rounded-lg my-4" />')
-                          .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-neon-blue hover:text-neon-blue/80 underline" target="_blank" rel="noopener noreferrer">$1</a>')
+                        __html: parseMarkdown(formData.content || 'No content yet')
                       }}
                     />
                   </div>

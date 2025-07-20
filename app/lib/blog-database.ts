@@ -220,7 +220,27 @@ class BlogDatabase {
     };
 
     await kv.set(this.CATEGORY_PREFIX + categoryId, updatedCategory);
+
+    // If the name changed, update all posts that use this category
+    if (updates.name && updates.name !== existing.name) {
+      await this.updatePostsWithCategory(existing.name, updates.name);
+    }
+
     return updatedCategory;
+  }
+
+  private async updatePostsWithCategory(oldName: string, newName: string): Promise<void> {
+    const allPosts = await this.getAllPosts();
+    
+    for (const post of allPosts) {
+      if (post.categories.includes(oldName)) {
+        const updatedCategories = post.categories.map(cat => 
+          cat === oldName ? newName : cat
+        );
+        
+        await this.updatePost(post.id, { categories: updatedCategories });
+      }
+    }
   }
 
   async deleteCategory(categoryId: string): Promise<boolean> {
@@ -268,7 +288,27 @@ class BlogDatabase {
     };
 
     await kv.set(this.TAG_PREFIX + tagId, updatedTag);
+
+    // If the name changed, update all posts that use this tag
+    if (updates.name && updates.name !== existing.name) {
+      await this.updatePostsWithTag(existing.name, updates.name);
+    }
+
     return updatedTag;
+  }
+
+  private async updatePostsWithTag(oldName: string, newName: string): Promise<void> {
+    const allPosts = await this.getAllPosts();
+    
+    for (const post of allPosts) {
+      if (post.tags.includes(oldName)) {
+        const updatedTags = post.tags.map(tag => 
+          tag === oldName ? newName : tag
+        );
+        
+        await this.updatePost(post.id, { tags: updatedTags });
+      }
+    }
   }
 
   async deleteTag(tagId: string): Promise<boolean> {
