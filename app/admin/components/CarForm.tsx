@@ -32,6 +32,17 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [autoPopulateLoading, setAutoPopulateLoading] = useState(false)
+  const [uploadingFiles, setUploadingFiles] = useState<{
+    mainImage: boolean;
+    galleryImages: boolean;
+    startupAudio: boolean;
+    revAudio: boolean;
+  }>({
+    mainImage: false,
+    galleryImages: false,
+    startupAudio: false,
+    revAudio: false
+  })
   
   // File upload refs
   const mainImageRef = useRef<HTMLInputElement>(null)
@@ -183,6 +194,8 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
     const file = event.target.files?.[0]
     if (!file) return
 
+    setUploadingFiles(prev => ({ ...prev, mainImage: true }))
+
     try {
       // Create form data for upload
       const uploadFormData = new FormData()
@@ -202,17 +215,43 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
       const result = await response.json()
       
       if (response.ok && result.success) {
-        const imageUrl = result.urls.optimized || result.urls.original
+        const imageUrl = result.urls?.optimized || result.urls?.original
+        console.log('Upload successful:', { result, imageUrl })
         setFormData(prev => ({
           ...prev,
           images: { ...prev.images, main: imageUrl }
         }))
         setImagePreview(prev => ({ ...prev, main: imageUrl }))
+        
+        // Clear the file input to allow re-upload of same file
+        if (mainImageRef.current) {
+          mainImageRef.current.value = ''
+        }
       } else {
-        alert(result.error || 'Failed to upload image')
+        console.error('Upload error:', result)
+        
+        // If blob storage is not configured, fall back to base64
+        if (result.fallback || response.status === 503) {
+          console.log('Falling back to base64 storage')
+          const base64 = await convertFileToBase64(file)
+          setFormData(prev => ({
+            ...prev,
+            images: { ...prev.images, main: base64 }
+          }))
+          setImagePreview(prev => ({ ...prev, main: base64 }))
+          
+          if (mainImageRef.current) {
+            mainImageRef.current.value = ''
+          }
+        } else {
+          alert(result.error || 'Failed to upload image')
+        }
       }
     } catch (error) {
-      alert('Failed to upload image')
+      console.error('Upload exception:', error)
+      alert('Failed to upload image. Please try again.')
+    } finally {
+      setUploadingFiles(prev => ({ ...prev, mainImage: false }))
     }
   }
 
@@ -220,6 +259,8 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
   const handleGalleryImagesUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (!files || files.length === 0) return
+
+    setUploadingFiles(prev => ({ ...prev, galleryImages: true }))
 
     try {
       const uploadPromises = Array.from(files).map(async (file, index) => {
@@ -263,8 +304,16 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
       if (failures.length > 0) {
         alert(`Some files failed to upload: ${failures.map(f => f.error).join(', ')}`)
       }
+      
+      // Clear the file input
+      if (galleryImagesRef.current) {
+        galleryImagesRef.current.value = ''
+      }
     } catch (error) {
+      console.error('Gallery upload error:', error)
       alert('Failed to upload gallery images')
+    } finally {
+      setUploadingFiles(prev => ({ ...prev, galleryImages: false }))
     }
   }
 
@@ -272,6 +321,9 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
   const handleAudioUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'startup' | 'rev') => {
     const file = event.target.files?.[0]
     if (!file) return
+
+    const uploadKey = type === 'startup' ? 'startupAudio' : 'revAudio'
+    setUploadingFiles(prev => ({ ...prev, [uploadKey]: true }))
 
     try {
       const uploadFormData = new FormData()
@@ -300,11 +352,21 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
         // Create audio preview
         const audio = new Audio(audioUrl)
         setAudioPreview(prev => ({ ...prev, [type]: audio }))
+        
+        // Clear the file input
+        const inputRef = type === 'startup' ? startupAudioRef : revAudioRef
+        if (inputRef.current) {
+          inputRef.current.value = ''
+        }
       } else {
+        console.error('Audio upload error:', result)
         alert(result.error || 'Failed to upload audio file')
       }
     } catch (error) {
-      alert('Failed to upload audio file')
+      console.error('Audio upload exception:', error)
+      alert('Failed to upload audio file. Please try again.')
+    } finally {
+      setUploadingFiles(prev => ({ ...prev, [uploadKey]: false }))
     }
   }
 
@@ -409,6 +471,22 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
       console.error('Delete error:', error)
       alert('Error deleting car')
     }
+  }
+
+  // Helper function for base64 conversion
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          resolve(reader.result)
+        } else {
+          reject(new Error('Failed to convert file to base64'))
+        }
+      }
+      reader.onerror = () => reject(new Error('File reading failed'))
+      reader.readAsDataURL(file)
+    })
   }
 
   const addFeature = () => {
@@ -546,8 +624,8 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                       </>
                     ) : (
                       <>
-                        <Search className="w-4 h-4" />
-                        <span>Auto-Populate</span>
+                                                 <Search className="w-5 h-5" />
+                         <span>Auto-Populate</span>
                       </>
                     )}
                   </button>
@@ -777,9 +855,17 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                   />
                   <button
                     onClick={() => mainImageRef.current?.click()}
-                    className="mt-4 btn-primary"
+                    disabled={uploadingFiles.mainImage}
+                    className="mt-4 btn-primary disabled:opacity-50 flex items-center space-x-2"
                   >
-                    {imagePreview.main ? 'Change Image' : 'Upload Image'}
+                    {uploadingFiles.mainImage ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Uploading...</span>
+                      </>
+                    ) : (
+                      <span>{imagePreview.main ? 'Change Image' : 'Upload Image'}</span>
+                    )}
                   </button>
                 </div>
               </div>
@@ -801,9 +887,17 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                   />
                   <button
                     onClick={() => galleryImagesRef.current?.click()}
-                    className="mt-4 btn-primary"
+                    disabled={uploadingFiles.galleryImages}
+                    className="mt-4 btn-primary disabled:opacity-50 flex items-center space-x-2"
                   >
-                    Upload Images
+                    {uploadingFiles.galleryImages ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Uploading...</span>
+                      </>
+                    ) : (
+                      <span>Upload Images</span>
+                    )}
                   </button>
                 </div>
                 
@@ -877,9 +971,17 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     />
                     <button
                       onClick={() => startupAudioRef.current?.click()}
-                      className="mt-2 btn-primary text-sm"
+                      disabled={uploadingFiles.startupAudio}
+                      className="mt-2 btn-primary text-sm disabled:opacity-50 flex items-center space-x-2"
                     >
-                      {formData.audio.startup ? 'Change Audio' : 'Upload Audio'}
+                      {uploadingFiles.startupAudio ? (
+                        <>
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          <span>Uploading...</span>
+                        </>
+                      ) : (
+                        <span>{formData.audio.startup ? 'Change Audio' : 'Upload Audio'}</span>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -924,9 +1026,17 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     />
                     <button
                       onClick={() => revAudioRef.current?.click()}
-                      className="mt-2 btn-primary text-sm"
+                      disabled={uploadingFiles.revAudio}
+                      className="mt-2 btn-primary text-sm disabled:opacity-50 flex items-center space-x-2"
                     >
-                      {formData.audio.rev ? 'Change Audio' : 'Upload Audio'}
+                      {uploadingFiles.revAudio ? (
+                        <>
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          <span>Uploading...</span>
+                        </>
+                      ) : (
+                        <span>{formData.audio.rev ? 'Change Audio' : 'Upload Audio'}</span>
+                      )}
                     </button>
                   </div>
                 </div>

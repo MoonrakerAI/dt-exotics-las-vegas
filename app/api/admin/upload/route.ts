@@ -25,10 +25,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    // Check if blob storage is configured
+    // Check if blob storage is configured - if not, return error with helpful message
     if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      console.log('BLOB_READ_WRITE_TOKEN not found, blob storage unavailable');
       return NextResponse.json({ 
-        error: 'Blob storage not configured. Please set BLOB_READ_WRITE_TOKEN environment variable.' 
+        error: 'Blob storage not configured. Using fallback storage method.',
+        fallback: true
       }, { status: 503 });
     }
 
@@ -100,11 +102,13 @@ export async function POST(request: NextRequest) {
     let urls: any = { original: blob.url };
     
     if (fileType === 'image') {
+      // For now, use the blob URL directly to avoid optimization issues
+      // In production, Vercel will handle optimization automatically
       urls = {
         original: blob.url,
-        thumbnail: generateOptimizedUrl(blob.url, 300, 200, 80),
-        medium: generateOptimizedUrl(blob.url, 800, 600, 85),
-        optimized: generateOptimizedUrl(blob.url, 1200, 900, 90),
+        thumbnail: blob.url,
+        medium: blob.url,
+        optimized: blob.url,
       };
     }
 
