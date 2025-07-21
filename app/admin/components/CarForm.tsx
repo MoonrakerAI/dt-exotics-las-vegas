@@ -752,11 +752,12 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   >
                     <option value="">Select Category</option>
-                    <option value="exotic">Exotic</option>
-                    <option value="luxury">Luxury</option>
-                    <option value="sports">Sports</option>
-                    <option value="suv">SUV</option>
-                    <option value="convertible">Convertible</option>
+                    <option value="Exotic">Exotic</option>
+                    <option value="Luxury">Luxury</option>
+                    <option value="Sports Car">Sports Car</option>
+                    <option value="Supercar">Supercar</option>
+                    <option value="Luxury SUV">Luxury SUV</option>
+                    <option value="Convertible">Convertible</option>
                   </select>
                 </div>
               </div>

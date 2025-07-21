@@ -179,27 +179,27 @@ class VehicleAPIService {
 
     // Exotic/Supercar brands
     if (['lamborghini', 'ferrari', 'mclaren', 'bugatti', 'koenigsegg', 'pagani'].includes(makeLower)) {
-      return 'exotic';
+      return 'Supercar';
     }
 
     // Luxury/Sports brands
     if (['porsche', 'aston martin', 'bentley', 'rolls-royce', 'maserati'].includes(makeLower)) {
-      return 'luxury';
+      return 'Luxury';
     }
 
     // Sports cars by model
     if (modelLower.includes('corvette') || modelLower.includes('mustang') || 
         modelLower.includes('camaro') || modelLower.includes('challenger')) {
-      return 'sports';
+      return 'Sports Car';
     }
 
     // SUVs
     if (modelLower.includes('suv') || modelLower.includes('urus') || 
         modelLower.includes('cayenne') || modelLower.includes('macan')) {
-      return 'suv';
+      return 'Luxury SUV';
     }
 
-    return 'luxury'; // Default for rental fleet
+    return 'Luxury'; // Default for rental fleet
   }
 
   private getPerformanceEstimates(make: string, model: string) {

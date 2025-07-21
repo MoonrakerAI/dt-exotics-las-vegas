@@ -395,7 +395,7 @@ export default function FleetAdmin() {
                           <h3 className="text-2xl font-tech font-bold text-white">
                             {car.brand} {car.model} ({car.year})
                           </h3>
-                          <p className="text-gray-400">{car.stats.engine} • {car.stats.horsepower} HP • {car.category}</p>
+                          <p className="text-gray-400">{car.stats.engine} • {car.stats.horsepower} HP • {car.category.charAt(0).toUpperCase() + car.category.slice(1)}</p>
                         </div>
                         <div className="flex items-center space-x-4">
                           {/* Toggle Switches */}
@@ -476,8 +476,8 @@ export default function FleetAdmin() {
                         </div>
                         <div className="bg-dark-metal/30 p-3 rounded-lg border border-gray-600/20">
                           <div className="text-sm text-gray-400">Category</div>
-                          <div className="text-lg font-tech font-semibold text-white capitalize">
-                            {car.category}
+                          <div className="text-lg font-tech font-semibold text-white">
+                            {car.category.charAt(0).toUpperCase() + car.category.slice(1)}
                           </div>
                         </div>
                       </div>

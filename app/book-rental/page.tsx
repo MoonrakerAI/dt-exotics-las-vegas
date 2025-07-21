@@ -368,7 +368,7 @@ function BookingFormInner() {
                   <h3 className="text-xl font-tech font-bold text-white">
                     {selectedCar.brand} {selectedCar.model}
                   </h3>
-                  <p className="text-gray-400">{selectedCar.year} • {selectedCar.category}</p>
+                  <p className="text-gray-400">{selectedCar.year} • {selectedCar.category.charAt(0).toUpperCase() + selectedCar.category.slice(1)}</p>
                 </div>
               </div>
 
