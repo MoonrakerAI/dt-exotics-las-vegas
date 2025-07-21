@@ -366,61 +366,24 @@ export default function FleetAdmin() {
         ) : (
           <div className="grid gap-6">
             {filteredCars.map(car => (
-              <div key={car.id} className="glass-panel bg-dark-metal/50 p-8 border border-gray-600/30 rounded-2xl">
+              <div 
+                key={car.id} 
+                className={`glass-panel bg-dark-metal/50 p-8 border border-gray-600/30 rounded-2xl relative transition-all duration-1000 ease-in-out ${getUnderbodyLightingClass(car)}
+                  before:content-[''] before:absolute before:-bottom-4 before:left-1/2 before:-translate-x-1/2 
+                  before:w-3/4 before:h-3 before:rounded-full before:blur-md before:transition-all before:duration-1000`}
+                title={getAvailabilityTooltip(car)}
+              >
                 <div className="flex flex-col lg:flex-row gap-8">
-                  {/* Car Image with Underbody Lighting */}
+                  {/* Car Image */}
                   <div className="lg:w-1/3">
                     <div className="relative">
-                      {/* Car Image Container with Underbody Effect */}
-                      <div 
-                        className={`relative transition-all duration-1000 ease-in-out ${getUnderbodyLightingClass(car)}
-                          before:content-[''] before:absolute before:-bottom-4 before:left-1/2 before:-translate-x-1/2 
-                          before:w-3/4 before:h-3 before:rounded-full before:blur-md before:transition-all before:duration-1000`}
-                        title={getAvailabilityTooltip(car)}
-                      >
-                        <img
-                          src={getCarImage(car)}
-                          alt={`${car.brand} ${car.model}`}
-                          className="w-full h-56 lg:h-48 object-cover rounded-lg relative z-10"
-                        />
-                      </div>
+                      <img
+                        src={getCarImage(car)}
+                        alt={`${car.brand} ${car.model}`}
+                        className="w-full h-56 lg:h-48 object-cover rounded-lg relative z-10"
+                      />
                       
-                      {/* Status indicators moved above image */}
-                      <div className="flex justify-between items-center mb-3">
-                        {/* Availability Toggle */}
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm text-gray-300">Available:</span>
-                          <button
-                            onClick={() => handleToggleAvailability(car)}
-                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ${
-                              car.available ? 'bg-neon-blue' : 'bg-gray-600'
-                            }`}
-                          >
-                            <span
-                              className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-200 ${
-                                car.available ? 'translate-x-5' : 'translate-x-1'
-                              }`}
-                            />
-                          </button>
-                        </div>
-                        
-                        {/* Homepage Visibility Toggle */}
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm text-gray-300">Homepage:</span>
-                          <button
-                            onClick={() => handleToggleHomepageVisibility(car)}
-                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ${
-                              car.showOnHomepage ? 'bg-neon-blue' : 'bg-gray-600'
-                            }`}
-                          >
-                            <span
-                              className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-200 ${
-                                car.showOnHomepage ? 'translate-x-5' : 'translate-x-1'
-                              }`}
-                            />
-                          </button>
-                        </div>
-                      </div>
+
                     </div>
                   </div>
 
@@ -434,21 +397,61 @@ export default function FleetAdmin() {
                           </h3>
                           <p className="text-gray-400">{car.stats.engine} • {car.stats.horsepower} HP • {car.category}</p>
                         </div>
-                        <div className="flex space-x-2">
-                          <button 
-                            onClick={() => handleEditCar(car)}
-                            className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
-                            title="Edit car details"
-                          >
-                            <Edit className="w-5 h-5" />
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteCar(car)}
-                            className="p-2 text-gray-400 hover:text-red-400 transition-colors"
-                            title="Delete car"
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </button>
+                        <div className="flex items-center space-x-4">
+                          {/* Toggle Switches */}
+                          <div className="flex items-center space-x-4">
+                            {/* Availability Toggle */}
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm text-gray-300">Available:</span>
+                              <button
+                                onClick={() => handleToggleAvailability(car)}
+                                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ${
+                                  car.available ? 'bg-neon-blue' : 'bg-gray-600'
+                                }`}
+                              >
+                                <span
+                                  className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-200 ${
+                                    car.available ? 'translate-x-5' : 'translate-x-1'
+                                  }`}
+                                />
+                              </button>
+                            </div>
+                            
+                            {/* Homepage Visibility Toggle */}
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm text-gray-300">Homepage:</span>
+                              <button
+                                onClick={() => handleToggleHomepageVisibility(car)}
+                                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ${
+                                  car.showOnHomepage ? 'bg-neon-blue' : 'bg-gray-600'
+                                }`}
+                              >
+                                <span
+                                  className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-200 ${
+                                    car.showOnHomepage ? 'translate-x-5' : 'translate-x-1'
+                                  }`}
+                                />
+                              </button>
+                            </div>
+                          </div>
+                          
+                          {/* Action Buttons */}
+                          <div className="flex space-x-2 border-l border-gray-600 pl-4">
+                            <button 
+                              onClick={() => handleEditCar(car)}
+                              className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
+                              title="Edit car details"
+                            >
+                              <Edit className="w-5 h-5" />
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteCar(car)}
+                              className="p-2 text-gray-400 hover:text-red-400 transition-colors"
+                              title="Delete car"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
 

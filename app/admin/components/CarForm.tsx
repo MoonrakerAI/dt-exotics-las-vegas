@@ -626,8 +626,8 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
               <p className="text-gray-300 mb-4">
                 Enter Year, Make, and Model below, then click "Auto-Populate" to automatically fill in vehicle specifications and stock photos.
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                <div>
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                <div className="md:col-span-1">
                   <label className="block text-sm font-medium text-gray-300 mb-2">Year</label>
                   <input
                     type="number"
@@ -638,7 +638,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   />
                 </div>
-                <div className="relative">
+                <div className="relative md:col-span-2">
                   <label className="block text-sm font-medium text-gray-300 mb-2">Make (Brand)</label>
                   <input
                     type="text"
@@ -671,7 +671,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     </div>
                   )}
                 </div>
-                <div className="relative">
+                <div className="relative md:col-span-1">
                   <label className="block text-sm font-medium text-gray-300 mb-2">Model</label>
                   <input
                     type="text"
@@ -704,7 +704,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     </div>
                   )}
                 </div>
-                <div>
+                <div className="md:col-span-1">
                   <button
                     onClick={handleAutoPopulate}
                     disabled={autoPopulateLoading || !formData.brand || !formData.model}
@@ -777,7 +777,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Top Speed (km/h)</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Top Speed (MPH)</label>
                   <input
                     type="number"
                     value={formData.stats.topSpeed}
@@ -786,7 +786,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">0-100 km/h (seconds)</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">0-60 MPH (seconds)</label>
                   <input
                     type="number"
                     step="0.1"
@@ -949,7 +949,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                   <button
                     onClick={() => mainImageRef.current?.click()}
                     disabled={uploadingFiles.mainImage}
-                    className="mt-4 btn-primary disabled:opacity-50 flex items-center space-x-2"
+                    className="mt-4 btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-full"
                   >
                     {uploadingFiles.mainImage ? (
                       <>
@@ -981,7 +981,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                   <button
                     onClick={() => galleryImagesRef.current?.click()}
                     disabled={uploadingFiles.galleryImages}
-                    className="mt-4 btn-primary disabled:opacity-50 flex items-center space-x-2"
+                    className="mt-4 btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-full"
                   >
                     {uploadingFiles.galleryImages ? (
                       <>
@@ -1065,7 +1065,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     <button
                       onClick={() => startupAudioRef.current?.click()}
                       disabled={uploadingFiles.startupAudio}
-                      className="mt-2 btn-primary text-sm disabled:opacity-50 flex items-center space-x-2"
+                      className="mt-2 btn-primary text-sm disabled:opacity-50 flex items-center justify-center space-x-2 w-full"
                     >
                       {uploadingFiles.startupAudio ? (
                         <>
@@ -1120,7 +1120,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     <button
                       onClick={() => revAudioRef.current?.click()}
                       disabled={uploadingFiles.revAudio}
-                      className="mt-2 btn-primary text-sm disabled:opacity-50 flex items-center space-x-2"
+                      className="mt-2 btn-primary text-sm disabled:opacity-50 flex items-center justify-center space-x-2 w-full"
                     >
                       {uploadingFiles.revAudio ? (
                         <>
