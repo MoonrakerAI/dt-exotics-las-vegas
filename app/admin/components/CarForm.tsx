@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { 
   Save, 
   X, 
@@ -11,9 +11,16 @@ import {
   DollarSign,
   Settings,
   Eye,
-  EyeOff
+  EyeOff,
+  Search,
+  Loader2,
+  Image as ImageIcon,
+  Music,
+  Play,
+  Pause
 } from 'lucide-react'
 import { Car } from '../../data/cars'
+import { fileUploadService } from '../../lib/file-upload'
 
 interface CarFormProps {
   car?: Car
@@ -25,6 +32,20 @@ interface CarFormProps {
 export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [autoPopulateLoading, setAutoPopulateLoading] = useState(false)
+  
+  // File upload refs
+  const mainImageRef = useRef<HTMLInputElement>(null)
+  const galleryImagesRef = useRef<HTMLInputElement>(null)
+  const startupAudioRef = useRef<HTMLInputElement>(null)
+  const revAudioRef = useRef<HTMLInputElement>(null)
+
+  // Audio preview state
+  const [audioPreview, setAudioPreview] = useState<{
+    startup?: HTMLAudioElement;
+    rev?: HTMLAudioElement;
+  }>({})
+  const [playingAudio, setPlayingAudio] = useState<'startup' | 'rev' | null>(null)
   
   // Form state
   const [formData, setFormData] = useState({
@@ -63,15 +84,224 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
   })
 
   const [newFeature, setNewFeature] = useState('')
-  const [newGalleryImage, setNewGalleryImage] = useState('')
+  const [imagePreview, setImagePreview] = useState<{
+    main?: string;
+    gallery: string[];
+  }>({
+    main: car?.images.main,
+    gallery: car?.images.gallery || []
+  })
 
   // Auto-generate ID from brand and model
   useEffect(() => {
     if (!formData.id && formData.brand && formData.model) {
-      const id = `${formData.brand.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${formData.model.toLowerCase().replace(/[^a-z0-9]/g, '-')}`
+      const id = `${formData.brand.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${formData.model.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${formData.year}`
       setFormData(prev => ({ ...prev, id }))
     }
-  }, [formData.brand, formData.model, formData.id])
+  }, [formData.brand, formData.model, formData.year, formData.id])
+
+     // Auto-populate vehicle data
+   const handleAutoPopulate = async () => {
+     if (!formData.brand || !formData.model || !formData.year) {
+       alert('Please enter Year, Make (Brand), and Model first')
+       return
+     }
+
+     setAutoPopulateLoading(true)
+     try {
+       const response = await fetch(`/api/admin/vehicle-lookup?year=${formData.year}&make=${encodeURIComponent(formData.brand)}&model=${encodeURIComponent(formData.model)}`, {
+         headers: {
+           'Authorization': `Bearer ${localStorage.getItem('dt-admin-token')}`
+         }
+       })
+
+       const result = await response.json()
+       
+       if (response.ok && result.success && result.data) {
+         const specs = result.data
+        
+                 // Update form with retrieved data
+         setFormData(prev => ({
+           ...prev,
+           brand: specs.make,
+           model: specs.model,
+           category: specs.category || prev.category,
+           stats: {
+             ...prev.stats,
+             horsepower: specs.horsepower || prev.stats.horsepower,
+             topSpeed: specs.topSpeed || prev.stats.topSpeed,
+             acceleration: typeof specs.acceleration === 'string' ? parseFloat(specs.acceleration) || prev.stats.acceleration : specs.acceleration || prev.stats.acceleration,
+             engine: specs.engine || prev.stats.engine,
+             drivetrain: specs.drivetrain || prev.stats.drivetrain,
+             doors: specs.doors || prev.stats.doors
+           },
+           features: specs.features || prev.features
+         }))
+
+        // Update image previews if stock images are available
+        if (specs.stockImages?.main) {
+          setImagePreview(prev => ({
+            ...prev,
+            main: specs.stockImages!.main
+          }))
+          setFormData(prev => ({
+            ...prev,
+            images: {
+              ...prev.images,
+              main: specs.stockImages!.main!
+            }
+          }))
+        }
+
+        if (specs.stockImages?.gallery?.length) {
+          setImagePreview(prev => ({
+            ...prev,
+            gallery: specs.stockImages!.gallery!
+          }))
+          setFormData(prev => ({
+            ...prev,
+            images: {
+              ...prev.images,
+              gallery: specs.stockImages!.gallery!
+            }
+          }))
+        }
+
+        alert('Vehicle data populated successfully! Review and adjust as needed.')
+      } else {
+        alert(result.error || 'Failed to find vehicle data. Please enter details manually.')
+      }
+    } catch (error) {
+      console.error('Auto-populate error:', error)
+      alert('Error fetching vehicle data. Please try again.')
+    } finally {
+      setAutoPopulateLoading(false)
+    }
+  }
+
+  // Handle main image upload
+  const handleMainImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    try {
+      // Compress image before upload
+      const compressedFile = await fileUploadService.compressImage(file)
+      const result = await fileUploadService.uploadImage(compressedFile, formData.id)
+      
+      if (result.success) {
+        setFormData(prev => ({
+          ...prev,
+          images: { ...prev.images, main: result.url! }
+        }))
+        setImagePreview(prev => ({ ...prev, main: result.url! }))
+      } else {
+        alert(result.error)
+      }
+    } catch (error) {
+      alert('Failed to upload image')
+    }
+  }
+
+  // Handle gallery images upload
+  const handleGalleryImagesUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (!files || files.length === 0) return
+
+    try {
+      const results = await fileUploadService.uploadMultipleImages(files, formData.id)
+      const successfulUploads = results.filter(r => r.success)
+      
+      if (successfulUploads.length > 0) {
+        const newUrls = successfulUploads.map(r => r.url!)
+        setFormData(prev => ({
+          ...prev,
+          images: {
+            ...prev.images,
+            gallery: [...prev.images.gallery, ...newUrls]
+          }
+        }))
+        setImagePreview(prev => ({
+          ...prev,
+          gallery: [...prev.gallery, ...newUrls]
+        }))
+      }
+
+      const failures = results.filter(r => !r.success)
+      if (failures.length > 0) {
+        alert(`Some files failed to upload: ${failures.map(f => f.error).join(', ')}`)
+      }
+    } catch (error) {
+      alert('Failed to upload gallery images')
+    }
+  }
+
+  // Handle audio upload
+  const handleAudioUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'startup' | 'rev') => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    try {
+      const result = await fileUploadService.uploadAudio(file, formData.id, type)
+      
+      if (result.success) {
+        setFormData(prev => ({
+          ...prev,
+          audio: { ...prev.audio, [type]: result.url! }
+        }))
+
+        // Create audio preview
+        const audio = new Audio(result.url!)
+        setAudioPreview(prev => ({ ...prev, [type]: audio }))
+      } else {
+        alert(result.error)
+      }
+    } catch (error) {
+      alert('Failed to upload audio file')
+    }
+  }
+
+  // Play/pause audio preview
+  const toggleAudioPreview = (type: 'startup' | 'rev') => {
+    const audio = audioPreview[type]
+    if (!audio) return
+
+    if (playingAudio === type) {
+      audio.pause()
+      audio.currentTime = 0
+      setPlayingAudio(null)
+    } else {
+      // Stop any currently playing audio
+      if (playingAudio) {
+        const currentAudio = audioPreview[playingAudio]
+        if (currentAudio) {
+          currentAudio.pause()
+          currentAudio.currentTime = 0
+        }
+      }
+      
+      audio.play()
+      setPlayingAudio(type)
+      
+      // Reset playing state when audio ends
+      audio.onended = () => setPlayingAudio(null)
+    }
+  }
+
+  // Remove gallery image
+  const removeGalleryImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: {
+        ...prev.images,
+        gallery: prev.images.gallery.filter((_, i) => i !== index)
+      }
+    }))
+    setImagePreview(prev => ({
+      ...prev,
+      gallery: prev.gallery.filter((_, i) => i !== index)
+    }))
+  }
 
   const handleSave = async () => {
     setSaving(true)
@@ -98,7 +328,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
         alert(`Error: ${error.error}`)
       }
     } catch (error) {
-      console.error('Error saving car:', error)
+      console.error('Save error:', error)
       alert('Error saving car')
     } finally {
       setSaving(false)
@@ -106,11 +336,12 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
   }
 
   const handleDelete = async () => {
-    if (!car?.id || !confirm('Are you sure you want to delete this car?')) {
+    if (!car || mode !== 'edit') return
+    
+    if (!confirm(`Are you sure you want to delete ${car.brand} ${car.model}?`)) {
       return
     }
 
-    setLoading(true)
     try {
       const response = await fetch(`/api/admin/fleet?id=${car.id}`, {
         method: 'DELETE',
@@ -128,10 +359,8 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
         alert(`Error: ${error.error}`)
       }
     } catch (error) {
-      console.error('Error deleting car:', error)
+      console.error('Delete error:', error)
       alert('Error deleting car')
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -152,28 +381,20 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
     }))
   }
 
-  const addGalleryImage = () => {
-    if (newGalleryImage.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        images: {
-          ...prev.images,
-          gallery: [...prev.images.gallery, newGalleryImage.trim()]
-        }
-      }))
-      setNewGalleryImage('')
-    }
-  }
-
-  const removeGalleryImage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      images: {
-        ...prev.images,
-        gallery: prev.images.gallery.filter((_, i) => i !== index)
-      }
-    }))
-  }
+     const updateFormField = (field: string, value: any) => {
+     if (field.includes('.')) {
+       const [parent, child] = field.split('.')
+       setFormData(prev => ({
+         ...prev,
+         [parent]: {
+           ...(prev[parent as keyof typeof prev] as object),
+           [child]: value
+         }
+       }))
+     } else {
+       setFormData(prev => ({ ...prev, [field]: value }))
+     }
+   }
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 overflow-y-auto">
@@ -183,11 +404,11 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
           <div className="bg-dark-metal/50 p-6 border-b border-gray-600/30">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-tech font-bold text-white">
+                <h1 className="text-3xl font-tech font-bold text-white">
                   {mode === 'create' ? 'Add New Vehicle' : 'Edit Vehicle'}
                 </h1>
                 <p className="text-gray-400 mt-1">
-                  {mode === 'create' ? 'Add a new vehicle to your fleet' : 'Update vehicle details'}
+                  {mode === 'create' ? 'Add a new vehicle to your fleet' : `Editing ${car?.brand} ${car?.model}`}
                 </p>
               </div>
               
@@ -195,13 +416,21 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                 {mode === 'edit' && (
                   <button
                     onClick={handleDelete}
-                    disabled={loading}
-                    className="flex items-center space-x-2 px-4 py-2 bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition-all duration-300 disabled:opacity-50"
+                    className="flex items-center space-x-2 px-4 py-2 bg-red-600/20 text-red-300 border border-red-600/30 rounded-lg hover:bg-red-600/30 transition-all duration-300"
                   >
                     <Trash2 className="w-4 h-4" />
-                    <span>{loading ? 'Deleting...' : 'Delete'}</span>
+                    <span>Delete</span>
                   </button>
                 )}
+                
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="btn-primary flex items-center space-x-2 disabled:opacity-50"
+                >
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+                </button>
                 
                 <button
                   onClick={onCancel}
@@ -210,431 +439,516 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                   <X className="w-4 h-4" />
                   <span>Cancel</span>
                 </button>
-                
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="btn-primary flex items-center space-x-2 disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>{saving ? 'Saving...' : 'Save'}</span>
-                </button>
               </div>
             </div>
           </div>
 
           {/* Form Content */}
           <div className="p-6 space-y-8">
-            {/* Basic Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Brand *
-                </label>
-                <input
-                  type="text"
-                  value={formData.brand}
-                  onChange={(e) => setFormData(prev => ({ ...prev, brand: e.target.value }))}
-                  className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                  placeholder="e.g., Lamborghini"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Model *
-                </label>
-                <input
-                  type="text"
-                  value={formData.model}
-                  onChange={(e) => setFormData(prev => ({ ...prev, model: e.target.value }))}
-                  className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                  placeholder="e.g., Huracán Spyder"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Year *
-                </label>
-                <input
-                  type="number"
-                  value={formData.year}
-                  onChange={(e) => setFormData(prev => ({ ...prev, year: parseInt(e.target.value) || new Date().getFullYear() }))}
-                  className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                  min="1900"
-                  max={new Date().getFullYear() + 1}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Category *
-                </label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                  className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                >
-                  <option value="">Select category</option>
-                  <option value="Supercar">Supercar</option>
-                  <option value="Sports Car">Sports Car</option>
-                  <option value="Luxury SUV">Luxury SUV</option>
-                  <option value="Performance SUV">Performance SUV</option>
-                  <option value="Performance Sedan">Performance Sedan</option>
-                  <option value="Electric Performance SUV">Electric Performance SUV</option>
-                  <option value="Compact Performance SUV">Compact Performance SUV</option>
-                </select>
+            {/* Auto-Populate Section */}
+            <div className="bg-neon-blue/10 border border-neon-blue/20 rounded-lg p-6">
+              <h2 className="text-xl font-tech font-semibold text-white mb-4 flex items-center space-x-2">
+                <Search className="w-5 h-5" />
+                <span>Auto-Populate Vehicle Data</span>
+              </h2>
+              <p className="text-gray-300 mb-4">
+                Enter Year, Make, and Model below, then click "Auto-Populate" to automatically fill in vehicle specifications and stock photos.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Year</label>
+                  <input
+                    type="number"
+                    value={formData.year}
+                    onChange={(e) => updateFormField('year', parseInt(e.target.value) || new Date().getFullYear())}
+                    min="1990"
+                    max={new Date().getFullYear() + 1}
+                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Make (Brand)</label>
+                  <input
+                    type="text"
+                    value={formData.brand}
+                    onChange={(e) => updateFormField('brand', e.target.value)}
+                    placeholder="e.g., Lamborghini, Ferrari, Porsche"
+                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Model</label>
+                  <input
+                    type="text"
+                    value={formData.model}
+                    onChange={(e) => updateFormField('model', e.target.value)}
+                    placeholder="e.g., Huracan, 488 GTB, 911"
+                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <button
+                    onClick={handleAutoPopulate}
+                    disabled={autoPopulateLoading || !formData.brand || !formData.model}
+                    className="w-full btn-primary disabled:opacity-50 flex items-center justify-center space-x-2"
+                  >
+                    {autoPopulateLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Searching...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Search className="w-4 h-4" />
+                        <span>Auto-Populate</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Car ID */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Car ID *
-              </label>
-              <input
-                type="text"
-                value={formData.id}
-                onChange={(e) => setFormData(prev => ({ ...prev, id: e.target.value }))}
-                className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                placeholder="e.g., lambo-huracan-spyder"
-                disabled={mode === 'edit'}
-              />
-              {mode === 'edit' && (
-                <p className="text-xs text-gray-500 mt-1">Car ID cannot be changed after creation</p>
-              )}
+            {/* Basic Information */}
+            <div className="bg-dark-metal/20 rounded-lg p-6 border border-gray-600/30">
+              <h2 className="text-xl font-tech font-semibold text-white mb-4 flex items-center space-x-2">
+                <CarIcon className="w-5 h-5" />
+                <span>Basic Information</span>
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Car ID</label>
+                  <input
+                    type="text"
+                    value={formData.id}
+                    onChange={(e) => updateFormField('id', e.target.value)}
+                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                    placeholder="Auto-generated from brand and model"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) => updateFormField('category', e.target.value)}
+                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  >
+                    <option value="">Select Category</option>
+                    <option value="exotic">Exotic</option>
+                    <option value="luxury">Luxury</option>
+                    <option value="sports">Sports</option>
+                    <option value="suv">SUV</option>
+                    <option value="convertible">Convertible</option>
+                  </select>
+                </div>
+              </div>
             </div>
 
             {/* Performance Stats */}
-            <div>
-              <h3 className="text-lg font-tech font-semibold text-white mb-4">Performance Statistics</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-dark-metal/20 rounded-lg p-6 border border-gray-600/30">
+              <h2 className="text-xl font-tech font-semibold text-white mb-4">Performance Stats</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Horsepower
-                  </label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Horsepower</label>
                   <input
                     type="number"
                     value={formData.stats.horsepower}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      stats: { ...prev.stats, horsepower: parseInt(e.target.value) || 0 }
-                    }))}
+                    onChange={(e) => updateFormField('stats.horsepower', parseInt(e.target.value) || 0)}
                     className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    min="0"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Torque (lb-ft)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.stats.torque}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      stats: { ...prev.stats, torque: parseInt(e.target.value) || 0 }
-                    }))}
-                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    min="0"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Top Speed (mph)
-                  </label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Top Speed (km/h)</label>
                   <input
                     type="number"
                     value={formData.stats.topSpeed}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      stats: { ...prev.stats, topSpeed: parseInt(e.target.value) || 0 }
-                    }))}
+                    onChange={(e) => updateFormField('stats.topSpeed', parseInt(e.target.value) || 0)}
                     className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    min="0"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    0-60 mph (seconds)
-                  </label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">0-100 km/h (seconds)</label>
                   <input
                     type="number"
                     step="0.1"
                     value={formData.stats.acceleration}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      stats: { ...prev.stats, acceleration: parseFloat(e.target.value) || 0 }
-                    }))}
+                    onChange={(e) => updateFormField('stats.acceleration', parseFloat(e.target.value) || 0)}
                     className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    min="0"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Engine
-                  </label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Engine</label>
                   <input
                     type="text"
                     value={formData.stats.engine}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      stats: { ...prev.stats, engine: e.target.value }
-                    }))}
-                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                    onChange={(e) => updateFormField('stats.engine', e.target.value)}
                     placeholder="e.g., 5.2L V10"
+                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Drivetrain
-                  </label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Drivetrain</label>
                   <select
                     value={formData.stats.drivetrain}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      stats: { ...prev.stats, drivetrain: e.target.value }
-                    }))}
+                    onChange={(e) => updateFormField('stats.drivetrain', e.target.value)}
                     className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   >
-                    <option value="">Select drivetrain</option>
-                    <option value="RWD">RWD</option>
-                    <option value="FWD">FWD</option>
-                    <option value="AWD">AWD</option>
+                    <option value="">Select Drivetrain</option>
+                    <option value="RWD">RWD (Rear-Wheel Drive)</option>
+                    <option value="AWD">AWD (All-Wheel Drive)</option>
+                    <option value="FWD">FWD (Front-Wheel Drive)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Doors
-                  </label>
-                  <input
-                    type="number"
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Doors</label>
+                  <select
                     value={formData.stats.doors}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      stats: { ...prev.stats, doors: parseInt(e.target.value) || 2 }
-                    }))}
+                    onChange={(e) => updateFormField('stats.doors', parseInt(e.target.value))}
                     className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    min="2"
-                    max="5"
-                  />
+                  >
+                    <option value={2}>2 Doors</option>
+                    <option value={4}>4 Doors</option>
+                    <option value={5}>5 Doors</option>
+                  </select>
                 </div>
               </div>
             </div>
 
             {/* Pricing */}
-            <div>
-              <h3 className="text-lg font-tech font-semibold text-white mb-4">Pricing</h3>
+            <div className="bg-dark-metal/20 rounded-lg p-6 border border-gray-600/30">
+              <h2 className="text-xl font-tech font-semibold text-white mb-4 flex items-center space-x-2">
+                <DollarSign className="w-5 h-5" />
+                <span>Pricing</span>
+              </h2>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Daily Rate ($) *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Daily Rate ($)</label>
                   <input
                     type="number"
                     value={formData.price.daily}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      price: { ...prev.price, daily: parseInt(e.target.value) || 0 }
-                    }))}
+                    onChange={(e) => updateFormField('price.daily', parseInt(e.target.value) || 0)}
                     className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    min="0"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Weekly Rate ($) *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Weekly Rate ($)</label>
                   <input
                     type="number"
                     value={formData.price.weekly}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      price: { ...prev.price, weekly: parseInt(e.target.value) || 0 }
-                    }))}
+                    onChange={(e) => updateFormField('price.weekly', parseInt(e.target.value) || 0)}
                     className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    min="0"
                   />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Suggested: ${formData.price.daily * 6} (6x daily rate)
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Features */}
-            <div>
-              <h3 className="text-lg font-tech font-semibold text-white mb-4">Features</h3>
-              <div className="space-y-4">
-                <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    value={newFeature}
-                    onChange={(e) => setNewFeature(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && addFeature()}
-                    className="flex-1 px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    placeholder="Add a feature..."
-                  />
-                  <button
-                    onClick={addFeature}
-                    className="px-4 py-3 bg-neon-blue/20 text-neon-blue border border-neon-blue/30 rounded-lg hover:bg-neon-blue/30 transition-colors"
+            <div className="bg-dark-metal/20 rounded-lg p-6 border border-gray-600/30">
+              <h2 className="text-xl font-tech font-semibold text-white mb-4">Features</h2>
+              
+              <div className="flex gap-2 mb-4">
+                <input
+                  type="text"
+                  value={newFeature}
+                  onChange={(e) => setNewFeature(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && addFeature()}
+                  placeholder="Add a feature..."
+                  className="flex-1 px-4 py-2 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                />
+                <button
+                  onClick={addFeature}
+                  className="px-4 py-2 bg-neon-blue/20 text-neon-blue border border-neon-blue/30 rounded-lg hover:bg-neon-blue/30 transition-all duration-300"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="flex flex-wrap gap-2">
+                {formData.features.map((feature, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center space-x-2 px-3 py-1 bg-neon-blue/10 text-neon-blue border border-neon-blue/20 rounded-full text-sm"
                   >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
-                
-                <div className="flex flex-wrap gap-2">
-                  {formData.features.map((feature, index) => (
-                    <span
-                      key={index}
-                      className="flex items-center space-x-1 px-3 py-1 bg-neon-blue/10 text-neon-blue text-sm rounded-full border border-neon-blue/20"
+                    <span>{feature}</span>
+                    <button
+                      onClick={() => removeFeature(index)}
+                      className="text-neon-blue/70 hover:text-red-400 transition-colors"
                     >
-                      <span>{feature}</span>
-                      <button
-                        onClick={() => removeFeature(index)}
-                        className="ml-1 hover:text-red-400"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
               </div>
             </div>
 
             {/* Images */}
-            <div>
-              <h3 className="text-lg font-tech font-semibold text-white mb-4">Images</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Main Image URL *
-                  </label>
-                  <div className="flex space-x-2">
-                    <input
-                      type="text"
-                      value={formData.images.main}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        images: { ...prev.images, main: e.target.value }
-                      }))}
-                      className="flex-1 px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                      placeholder="https://example.com/car-main.jpg"
-                    />
-                    <button className="px-4 py-3 bg-dark-gray text-gray-300 hover:text-white border border-gray-600 rounded-lg transition-colors">
-                      <Upload className="w-4 h-4" />
-                    </button>
-                  </div>
+            <div className="bg-dark-metal/20 rounded-lg p-6 border border-gray-600/30">
+              <h2 className="text-xl font-tech font-semibold text-white mb-4 flex items-center space-x-2">
+                <ImageIcon className="w-5 h-5" />
+                <span>Images</span>
+              </h2>
+              
+              {/* Main Image */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-300 mb-2">Main Image</label>
+                <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center">
+                  {imagePreview.main ? (
+                    <div className="relative">
+                      <img 
+                        src={imagePreview.main} 
+                        alt="Main car image" 
+                        className="max-w-full h-48 object-cover rounded-lg mx-auto"
+                      />
+                      <button
+                        onClick={() => {
+                          setImagePreview(prev => ({ ...prev, main: undefined }))
+                          setFormData(prev => ({ ...prev, images: { ...prev.images, main: '' } }))
+                        }}
+                        className="absolute top-2 right-2 p-1 bg-red-500/80 text-white rounded-full hover:bg-red-500"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-gray-400">
+                      <Upload className="w-12 h-12 mx-auto mb-2" />
+                      <p className="mb-2">Upload main car image</p>
+                      <p className="text-sm">JPG, PNG, WebP up to 10MB</p>
+                    </div>
+                  )}
+                  <input
+                    ref={mainImageRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleMainImageUpload}
+                    className="hidden"
+                  />
+                  <button
+                    onClick={() => mainImageRef.current?.click()}
+                    className="mt-4 btn-primary"
+                  >
+                    {imagePreview.main ? 'Change Image' : 'Upload Image'}
+                  </button>
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Gallery Images
-                  </label>
-                  <div className="flex space-x-2 mb-2">
-                    <input
-                      type="text"
-                      value={newGalleryImage}
-                      onChange={(e) => setNewGalleryImage(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && addGalleryImage()}
-                      className="flex-1 px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                      placeholder="Add gallery image URL..."
-                    />
-                    <button
-                      onClick={addGalleryImage}
-                      className="px-4 py-3 bg-neon-blue/20 text-neon-blue border border-neon-blue/30 rounded-lg hover:bg-neon-blue/30 transition-colors"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    {formData.images.gallery.map((image, index) => (
-                      <div key={index} className="flex items-center space-x-2 p-2 bg-dark-metal/30 rounded-lg">
-                        <span className="text-sm text-gray-300 flex-1 truncate">{image}</span>
+              {/* Gallery Images */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Gallery Images</label>
+                <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center mb-4">
+                  <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                  <p className="text-gray-400 mb-2">Upload gallery images (max 10)</p>
+                  <p className="text-sm text-gray-500">JPG, PNG, WebP up to 10MB each</p>
+                  <input
+                    ref={galleryImagesRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleGalleryImagesUpload}
+                    className="hidden"
+                  />
+                  <button
+                    onClick={() => galleryImagesRef.current?.click()}
+                    className="mt-4 btn-primary"
+                  >
+                    Upload Images
+                  </button>
+                </div>
+                
+                {imagePreview.gallery.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {imagePreview.gallery.map((image, index) => (
+                      <div key={index} className="relative">
+                        <img 
+                          src={image} 
+                          alt={`Gallery image ${index + 1}`} 
+                          className="w-full h-24 object-cover rounded-lg"
+                        />
                         <button
                           onClick={() => removeGalleryImage(index)}
-                          className="text-red-400 hover:text-red-300"
+                          className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
                         >
-                          <X className="w-4 h-4" />
+                          <X className="w-3 h-3" />
                         </button>
                       </div>
                     ))}
                   </div>
+                )}
+              </div>
+            </div>
+
+            {/* Audio Files */}
+            <div className="bg-dark-metal/20 rounded-lg p-6 border border-gray-600/30">
+              <h2 className="text-xl font-tech font-semibold text-white mb-4 flex items-center space-x-2">
+                <Music className="w-5 h-5" />
+                <span>Audio Files</span>
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Startup Sound */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Startup Sound</label>
+                  <div className="border-2 border-dashed border-gray-600 rounded-lg p-4 text-center">
+                    {formData.audio.startup ? (
+                      <div className="space-y-2">
+                        <Music className="w-8 h-8 mx-auto text-green-400" />
+                        <p className="text-sm text-gray-300">Startup audio uploaded</p>
+                        <div className="flex justify-center space-x-2">
+                          <button
+                            onClick={() => toggleAudioPreview('startup')}
+                            className="flex items-center space-x-1 px-3 py-1 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30"
+                          >
+                            {playingAudio === 'startup' ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                            <span className="text-xs">{playingAudio === 'startup' ? 'Pause' : 'Play'}</span>
+                          </button>
+                          <button
+                            onClick={() => setFormData(prev => ({ ...prev, audio: { ...prev.audio, startup: '' } }))}
+                            className="flex items-center space-x-1 px-3 py-1 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30"
+                          >
+                            <X className="w-4 h-4" />
+                            <span className="text-xs">Remove</span>
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-gray-400">
+                        <Music className="w-8 h-8 mx-auto mb-2" />
+                        <p className="text-sm">MP3, WAV, M4A up to 50MB</p>
+                      </div>
+                    )}
+                    <input
+                      ref={startupAudioRef}
+                      type="file"
+                      accept="audio/*"
+                      onChange={(e) => handleAudioUpload(e, 'startup')}
+                      className="hidden"
+                    />
+                    <button
+                      onClick={() => startupAudioRef.current?.click()}
+                      className="mt-2 btn-primary text-sm"
+                    >
+                      {formData.audio.startup ? 'Change Audio' : 'Upload Audio'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Rev Sound */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Rev Sound</label>
+                  <div className="border-2 border-dashed border-gray-600 rounded-lg p-4 text-center">
+                    {formData.audio.rev ? (
+                      <div className="space-y-2">
+                        <Music className="w-8 h-8 mx-auto text-green-400" />
+                        <p className="text-sm text-gray-300">Rev audio uploaded</p>
+                        <div className="flex justify-center space-x-2">
+                          <button
+                            onClick={() => toggleAudioPreview('rev')}
+                            className="flex items-center space-x-1 px-3 py-1 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30"
+                          >
+                            {playingAudio === 'rev' ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                            <span className="text-xs">{playingAudio === 'rev' ? 'Pause' : 'Play'}</span>
+                          </button>
+                          <button
+                            onClick={() => setFormData(prev => ({ ...prev, audio: { ...prev.audio, rev: '' } }))}
+                            className="flex items-center space-x-1 px-3 py-1 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30"
+                          >
+                            <X className="w-4 h-4" />
+                            <span className="text-xs">Remove</span>
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-gray-400">
+                        <Music className="w-8 h-8 mx-auto mb-2" />
+                        <p className="text-sm">MP3, WAV, M4A up to 50MB</p>
+                      </div>
+                    )}
+                    <input
+                      ref={revAudioRef}
+                      type="file"
+                      accept="audio/*"
+                      onChange={(e) => handleAudioUpload(e, 'rev')}
+                      className="hidden"
+                    />
+                    <button
+                      onClick={() => revAudioRef.current?.click()}
+                      className="mt-2 btn-primary text-sm"
+                    >
+                      {formData.audio.rev ? 'Change Audio' : 'Upload Audio'}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Media */}
-            <div>
-              <h3 className="text-lg font-tech font-semibold text-white mb-4">Media</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Showcase Video URL
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.videos.showcase}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      videos: { ...prev.videos, showcase: e.target.value }
-                    }))}
-                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    placeholder="https://example.com/video.mp4"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Startup Audio URL
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.audio.startup}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      audio: { ...prev.audio, startup: e.target.value }
-                    }))}
-                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    placeholder="https://example.com/startup.mp3"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Rev Audio URL
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.audio.rev}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      audio: { ...prev.audio, rev: e.target.value }
-                    }))}
-                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    placeholder="https://example.com/rev.mp3"
-                  />
-                </div>
+            {/* Video (URL) */}
+            <div className="bg-dark-metal/20 rounded-lg p-6 border border-gray-600/30">
+              <h2 className="text-xl font-tech font-semibold text-white mb-4">Video</h2>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Showcase Video URL</label>
+                <input
+                  type="url"
+                  value={formData.videos.showcase}
+                  onChange={(e) => updateFormField('videos.showcase', e.target.value)}
+                  placeholder="https://youtube.com/watch?v=..."
+                  className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  YouTube, Vimeo, or direct video URL
+                </p>
               </div>
             </div>
 
             {/* Settings */}
-            <div>
-              <h3 className="text-lg font-tech font-semibold text-white mb-4">Settings</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <label className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    checked={formData.available}
-                    onChange={(e) => setFormData(prev => ({ ...prev, available: e.target.checked }))}
-                    className="w-4 h-4 text-neon-blue bg-dark-metal border-gray-600 rounded focus:ring-neon-blue focus:ring-2"
-                  />
-                  <span className="text-gray-300">Vehicle Available for Rental</span>
-                </label>
+            <div className="bg-dark-metal/20 rounded-lg p-6 border border-gray-600/30">
+              <h2 className="text-xl font-tech font-semibold text-white mb-4 flex items-center space-x-2">
+                <Settings className="w-5 h-5" />
+                <span>Settings</span>
+              </h2>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-sm font-medium text-gray-300">Available for Rental</label>
+                    <p className="text-xs text-gray-400">Controls if this car can be booked</p>
+                  </div>
+                  <button
+                    onClick={() => updateFormField('available', !formData.available)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      formData.available ? 'bg-neon-blue' : 'bg-gray-600'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        formData.available ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
                 
-                <label className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    checked={formData.showOnHomepage}
-                    onChange={(e) => setFormData(prev => ({ ...prev, showOnHomepage: e.target.checked }))}
-                    className="w-4 h-4 text-neon-blue bg-dark-metal border-gray-600 rounded focus:ring-neon-blue focus:ring-2"
-                  />
-                  <span className="text-gray-300">Show on Homepage</span>
-                </label>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-sm font-medium text-gray-300">Show on Homepage</label>
+                    <p className="text-xs text-gray-400">Display this car on the main fleet page</p>
+                  </div>
+                  <button
+                    onClick={() => updateFormField('showOnHomepage', !formData.showOnHomepage)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      formData.showOnHomepage ? 'bg-neon-blue' : 'bg-gray-600'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        formData.showOnHomepage ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
