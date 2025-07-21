@@ -1,14 +1,14 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { cars } from '@/app/data/cars'
+import { Car } from '@/app/data/cars'
 import CarGalleryModal from '@/app/components/modals/CarGalleryModal'
 
 // Individual car card component with its own intersection observer
 function CarCard({ car, onOpenModal, onPlaySound, playingAudio }: {
-  car: typeof cars[0]
-  onOpenModal: (car: typeof cars[0]) => void
-  onPlaySound: (car: typeof cars[0], type: 'startup' | 'rev') => void
+  car: Car
+  onOpenModal: (car: Car) => void
+  onPlaySound: (car: Car, type: 'startup' | 'rev') => void
   playingAudio: { carId: string; type: 'startup' | 'rev' } | null
 }) {
   const [isVisible, setIsVisible] = useState(false)
@@ -108,10 +108,10 @@ function CarCard({ car, onOpenModal, onPlaySound, playingAudio }: {
               </div>
             </div>
 
-            {/* 0-60 */}
+            {/* Acceleration */}
             <div>
               <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-400">0-60 mph</span>
+                <span className="text-gray-400">0-100 km/h</span>
                 <span className="text-white font-bold">{car.stats.acceleration}s</span>
               </div>
               <div className="h-2 bg-metal-gray rounded-full overflow-hidden">
@@ -120,7 +120,7 @@ function CarCard({ car, onOpenModal, onPlaySound, playingAudio }: {
                     isVisible ? 'w-full' : 'w-0'
                   }`}
                   style={{ 
-                    width: isVisible ? `${((6 - car.stats.acceleration) / 6) * 100}%` : '0%'
+                    width: isVisible ? `${(6 / car.stats.acceleration) * 100}%` : '0%'
                   }}
                 />
               </div>
@@ -128,7 +128,7 @@ function CarCard({ car, onOpenModal, onPlaySound, playingAudio }: {
           </div>
         </div>
 
-        {/* Sound Controls */}
+        {/* Engine Sound Buttons */}
         <div className="px-8 pb-6">
           <div className="flex gap-2 pt-2">
             <button
@@ -211,9 +211,34 @@ function CarCard({ car, onOpenModal, onPlaySound, playingAudio }: {
 
 export default function CarSelector() {
   const audioRef = useRef<HTMLAudioElement>(null)
-  const [selectedCar, setSelectedCar] = useState<typeof cars[0] | null>(null)
+  const [cars, setCars] = useState<Car[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedCar, setSelectedCar] = useState<Car | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [playingAudio, setPlayingAudio] = useState<{ carId: string; type: 'startup' | 'rev' } | null>(null)
+
+  useEffect(() => {
+    fetchCars()
+  }, [])
+
+  const fetchCars = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await fetch('/api/cars')
+      if (!response.ok) {
+        throw new Error('Failed to fetch cars')
+      }
+      const data = await response.json()
+      setCars(data.cars || [])
+    } catch (err) {
+      console.error('Error fetching cars:', err)
+      setError('Failed to load vehicles. Please try again later.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     const audio = audioRef.current
@@ -237,7 +262,7 @@ export default function CarSelector() {
     }
   }, [])
 
-  const playSound = (car: typeof cars[0], type: 'startup' | 'rev') => {
+  const playSound = (car: Car, type: 'startup' | 'rev') => {
     if (audioRef.current) {
       const audioSrc = type === 'startup' ? car.audio.startup : car.audio.rev
       
@@ -261,10 +286,63 @@ export default function CarSelector() {
     }
   }
 
-  const openCarModal = (car: typeof cars[0]) => {
+  const openCarModal = (car: Car) => {
     console.log('Opening modal for car:', car.model)
     setSelectedCar(car)
     setIsModalOpen(true)
+  }
+
+  if (loading) {
+    return (
+      <section className="py-20 px-4 relative" id="cars">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-6xl font-tech font-black mb-4">
+              <span className="text-white">OUR</span>{' '}
+              <span className="neon-text">FLEET</span>
+            </h2>
+            <p className="text-lg text-gray-400 max-w-3xl mx-auto">
+              Whether you're looking for a luxury car rental in Las Vegas for a night out, a business 
+              trip, or just for fun, DT EXOTICS LV has you covered.
+            </p>
+          </div>
+          
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-neon-blue mb-4"></div>
+            <p className="text-gray-400">Loading our amazing fleet...</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (error) {
+    return (
+      <section className="py-20 px-4 relative" id="cars">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-6xl font-tech font-black mb-4">
+              <span className="text-white">OUR</span>{' '}
+              <span className="neon-text">FLEET</span>
+            </h2>
+            <p className="text-lg text-gray-400 max-w-3xl mx-auto">
+              Whether you're looking for a luxury car rental in Las Vegas for a night out, a business 
+              trip, or just for fun, DT EXOTICS LV has you covered.
+            </p>
+          </div>
+          
+          <div className="text-center py-12">
+            <p className="text-red-400 mb-4">{error}</p>
+            <button 
+              onClick={fetchCars}
+              className="btn-primary"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </section>
+    )
   }
 
   return (
@@ -281,18 +359,25 @@ export default function CarSelector() {
           </p>
         </div>
 
-        {/* Car Grid - 3 per row */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cars.filter(car => car.showOnHomepage !== false).map((car) => (
-            <CarCard
-              key={car.id}
-              car={car}
-              onOpenModal={openCarModal}
-              onPlaySound={playSound}
-              playingAudio={playingAudio}
-            />
-          ))}
-        </div>
+        {cars.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-400 mb-4">No vehicles available at the moment.</p>
+            <p className="text-sm text-gray-500">Check back soon or contact us directly!</p>
+          </div>
+        ) : (
+          /* Car Grid - 3 per row */
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {cars.map((car) => (
+              <CarCard
+                key={car.id}
+                car={car}
+                onOpenModal={openCarModal}
+                onPlaySound={playSound}
+                playingAudio={playingAudio}
+              />
+            ))}
+          </div>
+        )}
 
         <audio ref={audioRef} />
       </div>
