@@ -6,6 +6,7 @@ import { loadStripe } from '@stripe/stripe-js'
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import Navbar from '../components/navigation/Navbar'
 import Footer from '../components/sections/Footer'
+import CustomerCalendar from '../components/ui/CustomerCalendar'
 import { Car } from '../data/cars'
 import { stripePublishableKey } from '../lib/stripe'
 import { formatCurrency, validateRentalDates } from '../lib/rental-utils'
@@ -306,32 +307,19 @@ function BookingFormInner() {
           <h2 className="text-2xl font-tech font-bold text-white mb-6">Select Your Rental</h2>
           
           <div className="space-y-6 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Pickup Date
-                </label>
-                <input
-                  type="date"
-                  value={formData.startDate}
-                  onChange={(e) => handleInputChange('startDate', e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Return Date
-                </label>
-                <input
-                  type="date"
-                  value={formData.endDate}
-                  onChange={(e) => handleInputChange('endDate', e.target.value)}
-                  min={formData.startDate || new Date().toISOString().split('T')[0]}
-                  className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                />
-              </div>
-            </div>
+            {/* Enhanced Calendar for Date Selection */}
+            <CustomerCalendar
+              selectedCarId={formData.carId}
+              dailyRate={selectedCar?.price.daily}
+              onDateRangeChange={(startDate, endDate) => {
+                setFormData(prev => ({
+                  ...prev,
+                  startDate: startDate || '',
+                  endDate: endDate || ''
+                }))
+              }}
+              className="mb-6"
+            />
 
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">

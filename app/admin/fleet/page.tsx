@@ -366,8 +366,8 @@ export default function FleetAdmin() {
         ) : (
           <div className="grid gap-6">
             {filteredCars.map(car => (
-              <div key={car.id} className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-                <div className="flex flex-col lg:flex-row gap-6">
+              <div key={car.id} className="glass-panel bg-dark-metal/50 p-8 border border-gray-600/30 rounded-2xl">
+                <div className="flex flex-col lg:flex-row gap-8">
                   {/* Car Image with Underbody Lighting */}
                   <div className="lg:w-1/3">
                     <div className="relative">
@@ -381,26 +381,45 @@ export default function FleetAdmin() {
                         <img
                           src={getCarImage(car)}
                           alt={`${car.brand} ${car.model}`}
-                          className="w-full h-48 lg:h-32 object-cover rounded-lg relative z-10"
+                          className="w-full h-56 lg:h-48 object-cover rounded-lg relative z-10"
                         />
                       </div>
                       
-                      <div className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium ${getAvailabilityBadge(car.available)}`}>
-                        {car.available ? 'Available' : 'Unavailable'}
-                      </div>
-                      {/* Homepage visibility indicator */}
-                      <div className="absolute top-3 left-3">
-                        <button
-                          onClick={() => handleToggleHomepageVisibility(car)}
-                          className={`p-1 rounded-full ${
-                            car.showOnHomepage 
-                              ? 'bg-green-500/20 text-green-300' 
-                              : 'bg-gray-500/20 text-gray-400'
-                          }`}
-                          title={car.showOnHomepage ? 'Visible on homepage' : 'Hidden from homepage'}
-                        >
-                          {car.showOnHomepage ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-                        </button>
+                      {/* Status indicators moved above image */}
+                      <div className="flex justify-between items-center mb-3">
+                        {/* Availability Toggle */}
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-gray-300">Available:</span>
+                          <button
+                            onClick={() => handleToggleAvailability(car)}
+                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ${
+                              car.available ? 'bg-neon-blue' : 'bg-gray-600'
+                            }`}
+                          >
+                            <span
+                              className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-200 ${
+                                car.available ? 'translate-x-5' : 'translate-x-1'
+                              }`}
+                            />
+                          </button>
+                        </div>
+                        
+                        {/* Homepage Visibility Toggle */}
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-gray-300">Homepage:</span>
+                          <button
+                            onClick={() => handleToggleHomepageVisibility(car)}
+                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ${
+                              car.showOnHomepage ? 'bg-neon-blue' : 'bg-gray-600'
+                            }`}
+                          >
+                            <span
+                              className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-200 ${
+                                car.showOnHomepage ? 'translate-x-5' : 'translate-x-1'
+                              }`}
+                            />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -422,20 +441,6 @@ export default function FleetAdmin() {
                             title="Edit car details"
                           >
                             <Edit className="w-5 h-5" />
-                          </button>
-                          <button 
-                            onClick={() => handleOpenCalendar(car)}
-                            className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
-                            title="Manage availability calendar"
-                          >
-                            <Calendar className="w-5 h-5" />
-                          </button>
-                          <button 
-                            onClick={() => handleToggleHomepageVisibility(car)}
-                            className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
-                            title="Toggle homepage visibility"
-                          >
-                            <Settings className="w-5 h-5" />
                           </button>
                           <button 
                             onClick={() => handleDeleteCar(car)}
@@ -474,32 +479,13 @@ export default function FleetAdmin() {
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        <button
-                          onClick={() => handleToggleAvailability(car)}
-                          className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
-                            car.available
-                              ? 'bg-red-500/20 text-red-300 border border-red-500/30 hover:bg-red-500/30'
-                              : 'bg-green-500/20 text-green-300 border border-green-500/30 hover:bg-green-500/30'
-                          }`}
-                        >
-                          {car.available ? 'Mark Unavailable' : 'Mark Available'}
-                        </button>
-                        <button
-                          onClick={() => handleToggleHomepageVisibility(car)}
-                          className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
-                            car.showOnHomepage
-                              ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 hover:bg-yellow-500/30'
-                              : 'bg-blue-500/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/30'
-                          }`}
-                        >
-                          {car.showOnHomepage ? 'Hide from Homepage' : 'Show on Homepage'}
-                        </button>
+                      <div className="flex justify-center mb-4">
                         <button
                           onClick={() => handleOpenCalendar(car)}
-                          className="px-3 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30 transition-all duration-300"
+                          className="flex items-center space-x-2 px-4 py-2 bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30 transition-all duration-300 rounded-lg"
                         >
-                          Manage Calendar
+                          <Calendar className="w-4 h-4" />
+                          <span>Manage Availability Calendar</span>
                         </button>
                       </div>
                     </div>

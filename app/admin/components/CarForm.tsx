@@ -32,6 +32,14 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [autoPopulateLoading, setAutoPopulateLoading] = useState(false)
+  const [vehicleSuggestions, setVehicleSuggestions] = useState<{
+    makes: string[];
+    models: string[];
+  }>({ makes: [], models: [] })
+  const [showSuggestions, setShowSuggestions] = useState({
+    make: false,
+    model: false
+  })
   const [uploadingFiles, setUploadingFiles] = useState<{
     mainImage: boolean;
     galleryImages: boolean;
@@ -110,6 +118,45 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
     }
   }, [formData.brand, formData.model, formData.year, formData.id])
 
+  // Fetch vehicle suggestions when user types
+  const fetchVehicleSuggestions = async (make: string, model?: string) => {
+    if (make.length < 2) {
+      setVehicleSuggestions({ makes: [], models: [] })
+      return
+    }
+
+    try {
+      const params = new URLSearchParams({ make })
+      if (model && model.length >= 2) {
+        params.append('model', model)
+      }
+
+      const response = await fetch(`/api/admin/vehicle-suggestions?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('dt-admin-token')}`
+        }
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        setVehicleSuggestions(result.suggestions)
+      }
+    } catch (error) {
+      console.error('Error fetching suggestions:', error)
+    }
+  }
+
+  // Debounced suggestion fetching
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (formData.brand.length >= 2) {
+        fetchVehicleSuggestions(formData.brand, formData.model)
+      }
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [formData.brand, formData.model])
+
      // Auto-populate vehicle data
    const handleAutoPopulate = async () => {
      if (!formData.brand || !formData.model || !formData.year) {
@@ -130,7 +177,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
        if (response.ok && result.success && result.data) {
          const specs = result.data
         
-                 // Update form with retrieved data
+                 // Update form with retrieved data - overwrite existing fields
          setFormData(prev => ({
            ...prev,
            brand: specs.make,
@@ -138,14 +185,14 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
            category: specs.category || prev.category,
            stats: {
              ...prev.stats,
-             horsepower: specs.horsepower || prev.stats.horsepower,
-             topSpeed: specs.topSpeed || prev.stats.topSpeed,
-             acceleration: typeof specs.acceleration === 'string' ? parseFloat(specs.acceleration) || prev.stats.acceleration : specs.acceleration || prev.stats.acceleration,
+             horsepower: specs.horsepower !== undefined ? specs.horsepower : prev.stats.horsepower,
+             topSpeed: specs.topSpeed !== undefined ? specs.topSpeed : prev.stats.topSpeed,
+             acceleration: specs.acceleration !== undefined ? (typeof specs.acceleration === 'string' ? parseFloat(specs.acceleration) : specs.acceleration) : prev.stats.acceleration,
              engine: specs.engine || prev.stats.engine,
              drivetrain: specs.drivetrain || prev.stats.drivetrain,
-             doors: specs.doors || prev.stats.doors
+             doors: specs.doors !== undefined ? specs.doors : prev.stats.doors
            },
-           features: specs.features || prev.features
+           features: specs.features && specs.features.length > 0 ? specs.features : prev.features
          }))
 
         // Update image previews if stock images are available
@@ -591,25 +638,71 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   />
                 </div>
-                <div>
+                <div className="relative">
                   <label className="block text-sm font-medium text-gray-300 mb-2">Make (Brand)</label>
                   <input
                     type="text"
                     value={formData.brand}
-                    onChange={(e) => updateFormField('brand', e.target.value)}
+                    onChange={(e) => {
+                      updateFormField('brand', e.target.value)
+                      setShowSuggestions(prev => ({ ...prev, make: true }))
+                    }}
+                    onFocus={() => setShowSuggestions(prev => ({ ...prev, make: true }))}
+                    onBlur={() => setTimeout(() => setShowSuggestions(prev => ({ ...prev, make: false })), 200)}
                     placeholder="e.g., Lamborghini, Ferrari, Porsche"
                     className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   />
+                  
+                  {/* Make Suggestions Dropdown */}
+                  {showSuggestions.make && vehicleSuggestions.makes.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-dark-metal border border-gray-600 rounded-lg shadow-xl max-h-48 overflow-y-auto">
+                      {vehicleSuggestions.makes.map((make, index) => (
+                        <div
+                          key={index}
+                          onClick={() => {
+                            updateFormField('brand', make)
+                            setShowSuggestions(prev => ({ ...prev, make: false }))
+                          }}
+                          className="px-4 py-2 text-gray-300 hover:bg-neon-blue/20 hover:text-white cursor-pointer border-b border-gray-700 last:border-b-0"
+                        >
+                          {make}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div>
+                <div className="relative">
                   <label className="block text-sm font-medium text-gray-300 mb-2">Model</label>
                   <input
                     type="text"
                     value={formData.model}
-                    onChange={(e) => updateFormField('model', e.target.value)}
+                    onChange={(e) => {
+                      updateFormField('model', e.target.value)
+                      setShowSuggestions(prev => ({ ...prev, model: true }))
+                    }}
+                    onFocus={() => setShowSuggestions(prev => ({ ...prev, model: true }))}
+                    onBlur={() => setTimeout(() => setShowSuggestions(prev => ({ ...prev, model: false })), 200)}
                     placeholder="e.g., Huracan, 488 GTB, 911"
                     className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   />
+                  
+                  {/* Model Suggestions Dropdown */}
+                  {showSuggestions.model && vehicleSuggestions.models.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-dark-metal border border-gray-600 rounded-lg shadow-xl max-h-48 overflow-y-auto">
+                      {vehicleSuggestions.models.map((model, index) => (
+                        <div
+                          key={index}
+                          onClick={() => {
+                            updateFormField('model', model)
+                            setShowSuggestions(prev => ({ ...prev, model: false }))
+                          }}
+                          className="px-4 py-2 text-gray-300 hover:bg-neon-blue/20 hover:text-white cursor-pointer border-b border-gray-700 last:border-b-0"
+                        >
+                          {model}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <button

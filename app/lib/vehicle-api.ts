@@ -302,6 +302,51 @@ class VehicleAPIService {
     };
   }
 
+  // Get vehicle suggestions for autocomplete
+  async getVehicleSuggestions(make: string, model?: string): Promise<{
+    makes: string[];
+    models: string[];
+  }> {
+    try {
+      const suggestions = { makes: [], models: [] };
+
+      // Get make suggestions
+      if (make.length >= 2) {
+        const makeResponse = await fetch(`${this.NHTSA_BASE_URL}/GetAllMakes?format=json`);
+        const makeData = await makeResponse.json();
+        
+        const makes = makeData.Results.map((m: any) => m.Make_Name);
+        const makeLower = make.toLowerCase();
+        
+        suggestions.makes = makes.filter((m: string) => 
+          m.toLowerCase().includes(makeLower)
+        ).slice(0, 8);
+      }
+
+      // Get model suggestions if make is provided
+      if (make.length >= 2 && model && model.length >= 2) {
+        try {
+          const modelResponse = await fetch(`${this.NHTSA_BASE_URL}/GetModelsForMake/${encodeURIComponent(make)}?format=json`);
+          const modelData = await modelResponse.json();
+          
+          if (modelData.Results) {
+            const modelLower = model.toLowerCase();
+            suggestions.models = modelData.Results
+              .map((m: any) => m.Model_Name)
+              .filter((m: string) => m.toLowerCase().includes(modelLower))
+              .slice(0, 8);
+          }
+        } catch (error) {
+          // Model fetch failed, continue with make suggestions only
+        }
+      }
+
+      return suggestions;
+    } catch (error) {
+      return { makes: [], models: [] };
+    }
+  }
+
   // Validate make/model input
   async validateMakeModel(make: string): Promise<{ valid: boolean; suggestions?: string[] }> {
     try {
