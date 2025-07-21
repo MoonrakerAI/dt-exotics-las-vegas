@@ -20,7 +20,6 @@ import {
   Pause
 } from 'lucide-react'
 import { Car } from '../../data/cars'
-import { fileUploadService } from '../../lib/file-upload'
 
 interface CarFormProps {
   car?: Car
@@ -185,18 +184,32 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
     if (!file) return
 
     try {
-      // Compress image before upload
-      const compressedFile = await fileUploadService.compressImage(file)
-      const result = await fileUploadService.uploadImage(compressedFile, formData.id)
+      // Create form data for upload
+      const uploadFormData = new FormData()
+      uploadFormData.append('file', file)
+      uploadFormData.append('carId', formData.id || 'temp')
+      uploadFormData.append('fileType', 'image')
+      uploadFormData.append('uploadType', 'main')
+
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('dt-admin-token')}`
+        },
+        body: uploadFormData
+      })
+
+      const result = await response.json()
       
-      if (result.success) {
+      if (response.ok && result.success) {
+        const imageUrl = result.urls.optimized || result.urls.original
         setFormData(prev => ({
           ...prev,
-          images: { ...prev.images, main: result.url! }
+          images: { ...prev.images, main: imageUrl }
         }))
-        setImagePreview(prev => ({ ...prev, main: result.url! }))
+        setImagePreview(prev => ({ ...prev, main: imageUrl }))
       } else {
-        alert(result.error)
+        alert(result.error || 'Failed to upload image')
       }
     } catch (error) {
       alert('Failed to upload image')
@@ -209,11 +222,30 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
     if (!files || files.length === 0) return
 
     try {
-      const results = await fileUploadService.uploadMultipleImages(files, formData.id)
+      const uploadPromises = Array.from(files).map(async (file, index) => {
+        const uploadFormData = new FormData()
+        uploadFormData.append('file', file)
+        uploadFormData.append('carId', formData.id || 'temp')
+        uploadFormData.append('fileType', 'image')
+        uploadFormData.append('uploadType', 'gallery')
+        uploadFormData.append('index', index.toString())
+
+        const response = await fetch('/api/admin/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('dt-admin-token')}`
+          },
+          body: uploadFormData
+        })
+
+        return response.json()
+      })
+
+      const results = await Promise.all(uploadPromises)
       const successfulUploads = results.filter(r => r.success)
       
       if (successfulUploads.length > 0) {
-        const newUrls = successfulUploads.map(r => r.url!)
+        const newUrls = successfulUploads.map(r => r.urls.optimized || r.urls.original)
         setFormData(prev => ({
           ...prev,
           images: {
@@ -242,19 +274,34 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
     if (!file) return
 
     try {
-      const result = await fileUploadService.uploadAudio(file, formData.id, type)
+      const uploadFormData = new FormData()
+      uploadFormData.append('file', file)
+      uploadFormData.append('carId', formData.id || 'temp')
+      uploadFormData.append('fileType', 'audio')
+      uploadFormData.append('uploadType', type)
+
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('dt-admin-token')}`
+        },
+        body: uploadFormData
+      })
+
+      const result = await response.json()
       
-      if (result.success) {
+      if (response.ok && result.success) {
+        const audioUrl = result.urls.original
         setFormData(prev => ({
           ...prev,
-          audio: { ...prev.audio, [type]: result.url! }
+          audio: { ...prev.audio, [type]: audioUrl }
         }))
 
         // Create audio preview
-        const audio = new Audio(result.url!)
+        const audio = new Audio(audioUrl)
         setAudioPreview(prev => ({ ...prev, [type]: audio }))
       } else {
-        alert(result.error)
+        alert(result.error || 'Failed to upload audio file')
       }
     } catch (error) {
       alert('Failed to upload audio file')
