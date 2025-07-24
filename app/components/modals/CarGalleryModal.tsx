@@ -52,9 +52,11 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
       
       // Add video if available (showcase video goes at the end)
       if (car.videos.showcase) {
+        console.log('Adding video to gallery:', car.videos.showcase)
         galleryMedia.push(car.videos.showcase)
       }
       
+      console.log('Final gallery media items:', galleryMedia)
       setMediaItems(galleryMedia)
       setCurrentIndex(0)
       // Reset zoom and pan when modal opens or car changes
@@ -250,13 +252,16 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                   }}
                 >
                   {/* Render image or video based on file type */}
-                  {mediaItems[currentIndex]?.includes('.mp4') || mediaItems[currentIndex]?.includes('.webm') ? (
+                  {mediaItems[currentIndex]?.includes('.mp4') || mediaItems[currentIndex]?.includes('.webm') || mediaItems[currentIndex]?.includes('.mov') ? (
                     <video 
                       controls
+                      autoPlay={false}
+                      muted
                       className="max-w-full max-h-full object-contain select-none"
                       style={{ maxHeight: 'calc(100% - 40px)' }}
                     >
                       <source src={mediaItems[currentIndex]} type="video/mp4" />
+                      <source src={mediaItems[currentIndex]} type="video/webm" />
                       Your browser does not support the video tag.
                     </video>
                   ) : (
@@ -312,7 +317,7 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                   )}
 
                   {/* Zoom Controls - only show for images */}
-                  {!(mediaItems[currentIndex]?.includes('.mp4') || mediaItems[currentIndex]?.includes('.webm')) && (
+                  {!(mediaItems[currentIndex]?.includes('.mp4') || mediaItems[currentIndex]?.includes('.webm') || mediaItems[currentIndex]?.includes('.mov')) && (
                     <div className="absolute top-4 right-4 flex flex-col gap-2">
                       <button
                         onClick={handleZoomIn}
@@ -361,7 +366,7 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                               : 'border-gray-600 hover:border-gray-400'
                           }`}
                         >
-                          {item.includes('.mp4') || item.includes('.webm') ? (
+                          {item.includes('.mp4') || item.includes('.webm') || item.includes('.mov') ? (
                             <div className="w-full h-full bg-black flex items-center justify-center">
                               <Play className="w-6 h-6 text-white" />
                             </div>

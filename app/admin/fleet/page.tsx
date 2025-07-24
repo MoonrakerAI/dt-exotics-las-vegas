@@ -207,6 +207,12 @@ export default function FleetAdmin() {
   }
 
   const handleToggleAvailability = async (car: Car) => {
+    // Optimistically update the UI immediately
+    const newAvailability = !car.available
+    setCars(prev => prev.map(c => 
+      c.id === car.id ? { ...c, available: newAvailability } : c
+    ))
+
     try {
       const token = localStorage.getItem('dt-admin-token')
       const response = await fetch(`/api/admin/fleet?id=${car.id}`, {
@@ -216,23 +222,35 @@ export default function FleetAdmin() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          available: !car.available
+          available: newAvailability
         })
       })
 
-      if (response.ok) {
-        await fetchCars() // Refresh the list
-      } else {
+      if (!response.ok) {
+        // Revert the optimistic update on error
+        setCars(prev => prev.map(c => 
+          c.id === car.id ? { ...c, available: car.available } : c
+        ))
         const error = await response.json()
         alert(`Error: ${error.error}`)
       }
     } catch (error) {
       console.error('Error toggling availability:', error)
+      // Revert the optimistic update on error
+      setCars(prev => prev.map(c => 
+        c.id === car.id ? { ...c, available: car.available } : c
+      ))
       alert('Error toggling availability')
     }
   }
 
   const handleToggleHomepageVisibility = async (car: Car) => {
+    // Optimistically update the UI immediately
+    const newVisibility = !car.showOnHomepage
+    setCars(prev => prev.map(c => 
+      c.id === car.id ? { ...c, showOnHomepage: newVisibility } : c
+    ))
+
     try {
       const token = localStorage.getItem('dt-admin-token')
       const response = await fetch(`/api/admin/fleet/visibility`, {
@@ -243,18 +261,24 @@ export default function FleetAdmin() {
         },
         body: JSON.stringify({
           id: car.id,
-          showOnHomepage: !car.showOnHomepage
+          showOnHomepage: newVisibility
         })
       })
 
-      if (response.ok) {
-        await fetchCars() // Refresh the list
-      } else {
+      if (!response.ok) {
+        // Revert the optimistic update on error
+        setCars(prev => prev.map(c => 
+          c.id === car.id ? { ...c, showOnHomepage: car.showOnHomepage } : c
+        ))
         const error = await response.json()
         alert(`Error: ${error.error}`)
       }
     } catch (error) {
       console.error('Error toggling homepage visibility:', error)
+      // Revert the optimistic update on error
+      setCars(prev => prev.map(c => 
+        c.id === car.id ? { ...c, showOnHomepage: car.showOnHomepage } : c
+      ))
       alert('Error toggling homepage visibility')
     }
   }

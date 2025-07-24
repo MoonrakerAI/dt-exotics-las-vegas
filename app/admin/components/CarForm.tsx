@@ -1108,7 +1108,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                       <button
                         onClick={() => startupAudioRef.current?.click()}
                         disabled={uploadingFiles.startupAudio}
-                        className="btn-primary text-sm disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32"
+                        className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32"
                       >
                       {uploadingFiles.startupAudio ? (
                         <>
@@ -1165,7 +1165,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                       <button
                         onClick={() => revAudioRef.current?.click()}
                         disabled={uploadingFiles.revAudio}
-                        className="btn-primary text-sm disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32"
+                        className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32"
                       >
                       {uploadingFiles.revAudio ? (
                         <>
