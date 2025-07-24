@@ -44,6 +44,9 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
 
   useEffect(() => {
     if (car && isOpen) {
+      console.log('Car data in modal:', car)
+      console.log('Car videos:', car.videos)
+      
       // Combine gallery images and videos (if available)
       const galleryMedia: string[] = []
       const galleryTypes: ('image' | 'video' | 'youtube')[] = []
@@ -69,7 +72,11 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
           // Use thumbnail URL for display, but store original URL for playback
           galleryMedia.push(car.videos.youtube)
           galleryTypes.push('youtube')
+        } else {
+          console.log('Failed to extract video ID from:', car.videos.youtube)
         }
+      } else {
+        console.log('No YouTube video found in car data')
       }
       
       console.log('Final gallery media items:', galleryMedia)
@@ -447,7 +454,7 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
               </div>
               <div className="text-center">
                 <p className="text-gray-400 text-sm mb-1">Top Speed</p>
-                <p className="text-2xl font-tech font-bold text-white">{car.stats.topSpeed} km/h</p>
+                <p className="text-2xl font-tech font-bold text-white">{Math.round(car.stats.topSpeed * 0.621371)} MPH</p>
               </div>
               <div className="text-center">
                 <p className="text-gray-400 text-sm mb-1">0-60 mph</p>

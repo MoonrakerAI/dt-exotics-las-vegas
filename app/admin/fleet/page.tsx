@@ -129,13 +129,13 @@ export default function FleetAdmin() {
     const status = carAvailability[car.id]
     
     if (!car.available) {
-      // Car is marked as generally unavailable - gray
-      return 'shadow-[0_15px_30px_rgba(156,163,175,0.3)] before:bg-gray-400/20'
+      // Car is marked as generally unavailable - red
+      return 'shadow-[0_15px_30px_rgba(239,68,68,0.4)] before:bg-red-500/25'
     }
     
     if (!status) {
-      // Still loading availability data - neutral
-      return 'shadow-[0_15px_30px_rgba(156,163,175,0.2)] before:bg-gray-400/10'
+      // Still loading availability data - use green as default
+      return 'shadow-[0_15px_30px_rgba(34,197,94,0.4)] before:bg-green-500/25'
     }
 
     if (status.available) {

@@ -583,7 +583,7 @@ export const cars: Car[] = [
     },
     videos: {
       showcase: '/cars/Chevy Corvette C8 2024 (Red)/vids/showcase.mp4',
-      youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+      youtube: 'https://www.youtube.com/watch?v=2z5A-COlDPk'
     },
     audio: {
       startup: '/cars/Chevy Corvette C8 2024 (Red)/audio/C8 - Cold Start.wav',
