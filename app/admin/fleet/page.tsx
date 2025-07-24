@@ -397,61 +397,21 @@ export default function FleetAdmin() {
                           </h3>
                           <p className="text-gray-400">{car.stats.engine} • {car.stats.horsepower} HP • {car.category.charAt(0).toUpperCase() + car.category.slice(1)}</p>
                         </div>
-                        <div className="flex items-center space-x-4">
-                          {/* Toggle Switches */}
-                          <div className="flex items-center space-x-4">
-                            {/* Availability Toggle */}
-                            <div className="flex items-center space-x-2">
-                              <span className="text-sm text-gray-300">Available:</span>
-                              <button
-                                onClick={() => handleToggleAvailability(car)}
-                                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ${
-                                  car.available ? 'bg-neon-blue' : 'bg-gray-600'
-                                }`}
-                              >
-                                <span
-                                  className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-200 ${
-                                    car.available ? 'translate-x-5' : 'translate-x-1'
-                                  }`}
-                                />
-                              </button>
-                            </div>
-                            
-                            {/* Homepage Visibility Toggle */}
-                            <div className="flex items-center space-x-2">
-                              <span className="text-sm text-gray-300">Homepage:</span>
-                              <button
-                                onClick={() => handleToggleHomepageVisibility(car)}
-                                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ${
-                                  car.showOnHomepage ? 'bg-neon-blue' : 'bg-gray-600'
-                                }`}
-                              >
-                                <span
-                                  className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-200 ${
-                                    car.showOnHomepage ? 'translate-x-5' : 'translate-x-1'
-                                  }`}
-                                />
-                              </button>
-                            </div>
-                          </div>
-                          
-                          {/* Action Buttons */}
-                          <div className="flex space-x-2 border-l border-gray-600 pl-4">
-                            <button 
-                              onClick={() => handleEditCar(car)}
-                              className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
-                              title="Edit car details"
-                            >
-                              <Edit className="w-5 h-5" />
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteCar(car)}
-                              className="p-2 text-gray-400 hover:text-red-400 transition-colors"
-                              title="Delete car"
-                            >
-                              <Trash2 className="w-5 h-5" />
-                            </button>
-                          </div>
+                        <div className="flex space-x-2">
+                          <button 
+                            onClick={() => handleEditCar(car)}
+                            className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
+                            title="Edit car details"
+                          >
+                            <Edit className="w-5 h-5" />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteCar(car)}
+                            className="p-2 text-gray-400 hover:text-red-400 transition-colors"
+                            title="Delete car"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
                         </div>
                       </div>
 
@@ -482,7 +442,46 @@ export default function FleetAdmin() {
                         </div>
                       </div>
 
-                      <div className="flex justify-center mb-4">
+                      <div className="flex justify-center gap-4 mb-4">
+                        {/* Rental Availability Toggle */}
+                        <button
+                          onClick={() => handleToggleAvailability(car)}
+                          className={`flex items-center space-x-2 px-4 py-2 border transition-all duration-300 rounded-lg ${
+                            car.available 
+                              ? 'bg-green-500/20 text-green-300 border-green-500/30 hover:bg-green-500/30'
+                              : 'bg-red-500/20 text-red-300 border-red-500/30 hover:bg-red-500/30'
+                          }`}
+                        >
+                          <div className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors duration-200 ${
+                            car.available ? 'bg-green-500' : 'bg-red-500'
+                          }`}>
+                            <span className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform duration-200 ${
+                              car.available ? 'translate-x-4' : 'translate-x-1'
+                            }`} />
+                          </div>
+                          <span>Rental Available</span>
+                        </button>
+
+                        {/* Homepage Visibility Toggle */}
+                        <button
+                          onClick={() => handleToggleHomepageVisibility(car)}
+                          className={`flex items-center space-x-2 px-4 py-2 border transition-all duration-300 rounded-lg ${
+                            car.showOnHomepage 
+                              ? 'bg-blue-500/20 text-blue-300 border-blue-500/30 hover:bg-blue-500/30'
+                              : 'bg-gray-500/20 text-gray-300 border-gray-500/30 hover:bg-gray-500/30'
+                          }`}
+                        >
+                          <div className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors duration-200 ${
+                            car.showOnHomepage ? 'bg-blue-500' : 'bg-gray-500'
+                          }`}>
+                            <span className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform duration-200 ${
+                              car.showOnHomepage ? 'translate-x-4' : 'translate-x-1'
+                            }`} />
+                          </div>
+                          <span>Homepage Visibility</span>
+                        </button>
+
+                        {/* Calendar Management Button */}
                         <button
                           onClick={() => handleOpenCalendar(car)}
                           className="flex items-center space-x-2 px-4 py-2 bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30 transition-all duration-300 rounded-lg"

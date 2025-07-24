@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCcw, Play } from 'lucide-react'
 import { Car } from '@/app/data/cars'
 
 interface CarGalleryModalProps {
@@ -42,8 +42,19 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
 
   useEffect(() => {
     if (car && isOpen) {
-      // Use only gallery images, exclude main image
-      const galleryMedia = car.images.gallery.filter(Boolean)
+      // Combine gallery images and video (if available)
+      const galleryMedia: string[] = []
+      
+      // Add gallery images
+      car.images.gallery.filter(Boolean).forEach(image => {
+        galleryMedia.push(image)
+      })
+      
+      // Add video if available (showcase video goes at the end)
+      if (car.videos.showcase) {
+        galleryMedia.push(car.videos.showcase)
+      }
+      
       setMediaItems(galleryMedia)
       setCurrentIndex(0)
       // Reset zoom and pan when modal opens or car changes
@@ -238,19 +249,31 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                     cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
                   }}
                 >
-                  <img 
-                    ref={imageRef}
-                    src={mediaItems[currentIndex]} 
-                    alt={`${car.brand} ${car.model} - Image ${currentIndex + 1}`}
-                    className="max-w-full max-h-full object-contain select-none transition-transform duration-200"
-                    draggable={false}
-                    loading="eager"
-                    decoding="async"
-                    style={{
-                      transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`,
-                      transformOrigin: 'center center'
-                    }}
-                  />
+                  {/* Render image or video based on file type */}
+                  {mediaItems[currentIndex]?.includes('.mp4') || mediaItems[currentIndex]?.includes('.webm') ? (
+                    <video 
+                      controls
+                      className="max-w-full max-h-full object-contain select-none"
+                      style={{ maxHeight: 'calc(100% - 40px)' }}
+                    >
+                      <source src={mediaItems[currentIndex]} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <img 
+                      ref={imageRef}
+                      src={mediaItems[currentIndex]} 
+                      alt={`${car.brand} ${car.model} - Image ${currentIndex + 1}`}
+                      className="max-w-full max-h-full object-contain select-none transition-transform duration-200"
+                      draggable={false}
+                      loading="eager"
+                      decoding="async"
+                      style={{
+                        transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`,
+                        transformOrigin: 'center center'
+                      }}
+                    />
+                  )}
                   
                   {/* Preload next and previous images for smoother navigation */}
                   {mediaItems.length > 1 && (
@@ -288,31 +311,33 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                     </>
                   )}
 
-                  {/* Zoom Controls */}
-                  <div className="absolute top-4 right-4 flex flex-col gap-2">
-                    <button
-                      onClick={handleZoomIn}
-                      disabled={zoom >= 4}
-                      className="p-2 bg-black/50 hover:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
-                    >
-                      <ZoomIn className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
-                    </button>
-                    <button
-                      onClick={handleZoomOut}
-                      disabled={zoom <= 1}
-                      className="p-2 bg-black/50 hover:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
-                    >
-                      <ZoomOut className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
-                    </button>
-                    {zoom > 1 && (
+                  {/* Zoom Controls - only show for images */}
+                  {!(mediaItems[currentIndex]?.includes('.mp4') || mediaItems[currentIndex]?.includes('.webm')) && (
+                    <div className="absolute top-4 right-4 flex flex-col gap-2">
                       <button
-                        onClick={handleZoomReset}
-                        className="p-2 bg-black/50 hover:bg-black/70 rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
+                        onClick={handleZoomIn}
+                        disabled={zoom >= 4}
+                        className="p-2 bg-black/50 hover:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
                       >
-                        <RotateCcw className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
+                        <ZoomIn className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
                       </button>
-                    )}
-                  </div>
+                      <button
+                        onClick={handleZoomOut}
+                        disabled={zoom <= 1}
+                        className="p-2 bg-black/50 hover:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
+                      >
+                        <ZoomOut className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
+                      </button>
+                      {zoom > 1 && (
+                        <button
+                          onClick={handleZoomReset}
+                          className="p-2 bg-black/50 hover:bg-black/70 rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
+                        >
+                          <RotateCcw className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
+                        </button>
+                      )}
+                    </div>
+                  )}
 
                   {/* Zoom indicator */}
                   {zoom > 1 && (
@@ -330,19 +355,25 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                         <button
                           key={index}
                           onClick={() => setCurrentIndex(index)}
-                          className={`flex-shrink-0 w-16 h-12 sm:w-20 sm:h-14 rounded overflow-hidden border-2 transition-all duration-200 ${
+                          className={`relative flex-shrink-0 w-16 h-12 sm:w-20 sm:h-14 rounded overflow-hidden border-2 transition-all duration-200 ${
                             index === currentIndex 
                               ? 'border-neon-blue shadow-[0_0_10px_rgba(0,255,255,0.5)]' 
                               : 'border-gray-600 hover:border-gray-400'
                           }`}
                         >
-                          <img 
-                            src={item} 
-                            alt={`Thumbnail ${index + 1}`}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                            decoding="async"
-                          />
+                          {item.includes('.mp4') || item.includes('.webm') ? (
+                            <div className="w-full h-full bg-black flex items-center justify-center">
+                              <Play className="w-6 h-6 text-white" />
+                            </div>
+                          ) : (
+                            <img 
+                              src={item} 
+                              alt={`Thumbnail ${index + 1}`}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          )}
                         </button>
                       ))}
                     </div>
@@ -378,7 +409,7 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                 ${car.price.daily}/day
               </p>
               <a 
-                href="#contact" 
+                href={`/book-rental?car=${car.id}`}
                 onClick={onClose}
                 className="btn-primary inline-block mt-4"
               >

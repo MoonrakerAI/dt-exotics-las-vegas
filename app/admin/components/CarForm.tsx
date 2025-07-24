@@ -398,6 +398,23 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
 
         // Create audio preview
         const audio = new Audio(audioUrl)
+        
+        // Set up event listeners for audio end and error
+        audio.addEventListener('ended', () => {
+          console.log(`${type} audio ended, stopping spinner`)
+          setPlayingAudio(null)
+        })
+        
+        audio.addEventListener('error', () => {
+          console.log(`${type} audio error, stopping spinner`)
+          setPlayingAudio(null)
+        })
+        
+        audio.addEventListener('pause', () => {
+          console.log(`${type} audio paused, stopping spinner`)
+          setPlayingAudio(null)
+        })
+        
         setAudioPreview(prev => ({ ...prev, [type]: audio }))
         
         // Clear the file input
@@ -438,9 +455,6 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
       
       audio.play()
       setPlayingAudio(type)
-      
-      // Reset playing state when audio ends
-      audio.onended = () => setPlayingAudio(null)
     }
   }
 
@@ -626,7 +640,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
               <p className="text-gray-300 mb-4">
                 Enter Year, Make, and Model below, then click "Auto-Populate" to automatically fill in vehicle specifications and stock photos.
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+              <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
                 <div className="md:col-span-1">
                   <label className="block text-sm font-medium text-gray-300 mb-2">Year</label>
                   <input
@@ -635,7 +649,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     onChange={(e) => updateFormField('year', parseInt(e.target.value) || new Date().getFullYear())}
                     min="1990"
                     max={new Date().getFullYear() + 1}
-                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                    className="w-full px-3 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   />
                 </div>
                 <div className="relative md:col-span-2">
@@ -671,7 +685,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     </div>
                   )}
                 </div>
-                <div className="relative md:col-span-1">
+                <div className="relative md:col-span-2">
                   <label className="block text-sm font-medium text-gray-300 mb-2">Model</label>
                   <input
                     type="text"
@@ -947,11 +961,12 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     onChange={handleMainImageUpload}
                     className="hidden"
                   />
-                  <button
-                    onClick={() => mainImageRef.current?.click()}
-                    disabled={uploadingFiles.mainImage}
-                    className="mt-4 btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-full"
-                  >
+                  <div className="flex justify-center mt-4">
+                    <button
+                      onClick={() => mainImageRef.current?.click()}
+                      disabled={uploadingFiles.mainImage}
+                      className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32"
+                    >
                     {uploadingFiles.mainImage ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -960,7 +975,8 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     ) : (
                       <span>{imagePreview.main ? 'Change Image' : 'Upload Image'}</span>
                     )}
-                  </button>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -979,11 +995,12 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     onChange={handleGalleryImagesUpload}
                     className="hidden"
                   />
-                  <button
-                    onClick={() => galleryImagesRef.current?.click()}
-                    disabled={uploadingFiles.galleryImages}
-                    className="mt-4 btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-full"
-                  >
+                  <div className="flex justify-center mt-4">
+                    <button
+                      onClick={() => galleryImagesRef.current?.click()}
+                      disabled={uploadingFiles.galleryImages}
+                      className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32"
+                    >
                     {uploadingFiles.galleryImages ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -992,7 +1009,8 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     ) : (
                       <span>Upload Images</span>
                     )}
-                  </button>
+                    </button>
+                  </div>
                 </div>
                 
                 {imagePreview.gallery.length > 0 && (
@@ -1063,11 +1081,12 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                       onChange={(e) => handleAudioUpload(e, 'startup')}
                       className="hidden"
                     />
-                    <button
-                      onClick={() => startupAudioRef.current?.click()}
-                      disabled={uploadingFiles.startupAudio}
-                      className="mt-2 btn-primary text-sm disabled:opacity-50 flex items-center justify-center space-x-2 w-full"
-                    >
+                    <div className="flex justify-center mt-2">
+                      <button
+                        onClick={() => startupAudioRef.current?.click()}
+                        disabled={uploadingFiles.startupAudio}
+                        className="btn-primary text-sm disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32"
+                      >
                       {uploadingFiles.startupAudio ? (
                         <>
                           <Loader2 className="w-3 h-3 animate-spin" />
@@ -1076,7 +1095,8 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                       ) : (
                         <span>{formData.audio.startup ? 'Change Audio' : 'Upload Audio'}</span>
                       )}
-                    </button>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -1118,11 +1138,12 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                       onChange={(e) => handleAudioUpload(e, 'rev')}
                       className="hidden"
                     />
-                    <button
-                      onClick={() => revAudioRef.current?.click()}
-                      disabled={uploadingFiles.revAudio}
-                      className="mt-2 btn-primary text-sm disabled:opacity-50 flex items-center justify-center space-x-2 w-full"
-                    >
+                    <div className="flex justify-center mt-2">
+                      <button
+                        onClick={() => revAudioRef.current?.click()}
+                        disabled={uploadingFiles.revAudio}
+                        className="btn-primary text-sm disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32"
+                      >
                       {uploadingFiles.revAudio ? (
                         <>
                           <Loader2 className="w-3 h-3 animate-spin" />
@@ -1131,7 +1152,8 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                       ) : (
                         <span>{formData.audio.rev ? 'Change Audio' : 'Upload Audio'}</span>
                       )}
-                    </button>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
