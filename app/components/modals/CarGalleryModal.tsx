@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCcw, Play } from 'lucide-react'
 import { Car } from '@/app/data/cars'
+import { extractYouTubeVideoId, getYouTubeThumbnailUrl, isYouTubeUrl, getYouTubeEmbedUrl } from '@/app/lib/youtube-utils'
 
 interface CarGalleryModalProps {
   car: Car | null
@@ -13,6 +14,7 @@ interface CarGalleryModalProps {
 export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModalProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [mediaItems, setMediaItems] = useState<string[]>([])
+  const [mediaTypes, setMediaTypes] = useState<('image' | 'video' | 'youtube')[]>([])
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
   const [isMobile, setIsMobile] = useState(false)
@@ -42,22 +44,38 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
 
   useEffect(() => {
     if (car && isOpen) {
-      // Combine gallery images and video (if available)
+      // Combine gallery images and videos (if available)
       const galleryMedia: string[] = []
+      const galleryTypes: ('image' | 'video' | 'youtube')[] = []
       
       // Add gallery images
       car.images.gallery.filter(Boolean).forEach(image => {
         galleryMedia.push(image)
+        galleryTypes.push('image')
       })
       
-      // Add video if available (showcase video goes at the end)
-      if (car.videos.showcase) {
-        console.log('Adding video to gallery:', car.videos.showcase)
+      // Add local video if available
+      if (car.videos.showcase && !isYouTubeUrl(car.videos.showcase)) {
+        console.log('Adding local video to gallery:', car.videos.showcase)
         galleryMedia.push(car.videos.showcase)
+        galleryTypes.push('video')
+      }
+      
+      // Add YouTube video if available
+      if (car.videos.youtube) {
+        const videoId = extractYouTubeVideoId(car.videos.youtube)
+        if (videoId) {
+          console.log('Adding YouTube video to gallery:', car.videos.youtube)
+          // Use thumbnail URL for display, but store original URL for playback
+          galleryMedia.push(car.videos.youtube)
+          galleryTypes.push('youtube')
+        }
       }
       
       console.log('Final gallery media items:', galleryMedia)
+      console.log('Final gallery media types:', galleryTypes)
       setMediaItems(galleryMedia)
+      setMediaTypes(galleryTypes)
       setCurrentIndex(0)
       // Reset zoom and pan when modal opens or car changes
       setZoom(1)
@@ -251,8 +269,22 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                     cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
                   }}
                 >
-                  {/* Render image or video based on file type */}
-                  {mediaItems[currentIndex]?.includes('.mp4') || mediaItems[currentIndex]?.includes('.webm') || mediaItems[currentIndex]?.includes('.mov') ? (
+                  {/* Render content based on media type */}
+                  {mediaTypes[currentIndex] === 'youtube' ? (
+                    // YouTube video iframe
+                    <div className="w-full h-full flex items-center justify-center">
+                      <iframe
+                        src={getYouTubeEmbedUrl(extractYouTubeVideoId(mediaItems[currentIndex]) || '')}
+                        className="w-full h-full max-w-full max-h-full"
+                        style={{ maxHeight: 'calc(100% - 40px)', aspectRatio: '16/9' }}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        title={`${car.brand} ${car.model} Video`}
+                      />
+                    </div>
+                  ) : mediaTypes[currentIndex] === 'video' ? (
+                    // Local video file
                     <video 
                       controls
                       autoPlay={false}
@@ -265,6 +297,7 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                       Your browser does not support the video tag.
                     </video>
                   ) : (
+                    // Image
                     <img 
                       ref={imageRef}
                       src={mediaItems[currentIndex]} 
@@ -317,7 +350,7 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                   )}
 
                   {/* Zoom Controls - only show for images */}
-                  {!(mediaItems[currentIndex]?.includes('.mp4') || mediaItems[currentIndex]?.includes('.webm') || mediaItems[currentIndex]?.includes('.mov')) && (
+                  {mediaTypes[currentIndex] === 'image' && (
                     <div className="absolute top-4 right-4 flex flex-col gap-2">
                       <button
                         onClick={handleZoomIn}
@@ -366,7 +399,20 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                               : 'border-gray-600 hover:border-gray-400'
                           }`}
                         >
-                          {item.includes('.mp4') || item.includes('.webm') || item.includes('.mov') ? (
+                          {mediaTypes[index] === 'youtube' ? (
+                            <div className="relative w-full h-full">
+                              <img 
+                                src={getYouTubeThumbnailUrl(extractYouTubeVideoId(item) || '')}
+                                alt={`YouTube Video ${index + 1}`}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                                decoding="async"
+                              />
+                              <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                <Play className="w-4 h-4 text-white" />
+                              </div>
+                            </div>
+                          ) : mediaTypes[index] === 'video' ? (
                             <div className="w-full h-full bg-black flex items-center justify-center">
                               <Play className="w-6 h-6 text-white" />
                             </div>

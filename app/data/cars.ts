@@ -24,6 +24,7 @@ export interface Car {
   }
   videos: {
     showcase?: string
+    youtube?: string
   }
   audio: {
     startup?: string
@@ -581,7 +582,8 @@ export const cars: Car[] = [
       ]
     },
     videos: {
-      showcase: '/cars/Chevy Corvette C8 2024 (Red)/vids/showcase.mp4'
+      showcase: '/cars/Chevy Corvette C8 2024 (Red)/vids/showcase.mp4',
+      youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
     },
     audio: {
       startup: '/cars/Chevy Corvette C8 2024 (Red)/audio/C8 - Cold Start.wav',

@@ -1077,14 +1077,14 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                         <div className="flex justify-center space-x-2">
                           <button
                             onClick={() => toggleAudioPreview('startup')}
-                            className="flex items-center space-x-1 px-3 py-1 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30"
+                            className="flex items-center space-x-1 px-4 py-2 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30"
                           >
                             {playingAudio === 'startup' ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                             <span className="text-xs">{playingAudio === 'startup' ? 'Pause' : 'Play'}</span>
                           </button>
                           <button
                             onClick={() => setFormData(prev => ({ ...prev, audio: { ...prev.audio, startup: '' } }))}
-                            className="flex items-center space-x-1 px-3 py-1 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30"
+                            className="flex items-center space-x-1 px-4 py-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30"
                           >
                             <X className="w-4 h-4" />
                             <span className="text-xs">Remove</span>
@@ -1134,14 +1134,14 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                         <div className="flex justify-center space-x-2">
                           <button
                             onClick={() => toggleAudioPreview('rev')}
-                            className="flex items-center space-x-1 px-3 py-1 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30"
+                            className="flex items-center space-x-1 px-4 py-2 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30"
                           >
                             {playingAudio === 'rev' ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                             <span className="text-xs">{playingAudio === 'rev' ? 'Pause' : 'Play'}</span>
                           </button>
                           <button
                             onClick={() => setFormData(prev => ({ ...prev, audio: { ...prev.audio, rev: '' } }))}
-                            className="flex items-center space-x-1 px-3 py-1 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30"
+                            className="flex items-center space-x-1 px-4 py-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30"
                           >
                             <X className="w-4 h-4" />
                             <span className="text-xs">Remove</span>
