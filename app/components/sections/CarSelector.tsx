@@ -240,35 +240,7 @@ export default function CarSelector() {
     }
   }
 
-  useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
-
-    const handleAudioEnd = () => {
-      console.log('Audio ended, stopping spinner')
-      setPlayingAudio(null)
-    }
-
-    const handleAudioError = () => {
-      console.log('Audio error, stopping spinner')
-      setPlayingAudio(null)
-    }
-
-    const handleAudioPause = () => {
-      console.log('Audio paused, stopping spinner')
-      setPlayingAudio(null)
-    }
-
-    audio.addEventListener('ended', handleAudioEnd)
-    audio.addEventListener('error', handleAudioError)
-    audio.addEventListener('pause', handleAudioPause)
-
-    return () => {
-      audio.removeEventListener('ended', handleAudioEnd)
-      audio.removeEventListener('error', handleAudioError)
-      audio.removeEventListener('pause', handleAudioPause)
-    }
-  }, [])
+  // Audio event handling is now done per-playback in playSound function
 
   const playSound = (car: Car, type: 'startup' | 'rev') => {
     if (audioRef.current) {
@@ -287,20 +259,52 @@ export default function CarSelector() {
       audioRef.current.src = audioSrc
       setPlayingAudio({ carId: car.id, type })
       
+      // Set up one-time event listeners for this specific playback
+      const handleEnded = () => {
+        console.log('Audio ended, stopping spinner')
+        setPlayingAudio(null)
+        cleanup()
+      }
+      
+      const handleError = () => {
+        console.log('Audio error, stopping spinner')
+        setPlayingAudio(null)
+        cleanup()
+      }
+      
+      const handlePause = () => {
+        console.log('Audio paused, stopping spinner')
+        setPlayingAudio(null)
+        cleanup()
+      }
+      
+      const cleanup = () => {
+        if (audioRef.current) {
+          audioRef.current.removeEventListener('ended', handleEnded)
+          audioRef.current.removeEventListener('error', handleError)
+          audioRef.current.removeEventListener('pause', handlePause)
+        }
+        if (safetyTimeout) clearTimeout(safetyTimeout)
+      }
+      
+      // Add event listeners
+      audioRef.current.addEventListener('ended', handleEnded)
+      audioRef.current.addEventListener('error', handleError)
+      audioRef.current.addEventListener('pause', handlePause)
+      
       // Safety timeout to stop spinner after 30 seconds (in case audio events fail)
       const safetyTimeout = setTimeout(() => {
         console.log('Safety timeout reached, stopping spinner')
         setPlayingAudio(null)
+        cleanup()
       }, 30000)
       
       audioRef.current.play().then(() => {
         console.log('Audio started playing successfully')
-        // Clear safety timeout when audio starts playing (events will handle the end)
-        clearTimeout(safetyTimeout)
       }).catch((error) => {
         console.error('Audio playback failed:', error)
         setPlayingAudio(null)
-        clearTimeout(safetyTimeout)
+        cleanup()
       })
     }
   }

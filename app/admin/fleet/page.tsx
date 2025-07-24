@@ -449,11 +449,11 @@ export default function FleetAdmin() {
                           className={`flex items-center space-x-2 px-4 py-2 border transition-all duration-300 rounded-lg ${
                             car.available 
                               ? 'bg-green-500/20 text-green-300 border-green-500/30 hover:bg-green-500/30'
-                              : 'bg-red-500/20 text-red-300 border-red-500/30 hover:bg-red-500/30'
+                              : 'bg-gray-500/20 text-gray-300 border-gray-500/30 hover:bg-gray-500/30'
                           }`}
                         >
                           <div className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors duration-200 ${
-                            car.available ? 'bg-green-500' : 'bg-red-500'
+                            car.available ? 'bg-green-500' : 'bg-gray-500'
                           }`}>
                             <span className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform duration-200 ${
                               car.available ? 'translate-x-4' : 'translate-x-1'

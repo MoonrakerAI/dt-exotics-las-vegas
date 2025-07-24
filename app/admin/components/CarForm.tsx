@@ -64,6 +64,46 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
     rev?: HTMLAudioElement;
   }>({})
   const [playingAudio, setPlayingAudio] = useState<'startup' | 'rev' | null>(null)
+
+  // Helper function to create audio preview with event listeners
+  const createAudioPreview = (audioUrl: string, type: 'startup' | 'rev') => {
+    const audio = new Audio(audioUrl)
+    
+    // Set up event listeners for audio end and error
+    audio.addEventListener('ended', () => {
+      console.log(`${type} audio ended, stopping spinner`)
+      setPlayingAudio(null)
+    })
+    
+    audio.addEventListener('error', () => {
+      console.log(`${type} audio error, stopping spinner`)
+      setPlayingAudio(null)
+    })
+    
+    audio.addEventListener('pause', () => {
+      console.log(`${type} audio paused, stopping spinner`)
+      setPlayingAudio(null)
+    })
+    
+    return audio
+  }
+
+  // Create audio previews for existing car audio when component mounts or car changes
+  useEffect(() => {
+    if (car) {
+      const previews: { startup?: HTMLAudioElement; rev?: HTMLAudioElement } = {}
+      
+      if (car.audio.startup) {
+        previews.startup = createAudioPreview(car.audio.startup, 'startup')
+      }
+      
+      if (car.audio.rev) {
+        previews.rev = createAudioPreview(car.audio.rev, 'rev')
+      }
+      
+      setAudioPreview(previews)
+    }
+  }, [car])
   
   // Form state
   const [formData, setFormData] = useState({
@@ -396,25 +436,8 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
           audio: { ...prev.audio, [type]: audioUrl }
         }))
 
-        // Create audio preview
-        const audio = new Audio(audioUrl)
-        
-        // Set up event listeners for audio end and error
-        audio.addEventListener('ended', () => {
-          console.log(`${type} audio ended, stopping spinner`)
-          setPlayingAudio(null)
-        })
-        
-        audio.addEventListener('error', () => {
-          console.log(`${type} audio error, stopping spinner`)
-          setPlayingAudio(null)
-        })
-        
-        audio.addEventListener('pause', () => {
-          console.log(`${type} audio paused, stopping spinner`)
-          setPlayingAudio(null)
-        })
-        
+        // Create audio preview using helper function
+        const audio = createAudioPreview(audioUrl, type)
         setAudioPreview(prev => ({ ...prev, [type]: audio }))
         
         // Clear the file input
@@ -722,7 +745,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                   <button
                     onClick={handleAutoPopulate}
                     disabled={autoPopulateLoading || !formData.brand || !formData.model}
-                    className="w-full btn-primary disabled:opacity-50 flex items-center justify-center space-x-2"
+                    className="w-full h-[52px] btn-primary disabled:opacity-50 flex items-center justify-center space-x-2"
                   >
                     {autoPopulateLoading ? (
                       <>
