@@ -23,6 +23,18 @@ const navItems = [
     description: 'Rental bookings and payments'
   },
   { 
+    href: '/admin/bookings', 
+    label: 'Bookings', 
+    icon: Calendar,
+    description: 'Manage reservations and rentals'
+  },
+  { 
+    href: '/admin/invoices', 
+    label: 'Invoices', 
+    icon: CreditCard,
+    description: 'Create custom invoices'
+  },
+  { 
     href: '/admin/blog', 
     label: 'Blog', 
     icon: FileText,
@@ -131,19 +143,22 @@ export default function AdminNavigation() {
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+            <Link
+              href="/admin/profile"
+              className="flex items-center space-x-3 hover:bg-dark-gray/50 rounded-lg px-3 py-2 transition-all duration-200 group"
+            >
+              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center group-hover:bg-gray-500">
                 <User className="w-4 h-4 text-white" />
               </div>
               <div className="hidden md:block">
-                <p className="text-sm font-medium text-white">
+                <p className="text-sm font-medium text-white group-hover:text-neon-blue">
                   {user.name}
                 </p>
                 <p className="text-xs text-gray-400">
                   {user.email}
                 </p>
               </div>
-            </div>
+            </Link>
             
             <button
               onClick={handleSignOut}

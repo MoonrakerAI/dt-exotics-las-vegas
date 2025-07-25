@@ -45,7 +45,7 @@ export default function CreateInvoice() {
     depositAmount: 0,
     dueDate: '',
     notes: '',
-    terms: 'Payment is due within 30 days of invoice date. Late payments may incur additional fees.'
+    terms: 'Payment is due within 30 days of invoice date.'
   })
 
   const addLineItem = () => {
@@ -190,7 +190,7 @@ export default function CreateInvoice() {
 
   return (
     <div className="min-h-screen bg-dark-gray">
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="max-w-full mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
@@ -237,110 +237,76 @@ export default function CreateInvoice() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-          {/* Form */}
-          <div className="space-y-8">
-            {/* Customer Information */}
-            <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-              <h2 className="text-2xl font-tech font-bold text-white mb-6">Customer Information</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Customer Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.customer.name}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      customer: { ...prev.customer, name: e.target.value }
-                    }))}
-                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    placeholder="Enter customer name"
-                  />
-                </div>
+        <div className="space-y-8">
+          {/* Main Form */}
+          <div className="glass-panel bg-dark-metal/50 p-8 border border-gray-600/30 rounded-2xl">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Customer & Invoice Info */}
+              <div className="lg:col-span-2 space-y-6">
+                <h2 className="text-2xl font-tech font-bold text-white mb-6">Invoice Details</h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Customer Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.customer.name}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        customer: { ...prev.customer, name: e.target.value }
+                      }))}
+                      className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                      placeholder="Customer name"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    value={formData.customer.email}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      customer: { ...prev.customer, email: e.target.value }
-                    }))}
-                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    placeholder="Enter email address"
-                  />
-                </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.customer.email}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        customer: { ...prev.customer, email: e.target.value }
+                      }))}
+                      className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                      placeholder="customer@email.com"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    value={formData.customer.phone}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      customer: { ...prev.customer, phone: e.target.value }
-                    }))}
-                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    placeholder="Enter phone number"
-                  />
-                </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Invoice Title *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                      className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                      placeholder="VIP Experience Package"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Service Type
-                  </label>
-                  <select
-                    value={formData.serviceType}
-                    onChange={(e) => setFormData(prev => ({ ...prev, serviceType: e.target.value as any }))}
-                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                  >
-                    <option value="vip">VIP Experience</option>
-                    <option value="bachelor_party">Bachelor Party</option>
-                    <option value="corporate">Corporate Event</option>
-                    <option value="custom">Custom Package</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Invoice Details */}
-            <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-              <h2 className="text-2xl font-tech font-bold text-white mb-6">Invoice Details</h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Invoice Title *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    placeholder="e.g., VIP Las Vegas Experience Package"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Description
-                  </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    rows={3}
-                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none resize-none"
-                    placeholder="Brief description of the service"
-                  />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Service Type
+                    </label>
+                    <select
+                      value={formData.serviceType}
+                      onChange={(e) => setFormData(prev => ({ ...prev, serviceType: e.target.value as any }))}
+                      className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                    >
+                      <option value="vip">VIP Experience</option>
+                      <option value="bachelor_party">Bachelor Party</option>
+                      <option value="corporate">Corporate Event</option>
+                      <option value="custom">Custom Package</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -373,20 +339,46 @@ export default function CreateInvoice() {
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Line Items */}
-            <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-tech font-bold text-white">Line Items</h2>
-                <button
-                  onClick={addLineItem}
-                  className="btn-secondary flex items-center space-x-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add Item</span>
-                </button>
+              {/* Quick Summary */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-tech font-semibold text-white">Summary</h3>
+                <div className="bg-dark-metal/30 p-4 rounded-lg space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Subtotal:</span>
+                    <span className="text-white">{formatCurrency(subtotal)}</span>
+                  </div>
+                  {(formData.discountAmount || 0) > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Discount:</span>
+                      <span className="text-green-400">-{formatCurrency(formData.discountAmount || 0)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Tax ({formData.taxRate}%):</span>
+                    <span className="text-white">{formatCurrency(taxAmount)}</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-semibold border-t border-gray-600 pt-2">
+                    <span className="text-white">Total:</span>
+                    <span className="text-neon-blue">{formatCurrency(totalAmount)}</span>
+                  </div>
+                </div>
               </div>
+            </div>
+          </div>
+
+          {/* Line Items */}
+          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-tech font-bold text-white">Services & Items</h2>
+              <button
+                onClick={addLineItem}
+                className="btn-secondary flex items-center space-x-2"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Item</span>
+              </button>
+            </div>
 
               <div className="space-y-4">
                 {formData.lineItems.map((item, index) => (
@@ -447,136 +439,83 @@ export default function CreateInvoice() {
               </div>
             </div>
 
-            {/* Payment Settings */}
-            <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-              <h2 className="text-2xl font-tech font-bold text-white mb-6">Payment Settings</h2>
-              
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Discount Amount
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.discountAmount}
-                    onChange={(e) => setFormData(prev => ({ ...prev, discountAmount: parseFloat(e.target.value) || 0 }))}
-                    min="0"
-                    step="0.01"
-                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    placeholder="0.00"
-                  />
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      id="depositRequired"
-                      checked={formData.depositRequired}
-                      onChange={(e) => setFormData(prev => ({ ...prev, depositRequired: e.target.checked }))}
-                      className="w-4 h-4 text-neon-blue bg-dark-metal border-gray-600 rounded focus:ring-neon-blue focus:ring-2"
-                    />
-                    <label htmlFor="depositRequired" className="text-sm font-medium text-gray-300">
-                      Require deposit payment
-                    </label>
-                  </div>
-
-                  {formData.depositRequired && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Deposit Amount
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.depositAmount}
-                        onChange={(e) => setFormData(prev => ({ ...prev, depositAmount: parseFloat(e.target.value) || 0 }))}
-                        min="0"
-                        max={totalAmount}
-                        step="0.01"
-                        className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                        placeholder="0.00"
-                      />
-                    </div>
-                  )}
-                </div>
+          {/* Additional Options */}
+          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+            <h2 className="text-2xl font-tech font-bold text-white mb-6">Additional Options</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Discount Amount (Optional)
+                </label>
+                <input
+                  type="number"
+                  value={formData.discountAmount}
+                  onChange={(e) => setFormData(prev => ({ ...prev, discountAmount: parseFloat(e.target.value) || 0 }))}
+                  min="0"
+                  step="0.01"
+                  className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  placeholder="0.00"
+                />
               </div>
-            </div>
 
-            {/* Notes and Terms */}
-            <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-              <h2 className="text-2xl font-tech font-bold text-white mb-6">Additional Information</h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Notes
-                  </label>
-                  <textarea
-                    value={formData.notes}
-                    onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                    rows={3}
-                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none resize-none"
-                    placeholder="Additional notes for the customer"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Terms and Conditions
-                  </label>
-                  <textarea
-                    value={formData.terms}
-                    onChange={(e) => setFormData(prev => ({ ...prev, terms: e.target.value }))}
-                    rows={4}
-                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none resize-none"
-                    placeholder="Payment terms and conditions"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Notes (Optional)
+                </label>
+                <textarea
+                  value={formData.notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                  rows={3}
+                  className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none resize-none"
+                  placeholder="Additional notes for the customer"
+                />
               </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button
-                onClick={() => handleSave('draft')}
-                disabled={loading}
-                className="btn-secondary disabled:opacity-50 flex items-center justify-center space-x-2"
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Saving...</span>
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4" />
-                    <span>Save as Draft</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                onClick={() => handleSave('sent')}
-                disabled={loading}
-                className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2"
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
-                    <span>Creating...</span>
-                  </>
-                ) : (
-                  <>
-                    <DollarSign className="w-4 h-4" />
-                    <span>Create & Send Invoice</span>
-                  </>
-                )}
-              </button>
             </div>
           </div>
 
-          {/* Preview */}
-          {showPreview && (
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={() => handleSave('draft')}
+              disabled={loading}
+              className="btn-secondary disabled:opacity-50 flex items-center justify-center space-x-2"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  <span>Save as Draft</span>
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={() => handleSave('sent')}
+              disabled={loading}
+              className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
+                  <span>Creating...</span>
+                </>
+              ) : (
+                <>
+                  <DollarSign className="w-4 h-4" />
+                  <span>Create & Send Invoice</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Preview */}
+        {showPreview && (
             <div className="xl:sticky xl:top-8">
               <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
                 <h2 className="text-2xl font-tech font-bold text-white mb-6">Invoice Preview</h2>
