@@ -125,7 +125,7 @@ export async function POST(
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      success_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/invoice/payment/success?session_id={CHECKOUT_SESSION_ID}&invoice_id=${invoice.id}`,
+      success_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/invoice/${invoice.id}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/invoice/${invoice.id}?payment_cancelled=true`,
       metadata: {
         invoiceId: invoice.id,

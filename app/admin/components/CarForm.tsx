@@ -131,7 +131,8 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
       gallery: car?.images.gallery || []
     },
     videos: {
-      showcase: car?.videos?.showcase || ''
+      showcase: car?.videos?.showcase || '',
+      youtube: car?.videos?.youtube || ''
     },
     audio: {
       startup: car?.audio?.startup || '',
@@ -1108,7 +1109,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                       <button
                         onClick={() => startupAudioRef.current?.click()}
                         disabled={uploadingFiles.startupAudio}
-                        className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32"
+                        className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-full max-w-48"
                       >
                       {uploadingFiles.startupAudio ? (
                         <>
@@ -1165,7 +1166,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                       <button
                         onClick={() => revAudioRef.current?.click()}
                         disabled={uploadingFiles.revAudio}
-                        className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32"
+                        className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-full max-w-48"
                       >
                       {uploadingFiles.revAudio ? (
                         <>
@@ -1185,18 +1186,33 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
             {/* Video (URL) */}
             <div className="bg-dark-metal/20 rounded-lg p-6 border border-gray-600/30">
               <h2 className="text-xl font-tech font-semibold text-white mb-4">Video</h2>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Showcase Video URL</label>
-                <input
-                  type="url"
-                  value={formData.videos.showcase}
-                  onChange={(e) => updateFormField('videos.showcase', e.target.value)}
-                  placeholder="https://youtube.com/watch?v=..."
-                  className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                />
-                <p className="text-xs text-gray-400 mt-1">
-                  YouTube, Vimeo, or direct video URL
-                </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Showcase Video URL</label>
+                  <input
+                    type="url"
+                    value={formData.videos.showcase}
+                    onChange={(e) => updateFormField('videos.showcase', e.target.value)}
+                    placeholder="https://example.com/video.mp4"
+                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Direct video file URL (MP4, etc.)
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">YouTube Video URL</label>
+                  <input
+                    type="url"
+                    value={formData.videos.youtube}
+                    onChange={(e) => updateFormField('videos.youtube', e.target.value)}
+                    placeholder="https://youtube.com/watch?v=..."
+                    className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    YouTube video URL for gallery display
+                  </p>
+                </div>
               </div>
             </div>
 

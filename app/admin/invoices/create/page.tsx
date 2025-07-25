@@ -190,7 +190,7 @@ export default function CreateInvoice() {
 
   return (
     <div className="min-h-screen bg-dark-gray">
-      <div className="max-w-full mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
