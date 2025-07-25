@@ -516,8 +516,8 @@ export default function CreateInvoice() {
 
         {/* Preview */}
         {showPreview && (
-            <div className="xl:sticky xl:top-8">
-              <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+          <div className="xl:sticky xl:top-8">
+            <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
                 <h2 className="text-2xl font-tech font-bold text-white mb-6">Invoice Preview</h2>
                 
                 <div className="bg-white text-black p-8 rounded-lg">
@@ -625,10 +625,9 @@ export default function CreateInvoice() {
                     </div>
                   )}
                 </div>
-              </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   )
