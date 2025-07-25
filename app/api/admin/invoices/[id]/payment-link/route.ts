@@ -4,10 +4,6 @@ import { kv } from '@vercel/kv';
 import { Invoice } from '@/app/types/invoice';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
-});
-
 // Secure admin authentication using JWT
 async function isAdminAuthenticated(request: NextRequest): Promise<{user: any} | null> {
   const authHeader = request.headers.get('authorization');
@@ -28,7 +24,7 @@ async function isAdminAuthenticated(request: NextRequest): Promise<{user: any} |
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const authResult = await isAdminAuthenticated(request);
   
@@ -40,7 +36,19 @@ export async function POST(
   }
 
   try {
-    const invoice = await kv.get(`invoice:${params.id}`) as Invoice;
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return NextResponse.json(
+        { error: 'Stripe configuration missing' },
+        { status: 500 }
+      );
+    }
+
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-06-30.basil',
+    });
+
+    const { id } = await params;
+    const invoice = await kv.get(`invoice:${id}`) as Invoice;
     
     if (!invoice) {
       return NextResponse.json(
@@ -157,7 +165,7 @@ export async function POST(
       updatedAt: new Date().toISOString()
     };
 
-    await kv.set(`invoice:${params.id}`, updatedInvoice);
+    await kv.set(`invoice:${id}`, updatedInvoice);
 
     // Store payment link for easy access
     await kv.set(`payment_link:${session.id}`, {

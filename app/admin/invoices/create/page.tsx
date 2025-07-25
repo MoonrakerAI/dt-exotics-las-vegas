@@ -645,10 +645,10 @@ export default function CreateInvoice() {
                         <span className="text-gray-700">Subtotal:</span>
                         <span className="text-gray-700">{formatCurrency(subtotal)}</span>
                       </div>
-                      {formData.discountAmount > 0 && (
+                      {(formData.discountAmount || 0) > 0 && (
                         <div className="flex justify-between py-1">
                           <span className="text-gray-700">Discount:</span>
-                          <span className="text-gray-700">-{formatCurrency(formData.discountAmount)}</span>
+                          <span className="text-gray-700">-{formatCurrency(formData.discountAmount || 0)}</span>
                         </div>
                       )}
                       <div className="flex justify-between py-1">

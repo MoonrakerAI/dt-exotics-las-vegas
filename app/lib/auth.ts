@@ -171,7 +171,7 @@ export async function getEnrichedUser(userId: string): Promise<User & { avatar?:
     // Merge base user with profile data
     return {
       ...baseUser,
-      ...profileData
+      ...(profileData as object || {})
     }
   } catch (error) {
     console.error('Error getting enriched user:', error)

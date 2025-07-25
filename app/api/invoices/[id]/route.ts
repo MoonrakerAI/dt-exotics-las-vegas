@@ -4,10 +4,11 @@ import { Invoice } from '@/app/types/invoice';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const invoice = await kv.get(`invoice:${params.id}`) as Invoice;
+    const { id } = await params;
+    const invoice = await kv.get(`invoice:${id}`) as Invoice;
     
     if (!invoice) {
       return NextResponse.json(

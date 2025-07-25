@@ -41,7 +41,7 @@ function calculateInvoiceTotals(lineItems: any[], taxRate: number, discountAmoun
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const authResult = await isAdminAuthenticated(request);
   
@@ -53,7 +53,8 @@ export async function GET(
   }
 
   try {
-    const invoice = await kv.get(`invoice:${params.id}`);
+    const { id } = await params;
+    const invoice = await kv.get(`invoice:${id}`);
     
     if (!invoice) {
       return NextResponse.json(
@@ -78,7 +79,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const authResult = await isAdminAuthenticated(request);
   
@@ -90,7 +91,8 @@ export async function PUT(
   }
 
   try {
-    const existingInvoice = await kv.get(`invoice:${params.id}`) as Invoice;
+    const { id } = await params;
+    const existingInvoice = await kv.get(`invoice:${id}`) as Invoice;
     
     if (!existingInvoice) {
       return NextResponse.json(
@@ -166,7 +168,7 @@ export async function PUT(
     }
 
     // Store updated invoice
-    await kv.set(`invoice:${params.id}`, updatedInvoice);
+    await kv.set(`invoice:${id}`, updatedInvoice);
 
     return NextResponse.json({
       success: true,
@@ -185,7 +187,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const authResult = await isAdminAuthenticated(request);
   
@@ -197,7 +199,8 @@ export async function DELETE(
   }
 
   try {
-    const existingInvoice = await kv.get(`invoice:${params.id}`) as Invoice;
+    const { id } = await params;
+    const existingInvoice = await kv.get(`invoice:${id}`) as Invoice;
     
     if (!existingInvoice) {
       return NextResponse.json(
@@ -215,8 +218,8 @@ export async function DELETE(
     }
 
     // Remove invoice
-    await kv.del(`invoice:${params.id}`);
-    await kv.srem('invoices:all', params.id);
+    await kv.del(`invoice:${id}`);
+    await kv.srem('invoices:all', id);
 
     return NextResponse.json({
       success: true,

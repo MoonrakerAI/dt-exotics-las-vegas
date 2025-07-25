@@ -148,7 +148,8 @@ export async function POST(request: NextRequest) {
       customer,
       payment: {
         depositPaymentIntentId: paymentIntent.id,
-        depositStatus: 'pending'
+        depositStatus: 'pending',
+        stripeCustomerId: stripeCustomer.id
       },
       status: 'pending',
       createdAt: new Date().toISOString(),

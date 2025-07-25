@@ -99,7 +99,7 @@ export async function POST(
               amount: amount,
               memo: memo || 'Additional services',
               chargedAt: new Date().toISOString(),
-              status: 'succeeded'
+              status: 'succeeded' as const
             }
           ]
         },

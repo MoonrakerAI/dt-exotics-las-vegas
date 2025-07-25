@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       role: user.role,
       avatar: null,
       bio: null,
-      ...storedProfile // Override with stored data if exists
+      ...(storedProfile as object || {}) // Override with stored data if exists
     };
 
     return NextResponse.json({
