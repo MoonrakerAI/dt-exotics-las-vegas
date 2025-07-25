@@ -1,3 +1,22 @@
+export interface AdditionalPayment {
+  id: string;
+  amount: number;
+  description: string;
+  paymentIntentId: string;
+  status: 'pending' | 'succeeded' | 'failed';
+  createdAt: string;
+  processedBy: string; // admin user who created the charge
+}
+
+export interface RentalHistory {
+  id: string;
+  action: 'created' | 'confirmed' | 'cancelled' | 'rescheduled' | 'payment_captured' | 'payment_charged' | 'additional_payment' | 'completed';
+  description: string;
+  performedBy: string; // user or admin who performed the action
+  metadata?: Record<string, any>; // additional data like old dates, amounts, etc.
+  createdAt: string;
+}
+
 export interface RentalBooking {
   id: string;
   customerId: string;
@@ -14,6 +33,10 @@ export interface RentalBooking {
     startDate: string;
     endDate: string;
   };
+  originalDates?: {
+    startDate: string;
+    endDate: string;
+  }; // for tracking reschedules
   pricing: {
     dailyRate: number;
     totalDays: number;
@@ -33,8 +56,13 @@ export interface RentalBooking {
     depositStatus: 'pending' | 'authorized' | 'captured' | 'failed';
     finalPaymentIntentId?: string;
     finalPaymentStatus?: 'pending' | 'succeeded' | 'failed';
+    additionalPayments?: AdditionalPayment[];
+    totalPaid: number; // running total of all payments
   };
-  status: 'pending' | 'confirmed' | 'active' | 'completed' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'active' | 'completed' | 'cancelled' | 'rescheduled';
+  history: RentalHistory[];
+  cancelledAt?: string;
+  cancelReason?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -59,4 +87,38 @@ export interface PaymentIntentData {
   clientSecret: string;
   customerId: string;
   rentalId: string;
+}
+
+export interface InvoiceLineItem {
+  id: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+}
+
+export interface CustomInvoice {
+  id: string;
+  invoiceNumber: string;
+  customerId?: string;
+  customerDetails: {
+    name: string;
+    email: string;
+    phone?: string;
+    address?: string;
+  };
+  lineItems: InvoiceLineItem[];
+  subtotal: number;
+  tax?: number;
+  taxRate?: number;
+  total: number;
+  dueDate: string;
+  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+  paymentIntentId?: string;
+  paymentStatus?: 'pending' | 'succeeded' | 'failed';
+  notes?: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  paidAt?: string;
 }

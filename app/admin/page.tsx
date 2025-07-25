@@ -76,6 +76,47 @@ function RentalCard({ rental }: { rental: RentalBooking }) {
     }
   }
 
+  const handleAdditionalPayment = async () => {
+    const amount = prompt('Enter additional amount to charge:')
+    if (!amount || parseFloat(amount) <= 0) return
+
+    const description = prompt('Enter description for this charge:', 'Additional service fee')
+    if (!description) return
+
+    setLoading(true)
+    setError('')
+
+    try {
+      const token = SimpleAuth.getToken()
+      const response = await fetch(`/api/admin/rentals/${rental.id}/additional-payment`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          amount: parseFloat(amount),
+          description
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.requiresAuth) {
+        alert('Customer authentication required for this payment.')
+      } else if (!response.ok) {
+        throw new Error(data.error || 'Failed to process additional payment')
+      }
+
+      // Refresh page to show updated status
+      window.location.reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to process additional payment')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'text-yellow-400'
@@ -164,6 +205,16 @@ function RentalCard({ rental }: { rental: RentalBooking }) {
             className="btn-secondary flex-1 disabled:opacity-50"
           >
             {loading ? 'Processing...' : 'Charge Final Amount'}
+          </button>
+        )}
+
+        {(rental.status === 'confirmed' || rental.status === 'active') && rental.stripeCustomerId && (
+          <button
+            onClick={handleAdditionalPayment}
+            disabled={loading}
+            className="btn-secondary flex-1 disabled:opacity-50"
+          >
+            {loading ? 'Processing...' : 'Additional Payment'}
           </button>
         )}
       </div>

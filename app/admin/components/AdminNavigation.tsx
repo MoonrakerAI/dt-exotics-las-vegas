@@ -11,7 +11,10 @@ import {
   LogOut, 
   User,
   Calendar,
-  CreditCard
+  CreditCard,
+  History,
+  Receipt,
+  UserCircle
 } from 'lucide-react'
 import { SimpleAuth } from '../../lib/simple-auth'
 
@@ -21,6 +24,18 @@ const navItems = [
     label: 'Dashboard', 
     icon: LayoutDashboard,
     description: 'Rental bookings and payments'
+  },
+  { 
+    href: '/admin/bookings', 
+    label: 'Bookings', 
+    icon: History,
+    description: 'Booking history and management'
+  },
+  { 
+    href: '/admin/invoices', 
+    label: 'Invoices', 
+    icon: Receipt,
+    description: 'Custom invoices and billing'
   },
   { 
     href: '/admin/blog', 
@@ -35,6 +50,12 @@ const navItems = [
     description: 'Vehicle management'
   },
   { 
+    href: '/admin/profile', 
+    label: 'Profile', 
+    icon: UserCircle,
+    description: 'Admin profile settings'
+  },
+  { 
     href: '/admin/settings', 
     label: 'Settings', 
     icon: Settings,
@@ -44,6 +65,7 @@ const navItems = [
 
 export default function AdminNavigation() {
   const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const pathname = usePathname()
   const router = useRouter()
@@ -52,11 +74,26 @@ export default function AdminNavigation() {
     checkAuth()
   }, [])
 
-  const checkAuth = () => {
+  const checkAuth = async () => {
     try {
       const user = SimpleAuth.getCurrentUser()
       if (user) {
         setUser(user)
+        // Fetch admin profile for display name and avatar
+        try {
+          const token = SimpleAuth.getToken()
+          const response = await fetch('/api/admin/profile', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          })
+          if (response.ok) {
+            const data = await response.json()
+            setProfile(data.profile)
+          }
+        } catch (profileError) {
+          console.error('Failed to fetch profile:', profileError)
+        }
       }
     } catch (error) {
       console.error('Auth check failed:', error)
@@ -132,12 +169,20 @@ export default function AdminNavigation() {
           {/* User Menu */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-                <User className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
+                {profile?.avatar ? (
+                  <img
+                    src={profile.avatar}
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-4 h-4 text-white" />
+                )}
               </div>
               <div className="hidden md:block">
                 <p className="text-sm font-medium text-white">
-                  {user.name}
+                  {profile?.displayName || user.name}
                 </p>
                 <p className="text-xs text-gray-400">
                   {user.email}
