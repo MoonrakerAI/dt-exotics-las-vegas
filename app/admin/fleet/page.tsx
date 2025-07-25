@@ -334,18 +334,18 @@ export default function FleetAdmin() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <div>
+            <div>
             <h1 className="text-4xl font-tech font-bold text-white mb-2">
               Fleet Management
-            </h1>
-            <p className="text-xl text-gray-300">
-              Manage vehicle inventory, pricing, and availability
-            </p>
-          </div>
+              </h1>
+              <p className="text-xl text-gray-300">
+                Manage vehicle inventory, pricing, and availability
+              </p>
+            </div>
           <button onClick={handleAddCar} className="btn-primary flex items-center space-x-2">
-            <Plus className="w-5 h-5" />
-            <span>Add Vehicle</span>
-          </button>
+              <Plus className="w-5 h-5" />
+              <span>Add Vehicle</span>
+            </button>
         </div>
 
         <div className="glass-panel bg-dark-metal/20 p-6 mb-6 border border-gray-600/30 rounded-2xl backdrop-blur-sm">
@@ -388,8 +388,8 @@ export default function FleetAdmin() {
         ) : filteredCars.length === 0 ? (
           <div className="text-center text-gray-400 py-12">No vehicles found.</div>
         ) : (
-          <div className="grid gap-6">
-            {filteredCars.map(car => (
+        <div className="grid gap-6">
+          {filteredCars.map(car => (
               <div 
                 key={car.id} 
                 className={`glass-panel bg-dark-metal/50 p-8 border border-gray-600/30 rounded-2xl relative transition-all duration-1000 ease-in-out ${getUnderbodyLightingClass(car)}
@@ -398,73 +398,73 @@ export default function FleetAdmin() {
                 title={getAvailabilityTooltip(car)}
               >
                 <div className="flex flex-col lg:flex-row gap-8">
-                  {/* Car Image */}
-                  <div className="lg:w-1/3">
-                    <div className="relative">
-                      <img
-                        src={getCarImage(car)}
-                        alt={`${car.brand} ${car.model}`}
+                {/* Car Image */}
+                <div className="lg:w-1/3">
+                  <div className="relative">
+                    <img
+                      src={getCarImage(car)}
+                      alt={`${car.brand} ${car.model}`}
                         className="w-full h-56 lg:h-48 object-cover rounded-lg relative z-10"
-                      />
+                    />
                       
 
-                    </div>
                   </div>
+                </div>
 
-                  {/* Car Details */}
-                  <div className="lg:w-2/3 flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="text-2xl font-tech font-bold text-white">
-                            {car.brand} {car.model} ({car.year})
-                          </h3>
+                {/* Car Details */}
+                <div className="lg:w-2/3 flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-2xl font-tech font-bold text-white">
+                          {car.brand} {car.model} ({car.year})
+                        </h3>
                           <p className="text-gray-400">{car.stats.engine} • {car.stats.horsepower} HP • {car.category.charAt(0).toUpperCase() + car.category.slice(1)}</p>
-                        </div>
-                        <div className="flex space-x-2">
+                      </div>
+                      <div className="flex space-x-2">
                           <button 
                             onClick={() => handleEditCar(car)}
                             className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
                             title="Edit car details"
                           >
-                            <Edit className="w-5 h-5" />
-                          </button>
+                          <Edit className="w-5 h-5" />
+                        </button>
                           <button 
                             onClick={() => handleDeleteCar(car)}
                             className="p-2 text-gray-400 hover:text-red-400 transition-colors"
                             title="Delete car"
                           >
-                            <Trash2 className="w-5 h-5" />
-                          </button>
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                      <div className="bg-dark-metal/30 p-3 rounded-lg border border-gray-600/20">
+                        <div className="text-sm text-gray-400">Daily Rate</div>
+                        <div className="text-lg font-tech font-semibold text-white">
+                          ${car.price.daily}
                         </div>
                       </div>
-
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                        <div className="bg-dark-metal/30 p-3 rounded-lg border border-gray-600/20">
-                          <div className="text-sm text-gray-400">Daily Rate</div>
-                          <div className="text-lg font-tech font-semibold text-white">
-                            ${car.price.daily}
-                          </div>
+                      <div className="bg-dark-metal/30 p-3 rounded-lg border border-gray-600/20">
+                        <div className="text-sm text-gray-400">Weekly Rate</div>
+                        <div className="text-lg font-tech font-semibold text-white">
+                          ${car.price.weekly}
                         </div>
-                        <div className="bg-dark-metal/30 p-3 rounded-lg border border-gray-600/20">
-                          <div className="text-sm text-gray-400">Weekly Rate</div>
-                          <div className="text-lg font-tech font-semibold text-white">
-                            ${car.price.weekly}
-                          </div>
+                      </div>
+                      <div className="bg-dark-metal/30 p-3 rounded-lg border border-gray-600/20">
+                        <div className="text-sm text-gray-400">Doors</div>
+                        <div className="text-lg font-tech font-semibold text-white">
+                          {car.stats.doors}
                         </div>
-                        <div className="bg-dark-metal/30 p-3 rounded-lg border border-gray-600/20">
-                          <div className="text-sm text-gray-400">Doors</div>
-                          <div className="text-lg font-tech font-semibold text-white">
-                            {car.stats.doors}
-                          </div>
-                        </div>
-                        <div className="bg-dark-metal/30 p-3 rounded-lg border border-gray-600/20">
-                          <div className="text-sm text-gray-400">Category</div>
+                      </div>
+                      <div className="bg-dark-metal/30 p-3 rounded-lg border border-gray-600/20">
+                        <div className="text-sm text-gray-400">Category</div>
                           <div className="text-lg font-tech font-semibold text-white">
                             {car.category.charAt(0).toUpperCase() + car.category.slice(1)}
-                          </div>
                         </div>
                       </div>
+                    </div>
 
                       <div className="flex justify-center gap-4 mb-4">
                         {/* Rental Availability Toggle */}
@@ -482,7 +482,7 @@ export default function FleetAdmin() {
                             <span className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform duration-200 ${
                               car.available ? 'translate-x-4' : 'translate-x-1'
                             }`} />
-                          </div>
+                    </div>
                           <span>Rental Available</span>
                         </button>
 
@@ -501,9 +501,9 @@ export default function FleetAdmin() {
                             <span className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform duration-200 ${
                               car.showOnHomepage ? 'translate-x-4' : 'translate-x-1'
                             }`} />
-                          </div>
+                    </div>
                           <span>Homepage Visibility</span>
-                        </button>
+                      </button>
 
                         {/* Calendar Management Button */}
                         <button
@@ -512,14 +512,14 @@ export default function FleetAdmin() {
                         >
                           <Calendar className="w-4 h-4" />
                           <span>Manage Availability Calendar</span>
-                        </button>
-                      </div>
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+        </div>
         )}
 
         {/* Car Form Modal */}

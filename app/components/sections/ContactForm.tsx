@@ -143,116 +143,116 @@ export default function ContactForm() {
           {/* Contact Form */}
           <div>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block text-sm font-tech mb-2">NAME</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 bg-metal-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue transition-all"
+            <div>
+              <label className="block text-sm font-tech mb-2">NAME</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 bg-metal-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue transition-all"
                   placeholder="Your name"
-                />
-              </div>
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm font-tech mb-2">EMAIL</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 bg-metal-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue transition-all"
+            <div>
+              <label className="block text-sm font-tech mb-2">EMAIL</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 bg-metal-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue transition-all"
                   placeholder="your@email.com"
-                />
-              </div>
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm font-tech mb-2">PHONE</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 bg-metal-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue transition-all"
-                  placeholder="(702) 123-4567"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-tech mb-2">PHONE</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 bg-metal-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue transition-all"
+                placeholder="(702) 123-4567"
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm font-tech mb-2">SELECT CAR</label>
+            <div>
+              <label className="block text-sm font-tech mb-2">SELECT CAR</label>
                 {loadingCars ? (
                   <div className="w-full px-4 py-3 bg-metal-gray rounded-lg text-gray-400">
                     Loading cars...
                   </div>
                 ) : (
-                  <select
-                    name="selectedCar"
-                    value={formData.selectedCar}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 bg-metal-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue transition-all cursor-pointer"
-                  >
-                    <option value="">Choose your ride...</option>
-                    {cars.map((car) => (
-                      <option key={car.id} value={car.id}>
-                        {car.brand} {car.model} - ${car.price.daily}/day
-                      </option>
-                    ))}
-                  </select>
+              <select
+                name="selectedCar"
+                value={formData.selectedCar}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 bg-metal-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue transition-all cursor-pointer"
+              >
+                <option value="">Choose your ride...</option>
+                {cars.map((car) => (
+                  <option key={car.id} value={car.id}>
+                    {car.brand} {car.model} - ${car.price.daily}/day
+                  </option>
+                ))}
+              </select>
                 )}
-              </div>
+            </div>
 
-              {/* Date Pickers */}
-              <div>
-                <label className="block text-sm font-tech mb-2">PICKUP DATE</label>
-                <DatePicker
-                  selected={formData.startDate}
-                  onChange={(date) => setFormData({ ...formData, startDate: date })}
-                  minDate={new Date()}
-                  placeholderText="Select pickup date"
-                  className="w-full px-4 py-3 bg-metal-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue transition-all cursor-pointer"
-                  dateFormat="MM/dd/yyyy"
-                  required
-                />
-              </div>
+            {/* Date Pickers */}
+            <div>
+              <label className="block text-sm font-tech mb-2">PICKUP DATE</label>
+              <DatePicker
+                selected={formData.startDate}
+                onChange={(date) => setFormData({ ...formData, startDate: date })}
+                minDate={new Date()}
+                placeholderText="Select pickup date"
+                className="w-full px-4 py-3 bg-metal-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue transition-all cursor-pointer"
+                dateFormat="MM/dd/yyyy"
+                required
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm font-tech mb-2">RETURN DATE</label>
-                <DatePicker
-                  selected={formData.endDate}
-                  onChange={(date) => setFormData({ ...formData, endDate: date })}
-                  minDate={formData.startDate || new Date()}
-                  placeholderText="Select return date"
-                  className="w-full px-4 py-3 bg-metal-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue transition-all cursor-pointer"
-                  dateFormat="MM/dd/yyyy"
-                  required
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-tech mb-2">RETURN DATE</label>
+              <DatePicker
+                selected={formData.endDate}
+                onChange={(date) => setFormData({ ...formData, endDate: date })}
+                minDate={formData.startDate || new Date()}
+                placeholderText="Select return date"
+                className="w-full px-4 py-3 bg-metal-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue transition-all cursor-pointer"
+                dateFormat="MM/dd/yyyy"
+                required
+              />
+          </div>
 
               <div>
                 <label className="block text-sm font-tech mb-2">MESSAGE</label>
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  rows={4}
-                  className="w-full px-4 py-3 bg-metal-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue transition-all resize-none"
+            <textarea
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              rows={4}
+              className="w-full px-4 py-3 bg-metal-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue transition-all resize-none"
                   placeholder="Tell us about your Vegas plans..."
                 ></textarea>
-              </div>
+          </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
                 className="btn-primary w-full disabled:opacity-50"
-              >
+            >
                 {isSubmitting ? 'SENDING...' : 'SEND MESSAGE'}
-              </button>
-            </form>
+            </button>
+        </form>
           </div>
         </div>
       </div>

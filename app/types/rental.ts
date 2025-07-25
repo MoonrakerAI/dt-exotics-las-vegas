@@ -20,6 +20,7 @@ export interface RentalBooking {
     subtotal: number;
     depositAmount: number;
     finalAmount: number;
+    additionalCharges?: number;
   };
   customer: {
     firstName: string;
@@ -33,10 +34,34 @@ export interface RentalBooking {
     depositStatus: 'pending' | 'authorized' | 'captured' | 'failed';
     finalPaymentIntentId?: string;
     finalPaymentStatus?: 'pending' | 'succeeded' | 'failed';
+    stripeCustomerId: string;
+    additionalCharges?: Array<{
+      id: string;
+      amount: number;
+      memo: string;
+      chargedAt: string;
+      status: 'succeeded' | 'failed' | 'pending';
+    }>;
   };
   status: 'pending' | 'confirmed' | 'active' | 'completed' | 'cancelled';
   createdAt: string;
   updatedAt: string;
+  rescheduleHistory?: Array<{
+    previousStartDate: string;
+    previousEndDate: string;
+    newStartDate: string;
+    newEndDate: string;
+    reason: string;
+    rescheduledAt: string;
+    rescheduledBy: string;
+  }>;
+  cancellation?: {
+    cancelledAt: string;
+    cancelledBy: string;
+    reason: string;
+    refundAmount: number;
+    refundProcessed: boolean;
+  };
 }
 
 export interface CreateRentalRequest {

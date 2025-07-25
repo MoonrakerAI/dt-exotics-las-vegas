@@ -229,7 +229,7 @@ export default function CarSelector() {
       const response = await fetch('/api/cars')
       if (!response.ok) {
         throw new Error('Failed to fetch cars')
-      }
+    }
       const data = await response.json()
       setCars(data.cars || [])
     } catch (err) {
@@ -389,17 +389,17 @@ export default function CarSelector() {
           </div>
         ) : (
           /* Car Grid - 3 per row */
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {cars.map((car) => (
-              <CarCard
-                key={car.id}
-                car={car}
-                onOpenModal={openCarModal}
-                onPlaySound={playSound}
-                playingAudio={playingAudio}
-              />
-            ))}
-          </div>
+            <CarCard
+              key={car.id}
+              car={car}
+              onOpenModal={openCarModal}
+              onPlaySound={playSound}
+              playingAudio={playingAudio}
+            />
+          ))}
+        </div>
         )}
 
         <audio ref={audioRef} />

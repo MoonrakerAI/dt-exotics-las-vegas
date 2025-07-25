@@ -305,19 +305,19 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                     </video>
                   ) : (
                     // Image
-                    <img 
-                      ref={imageRef}
-                      src={mediaItems[currentIndex]} 
-                      alt={`${car.brand} ${car.model} - Image ${currentIndex + 1}`}
-                      className="max-w-full max-h-full object-contain select-none transition-transform duration-200"
-                      draggable={false}
-                      loading="eager"
-                      decoding="async"
-                      style={{
-                        transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`,
-                        transformOrigin: 'center center'
-                      }}
-                    />
+                  <img 
+                    ref={imageRef}
+                    src={mediaItems[currentIndex]} 
+                    alt={`${car.brand} ${car.model} - Image ${currentIndex + 1}`}
+                    className="max-w-full max-h-full object-contain select-none transition-transform duration-200"
+                    draggable={false}
+                    loading="eager"
+                    decoding="async"
+                    style={{
+                      transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`,
+                      transformOrigin: 'center center'
+                    }}
+                  />
                   )}
                   
                   {/* Preload next and previous images for smoother navigation */}
@@ -358,30 +358,30 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
 
                   {/* Zoom Controls - only show for images */}
                   {mediaTypes[currentIndex] === 'image' && (
-                    <div className="absolute top-4 right-4 flex flex-col gap-2">
+                  <div className="absolute top-4 right-4 flex flex-col gap-2">
+                    <button
+                      onClick={handleZoomIn}
+                      disabled={zoom >= 4}
+                      className="p-2 bg-black/50 hover:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
+                    >
+                      <ZoomIn className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
+                    </button>
+                    <button
+                      onClick={handleZoomOut}
+                      disabled={zoom <= 1}
+                      className="p-2 bg-black/50 hover:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
+                    >
+                      <ZoomOut className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
+                    </button>
+                    {zoom > 1 && (
                       <button
-                        onClick={handleZoomIn}
-                        disabled={zoom >= 4}
-                        className="p-2 bg-black/50 hover:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
+                        onClick={handleZoomReset}
+                        className="p-2 bg-black/50 hover:bg-black/70 rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
                       >
-                        <ZoomIn className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
+                        <RotateCcw className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
                       </button>
-                      <button
-                        onClick={handleZoomOut}
-                        disabled={zoom <= 1}
-                        className="p-2 bg-black/50 hover:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
-                      >
-                        <ZoomOut className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
-                      </button>
-                      {zoom > 1 && (
-                        <button
-                          onClick={handleZoomReset}
-                          className="p-2 bg-black/50 hover:bg-black/70 rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
-                        >
-                          <RotateCcw className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
-                        </button>
-                      )}
-                    </div>
+                    )}
+                  </div>
                   )}
 
                   {/* Zoom indicator */}
@@ -424,13 +424,13 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                               <Play className="w-6 h-6 text-white" />
                             </div>
                           ) : (
-                            <img 
-                              src={item} 
-                              alt={`Thumbnail ${index + 1}`}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                              decoding="async"
-                            />
+                          <img 
+                            src={item} 
+                            alt={`Thumbnail ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                          />
                           )}
                         </button>
                       ))}

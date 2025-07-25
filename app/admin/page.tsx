@@ -4,73 +4,106 @@ import { useState, useEffect } from 'react'
 import { formatCurrency } from '../lib/rental-utils'
 import { RentalBooking } from '../types/rental'
 import { SimpleAuth } from '../lib/simple-auth'
+import { Car, Calendar, DollarSign, Users, TrendingUp, Clock, AlertCircle, CheckCircle, Plus, Eye, Edit, MoreHorizontal } from 'lucide-react'
 
-interface AdminDashboardProps {
-  rentals: RentalBooking[]
+interface DashboardStats {
+  totalBookings: number
+  activeRentals: number
+  totalRevenue: number
+  availableCars: number
+  pendingPayments: number
+  completedBookings: number
 }
 
-function RentalCard({ rental }: { rental: RentalBooking }) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+export default function AdminDashboard() {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalBookings: 0,
+    activeRentals: 0,
+    totalRevenue: 0,
+    availableCars: 0,
+    pendingPayments: 0,
+    completedBookings: 0
+  })
+  const [recentBookings, setRecentBookings] = useState<RentalBooking[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleCaptureDeposit = async () => {
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  const fetchDashboardData = async () => {
     setLoading(true)
-    setError('')
+    setError(null)
 
     try {
-      const response = await fetch(`/api/admin/rentals/${rental.id}/capture-deposit`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_TOKEN || 'admin-secret-token'}`,
-          'Content-Type': 'application/json'
-        }
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to capture deposit')
+      const token = localStorage.getItem('dt-admin-token')
+      if (!token) {
+        throw new Error('No admin token found')
       }
 
-      // Refresh page to show updated status
-      window.location.reload()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to capture deposit')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleChargeFinal = async () => {
-    const finalAmount = prompt('Enter final amount to charge:', rental.pricing.finalAmount.toString())
-    if (!finalAmount) return
-
-    setLoading(true)
-    setError('')
-
-    try {
-      const response = await fetch(`/api/admin/rentals/${rental.id}/charge-final`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_TOKEN || 'admin-secret-token'}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          finalAmount: parseFloat(finalAmount),
-          additionalCharges: 0
-        })
+      // Fetch bookings and stats in parallel
+      const [bookingsRes, carsRes] = await Promise.all([
+        fetch('/api/admin/rentals', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch('/api/admin/fleet', {
+          headers: { 'Authorization': `Bearer ${token}` }
       })
+      ])
 
-      const data = await response.json()
-
-      if (data.requiresAuth) {
-        alert('Customer authentication required. They will be notified via email.')
-      } else if (!response.ok) {
-        throw new Error(data.error || 'Failed to charge final amount')
+      if (!bookingsRes.ok || !carsRes.ok) {
+        throw new Error('Failed to fetch dashboard data')
       }
 
-      // Refresh page to show updated status
-      window.location.reload()
+      const bookingsData = await bookingsRes.json()
+      const carsData = await carsRes.json()
+      
+      const bookings = bookingsData.rentals || []
+      const cars = carsData.cars || []
+
+      // Calculate stats
+      const now = new Date()
+      const activeRentals = bookings.filter((booking: RentalBooking) => 
+        booking.status === 'active' || booking.status === 'confirmed'
+      ).length
+      
+      const totalRevenue = bookings
+        .filter((booking: RentalBooking) => booking.status === 'completed')
+        .reduce((sum: number, booking: RentalBooking) => sum + booking.pricing.finalAmount, 0)
+      
+      const availableCars = cars.filter((car: any) => car.available).length
+      
+      const pendingPayments = bookings.filter((booking: RentalBooking) => 
+        booking.payment.depositStatus === 'pending' || 
+        booking.payment.finalPaymentStatus === 'pending'
+      ).length
+
+      const completedBookings = bookings.filter((booking: RentalBooking) => 
+        booking.status === 'completed'
+      ).length
+
+      setStats({
+        totalBookings: bookings.length,
+        activeRentals,
+        totalRevenue,
+        availableCars,
+        pendingPayments,
+        completedBookings
+      })
+
+      // Get recent bookings (last 10)
+      const recent = bookings
+        .sort((a: RentalBooking, b: RentalBooking) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+        .slice(0, 10)
+      
+      setRecentBookings(recent)
+
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to charge final amount')
+      console.error('Dashboard error:', err)
+      setError(err instanceof Error ? err.message : 'Failed to load dashboard')
     } finally {
       setLoading(false)
     }
@@ -78,196 +111,248 @@ function RentalCard({ rental }: { rental: RentalBooking }) {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'text-yellow-400'
-      case 'confirmed': return 'text-blue-400'
-      case 'active': return 'text-green-400'
-      case 'completed': return 'text-green-500'
-      case 'cancelled': return 'text-red-400'
-      default: return 'text-gray-400'
+      case 'confirmed':
+      case 'active':
+        return 'text-green-400 bg-green-400/10'
+      case 'pending':
+        return 'text-yellow-400 bg-yellow-400/10'
+      case 'completed':
+        return 'text-blue-400 bg-blue-400/10'
+      case 'cancelled':
+        return 'text-red-400 bg-red-400/10'
+      default:
+        return 'text-gray-400 bg-gray-400/10'
     }
   }
 
+  if (!SimpleAuth.getCurrentUser()) {
   return (
-    <div className="glass-panel bg-dark-metal/50 p-6 mb-6 border border-gray-600/30 rounded-2xl">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h3 className="text-xl font-tech font-bold text-white">
-            {rental.car.brand} {rental.car.model} ({rental.car.year})
-          </h3>
-          <p className="text-gray-400">Rental ID: {rental.id}</p>
-        </div>
-        <div className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(rental.status)}`}>
-          {rental.status.toUpperCase()}
+      <div className="min-h-screen bg-dark-gray flex items-center justify-center">
+        <div className="text-center text-white">
+          <h1 className="text-2xl font-tech mb-4">Access Denied</h1>
+          <p className="text-gray-400">Please log in to access the admin panel.</p>
         </div>
       </div>
+    )
+  }
 
-      <div className="grid md:grid-cols-2 gap-6 mb-6">
-        <div>
-          <h4 className="text-lg font-tech font-semibold text-white mb-2">Customer</h4>
-          <p className="text-gray-300">{rental.customer.firstName} {rental.customer.lastName}</p>
-          <p className="text-gray-400">{rental.customer.email}</p>
-          <p className="text-gray-400">{rental.customer.phone}</p>
-        </div>
-        <div>
-          <h4 className="text-lg font-tech font-semibold text-white mb-2">Rental Period</h4>
-          <p className="text-gray-300">{new Date(rental.rentalDates.startDate).toLocaleDateString()}</p>
-          <p className="text-gray-400">to {new Date(rental.rentalDates.endDate).toLocaleDateString()}</p>
-          <p className="text-gray-400">{rental.pricing.totalDays} days</p>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-dark-gray flex items-center justify-center">
+        <div className="text-center text-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neon-blue mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading dashboard...</p>
         </div>
       </div>
+    )
+  }
 
-      <div className="grid md:grid-cols-3 gap-4 mb-6">
-        <div className="text-center">
-          <p className="text-gray-400 text-sm">Deposit</p>
-          <p className="text-white font-tech font-semibold">
-            {formatCurrency(rental.pricing.depositAmount)}
-          </p>
-          <p className="text-xs text-gray-500">{rental.payment.depositStatus}</p>
-        </div>
-        <div className="text-center">
-          <p className="text-gray-400 text-sm">Final Amount</p>
-          <p className="text-white font-tech font-semibold">
-            {formatCurrency(rental.pricing.finalAmount)}
-          </p>
-          <p className="text-xs text-gray-500">{rental.payment.finalPaymentStatus || 'pending'}</p>
-        </div>
-        <div className="text-center">
-          <p className="text-gray-400 text-sm">Total</p>
-          <p className="text-white font-tech font-semibold">
-            {formatCurrency(rental.pricing.subtotal)}
-          </p>
-          <p className="text-xs text-gray-500">{formatCurrency(rental.pricing.dailyRate)}/day</p>
-        </div>
-      </div>
-
-      {error && (
-        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-          <p className="text-red-400 text-sm">{error}</p>
-        </div>
-      )}
-
-      <div className="flex gap-4">
-        {rental.payment.depositStatus === 'authorized' && (
-          <button
-            onClick={handleCaptureDeposit}
-            disabled={loading}
-            className="btn-primary flex-1 disabled:opacity-50"
-          >
-            {loading ? 'Processing...' : 'Capture Deposit'}
+  if (error) {
+    return (
+      <div className="min-h-screen bg-dark-gray flex items-center justify-center">
+        <div className="text-center text-white">
+          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <h1 className="text-2xl font-tech mb-4">Dashboard Error</h1>
+          <p className="text-gray-400 mb-4">{error}</p>
+          <button onClick={fetchDashboardData} className="btn-primary">
+            Try Again
           </button>
-        )}
-        
-        {rental.status === 'active' && !rental.payment.finalPaymentIntentId && (
-          <button
-            onClick={handleChargeFinal}
-            disabled={loading}
-            className="btn-secondary flex-1 disabled:opacity-50"
-          >
-            {loading ? 'Processing...' : 'Charge Final Amount'}
-          </button>
-        )}
       </div>
     </div>
   )
 }
 
-export default function AdminDashboard() {
-  const [rentals, setRentals] = useState<RentalBooking[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [filter, setFilter] = useState('all')
-
-  useEffect(() => {
-    fetchRentals()
-  }, [filter])
-
-  const fetchRentals = async () => {
-    setLoading(true)
-    setError('')
-
-    try {
-      const url = filter === 'all' 
-        ? '/api/admin/rentals' 
-        : `/api/admin/rentals?status=${filter}`
-
-      const token = SimpleAuth.getToken()
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token || 'admin-secret-token'}`
-        }
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch rentals')
-      }
-
-      const data = await response.json()
-      setRentals(data.data || [])
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch rentals')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const filteredRentals = rentals.filter(rental => {
-    if (filter === 'all') return true
-    return rental.status === filter
-  })
-
   return (
-    <div className="pt-8 pb-16 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="glass-panel bg-dark-metal/30 p-8 mb-8 border border-gray-600/30 rounded-2xl backdrop-blur-sm">
-          <h1 className="text-4xl font-tech font-bold text-white mb-4">
-            Dashboard <span className="neon-text">Overview</span>
+    <div className="min-h-screen bg-dark-gray">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-tech font-bold text-white mb-2">
+            Admin Dashboard
           </h1>
           <p className="text-xl text-gray-300">
-            Manage rental bookings and payments
+            Overview of your rental business performance
           </p>
         </div>
 
-          <div className="glass-panel bg-dark-metal/20 p-6 mb-6 border border-gray-600/30 rounded-2xl backdrop-blur-sm">
-            <h3 className="text-lg font-tech font-semibold text-white mb-4">Filter Rentals</h3>
-            <div className="flex flex-wrap gap-2">
-              {['all', 'pending', 'confirmed', 'active', 'completed', 'cancelled'].map(status => (
-                <button
-                  key={status}
-                  onClick={() => setFilter(status)}
-                  className={`px-4 py-2 rounded-lg font-tech font-medium transition-all duration-300 border ${
-                    filter === status
-                      ? 'bg-neon-blue text-black border-neon-blue shadow-[0_0_10px_rgba(0,255,255,0.3)]'
-                      : 'bg-dark-metal/50 text-gray-300 border-gray-600/30 hover:text-white hover:border-gray-500/50'
-                  }`}
-                >
-                  {status.toUpperCase()}
-                </button>
-              ))}
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
+          {/* Total Bookings */}
+          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400 mb-1">Total Bookings</p>
+                <p className="text-2xl font-tech font-bold text-white">{stats.totalBookings}</p>
+              </div>
+              <Calendar className="w-8 h-8 text-neon-blue" />
             </div>
           </div>
 
-          {error && (
-            <div className="glass-panel bg-red-500/10 p-4 mb-6 border border-red-500/30 rounded-2xl backdrop-blur-sm">
-              <p className="text-red-300">{error}</p>
+          {/* Active Rentals */}
+          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400 mb-1">Active Rentals</p>
+                <p className="text-2xl font-tech font-bold text-green-400">{stats.activeRentals}</p>
+              </div>
+              <Clock className="w-8 h-8 text-green-400" />
             </div>
-          )}
+          </div>
 
-          {loading ? (
-            <div className="glass-panel bg-dark-metal/20 p-12 border border-gray-600/30 rounded-2xl backdrop-blur-sm text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-neon-blue"></div>
-              <p className="text-gray-300 mt-4">Loading rentals...</p>
+          {/* Total Revenue */}
+          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400 mb-1">Total Revenue</p>
+                <p className="text-2xl font-tech font-bold text-neon-blue">{formatCurrency(stats.totalRevenue)}</p>
+              </div>
+              <DollarSign className="w-8 h-8 text-neon-blue" />
             </div>
-          ) : filteredRentals.length === 0 ? (
-            <div className="glass-panel bg-dark-metal/20 p-12 border border-gray-600/30 rounded-2xl backdrop-blur-sm text-center">
-              <p className="text-gray-300 text-lg">No rentals found</p>
+          </div>
+
+          {/* Available Cars */}
+          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400 mb-1">Available Cars</p>
+                <p className="text-2xl font-tech font-bold text-white">{stats.availableCars}</p>
+              </div>
+              <Car className="w-8 h-8 text-gray-400" />
+            </div>
+          </div>
+
+          {/* Pending Payments */}
+          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400 mb-1">Pending Payments</p>
+                <p className="text-2xl font-tech font-bold text-yellow-400">{stats.pendingPayments}</p>
+              </div>
+              <AlertCircle className="w-8 h-8 text-yellow-400" />
+            </div>
+          </div>
+
+          {/* Completed Bookings */}
+          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400 mb-1">Completed</p>
+                <p className="text-2xl font-tech font-bold text-blue-400">{stats.completedBookings}</p>
+              </div>
+              <CheckCircle className="w-8 h-8 text-blue-400" />
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <a href="/admin/fleet" className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl hover:border-neon-blue transition-colors group">
+            <div className="flex items-center space-x-4">
+              <Car className="w-8 h-8 text-neon-blue" />
+              <div>
+                <h3 className="text-lg font-tech font-bold text-white group-hover:text-neon-blue transition-colors">Manage Fleet</h3>
+                <p className="text-gray-400">Add, edit, or configure vehicles</p>
+              </div>
+            </div>
+          </a>
+
+          <a href="/admin/bookings" className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl hover:border-neon-blue transition-colors group">
+            <div className="flex items-center space-x-4">
+              <Calendar className="w-8 h-8 text-neon-blue" />
+              <div>
+                <h3 className="text-lg font-tech font-bold text-white group-hover:text-neon-blue transition-colors">View Bookings</h3>
+                <p className="text-gray-400">Manage reservations and payments</p>
+              </div>
+            </div>
+          </a>
+
+          <a href="/admin/invoices" className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl hover:border-neon-blue transition-colors group">
+            <div className="flex items-center space-x-4">
+              <DollarSign className="w-8 h-8 text-neon-blue" />
+              <div>
+                <h3 className="text-lg font-tech font-bold text-white group-hover:text-neon-blue transition-colors">Create Invoice</h3>
+                <p className="text-gray-400">Generate custom invoices</p>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        {/* Recent Bookings */}
+        <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-tech font-bold text-white">Recent Bookings</h2>
+            <a href="/admin/bookings" className="text-neon-blue hover:text-neon-blue/80 font-tech">
+              View All →
+            </a>
+          </div>
+
+          {recentBookings.length === 0 ? (
+            <div className="text-center py-12">
+              <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-400">No recent bookings</p>
             </div>
           ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-600">
+                    <th className="text-left py-3 px-4 text-gray-400 font-tech">Customer</th>
+                    <th className="text-left py-3 px-4 text-gray-400 font-tech">Car</th>
+                    <th className="text-left py-3 px-4 text-gray-400 font-tech">Dates</th>
+                    <th className="text-left py-3 px-4 text-gray-400 font-tech">Amount</th>
+                    <th className="text-left py-3 px-4 text-gray-400 font-tech">Status</th>
+                    <th className="text-left py-3 px-4 text-gray-400 font-tech">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentBookings.map((booking) => (
+                    <tr key={booking.id} className="border-b border-gray-700/50 hover:bg-gray-600/10">
+                      <td className="py-3 px-4 text-white">
             <div>
-              {filteredRentals.map(rental => (
-                <RentalCard key={rental.id} rental={rental} />
-              ))}
+                          <div className="font-medium">{booking.customer.firstName} {booking.customer.lastName}</div>
+                          <div className="text-sm text-gray-400">{booking.customer.email}</div>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-white">
+                        <div className="font-medium">{booking.car.brand} {booking.car.model}</div>
+                        <div className="text-sm text-gray-400">{booking.car.year}</div>
+                      </td>
+                      <td className="py-3 px-4 text-white">
+                        <div>{new Date(booking.rentalDates.startDate).toLocaleDateString()}</div>
+                        <div className="text-sm text-gray-400">to {new Date(booking.rentalDates.endDate).toLocaleDateString()}</div>
+                      </td>
+                      <td className="py-3 px-4 text-white font-tech">
+                        {formatCurrency(booking.pricing.finalAmount)}
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
+                          {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center space-x-2">
+                          <button 
+                            onClick={() => window.location.href = `/admin/bookings/${booking.id}`}
+                            className="p-1 text-gray-400 hover:text-neon-blue transition-colors"
+                            title="View Details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button 
+                            className="p-1 text-gray-400 hover:text-neon-blue transition-colors"
+                            title="More Actions"
+                          >
+                            <MoreHorizontal className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
+        </div>
         </div>
       </div>
   )

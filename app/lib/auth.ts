@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'
+import { kv } from '@vercel/kv'
 
 export interface User {
   id: string
@@ -153,6 +154,31 @@ export function getAllAdminUsers(): User[] {
     const userIndex = ADMIN_USERS.findIndex(u => u.id === user.id)
     return ADMIN_PASSWORD_HASHES[userIndex] // Only return users with configured passwords
   })
+}
+
+// Get user with enriched profile data from KV storage
+export async function getEnrichedUser(userId: string): Promise<User & { avatar?: string; bio?: string } | null> {
+  try {
+    // Get base user data
+    const baseUser = ADMIN_USERS.find(user => user.id === userId)
+    if (!baseUser) {
+      return null
+    }
+
+    // Get enriched profile data from KV
+    const profileData = await kv.get(`admin:profile:${userId}`)
+    
+    // Merge base user with profile data
+    return {
+      ...baseUser,
+      ...profileData
+    }
+  } catch (error) {
+    console.error('Error getting enriched user:', error)
+    // Return base user data as fallback
+    const baseUser = ADMIN_USERS.find(user => user.id === userId)
+    return baseUser || null
+  }
 }
 
 // JWT verification function for API routes

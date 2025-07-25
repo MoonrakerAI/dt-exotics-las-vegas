@@ -371,7 +371,7 @@ function BookingFormInner() {
                   <p className="text-gray-400">{selectedCar.year} • {selectedCar.category.charAt(0).toUpperCase() + selectedCar.category.slice(1)}</p>
                 </div>
               </div>
-
+              
               {pricing && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                   <div>
@@ -436,7 +436,7 @@ function BookingFormInner() {
                 required
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Last Name
@@ -450,7 +450,7 @@ function BookingFormInner() {
                 required
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Email
@@ -464,7 +464,7 @@ function BookingFormInner() {
                 required
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Phone
@@ -478,7 +478,7 @@ function BookingFormInner() {
                 required
               />
             </div>
-            
+
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Driver's License Number
@@ -520,14 +520,14 @@ function BookingFormInner() {
   }
 
   if (step === 3) {
-    return (
-      <PaymentStep 
-        formData={formData}
-        pricing={pricing}
-        onBack={() => setStep(2)}
-        createDepositIntent={createDepositIntent}
-      />
-    )
+  return (
+        <PaymentStep 
+          formData={formData}
+          pricing={pricing}
+          onBack={() => setStep(2)}
+          createDepositIntent={createDepositIntent}
+        />
+  )
   }
 
   return null
@@ -628,85 +628,85 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="glass-panel p-8 mb-8">
+    <div className="glass-panel p-8 mb-8">
         <h2 className="text-2xl font-tech font-bold text-white mb-6">Payment Information</h2>
-        
+      
         {pricing && (
           <div className="bg-dark-metal/30 p-6 rounded-lg mb-6">
-            <h3 className="text-lg font-tech font-semibold text-white mb-4">Booking Summary</h3>
+        <h3 className="text-lg font-tech font-semibold text-white mb-4">Booking Summary</h3>
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-400">Daily Rate:</span>
                 <span className="text-white">{formatCurrency(pricing.dailyRate)}</span>
-              </div>
+          </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Total Days:</span>
                 <span className="text-white">{pricing.totalDays}</span>
-              </div>
+        </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Subtotal:</span>
                 <span className="text-white">{formatCurrency(pricing.subtotal)}</span>
-              </div>
+          </div>
               <div className="border-t border-gray-600 pt-2 mt-2">
                 <div className="flex justify-between text-lg">
                   <span className="text-white font-semibold">Deposit (30%):</span>
                   <span className="text-yellow-400 font-bold">{formatCurrency(pricing.depositAmount)}</span>
-                </div>
+          </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Remaining balance due at pickup:</span>
                   <span className="text-gray-300">{formatCurrency(pricing.finalAmount)}</span>
-                </div>
-              </div>
-            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+        )}
+
+      <form onSubmit={handleSubmit}>
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Card Information
+          </label>
+            <div className="bg-dark-metal border border-gray-600 rounded-lg p-4">
+            <CardElement
+              options={{
+                style: {
+                  base: {
+                    fontSize: '16px',
+                    color: '#ffffff',
+                    '::placeholder': {
+                        color: '#6b7280',
+                    },
+                  },
+                },
+              }}
+            />
+          </div>
+        </div>
+
+        {error && (
+            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6">
+              <p className="text-red-400">{error}</p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Card Information
-            </label>
-            <div className="bg-dark-metal border border-gray-600 rounded-lg p-4">
-              <CardElement
-                options={{
-                  style: {
-                    base: {
-                      fontSize: '16px',
-                      color: '#ffffff',
-                      '::placeholder': {
-                        color: '#6b7280',
-                      },
-                    },
-                  },
-                }}
-              />
-            </div>
-          </div>
-
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6">
-              <p className="text-red-400">{error}</p>
-            </div>
-          )}
-
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={onBack}
+        <div className="flex gap-4">
+          <button
+            type="button"
+            onClick={onBack}
               disabled={processing}
-              className="btn-secondary flex-1"
-            >
-              Back
-            </button>
-            <button
-              type="submit"
+            className="btn-secondary flex-1"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
               disabled={processing || !stripe}
               className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+          >
               {processing ? 'Processing...' : `Pay Deposit ${pricing ? formatCurrency(pricing.depositAmount) : ''}`}
-            </button>
-          </div>
-        </form>
+          </button>
+        </div>
+      </form>
       </div>
     </div>
   )
@@ -717,20 +717,20 @@ export default function BookRentalPage() {
     <div className="min-h-screen bg-dark-gray">
       <Navbar />
       <Elements stripe={stripePromise}>
-        <div className="pt-32 pb-16 px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h1 className="text-4xl font-tech font-bold text-white mb-4">
-                Book Your <span className="neon-text">Rental</span>
-              </h1>
-              <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-                Secure your dream car with our streamlined booking process
-              </p>
-            </div>
-
-            <BookingForm />
+      <div className="pt-32 pb-16 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-tech font-bold text-white mb-4">
+              Book Your <span className="neon-text">Rental</span>
+            </h1>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Secure your dream car with our streamlined booking process
+            </p>
           </div>
+
+          <BookingForm />
         </div>
+      </div>
       </Elements>
       <Footer />
     </div>

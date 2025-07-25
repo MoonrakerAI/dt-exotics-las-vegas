@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyJWT } from '@/app/lib/auth';
+import { verifyJWT, getEnrichedUser } from '@/app/lib/auth';
 import blogDB from '@/app/lib/blog-database';
 import { validateBlogPost } from '@/app/lib/validation';
 import { adminApiRateLimiter, getClientIdentifier } from '@/app/lib/rate-limit';
@@ -116,13 +116,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get enriched user data for author info
+    const enrichedUser = await getEnrichedUser(user.id);
+
     // Create the blog post
     const newPost = await blogDB.createPost({
       ...postData,
       id: crypto.randomUUID(),
       author: {
-        name: user.name || 'Admin',
-        email: user.email
+        name: enrichedUser?.name || user.name || 'Admin',
+        email: user.email,
+        avatar: enrichedUser?.avatar
       },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
