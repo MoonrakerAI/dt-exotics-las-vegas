@@ -151,23 +151,20 @@ export default function PublicInvoicePage() {
               </div>
             </div>
             
-            {/* Desktop: Original horizontal layout */}
-            <div className="hidden md:flex justify-between items-start">
-              <div className="flex items-center space-x-6">
-                <div>
-                  <img 
-                    src="/images/logo/dt-exotics-logo.png" 
-                    alt="DT Exotics" 
-                    className="h-14 w-auto"
-                  />
-                </div>
-                <div>
-                  <h2 className="text-3xl font-tech font-bold mb-2">INVOICE</h2>
-                  <p className="text-gray-300">#{invoice.invoiceNumber}</p>
-                  <p className="text-gray-300">Issued: {formatDate(invoice.issueDate)}</p>
-                </div>
+            {/* Desktop: Logo left, info right layout */}
+            <div className="hidden md:flex justify-between items-center">
+              <div>
+                <img 
+                  src="/images/logo/dt-exotics-logo.png" 
+                  alt="DT Exotics" 
+                  className="h-14 w-auto"
+                />
               </div>
-
+              <div className="text-right">
+                <h2 className="text-3xl font-tech font-bold mb-2">INVOICE</h2>
+                <p className="text-gray-300">#{invoice.invoiceNumber}</p>
+                <p className="text-gray-300">Issued: {formatDate(invoice.issueDate)}</p>
+              </div>
             </div>
           </div>
 

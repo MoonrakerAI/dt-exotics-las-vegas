@@ -317,9 +317,9 @@ export default function AdminInvoices() {
                           value={invoice.status}
                           onChange={(e) => handleStatusUpdate(invoice.id, e.target.value as 'draft' | 'sent' | 'paid')}
                           className={`px-3 py-1 pr-8 rounded-full text-xs font-medium border-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-gray ${
-                            invoice.status === 'draft' ? 'bg-gray-500/20 text-gray-400' :
-                            invoice.status === 'sent' ? 'bg-blue-500/20 text-blue-400' :
-                            'bg-green-500/20 text-green-400'
+                            invoice.status === 'draft' ? 'bg-gray-500/30 text-gray-200' :
+                            invoice.status === 'sent' ? 'bg-blue-500/30 text-blue-200' :
+                            'bg-green-500/30 text-green-200'
                           }`}
                         >
                           <option value="draft">Draft</option>

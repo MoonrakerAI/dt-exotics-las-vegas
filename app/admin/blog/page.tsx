@@ -816,13 +816,6 @@ export default function BlogAdmin() {
                   </div>
                   <div className="flex space-x-2">
                     <button 
-                      onClick={() => window.open(`/blog/${post.slug}`, '_blank')}
-                      className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
-                      title="View Post"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-                    <button 
                       onClick={() => handleEditPost(post)}
                       className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
                       title="Edit Post"
