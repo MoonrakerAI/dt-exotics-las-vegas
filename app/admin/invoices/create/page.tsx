@@ -45,7 +45,7 @@ export default function CreateInvoice() {
     depositAmount: 0,
     dueDate: '',
     notes: '',
-    terms: 'Payment is due within 30 days of invoice date.'
+    terms: 'Payment is due within 7 business days of invoice date.'
   })
 
   const addLineItem = () => {

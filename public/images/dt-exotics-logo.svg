@@ -1,0 +1,15 @@
+<svg width="320" height="80" viewBox="0 0 320 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- DT text -->
+  <path d="M24 20H56C64.8366 20 72 27.1634 72 36V44C72 52.8366 64.8366 60 56 60H24V20Z" fill="#00FFFF"/>
+  <path d="M24 28H56C60.4183 28 64 31.5817 64 36V44C64 48.4183 60.4183 52 56 52H24V28Z" fill="#000000"/>
+  
+  <path d="M88 20H120V28H96V52H120V60H88V20Z" fill="#00FFFF"/>
+  <path d="M96 28H112V52H96V28Z" fill="#000000"/>
+  
+  <!-- Curved line above -->
+  <path d="M200 8C220 8 240 12 260 20C280 28 300 40 316 56" stroke="#00FFFF" stroke-width="4" fill="none"/>
+  
+  <!-- LV text -->
+  <path d="M744 20H752V52H776V60H744V20Z" fill="#00FFFF"/>
+  <path d="M792 20L816 60H808L800 44L792 60H784L808 20H792Z" fill="#00FFFF"/>
+</svg>

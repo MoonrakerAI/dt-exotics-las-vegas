@@ -136,10 +136,19 @@ export default function PublicInvoicePage() {
           {/* Invoice Header */}
           <div className="bg-gradient-to-r from-black to-gray-900 text-white p-8">
             <div className="flex justify-between items-start">
-              <div>
-                <h2 className="text-3xl font-tech font-bold mb-2">INVOICE</h2>
-                <p className="text-gray-300">#{invoice.invoiceNumber}</p>
-                <p className="text-gray-300">Issued: {formatDate(invoice.issueDate)}</p>
+              <div className="flex items-center space-x-6">
+                <div className="bg-black p-4 rounded-lg">
+                  <img 
+                    src="/images/dt-exotics-logo.svg" 
+                    alt="DT Exotics" 
+                    className="h-12 w-auto"
+                  />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-tech font-bold mb-2">INVOICE</h2>
+                  <p className="text-gray-300">#{invoice.invoiceNumber}</p>
+                  <p className="text-gray-300">Issued: {formatDate(invoice.issueDate)}</p>
+                </div>
               </div>
               <div className="text-right">
                 <div className={`inline-flex px-4 py-2 rounded-full text-sm font-medium border ${getStatusColor(invoice.status)}`}>
@@ -289,13 +298,30 @@ export default function PublicInvoicePage() {
           </div>
 
           {/* Footer */}
-          <div className="bg-gray-100 p-6 text-center">
-            <p className="text-gray-600 text-sm">
-              Questions about this invoice? Contact us at{' '}
-              <a href="mailto:billing@dtexoticslv.com" className="text-neon-blue hover:underline">
-                billing@dtexoticslv.com
-              </a>
-            </p>
+          <div className="bg-gradient-to-r from-black to-gray-900 p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="bg-black p-2 rounded">
+                  <img 
+                    src="/images/dt-exotics-logo.svg" 
+                    alt="DT Exotics" 
+                    className="h-8 w-auto"
+                  />
+                </div>
+                <div className="text-white">
+                  <p className="font-tech font-semibold">DT Exotics</p>
+                  <p className="text-gray-300 text-sm">Las Vegas Luxury Car Rentals</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-gray-300 text-sm">
+                  Questions about this invoice?
+                </p>
+                <a href="mailto:billing@dtexoticslv.com" className="text-neon-blue hover:underline text-sm">
+                  billing@dtexoticslv.com
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
