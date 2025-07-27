@@ -155,11 +155,11 @@ export default function CreateInvoice() {
         })
       }
 
-      setSuccess(`Invoice ${status === 'draft' ? 'saved as draft' : 'created and sent'} successfully!`)
+      setSuccess(`Invoice created successfully!`)
       
-      // Redirect to invoice view after a short delay
+      // Redirect to invoice management page after a short delay
       setTimeout(() => {
-        router.push(`/admin/invoices/${data.invoice.id}`)
+        router.push('/admin/invoices')
       }, 2000)
 
     } catch (err) {
@@ -507,7 +507,7 @@ export default function CreateInvoice() {
               ) : (
                 <>
                   <DollarSign className="w-4 h-4" />
-                  <span>Create & Send Invoice</span>
+                  <span>Create Invoice</span>
                 </>
               )}
             </button>

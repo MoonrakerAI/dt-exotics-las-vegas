@@ -357,13 +357,15 @@ export default function AdminInvoices() {
                                 <Edit3 className="w-4 h-4" />
                               </a>
 
-                              <button
-                                onClick={() => handleCreatePaymentLink(invoice)}
+                              <a
+                                href={`/invoice/${invoice.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="p-2 text-gray-400 hover:text-green-400 transition-colors"
-                                title="Create Payment Link"
+                                title="Payment Link"
                               >
-                                <DollarSign className="w-4 h-4" />
-                              </button>
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
 
                               <button
                                 onClick={() => handleDeleteInvoice(invoice)}

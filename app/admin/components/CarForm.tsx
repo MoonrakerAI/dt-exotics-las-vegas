@@ -1109,7 +1109,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                       <button
                         onClick={() => startupAudioRef.current?.click()}
                         disabled={uploadingFiles.startupAudio}
-                        className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32"
+                        className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32 h-12 py-2"
                       >
                       {uploadingFiles.startupAudio ? (
                         <>
@@ -1166,7 +1166,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                       <button
                         onClick={() => revAudioRef.current?.click()}
                         disabled={uploadingFiles.revAudio}
-                        className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32"
+                        className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32 h-12 py-2"
                       >
                       {uploadingFiles.revAudio ? (
                         <>
@@ -1261,6 +1261,28 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     />
                   </button>
                 </div>
+              </div>
+            </div>
+
+            {/* Bottom Action Buttons */}
+            <div className="bg-dark-metal/20 rounded-lg p-6 border border-gray-600/30 mt-8">
+              <div className="flex items-center justify-end space-x-4">
+                <button
+                  onClick={onCancel}
+                  className="flex items-center space-x-2 px-4 py-2 bg-gray-600/20 text-gray-300 border border-gray-600/30 rounded-lg hover:bg-gray-600/30 transition-all duration-300"
+                >
+                  <X className="w-4 h-4" />
+                  <span>Cancel</span>
+                </button>
+                
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="btn-primary flex items-center space-x-2 disabled:opacity-50"
+                >
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+                </button>
               </div>
             </div>
           </div>
