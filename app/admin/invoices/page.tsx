@@ -52,34 +52,8 @@ export default function AdminInvoices() {
     }
   }
 
-  const handleCreatePaymentLink = async (invoice: Invoice) => {
-    try {
-      const token = localStorage.getItem('dt-admin-token')
-      const response = await fetch(`/api/admin/invoices/${invoice.id}/payment-link`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ sendEmail: false })
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to create payment link')
-      }
-
-      const data = await response.json()
-      
-      // Copy to clipboard
-      await navigator.clipboard.writeText(data.paymentUrl)
-      setSuccess('Payment link copied to clipboard!')
-      setTimeout(() => setSuccess(null), 3000)
-
-    } catch (err) {
-      console.error('Payment link error:', err)
-      setError(err instanceof Error ? err.message : 'Failed to create payment link')
-    }
-  }
+  // Payment links now go directly to public invoice page with Pay Now button
+  // No need for separate payment link creation function
 
   const handleDeleteInvoice = async (invoice: Invoice) => {
     if (!confirm(`Are you sure you want to delete invoice ${invoice.invoiceNumber}?`)) {

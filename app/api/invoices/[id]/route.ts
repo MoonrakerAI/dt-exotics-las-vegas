@@ -8,17 +8,22 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    console.log('Fetching invoice with ID:', id);
     const invoice = await kv.get(`invoice:${id}`) as Invoice;
     
     if (!invoice) {
+      console.log('Invoice not found in KV store for ID:', id);
       return NextResponse.json(
         { error: 'Invoice not found' },
         { status: 404 }
       );
     }
+    
+    console.log('Invoice found, status:', invoice.status);
 
     // Only show invoices that are sent, paid, or overdue (not drafts)
     if (invoice.status === 'draft') {
+      console.log('Invoice is draft, returning 404 for ID:', id);
       return NextResponse.json(
         { error: 'Invoice not available' },
         { status: 404 }
