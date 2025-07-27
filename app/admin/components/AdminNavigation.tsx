@@ -85,11 +85,18 @@ export default function AdminNavigation() {
     }
   }, [])
 
-  const checkAuth = () => {
+  const checkAuth = async () => {
     try {
-      const user = SimpleAuth.getCurrentUser()
-      if (user) {
-        setUser(user)
+      // First check localStorage for immediate display
+      const localUser = SimpleAuth.getCurrentUser()
+      if (localUser) {
+        setUser(localUser)
+      }
+      
+      // Then refresh from backend for production persistence
+      const refreshedUser = await SimpleAuth.refreshUserProfile()
+      if (refreshedUser) {
+        setUser(refreshedUser)
       }
     } catch (error) {
       console.error('Auth check failed:', error)

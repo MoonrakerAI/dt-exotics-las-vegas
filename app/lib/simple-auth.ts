@@ -94,7 +94,7 @@ export class SimpleAuth {
     }
   }
 
-  // Update user profile in localStorage
+  // Update user profile in localStorage and sync with backend
   static updateUserProfile(updates: Partial<Pick<User, 'name' | 'avatar' | 'bio'>>): void {
     if (typeof window !== 'undefined') {
       try {
@@ -112,6 +112,46 @@ export class SimpleAuth {
       } catch (error) {
         console.error('Failed to update user profile:', error)
       }
+    }
+  }
+
+  // Refresh user profile from backend (for production persistence)
+  static async refreshUserProfile(): Promise<User | null> {
+    if (typeof window === 'undefined') {
+      return null
+    }
+
+    try {
+      const token = this.getToken()
+      if (!token) {
+        return null
+      }
+
+      const response = await fetch('/api/admin/profile', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+
+      if (!response.ok) {
+        return null
+      }
+
+      const data = await response.json()
+      if (data.success && data.profile) {
+        // Update localStorage with fresh backend data
+        localStorage.setItem(this.USER_KEY, JSON.stringify(data.profile))
+        
+        // Dispatch event to notify components
+        window.dispatchEvent(new CustomEvent('profileUpdated', {
+          detail: data.profile
+        }))
+        
+        return data.profile
+      }
+
+      return null
+    } catch (error) {
+      console.error('Failed to refresh user profile:', error)
+      return null
     }
   }
 
