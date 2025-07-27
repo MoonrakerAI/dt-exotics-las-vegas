@@ -124,11 +124,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const validTypes = ['booking', 'payment_success', 'payment_failed', 'system'];
+    // Validate notification type
+    const validTypes = [
+      'booking', 'payment_success', 'payment_failed', 'system',
+      'customer_booking', 'customer_payment_success', 'customer_payment_failed', 'customer_reminder'
+    ];
     if (!validTypes.includes(type)) {
-      return NextResponse.json(
-        { error: 'Invalid email type' },
-        { status: 400 }
+      return new Response(
+        JSON.stringify({ error: 'Invalid notification type' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 

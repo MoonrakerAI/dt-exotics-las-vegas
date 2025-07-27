@@ -211,13 +211,6 @@ export default function CreateInvoice() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <button
-              onClick={() => setShowPreview(!showPreview)}
-              className="btn-secondary flex items-center space-x-2"
-            >
-              <Eye className="w-4 h-4" />
-              <span>{showPreview ? 'Hide Preview' : 'Show Preview'}</span>
-            </button>
           </div>
         </div>
 
@@ -510,6 +503,14 @@ export default function CreateInvoice() {
                   <span>Create Invoice</span>
                 </>
               )}
+            </button>
+
+            <button
+              onClick={() => setShowPreview(!showPreview)}
+              className="btn-secondary flex items-center space-x-2"
+            >
+              <Eye className="w-4 h-4" />
+              <span>{showPreview ? 'Hide Preview' : 'Show Preview'}</span>
             </button>
           </div>
         </div>

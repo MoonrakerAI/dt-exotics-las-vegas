@@ -316,15 +316,12 @@ export default function AdminInvoices() {
                         <select
                           value={invoice.status}
                           onChange={(e) => handleStatusUpdate(invoice.id, e.target.value as 'draft' | 'sent' | 'paid')}
-                          className={`px-3 py-1 pr-8 rounded-full text-xs font-medium border-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-gray ${
-                            invoice.status === 'draft' ? 'bg-gray-500/30 text-gray-200' :
-                            invoice.status === 'sent' ? 'bg-blue-500/30 text-blue-200' :
-                            'bg-green-500/30 text-green-200'
-                          }`}
+                          className="px-3 py-1 pr-8 rounded-full text-xs font-medium bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-neon-blue"
+                          style={{ backgroundColor: '#1f2937', color: '#ffffff' }}
                         >
-                          <option value="draft">Draft</option>
-                          <option value="sent">Sent</option>
-                          <option value="paid">Paid</option>
+                          <option value="draft" style={{ backgroundColor: '#1f2937', color: '#ffffff' }}>Draft</option>
+                          <option value="sent" style={{ backgroundColor: '#1f2937', color: '#ffffff' }}>Sent</option>
+                          <option value="paid" style={{ backgroundColor: '#1f2937', color: '#ffffff' }}>Paid</option>
                         </select>
                       </td>
                       <td className="px-6 py-4">

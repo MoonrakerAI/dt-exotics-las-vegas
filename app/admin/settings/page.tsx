@@ -353,7 +353,11 @@ export default function SettingsAdmin() {
                             { type: 'booking', label: 'New Booking', icon: '🚗' },
                             { type: 'payment_success', label: 'Payment Success', icon: '✅' },
                             { type: 'payment_failed', label: 'Payment Failed', icon: '❌' },
-                            { type: 'system', label: 'System Alert', icon: '⚠️' }
+                            { type: 'system', label: 'System Alert', icon: '⚠️' },
+                            { type: 'customer_booking', label: 'Customer Booking', icon: '📧' },
+                            { type: 'customer_payment_success', label: 'Customer Payment Success', icon: '💳' },
+                            { type: 'customer_payment_failed', label: 'Customer Payment Failed', icon: '⚠️' },
+                            { type: 'customer_reminder', label: 'Customer Reminder', icon: '⏰' }
                           ].map(({ type, label, icon }) => (
                             <button
                               key={type}

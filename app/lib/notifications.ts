@@ -45,7 +45,7 @@ export class NotificationService {
     return { ...this.settings };
   }
 
-  // Email Templates
+  // Admin Email Templates
   private getBookingConfirmationTemplate(booking: any): EmailTemplate {
     return {
       subject: `New Booking Confirmed - ${booking.car.brand} ${booking.car.model}`,
@@ -249,6 +249,336 @@ ${alert.details ? `Details: ${alert.details}` : ''}`
     }
   }
 
+  // Customer Email Templates
+  private getCustomerBookingConfirmationTemplate(booking: any): EmailTemplate {
+    return {
+      subject: `Booking Confirmed - Your ${booking.car.brand} ${booking.car.model} Rental`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
+            <h1 style="color: #00ffff; margin: 0; font-size: 28px;">Booking Confirmed!</h1>
+            <p style="color: #ffffff; margin: 10px 0; font-size: 16px;">Thank you for choosing DT Exotics Las Vegas</p>
+          </div>
+          
+          <div style="padding: 30px; background: #f8f9fa;">
+            <h2 style="color: #333; margin-top: 0;">Your Rental Details</h2>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #00ffff;">
+              <h3 style="color: #00ffff; margin-top: 0;">Vehicle</h3>
+              <p style="margin: 5px 0; font-size: 18px; font-weight: bold;">${booking.car.brand} ${booking.car.model} (${booking.car.year})</p>
+              
+              <h3 style="color: #00ffff; margin-top: 20px;">Rental Period</h3>
+              <p style="margin: 5px 0;"><strong>Pickup:</strong> ${new Date(booking.rentalDates.startDate).toLocaleDateString()} at 10:00 AM</p>
+              <p style="margin: 5px 0;"><strong>Return:</strong> ${new Date(booking.rentalDates.endDate).toLocaleDateString()} at 6:00 PM</p>
+              
+              <h3 style="color: #00ffff; margin-top: 20px;">Payment Summary</h3>
+              <p style="margin: 5px 0;"><strong>Total Rental:</strong> $${booking.pricing.finalAmount}</p>
+              <p style="margin: 5px 0;"><strong>Deposit Paid:</strong> $${booking.pricing.depositAmount}</p>
+              <p style="margin: 5px 0; color: #28a745;"><strong>Remaining Balance:</strong> $${booking.pricing.finalAmount - booking.pricing.depositAmount} (due at pickup)</p>
+            </div>
+            
+            <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #0066cc; margin-top: 0;">📍 Pickup Location</h3>
+              <p style="margin: 5px 0; font-weight: bold;">DT Exotics Las Vegas</p>
+              <p style="margin: 5px 0;">Las Vegas, NV</p>
+              <p style="margin: 5px 0;">Phone: +1 (702) 518-0924</p>
+            </div>
+            
+            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #856404; margin-top: 0;">⚠️ Important Reminders</h3>
+              <ul style="margin: 10px 0; padding-left: 20px; color: #856404;">
+                <li>Bring a valid driver's license and credit card</li>
+                <li>Must be 25+ years old to rent</li>
+                <li>Vehicle inspection will be conducted at pickup and return</li>
+                <li>Full insurance coverage is included</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <p style="color: #666; margin-bottom: 20px;">Questions about your rental?</p>
+              <a href="tel:+17025180924" 
+                 style="background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-right: 10px;">
+                Call Us
+              </a>
+              <a href="sms:+17025180924" 
+                 style="background: #333; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                Text Us
+              </a>
+            </div>
+          </div>
+          
+          <div style="background: #333; padding: 20px; text-align: center;">
+            <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
+            <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">This email was sent regarding your booking confirmation.</p>
+          </div>
+        </div>
+      `,
+      text: `Booking Confirmed - ${booking.car.brand} ${booking.car.model}
+      
+Thank you for choosing DT Exotics Las Vegas!
+
+Vehicle: ${booking.car.brand} ${booking.car.model} (${booking.car.year})
+Pickup: ${new Date(booking.rentalDates.startDate).toLocaleDateString()} at 10:00 AM
+Return: ${new Date(booking.rentalDates.endDate).toLocaleDateString()} at 6:00 PM
+
+Payment Summary:
+Total Rental: $${booking.pricing.finalAmount}
+Deposit Paid: $${booking.pricing.depositAmount}
+Remaining Balance: $${booking.pricing.finalAmount - booking.pricing.depositAmount} (due at pickup)
+
+Pickup Location:
+DT Exotics Las Vegas
+Las Vegas, NV
+Phone: +1 (702) 518-0924
+
+Important Reminders:
+- Bring a valid driver's license and credit card
+- Must be 25+ years old to rent
+- Vehicle inspection will be conducted at pickup and return
+- Full insurance coverage is included
+
+Questions? Call or text us at +1 (702) 518-0924`
+    };
+  }
+
+  private getCustomerPaymentReceiptTemplate(payment: any): EmailTemplate {
+    return {
+      subject: `Payment Receipt - $${payment.amount} for ${payment.vehicleName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
+            <h1 style="color: #00ff00; margin: 0; font-size: 28px;">Payment Received!</h1>
+            <p style="color: #ffffff; margin: 10px 0; font-size: 16px;">Thank you for your payment</p>
+          </div>
+          
+          <div style="padding: 30px; background: #f8f9fa;">
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #00ff00;">
+              <h3 style="color: #00ff00; margin-top: 0;">Payment Details</h3>
+              <p style="margin: 5px 0;"><strong>Amount:</strong> $${payment.amount}</p>
+              <p style="margin: 5px 0;"><strong>Payment Type:</strong> ${payment.type}</p>
+              <p style="margin: 5px 0;"><strong>Vehicle:</strong> ${payment.vehicleName}</p>
+              <p style="margin: 5px 0;"><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+              <p style="margin: 5px 0;"><strong>Transaction ID:</strong> ${payment.transactionId}</p>
+            </div>
+            
+            ${payment.type === 'Deposit' ? `
+            <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #0066cc; margin-top: 0;">🎉 You're All Set!</h3>
+              <p style="margin: 10px 0;">Your deposit has been processed and your booking is confirmed. We'll see you at pickup!</p>
+              <p style="margin: 10px 0;"><strong>Remaining balance of $${payment.remainingBalance} will be due at pickup.</strong></p>
+            </div>
+            ` : `
+            <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #155724; margin-top: 0;">✅ Payment Complete!</h3>
+              <p style="margin: 10px 0;">Your rental is fully paid. Enjoy your luxury driving experience!</p>
+            </div>
+            `}
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <p style="color: #666; margin-bottom: 20px;">Need assistance?</p>
+              <a href="tel:+17025180924" 
+                 style="background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                Contact Support
+              </a>
+            </div>
+          </div>
+          
+          <div style="background: #333; padding: 20px; text-align: center;">
+            <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
+            <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">Keep this receipt for your records.</p>
+          </div>
+        </div>
+      `,
+      text: `Payment Receipt - $${payment.amount}
+      
+Thank you for your payment!
+
+Payment Details:
+Amount: $${payment.amount}
+Payment Type: ${payment.type}
+Vehicle: ${payment.vehicleName}
+Date: ${new Date().toLocaleDateString()}
+Transaction ID: ${payment.transactionId}
+
+${payment.type === 'Deposit' ? `Your deposit has been processed and your booking is confirmed. Remaining balance of $${payment.remainingBalance} will be due at pickup.` : 'Your rental is fully paid. Enjoy your luxury driving experience!'}
+
+Need assistance? Call us at +1 (702) 518-0924
+
+DT Exotics Las Vegas - Premium Supercar Rentals`
+    };
+  }
+
+  private getCustomerPaymentFailedTemplate(payment: any): EmailTemplate {
+    return {
+      subject: `Payment Issue - Action Required for Your ${payment.vehicleName} Rental`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
+            <h1 style="color: #ff6b6b; margin: 0; font-size: 28px;">Payment Issue</h1>
+            <p style="color: #ffffff; margin: 10px 0; font-size: 16px;">We need your help to complete your booking</p>
+          </div>
+          
+          <div style="padding: 30px; background: #f8f9fa;">
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ff6b6b;">
+              <h3 style="color: #ff6b6b; margin-top: 0;">Payment Could Not Be Processed</h3>
+              <p style="margin: 10px 0;">We encountered an issue processing your payment for the <strong>${payment.vehicleName}</strong> rental.</p>
+              <p style="margin: 10px 0;"><strong>Amount:</strong> $${payment.amount}</p>
+              <p style="margin: 10px 0;"><strong>Reason:</strong> ${payment.reason || 'Payment method declined'}</p>
+            </div>
+            
+            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #856404; margin-top: 0;">⏰ Your Booking is On Hold</h3>
+              <p style="margin: 10px 0;">Don't worry - your vehicle is still reserved! We just need you to update your payment method to complete the booking.</p>
+              <p style="margin: 10px 0;"><strong>Please contact us within 24 hours to secure your reservation.</strong></p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <p style="color: #666; margin-bottom: 20px;">Ready to complete your booking?</p>
+              <a href="tel:+17025180924" 
+                 style="background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-right: 10px;">
+                Call Now
+              </a>
+              <a href="sms:+17025180924" 
+                 style="background: #ff6b6b; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                Text Us
+              </a>
+            </div>
+          </div>
+          
+          <div style="background: #333; padding: 20px; text-align: center;">
+            <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
+            <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">We're here to help complete your luxury rental experience.</p>
+          </div>
+        </div>
+      `,
+      text: `Payment Issue - Action Required
+      
+We encountered an issue processing your payment for the ${payment.vehicleName} rental.
+
+Amount: $${payment.amount}
+Reason: ${payment.reason || 'Payment method declined'}
+
+Your Booking is On Hold:
+Don't worry - your vehicle is still reserved! We just need you to update your payment method to complete the booking.
+
+Please contact us within 24 hours to secure your reservation.
+
+Call: +1 (702) 518-0924
+Text: +1 (702) 518-0924
+
+DT Exotics Las Vegas - Premium Supercar Rentals`
+    };
+  }
+
+  private getCustomerReminderTemplate(booking: any): EmailTemplate {
+    return {
+      subject: `Reminder: Your ${booking.car.brand} ${booking.car.model} pickup is tomorrow!`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
+            <h1 style="color: #ffd700; margin: 0; font-size: 28px;">Almost Time!</h1>
+            <p style="color: #ffffff; margin: 10px 0; font-size: 16px;">Your luxury rental pickup is tomorrow</p>
+          </div>
+          
+          <div style="padding: 30px; background: #f8f9fa;">
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffd700;">
+              <h3 style="color: #ffd700; margin-top: 0;">🚗 Tomorrow's Pickup</h3>
+              <p style="margin: 5px 0; font-size: 18px; font-weight: bold;">${booking.car.brand} ${booking.car.model} (${booking.car.year})</p>
+              <p style="margin: 10px 0;"><strong>Date:</strong> ${new Date(booking.rentalDates.startDate).toLocaleDateString()}</p>
+              <p style="margin: 10px 0;"><strong>Time:</strong> 10:00 AM</p>
+              <p style="margin: 10px 0;"><strong>Location:</strong> DT Exotics Las Vegas</p>
+            </div>
+            
+            <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #0066cc; margin-top: 0;">📋 Pickup Checklist</h3>
+              <ul style="margin: 10px 0; padding-left: 20px; color: #0066cc;">
+                <li><strong>Valid Driver's License</strong> (must be 25+)</li>
+                <li><strong>Credit Card</strong> (for security deposit)</li>
+                <li><strong>Remaining Balance:</strong> $${booking.pricing.finalAmount - booking.pricing.depositAmount}</li>
+                <li><strong>Arrive 15 minutes early</strong> for vehicle inspection</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <p style="color: #666; margin-bottom: 20px;">Questions or need to reschedule?</p>
+              <a href="tel:+17025180924" 
+                 style="background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                Call Us Now
+              </a>
+            </div>
+          </div>
+          
+          <div style="background: #333; padding: 20px; text-align: center;">
+            <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
+            <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">We can't wait to see you tomorrow!</p>
+          </div>
+        </div>
+      `,
+      text: `Reminder: Your ${booking.car.brand} ${booking.car.model} pickup is tomorrow!
+      
+Pickup Details:
+Vehicle: ${booking.car.brand} ${booking.car.model} (${booking.car.year})
+Date: ${new Date(booking.rentalDates.startDate).toLocaleDateString()}
+Time: 10:00 AM
+Location: DT Exotics Las Vegas
+
+Pickup Checklist:
+- Valid Driver's License (must be 25+)
+- Credit Card (for security deposit)
+- Remaining Balance: $${booking.pricing.finalAmount - booking.pricing.depositAmount}
+- Arrive 15 minutes early for vehicle inspection
+
+Questions or need to reschedule? Call us at +1 (702) 518-0924
+
+DT Exotics Las Vegas - We can't wait to see you tomorrow!`
+    };
+  }
+
+  // Customer notification methods
+  public async sendCustomerBookingConfirmation(booking: any): Promise<boolean> {
+    try {
+      const template = this.getCustomerBookingConfirmationTemplate(booking);
+      return await this.sendEmail(booking.customer.email, template);
+    } catch (error) {
+      console.error('Failed to send customer booking confirmation:', error);
+      return false;
+    }
+  }
+
+  public async sendCustomerPaymentReceipt(payment: any): Promise<boolean> {
+    try {
+      const template = this.getCustomerPaymentReceiptTemplate(payment);
+      return await this.sendEmail(payment.customerEmail, template);
+    } catch (error) {
+      console.error('Failed to send customer payment receipt:', error);
+      return false;
+    }
+  }
+
+  public async sendCustomerPaymentFailed(payment: any): Promise<boolean> {
+    try {
+      const template = this.getCustomerPaymentFailedTemplate(payment);
+      return await this.sendEmail(payment.customerEmail, template);
+    } catch (error) {
+      console.error('Failed to send customer payment failed notification:', error);
+      return false;
+    }
+  }
+
+  public async sendCustomerReminder(booking: any): Promise<boolean> {
+    try {
+      const template = this.getCustomerReminderTemplate(booking);
+      return await this.sendEmail(booking.customer.email, template);
+    } catch (error) {
+      console.error('Failed to send customer reminder:', error);
+      return false;
+    }
+  }
+
   public async sendTestEmail(type: string): Promise<boolean> {
     const testData = {
       booking: {
@@ -262,8 +592,12 @@ ${alert.details ? `Details: ${alert.details}` : ''}`
         amount: 750,
         type: 'Deposit',
         customerName: 'John Doe',
+        customerEmail: this.settings.adminEmail,
         bookingId: 'TEST-123',
-        reason: 'Insufficient funds'
+        reason: 'Insufficient funds',
+        vehicleName: 'Lamborghini Huracán',
+        transactionId: 'TXN-' + Date.now(),
+        remainingBalance: 1750
       },
       alert: {
         type: 'Database Connection',
@@ -273,6 +607,7 @@ ${alert.details ? `Details: ${alert.details}` : ''}`
     };
 
     switch (type) {
+      // Admin notifications
       case 'booking':
         return await this.sendBookingNotification(testData.booking);
       case 'payment_success':
@@ -281,6 +616,17 @@ ${alert.details ? `Details: ${alert.details}` : ''}`
         return await this.sendPaymentNotification(testData.payment, false);
       case 'system':
         return await this.sendSystemAlert(testData.alert);
+      
+      // Customer notifications
+      case 'customer_booking':
+        return await this.sendCustomerBookingConfirmation(testData.booking);
+      case 'customer_payment_success':
+        return await this.sendCustomerPaymentReceipt(testData.payment);
+      case 'customer_payment_failed':
+        return await this.sendCustomerPaymentFailed(testData.payment);
+      case 'customer_reminder':
+        return await this.sendCustomerReminder(testData.booking);
+      
       default:
         return false;
     }

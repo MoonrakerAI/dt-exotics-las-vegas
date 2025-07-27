@@ -24,9 +24,8 @@ async function isAdminAuthenticated(request: NextRequest): Promise<{user: any} |
 // Generate invoice number
 function generateInvoiceNumber(): string {
   const year = new Date().getFullYear();
-  const month = (new Date().getMonth() + 1).toString().padStart(2, '0');
-  const timestamp = Date.now().toString().slice(-6);
-  return `DTE-${year}${month}-${timestamp}`;
+  const counter = Date.now().toString().slice(-4); // Last 4 digits for uniqueness
+  return `INV-${year}-${counter}`;
 }
 
 // Calculate invoice totals
