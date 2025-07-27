@@ -521,7 +521,20 @@ export default function CreateInvoice() {
             <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
                 <h2 className="text-2xl font-tech font-bold text-white mb-6">Invoice Preview</h2>
                 
-                <div className="bg-white text-black p-8 rounded-lg">
+                <div className="bg-white text-black p-8 rounded-lg relative overflow-hidden">
+                  {/* Desert Background */}
+                  <div 
+                    className="absolute inset-0 opacity-10 bg-cover bg-center bg-no-repeat"
+                    style={{
+                      backgroundImage: 'url(/images/invoices/Invoice Background.avif)',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat'
+                    }}
+                  ></div>
+                  
+                  {/* Content overlay */}
+                  <div className="relative z-10">
                   {/* Header */}
                   <div className="flex justify-between items-start mb-8">
                     <div>
@@ -617,7 +630,7 @@ export default function CreateInvoice() {
                           <p className="text-gray-700 text-sm">{formData.notes}</p>
                         </div>
                       )}
-                      {formData.terms && (
+                       {formData.terms && (
                         <div>
                           <h4 className="font-semibold text-black mb-2">Terms & Conditions:</h4>
                           <p className="text-gray-700 text-sm">{formData.terms}</p>
@@ -625,6 +638,7 @@ export default function CreateInvoice() {
                       )}
                     </div>
                   )}
+                  </div>
                 </div>
             </div>
           </div>

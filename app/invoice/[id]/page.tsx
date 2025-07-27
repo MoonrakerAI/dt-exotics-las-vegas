@@ -132,7 +132,20 @@ export default function PublicInvoicePage() {
         </div>
 
         {/* Invoice Card */}
-        <div className="glass-panel bg-white text-black rounded-2xl shadow-2xl overflow-hidden">
+        <div className="glass-panel bg-white text-black rounded-2xl shadow-2xl overflow-hidden relative">
+          {/* Desert Background */}
+          <div 
+            className="absolute inset-0 opacity-10 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: 'url(/images/invoices/Invoice Background.avif)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }}
+          ></div>
+          
+          {/* Content overlay */}
+          <div className="relative z-10">
           {/* Invoice Header */}
           <div className="bg-gradient-to-r from-black to-gray-900 text-white p-6 md:p-8">
             {/* Mobile: Logo on top, then invoice info */}
@@ -300,8 +313,10 @@ export default function PublicInvoicePage() {
             )}
           </div>
 
+          </div>
+          
           {/* Footer */}
-          <div className="bg-gradient-to-r from-black to-gray-900 p-6">
+          <div className="bg-gradient-to-r from-black to-gray-900 p-6 relative z-10">
             {/* Mobile: Vertical layout */}
             <div className="block md:hidden text-center space-y-4">
               <div className="flex justify-center">
