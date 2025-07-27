@@ -137,9 +137,9 @@ export default function PublicInvoicePage() {
           <div className="bg-gradient-to-r from-black to-gray-900 text-white p-8">
             <div className="flex justify-between items-start">
               <div className="flex items-center space-x-6">
-                <div className="bg-black p-4 rounded-lg">
+                <div>
                   <img 
-                    src="/images/dt-exotics-logo.svg" 
+                    src="/images/logo/DT Exotics LV Logo Transparent.png" 
                     alt="DT Exotics" 
                     className="h-12 w-auto"
                   />
@@ -301,9 +301,9 @@ export default function PublicInvoicePage() {
           <div className="bg-gradient-to-r from-black to-gray-900 p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="bg-black p-2 rounded">
+                <div>
                   <img 
-                    src="/images/dt-exotics-logo.svg" 
+                    src="/images/logo/DT Exotics LV Logo Transparent.png" 
                     alt="DT Exotics" 
                     className="h-8 w-auto"
                   />
