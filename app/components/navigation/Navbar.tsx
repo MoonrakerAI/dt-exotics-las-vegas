@@ -55,13 +55,15 @@ export default function Navbar() {
             {/* Logo */}
             <div className="flex items-center">
               <a href="/" className="flex items-center hover:opacity-80 transition-opacity duration-300">
-                <img 
-                  src="/images/logo/DT Exotics Logo Nav.png" 
-                  alt="DT Exotics Las Vegas"
-                  className={`transition-all duration-500 ${
-                    isScrolled ? 'h-12' : 'h-17'
-                  }`}
-                />
+                <div className="bg-black p-2 rounded-lg">
+                  <img 
+                    src="/images/dt-exotics-logo.svg" 
+                    alt="DT Exotics Las Vegas"
+                    className={`transition-all duration-500 ${
+                      isScrolled ? 'h-8' : 'h-10'
+                    }`}
+                  />
+                </div>
               </a>
             </div>
 

@@ -11,11 +11,13 @@ export default function Footer() {
           {/* Left Section - Branding */}
           <div>
             <div className="mb-4 flex justify-center md:justify-start">
-              <img 
-                src="/images/logo/DT Exotics Logo Full.png" 
-                alt="DT Exotics Las Vegas"
-                className="h-24 mb-2"
-              />
+              <div className="bg-black p-4 rounded-lg">
+                <img 
+                  src="/images/dt-exotics-logo.svg" 
+                  alt="DT Exotics Las Vegas"
+                  className="h-16 mb-2"
+                />
+              </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
               Las Vegas's premier luxury supercar rental experience. Where automotive dreams become reality on the world's most iconic streets.
