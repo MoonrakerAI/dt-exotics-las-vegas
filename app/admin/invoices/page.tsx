@@ -81,6 +81,32 @@ export default function AdminInvoices() {
     }
   }
 
+  const handleStatusUpdate = async (invoiceId: string, newStatus: 'draft' | 'sent' | 'paid') => {
+    try {
+      const token = localStorage.getItem('dt-admin-token')
+      const response = await fetch(`/api/admin/invoices/${invoiceId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update invoice status')
+      }
+
+      setSuccess(`Invoice status updated to ${newStatus}`)
+      setTimeout(() => setSuccess(null), 3000)
+      fetchInvoices()
+
+    } catch (err) {
+      console.error('Status update error:', err)
+      setError(err instanceof Error ? err.message : 'Failed to update invoice status')
+    }
+  }
+
   // Status display removed - using payment link to view invoice details
 
   const formatCurrency = (amount: number) => {
@@ -195,8 +221,6 @@ export default function AdminInvoices() {
                     <option value="draft">Draft</option>
                     <option value="sent">Sent</option>
                     <option value="paid">Paid</option>
-                    <option value="overdue">Overdue</option>
-                    <option value="cancelled">Cancelled</option>
                   </select>
                 </div>
 
@@ -261,6 +285,7 @@ export default function AdminInvoices() {
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Customer</th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Title</th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Amount</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Status</th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Due Date</th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Actions</th>
                   </tr>
@@ -278,9 +303,6 @@ export default function AdminInvoices() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="font-medium text-white">{invoice.title}</div>
-                        <div className="text-sm text-gray-400 capitalize">
-                          {invoice.serviceType.replace('_', ' ')}
-                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="font-medium text-white">{formatCurrency(invoice.totalAmount)}</div>
@@ -289,6 +311,21 @@ export default function AdminInvoices() {
                             Deposit: {formatCurrency(invoice.depositAmount)}
                           </div>
                         )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <select
+                          value={invoice.status}
+                          onChange={(e) => handleStatusUpdate(invoice.id, e.target.value as 'draft' | 'sent' | 'paid')}
+                          className={`px-3 py-1 rounded-full text-xs font-medium border-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-gray ${
+                            invoice.status === 'draft' ? 'bg-gray-500/20 text-gray-400' :
+                            invoice.status === 'sent' ? 'bg-blue-500/20 text-blue-400' :
+                            'bg-green-500/20 text-green-400'
+                          }`}
+                        >
+                          <option value="draft">Draft</option>
+                          <option value="sent">Sent</option>
+                          <option value="paid">Paid</option>
+                        </select>
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-white">{formatDate(invoice.dueDate)}</div>

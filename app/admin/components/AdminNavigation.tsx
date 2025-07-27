@@ -132,7 +132,7 @@ export default function AdminNavigation() {
               </div>
               <div>
                 <h1 className="text-lg font-tech font-bold text-white">
-                  ADMIN PANEL
+                  ADMIN
                 </h1>
               </div>
             </Link>

@@ -149,17 +149,6 @@ export default function PublicInvoicePage() {
                 <p className="text-gray-300">#{invoice.invoiceNumber}</p>
                 <p className="text-gray-300">Issued: {formatDate(invoice.issueDate)}</p>
               </div>
-              <div className="flex justify-center">
-                <div className={`inline-flex px-4 py-2 rounded-full text-sm font-medium border ${getStatusColor(invoice.status)}`}>
-                  {invoice.status.toUpperCase()}
-                </div>
-                {isOverdue && (
-                  <div className="mt-2 flex items-center justify-center text-red-400 text-sm">
-                    <Clock className="w-4 h-4 mr-1" />
-                    Overdue
-                  </div>
-                )}
-              </div>
             </div>
             
             {/* Desktop: Original horizontal layout */}
@@ -178,17 +167,7 @@ export default function PublicInvoicePage() {
                   <p className="text-gray-300">Issued: {formatDate(invoice.issueDate)}</p>
                 </div>
               </div>
-              <div className="text-right">
-                <div className={`inline-flex px-4 py-2 rounded-full text-sm font-medium border ${getStatusColor(invoice.status)}`}>
-                  {invoice.status.toUpperCase()}
-                </div>
-                {isOverdue && (
-                  <div className="mt-2 flex items-center text-red-400 text-sm">
-                    <Clock className="w-4 h-4 mr-1" />
-                    Overdue
-                  </div>
-                )}
-              </div>
+
             </div>
           </div>
 
@@ -211,7 +190,6 @@ export default function PublicInvoicePage() {
                 <h3 className="text-lg font-semibold text-black mb-4">Service Details:</h3>
                 <div className="space-y-2 text-gray-700">
                   <p className="font-medium text-black">{invoice.title}</p>
-                  <p className="capitalize">{invoice.serviceType.replace('_', ' ')}</p>
                   <div className="flex items-center">
                     <Calendar className="w-4 h-4 mr-2" />
                     <span>Due: {formatDate(invoice.dueDate)}</span>
