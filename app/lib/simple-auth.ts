@@ -5,6 +5,8 @@ export interface User {
   email: string
   name: string
   role: string
+  avatar?: string
+  bio?: string
 }
 
 // Simple token-only authentication
@@ -89,6 +91,27 @@ export class SimpleAuth {
       return { success: true }
     } catch (error) {
       return { success: false, error: 'Network error occurred' }
+    }
+  }
+
+  // Update user profile in localStorage
+  static updateUserProfile(updates: Partial<Pick<User, 'name' | 'avatar' | 'bio'>>): void {
+    if (typeof window !== 'undefined') {
+      try {
+        const userStr = localStorage.getItem(this.USER_KEY)
+        if (userStr) {
+          const user = JSON.parse(userStr)
+          const updatedUser = { ...user, ...updates }
+          localStorage.setItem(this.USER_KEY, JSON.stringify(updatedUser))
+          
+          // Dispatch custom event to notify other components
+          window.dispatchEvent(new CustomEvent('profileUpdated', {
+            detail: updatedUser
+          }))
+        }
+      } catch (error) {
+        console.error('Failed to update user profile:', error)
+      }
     }
   }
 

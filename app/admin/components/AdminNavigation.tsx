@@ -62,6 +62,27 @@ export default function AdminNavigation() {
 
   useEffect(() => {
     checkAuth()
+    
+    // Listen for profile updates
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'dt-admin-user') {
+        checkAuth()
+      }
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    
+    // Also listen for custom profile update events
+    const handleProfileUpdate = () => {
+      checkAuth()
+    }
+    
+    window.addEventListener('profileUpdated', handleProfileUpdate)
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('profileUpdated', handleProfileUpdate)
+    }
   }, [])
 
   const checkAuth = () => {
@@ -147,8 +168,21 @@ export default function AdminNavigation() {
               href="/admin/profile"
               className="flex items-center space-x-3 hover:bg-dark-gray/50 rounded-lg px-3 py-2 transition-all duration-200 group"
             >
-              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center group-hover:bg-gray-500">
-                <User className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center group-hover:bg-gray-500 overflow-hidden">
+                {user.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-full h-full object-cover rounded-full"
+                    onError={(e) => {
+                      // Fallback to icon if image fails to load
+                      const target = e.target as HTMLImageElement
+                      target.style.display = 'none'
+                      target.nextElementSibling?.classList.remove('hidden')
+                    }}
+                  />
+                ) : null}
+                <User className={`w-4 h-4 text-white ${user.avatar ? 'hidden' : ''}`} />
               </div>
               <div className="hidden md:block">
                 <p className="text-sm font-medium text-white group-hover:text-neon-blue">
@@ -157,6 +191,11 @@ export default function AdminNavigation() {
                 <p className="text-xs text-gray-400">
                   {user.email}
                 </p>
+                {user.bio && (
+                  <p className="text-xs text-gray-500 truncate max-w-32" title={user.bio}>
+                    {user.bio}
+                  </p>
+                )}
               </div>
             </Link>
             

@@ -20,6 +20,7 @@ import {
   Link
 } from 'lucide-react'
 import { BlogPost, BlogCategory, BlogTag } from '../../types/blog'
+import { SimpleAuth } from '../../lib/simple-auth'
 
 function parseMarkdown(content: string): string {
   return content
@@ -64,6 +65,9 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
   const [previewMode, setPreviewMode] = useState(false)
   const [showSeoPanel, setShowSeoPanel] = useState(false)
   
+  // Get current admin user for author info
+  const currentUser = SimpleAuth.getCurrentUser()
+  
   // Form state
   const [formData, setFormData] = useState({
     title: post?.title || '',
@@ -76,7 +80,12 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
     categories: post?.categories || [],
     tags: post?.tags || [],
     scheduledFor: post?.scheduledFor || '',
-    author: post?.author || { name: 'Primary Admin', email: 'admin@dtexoticslv.com' },
+    author: post?.author || { 
+      name: currentUser?.name || 'Admin', 
+      email: currentUser?.email || 'admin@dtexoticslv.com',
+      avatar: currentUser?.avatar,
+      bio: currentUser?.bio
+    },
     seo: {
       metaTitle: post?.seo.metaTitle || '',
       metaDescription: post?.seo.metaDescription || '',

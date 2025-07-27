@@ -81,6 +81,13 @@ export default function AdminProfile() {
         throw new Error(errorData.error || 'Failed to save profile')
       }
 
+      // Update SimpleAuth user data in localStorage
+      SimpleAuth.updateUserProfile({
+        name: profile.name,
+        avatar: profile.avatar,
+        bio: profile.bio
+      })
+
       setSuccess('Profile updated successfully!')
       setTimeout(() => setSuccess(null), 3000)
 
@@ -115,7 +122,11 @@ export default function AdminProfile() {
 
       const data = await response.json()
       if (profile) {
-        setProfile({ ...profile, avatar: data.urls.original })
+        const newAvatar = data.urls.original
+        setProfile({ ...profile, avatar: newAvatar })
+        
+        // Update SimpleAuth user data immediately
+        SimpleAuth.updateUserProfile({ avatar: newAvatar })
       }
 
     } catch (err) {
