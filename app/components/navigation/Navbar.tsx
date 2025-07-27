@@ -59,7 +59,7 @@ export default function Navbar() {
                   src="/images/logo/dt-exotics-logo.png" 
                   alt="DT Exotics Las Vegas"
                   className={`transition-all duration-500 ${
-                    isScrolled ? 'h-10' : 'h-12'
+                    isScrolled ? 'h-12' : 'h-14'
                   }`}
                 />
               </a>

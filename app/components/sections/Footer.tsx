@@ -14,7 +14,7 @@ export default function Footer() {
               <img 
                 src="/images/logo/dt-exotics-logo.png" 
                 alt="DT Exotics Las Vegas"
-                className="h-20 mb-2"
+                className="h-24 mb-2"
               />
             </div>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">

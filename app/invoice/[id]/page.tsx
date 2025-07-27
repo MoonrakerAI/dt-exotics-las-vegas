@@ -134,14 +134,42 @@ export default function PublicInvoicePage() {
         {/* Invoice Card */}
         <div className="glass-panel bg-white text-black rounded-2xl shadow-2xl overflow-hidden">
           {/* Invoice Header */}
-          <div className="bg-gradient-to-r from-black to-gray-900 text-white p-8">
-            <div className="flex justify-between items-start">
+          <div className="bg-gradient-to-r from-black to-gray-900 text-white p-6 md:p-8">
+            {/* Mobile: Logo on top, then invoice info */}
+            <div className="block md:hidden">
+              <div className="flex justify-center mb-4">
+                <img 
+                  src="/images/logo/dt-exotics-logo.png" 
+                  alt="DT Exotics" 
+                  className="h-14 w-auto"
+                />
+              </div>
+              <div className="text-center mb-4">
+                <h2 className="text-2xl font-tech font-bold mb-2">INVOICE</h2>
+                <p className="text-gray-300">#{invoice.invoiceNumber}</p>
+                <p className="text-gray-300">Issued: {formatDate(invoice.issueDate)}</p>
+              </div>
+              <div className="flex justify-center">
+                <div className={`inline-flex px-4 py-2 rounded-full text-sm font-medium border ${getStatusColor(invoice.status)}`}>
+                  {invoice.status.toUpperCase()}
+                </div>
+                {isOverdue && (
+                  <div className="mt-2 flex items-center justify-center text-red-400 text-sm">
+                    <Clock className="w-4 h-4 mr-1" />
+                    Overdue
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Desktop: Original horizontal layout */}
+            <div className="hidden md:flex justify-between items-start">
               <div className="flex items-center space-x-6">
                 <div>
                   <img 
                     src="/images/logo/dt-exotics-logo.png" 
                     alt="DT Exotics" 
-                    className="h-12 w-auto"
+                    className="h-14 w-auto"
                   />
                 </div>
                 <div>
@@ -165,9 +193,9 @@ export default function PublicInvoicePage() {
           </div>
 
           {/* Invoice Content */}
-          <div className="p-8">
-            {/* Customer & Service Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="p-6 md:p-8">
+            {/* Customer & Service Info - Mobile: Stacked vertically */}
+            <div className="space-y-6 md:grid md:grid-cols-2 md:gap-8 md:space-y-0 mb-8">
               <div>
                 <h3 className="text-lg font-semibold text-black mb-4">Bill To:</h3>
                 <div className="space-y-2 text-gray-700">
@@ -299,13 +327,37 @@ export default function PublicInvoicePage() {
 
           {/* Footer */}
           <div className="bg-gradient-to-r from-black to-gray-900 p-6">
-            <div className="flex items-center justify-between">
+            {/* Mobile: Vertical layout */}
+            <div className="block md:hidden text-center space-y-4">
+              <div className="flex justify-center">
+                <img 
+                  src="/images/logo/dt-exotics-logo.png" 
+                  alt="DT Exotics" 
+                  className="h-10 w-auto"
+                />
+              </div>
+              <div className="text-white">
+                <p className="font-tech font-semibold">DT Exotics</p>
+                <p className="text-gray-300 text-sm">Las Vegas Luxury Car Rentals</p>
+              </div>
+              <div>
+                <p className="text-gray-300 text-sm mb-1">
+                  Questions about this invoice?
+                </p>
+                <a href="mailto:billing@dtexoticslv.com" className="text-neon-blue hover:underline text-sm">
+                  billing@dtexoticslv.com
+                </a>
+              </div>
+            </div>
+            
+            {/* Desktop: Horizontal layout */}
+            <div className="hidden md:flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div>
                   <img 
                     src="/images/logo/dt-exotics-logo.png" 
                     alt="DT Exotics" 
-                    className="h-8 w-auto"
+                    className="h-10 w-auto"
                   />
                 </div>
                 <div className="text-white">
