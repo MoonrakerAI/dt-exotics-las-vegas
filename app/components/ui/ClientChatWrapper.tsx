@@ -10,8 +10,8 @@ const FloatingChatNew = dynamic(() => import('./FloatingChatNew'), {
 export default function ClientChatWrapper() {
   const pathname = usePathname()
   
-  // Hide chat on admin pages
-  if (pathname.startsWith('/admin')) {
+  // Hide chat on admin pages and invoice pages
+  if (pathname.startsWith('/admin') || pathname.startsWith('/invoice')) {
     return null
   }
   

@@ -123,7 +123,21 @@ export default function PublicInvoicePage() {
   const isOverdue = new Date(invoice.dueDate) < new Date() && invoice.status !== 'paid'
 
   return (
-    <div className="min-h-screen bg-dark-gray py-8 px-4">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Desert Background with Hero-style Overlay */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: 'url(/images/invoices/Invoice Background.avif)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      ></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/70"></div>
+      
+      {/* Content */}
+      <div className="relative z-10 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -132,20 +146,7 @@ export default function PublicInvoicePage() {
         </div>
 
         {/* Invoice Card */}
-        <div className="glass-panel bg-white text-black rounded-2xl shadow-2xl overflow-hidden relative">
-          {/* Desert Background */}
-          <div 
-            className="absolute inset-0 opacity-10 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: 'url(/images/invoices/Invoice Background.avif)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            }}
-          ></div>
-          
-          {/* Content overlay */}
-          <div className="relative z-10">
+        <div className="glass-panel bg-white text-black rounded-2xl shadow-2xl overflow-hidden">
           {/* Invoice Header */}
           <div className="bg-gradient-to-r from-black to-gray-900 text-white p-6 md:p-8">
             {/* Mobile: Logo on top, then invoice info */}
@@ -313,10 +314,8 @@ export default function PublicInvoicePage() {
             )}
           </div>
 
-          </div>
-          
           {/* Footer */}
-          <div className="bg-gradient-to-r from-black to-gray-900 p-6 relative z-10">
+          <div className="bg-gradient-to-r from-black to-gray-900 p-6">
             {/* Mobile: Vertical layout */}
             <div className="block md:hidden text-center space-y-4">
               <div className="flex justify-center">
@@ -367,6 +366,7 @@ export default function PublicInvoicePage() {
           </div>
         </div>
       </div>
+    </div>
     </div>
   )
 }

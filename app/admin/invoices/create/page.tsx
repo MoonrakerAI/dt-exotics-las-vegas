@@ -521,32 +521,31 @@ export default function CreateInvoice() {
             <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
                 <h2 className="text-2xl font-tech font-bold text-white mb-6">Invoice Preview</h2>
                 
-                <div className="bg-white text-black p-8 rounded-lg relative overflow-hidden">
-                  {/* Desert Background */}
-                  <div 
-                    className="absolute inset-0 opacity-10 bg-cover bg-center bg-no-repeat"
-                    style={{
-                      backgroundImage: 'url(/images/invoices/Invoice Background.avif)',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      backgroundRepeat: 'no-repeat'
-                    }}
-                  ></div>
-                  
-                  {/* Content overlay */}
-                  <div className="relative z-10">
-                  {/* Header */}
-                  <div className="flex justify-between items-start mb-8">
-                    <div>
-                      <h1 className="text-3xl font-bold text-black mb-2">DT Exotics</h1>
-                      <p className="text-gray-600">Las Vegas, Nevada</p>
-                    </div>
-                    <div className="text-right">
-                      <h2 className="text-2xl font-bold text-black mb-2">INVOICE</h2>
-                      <p className="text-gray-600">Invoice #: [Auto-Generated]</p>
-                      <p className="text-gray-600">Date: {new Date().toLocaleDateString()}</p>
+                <div className="bg-white text-black rounded-2xl shadow-2xl overflow-hidden">
+                  {/* Invoice Header */}
+                  <div className="bg-gradient-to-r from-black to-gray-900 text-white p-6 md:p-8">
+                    {/* Desktop: Logo left, info right layout */}
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <img 
+                          src="/images/logo/dt-exotics-logo.png" 
+                          alt="DT Exotics" 
+                          className="h-14 w-auto"
+                        />
+                      </div>
+                      <div className="text-right">
+                        <h2 className="text-3xl font-tech font-bold mb-2">INVOICE</h2>
+                        <p className="text-gray-300">#{formData.invoiceNumber || 'INV-2025-0001'}</p>
+                        <p className="text-gray-300">Issued: {new Date().toLocaleDateString()}</p>
+                        {formData.dueDate && (
+                          <p className="text-gray-300">Due: {new Date(formData.dueDate).toLocaleDateString()}</p>
+                        )}
+                      </div>
                     </div>
                   </div>
+
+                  {/* Invoice Body */}
+                  <div className="p-6 md:p-8">
 
                   {/* Customer Info */}
                   <div className="mb-8">
@@ -638,6 +637,7 @@ export default function CreateInvoice() {
                       )}
                     </div>
                   )}
+                </div>
                   </div>
                 </div>
             </div>
