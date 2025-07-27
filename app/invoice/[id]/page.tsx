@@ -139,7 +139,7 @@ export default function PublicInvoicePage() {
               <div className="flex items-center space-x-6">
                 <div>
                   <img 
-                    src="/images/logo/DT Exotics LV Logo Transparent.png" 
+                    src="/images/logo/dt-exotics-logo.png" 
                     alt="DT Exotics" 
                     className="h-12 w-auto"
                   />
@@ -303,7 +303,7 @@ export default function PublicInvoicePage() {
               <div className="flex items-center space-x-4">
                 <div>
                   <img 
-                    src="/images/logo/DT Exotics LV Logo Transparent.png" 
+                    src="/images/logo/dt-exotics-logo.png" 
                     alt="DT Exotics" 
                     className="h-8 w-auto"
                   />

@@ -56,7 +56,7 @@ export default function Navbar() {
             <div className="flex items-center">
               <a href="/" className="flex items-center hover:opacity-80 transition-opacity duration-300">
                 <img 
-                  src="/images/logo/DT Exotics LV Logo Transparent.png" 
+                  src="/images/logo/dt-exotics-logo.png" 
                   alt="DT Exotics Las Vegas"
                   className={`transition-all duration-500 ${
                     isScrolled ? 'h-10' : 'h-12'
