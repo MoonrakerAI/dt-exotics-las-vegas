@@ -66,7 +66,33 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
   const [showSeoPanel, setShowSeoPanel] = useState(false)
   
   // Get current admin user for author info
-  const currentUser = SimpleAuth.getCurrentUser()
+  const [currentUser, setCurrentUser] = useState(SimpleAuth.getCurrentUser())
+  
+  // Listen for profile updates
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      const updatedUser = SimpleAuth.getCurrentUser()
+      setCurrentUser(updatedUser)
+      
+      // Update author info in form data with current user's profile
+      setFormData(prev => ({
+        ...prev,
+        author: {
+          name: updatedUser?.name || prev.author.name,
+          email: updatedUser?.email || prev.author.email,
+          avatar: updatedUser?.avatar || prev.author.avatar,
+          bio: updatedUser?.bio || prev.author.bio
+        }
+      }))
+    }
+    
+    // Listen for profile update events
+    window.addEventListener('profileUpdated', handleProfileUpdate)
+    
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate)
+    }
+  }, [])
   
   // Form state
   const [formData, setFormData] = useState({
@@ -80,11 +106,11 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
     categories: post?.categories || [],
     tags: post?.tags || [],
     scheduledFor: post?.scheduledFor || '',
-    author: post?.author || { 
-      name: currentUser?.name || 'Admin', 
-      email: currentUser?.email || 'admin@dtexoticslv.com',
-      avatar: currentUser?.avatar,
-      bio: currentUser?.bio
+    author: {
+      name: currentUser?.name || post?.author?.name || 'Admin',
+      email: currentUser?.email || post?.author?.email || 'admin@dtexoticslv.com',
+      avatar: currentUser?.avatar || post?.author?.avatar,
+      bio: currentUser?.bio || post?.author?.bio
     },
     seo: {
       metaTitle: post?.seo.metaTitle || '',

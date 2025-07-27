@@ -154,15 +154,39 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
           {/* Author Info */}
           <div className="glass-panel bg-dark-metal/50 p-8 border border-gray-600/30 rounded-2xl mb-8">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-neon-blue/20 rounded-full flex items-center justify-center">
-                <span className="text-neon-blue font-bold text-lg">
-                  {post.author.name.charAt(0).toUpperCase()}
-                </span>
+            <div className="flex items-start space-x-4">
+              {/* Author Avatar */}
+              <div className="flex-shrink-0">
+                {post.author.avatar ? (
+                  <img 
+                    src={post.author.avatar} 
+                    alt={post.author.name}
+                    className="w-16 h-16 rounded-full object-cover border-2 border-neon-blue/30"
+                    onError={(e) => {
+                      // Fallback to initials if avatar fails to load
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const fallback = target.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div 
+                  className={`w-16 h-16 bg-neon-blue/20 rounded-full flex items-center justify-center border-2 border-neon-blue/30 ${post.author.avatar ? 'hidden' : 'flex'}`}
+                >
+                  <span className="text-neon-blue font-bold text-xl">
+                    {post.author.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
               </div>
-              <div>
-                <h3 className="text-white font-semibold">{post.author.name}</h3>
-                <p className="text-gray-400 text-sm">Author</p>
+              
+              {/* Author Details */}
+              <div className="flex-1">
+                <h3 className="text-white font-semibold text-lg mb-1">{post.author.name}</h3>
+                <p className="text-neon-blue text-sm mb-3">Author</p>
+                {post.author.bio && (
+                  <p className="text-gray-300 text-sm leading-relaxed">{post.author.bio}</p>
+                )}
               </div>
             </div>
           </div>

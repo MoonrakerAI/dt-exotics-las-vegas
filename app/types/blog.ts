@@ -7,6 +7,8 @@ export interface BlogPost {
   author: {
     name: string
     email: string
+    avatar?: string
+    bio?: string
   }
   seo: {
     metaTitle: string
