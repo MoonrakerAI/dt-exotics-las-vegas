@@ -252,7 +252,7 @@ export default function PublicInvoicePage() {
                   <button
                     onClick={handlePayNow}
                     disabled={paymentLoading}
-                    className="bg-neon-blue hover:bg-blue-500 text-black font-semibold px-8 py-4 rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2 mx-auto"
+                    className="bg-neon-blue text-black font-tech font-semibold uppercase tracking-wider px-12 py-6 rounded-lg transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,255,255,0.8)] hover:scale-105 active:scale-95 disabled:opacity-50 flex items-center space-x-3 mx-auto text-lg"
                   >
                     {paymentLoading ? (
                       <>

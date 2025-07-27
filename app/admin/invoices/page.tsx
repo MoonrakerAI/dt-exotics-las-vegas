@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { SimpleAuth } from '../../lib/simple-auth'
-import { Plus, Search, Filter, Eye, Edit3, DollarSign, Send, Trash2, FileText, ExternalLink, Calendar, AlertCircle } from 'lucide-react'
+import { Plus, Search, Filter, Edit3, DollarSign, Send, Trash2, FileText, ExternalLink, Calendar, AlertCircle } from 'lucide-react'
 import { Invoice, InvoiceFilters } from '@/app/types/invoice'
 
 export default function AdminInvoices() {
@@ -81,16 +81,7 @@ export default function AdminInvoices() {
     }
   }
 
-  const getStatusColor = (status: Invoice['status']) => {
-    switch (status) {
-      case 'draft': return 'bg-gray-500/20 text-gray-400'
-      case 'sent': return 'bg-blue-500/20 text-blue-400'
-      case 'paid': return 'bg-green-500/20 text-green-400'
-      case 'overdue': return 'bg-red-500/20 text-red-400'
-      case 'cancelled': return 'bg-gray-500/20 text-gray-400'
-      default: return 'bg-gray-500/20 text-gray-400'
-    }
-  }
+  // Status display removed - using payment link to view invoice details
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -270,7 +261,6 @@ export default function AdminInvoices() {
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Customer</th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Title</th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Amount</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Status</th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Due Date</th>
                     <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">Actions</th>
                   </tr>
@@ -301,26 +291,10 @@ export default function AdminInvoices() {
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(invoice.status)}`}>
-                          {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
                         <div className="text-white">{formatDate(invoice.dueDate)}</div>
-                        {invoice.status === 'overdue' && (
-                          <div className="text-xs text-red-400">Overdue</div>
-                        )}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-2">
-                          <a
-                            href={`/admin/invoices/${invoice.id}`}
-                            className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
-                            title="View Invoice"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </a>
-                          
                           {invoice.status !== 'paid' && (
                             <>
                               <a
