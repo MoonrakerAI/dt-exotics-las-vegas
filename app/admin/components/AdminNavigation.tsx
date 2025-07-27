@@ -191,11 +191,6 @@ export default function AdminNavigation() {
                 <p className="text-xs text-gray-400">
                   {user.email}
                 </p>
-                {user.bio && (
-                  <p className="text-xs text-gray-500 truncate max-w-32" title={user.bio}>
-                    {user.bio}
-                  </p>
-                )}
               </div>
             </Link>
             
