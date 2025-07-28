@@ -126,7 +126,8 @@ export async function POST(request: NextRequest) {
       author: {
         name: enrichedUser?.name || user.name || 'Admin',
         email: user.email,
-        avatar: enrichedUser?.avatar
+        avatar: enrichedUser?.avatar,
+        bio: enrichedUser?.bio
       },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

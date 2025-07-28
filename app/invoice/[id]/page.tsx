@@ -139,12 +139,6 @@ export default function PublicInvoicePage() {
       {/* Content */}
       <div className="relative z-10 py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-tech font-bold text-white mb-2">DT Exotics</h1>
-          <p className="text-gray-400">Las Vegas Luxury Car Rentals</p>
-        </div>
-
         {/* Invoice Card */}
         <div className="glass-panel bg-white text-black rounded-2xl shadow-2xl overflow-hidden">
           {/* Invoice Header */}

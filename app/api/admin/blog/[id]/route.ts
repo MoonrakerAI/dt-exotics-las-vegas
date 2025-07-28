@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyJWT } from '@/app/lib/auth';
+import { verifyJWT, getEnrichedUser } from '@/app/lib/auth';
 import blogDB from '@/app/lib/blog-database';
 import { validateBlogPost } from '@/app/lib/validation';
 import { adminApiRateLimiter, getClientIdentifier } from '@/app/lib/rate-limit';
@@ -119,9 +119,18 @@ export async function PUT(
       }
     }
 
-    // Update the blog post
+    // Get enriched user data for author info
+    const enrichedUser = await getEnrichedUser(user.userId);
+
+    // Update the blog post with current admin's author info
     const updatedPost = await blogDB.updatePost(id, {
       ...postData,
+      author: {
+        name: enrichedUser?.name || user.name || 'Admin',
+        email: user.email,
+        avatar: enrichedUser?.avatar,
+        bio: enrichedUser?.bio
+      },
       publishedAt: postData.status === 'published' && !existingPost.publishedAt 
         ? new Date().toISOString() 
         : existingPost.publishedAt
