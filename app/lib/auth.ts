@@ -13,8 +13,9 @@ export interface User {
 // Get admin credentials from environment variables
 const JWT_SECRET = process.env.JWT_SECRET
 
-if (!JWT_SECRET) {
-  throw new Error('Missing required environment variable: JWT_SECRET')
+// Only throw error at runtime, not during build
+if (!JWT_SECRET && process.env.NODE_ENV !== 'production' && typeof window === 'undefined' && !process.env.VERCEL_ENV) {
+  console.warn('Warning: JWT_SECRET environment variable is missing. This may cause authentication issues.')
 }
 
 // Multiple admin users configuration
@@ -74,6 +75,9 @@ export async function validateCredentials(email: string, password: string): Prom
 }
 
 export async function createSession(user: User): Promise<string> {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is required for creating sessions')
+  }
   const payload = {
     userId: user.id,
     email: user.email,
@@ -83,12 +87,15 @@ export async function createSession(user: User): Promise<string> {
     exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
   }
   
-  return jwt.sign(payload, JWT_SECRET!, { algorithm: 'HS256' })
+  return jwt.sign(payload, JWT_SECRET, { algorithm: 'HS256' })
 }
 
 export async function validateSession(sessionToken: string): Promise<User | null> {
   try {
-    const payload = jwt.verify(sessionToken, JWT_SECRET!, { algorithms: ['HS256'] }) as any
+    if (!JWT_SECRET) {
+      throw new Error('JWT_SECRET is required for validating sessions')
+    }
+    const payload = jwt.verify(sessionToken, JWT_SECRET, { algorithms: ['HS256'] }) as any
     
     if (payload.exp < Math.floor(Date.now() / 1000)) {
       return null // Token expired
@@ -182,28 +189,19 @@ export async function getEnrichedUser(userId: string): Promise<User & { avatar?:
 }
 
 // JWT verification function for API routes
-export async function verifyJWT(token: string): Promise<User | null> {
+export async function verifyJWT(token: string): Promise<any> {
   try {
-    const payload = jwt.verify(token, JWT_SECRET!, { algorithms: ['HS256'] }) as any
+    if (!JWT_SECRET) {
+      throw new Error('JWT_SECRET is required for verifying tokens')
+    }
+    const payload = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] }) as any
     
     if (payload.exp < Math.floor(Date.now() / 1000)) {
-      return null // Token expired
+      throw new Error('Invalid or expired token')
     }
     
-    // Find the user in our admin list
-    const user = ADMIN_USERS.find(u => u.id === payload.userId)
-    
-    if (!user) {
-      return null
-    }
-    
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role
-    }
+    return payload
   } catch (error) {
-    return null
+    throw new Error('Invalid or expired token')
   }
 }

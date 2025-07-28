@@ -535,7 +535,7 @@ export default function CreateInvoice() {
                       </div>
                       <div className="text-right">
                         <h2 className="text-3xl font-tech font-bold mb-2">INVOICE</h2>
-                        <p className="text-gray-300">#{formData.invoiceNumber || 'INV-2025-0001'}</p>
+                        <p className="text-gray-300">#INV-2025-0001</p>
                         <p className="text-gray-300">Issued: {new Date().toLocaleDateString()}</p>
                         {formData.dueDate && (
                           <p className="text-gray-300">Due: {new Date(formData.dueDate).toLocaleDateString()}</p>
@@ -546,98 +546,96 @@ export default function CreateInvoice() {
 
                   {/* Invoice Body */}
                   <div className="p-6 md:p-8">
-
-                  {/* Customer Info */}
-                  <div className="mb-8">
-                    <h3 className="text-lg font-semibold text-black mb-2">Bill To:</h3>
-                    <div className="text-gray-700">
-                      <p className="font-medium">{formData.customer.name || 'Customer Name'}</p>
-                      <p>{formData.customer.email || 'customer@email.com'}</p>
-                      {formData.customer.phone && <p>{formData.customer.phone}</p>}
+                    {/* Customer Info */}
+                    <div className="mb-8">
+                      <h3 className="text-lg font-semibold text-black mb-2">Bill To:</h3>
+                      <div className="text-gray-700">
+                        <p className="font-medium">{formData.customer.name || 'Customer Name'}</p>
+                        <p>{formData.customer.email || 'customer@email.com'}</p>
+                        {formData.customer.phone && <p>{formData.customer.phone}</p>}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Invoice Details */}
-                  <div className="mb-8">
-                    <h3 className="text-xl font-bold text-black mb-2">{formData.title || 'Invoice Title'}</h3>
-                    {formData.description && (
-                      <p className="text-gray-700 mb-4">{formData.description}</p>
-                    )}
-                    <p className="text-sm text-gray-600">Due Date: {formData.dueDate || 'Not set'}</p>
-                  </div>
+                    {/* Invoice Details */}
+                    <div className="mb-8">
+                      <h3 className="text-xl font-bold text-black mb-2">{formData.title || 'Invoice Title'}</h3>
+                      {formData.description && (
+                        <p className="text-gray-700 mb-4">{formData.description}</p>
+                      )}
+                      <p className="text-sm text-gray-600">Due Date: {formData.dueDate || 'Not set'}</p>
+                    </div>
 
-                  {/* Line Items */}
-                  <div className="mb-8">
-                    <table className="w-full border-collapse">
-                      <thead>
-                        <tr className="border-b-2 border-gray-300">
-                          <th className="text-left py-2 text-black">Description</th>
-                          <th className="text-center py-2 text-black">Qty</th>
-                          <th className="text-right py-2 text-black">Unit Price</th>
-                          <th className="text-right py-2 text-black">Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {formData.lineItems.map((item, index) => (
-                          <tr key={index} className="border-b border-gray-200">
-                            <td className="py-2 text-gray-700">{item.description || 'Service description'}</td>
-                            <td className="py-2 text-center text-gray-700">{item.quantity}</td>
-                            <td className="py-2 text-right text-gray-700">{formatCurrency(item.unitPrice)}</td>
-                            <td className="py-2 text-right text-gray-700">{formatCurrency(item.quantity * item.unitPrice)}</td>
+                    {/* Line Items */}
+                    <div className="mb-8">
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr className="border-b-2 border-gray-300">
+                            <th className="text-left py-2 text-black">Description</th>
+                            <th className="text-center py-2 text-black">Qty</th>
+                            <th className="text-right py-2 text-black">Unit Price</th>
+                            <th className="text-right py-2 text-black">Amount</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody>
+                          {formData.lineItems.map((item, index) => (
+                            <tr key={index} className="border-b border-gray-200">
+                              <td className="py-2 text-gray-700">{item.description || 'Service description'}</td>
+                              <td className="py-2 text-center text-gray-700">{item.quantity}</td>
+                              <td className="py-2 text-right text-gray-700">{formatCurrency(item.unitPrice)}</td>
+                              <td className="py-2 text-right text-gray-700">{formatCurrency(item.quantity * item.unitPrice)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
 
-                  {/* Totals */}
-                  <div className="flex justify-end mb-8">
-                    <div className="w-64">
-                      <div className="flex justify-between py-1">
-                        <span className="text-gray-700">Subtotal:</span>
-                        <span className="text-gray-700">{formatCurrency(subtotal)}</span>
-                      </div>
-                      {(formData.discountAmount || 0) > 0 && (
+                    {/* Totals */}
+                    <div className="flex justify-end mb-8">
+                      <div className="w-64">
                         <div className="flex justify-between py-1">
-                          <span className="text-gray-700">Discount:</span>
-                          <span className="text-gray-700">-{formatCurrency(formData.discountAmount || 0)}</span>
+                          <span className="text-gray-700">Subtotal:</span>
+                          <span className="text-gray-700">{formatCurrency(subtotal)}</span>
                         </div>
-                      )}
-                      <div className="flex justify-between py-1">
-                        <span className="text-gray-700">Tax ({formData.taxRate}%):</span>
-                        <span className="text-gray-700">{formatCurrency(taxAmount)}</span>
-                      </div>
-                      <div className="flex justify-between py-2 border-t border-gray-300 font-bold">
-                        <span className="text-black">Total:</span>
-                        <span className="text-black">{formatCurrency(totalAmount)}</span>
-                      </div>
-                      {formData.depositRequired && formData.depositAmount && (
-                        <div className="flex justify-between py-1 text-sm">
-                          <span className="text-gray-600">Deposit Required:</span>
-                          <span className="text-gray-600">{formatCurrency(formData.depositAmount)}</span>
+                        {(formData.discountAmount || 0) > 0 && (
+                          <div className="flex justify-between py-1">
+                            <span className="text-gray-700">Discount:</span>
+                            <span className="text-gray-700">-{formatCurrency(formData.discountAmount || 0)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between py-1">
+                          <span className="text-gray-700">Tax ({formData.taxRate}%):</span>
+                          <span className="text-gray-700">{formatCurrency(taxAmount)}</span>
                         </div>
-                      )}
+                        <div className="flex justify-between py-2 border-t border-gray-300 font-bold">
+                          <span className="text-black">Total:</span>
+                          <span className="text-black">{formatCurrency(totalAmount)}</span>
+                        </div>
+                        {formData.depositRequired && formData.depositAmount && (
+                          <div className="flex justify-between py-1 text-sm">
+                            <span className="text-gray-600">Deposit Required:</span>
+                            <span className="text-gray-600">{formatCurrency(formData.depositAmount)}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Notes and Terms */}
-                  {(formData.notes || formData.terms) && (
-                    <div className="border-t border-gray-300 pt-6">
-                      {formData.notes && (
-                        <div className="mb-4">
-                          <h4 className="font-semibold text-black mb-2">Notes:</h4>
-                          <p className="text-gray-700 text-sm">{formData.notes}</p>
-                        </div>
-                      )}
-                       {formData.terms && (
-                        <div>
-                          <h4 className="font-semibold text-black mb-2">Terms & Conditions:</h4>
-                          <p className="text-gray-700 text-sm">{formData.terms}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
+                    {/* Notes and Terms */}
+                    {(formData.notes || formData.terms) && (
+                      <div className="border-t border-gray-300 pt-6">
+                        {formData.notes && (
+                          <div className="mb-4">
+                            <h4 className="font-semibold text-black mb-2">Notes:</h4>
+                            <p className="text-gray-700 text-sm">{formData.notes}</p>
+                          </div>
+                        )}
+                        {formData.terms && (
+                          <div className="mb-4">
+                            <h4 className="font-semibold text-black mb-2">Terms & Conditions:</h4>
+                            <p className="text-gray-700 text-sm">{formData.terms}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
             </div>
