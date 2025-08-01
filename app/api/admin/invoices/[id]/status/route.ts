@@ -59,7 +59,7 @@ export async function PATCH(
     // Update invoice status
     const updatedInvoice: Invoice = {
       ...existingInvoice,
-      status: status as 'draft' | 'sent' | 'paid',
+      status: status as 'draft' | 'ready' | 'sent' | 'paid',
       updatedAt: new Date().toISOString()
     };
 

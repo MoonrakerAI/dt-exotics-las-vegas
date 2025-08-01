@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
     const invoice: Invoice = {
       id: crypto.randomUUID(),
       invoiceNumber: generateInvoiceNumber(),
-      status: 'draft',
+      status: 'ready',
       customer: body.customer,
       title: body.title,
       description: body.description,

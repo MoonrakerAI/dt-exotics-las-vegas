@@ -81,7 +81,34 @@ export default function AdminInvoices() {
     }
   }
 
-  const handleStatusUpdate = async (invoiceId: string, newStatus: 'draft' | 'sent' | 'paid') => {
+  const handleEmailInvoice = async (invoice: Invoice) => {
+    try {
+      const token = localStorage.getItem('dt-admin-token')
+      const response = await fetch(`/api/admin/invoices/${invoice.id}/email`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to send invoice email')
+      }
+
+      // Update status to 'sent' after successful email
+      await handleStatusUpdate(invoice.id, 'sent')
+      
+      setSuccess(`Invoice emailed successfully to ${invoice.customer.email}`)
+      setTimeout(() => setSuccess(null), 3000)
+
+    } catch (err) {
+      console.error('Email error:', err)
+      setError(err instanceof Error ? err.message : 'Failed to send invoice email')
+    }
+  }
+
+  const handleStatusUpdate = async (invoiceId: string, newStatus: 'draft' | 'ready' | 'sent' | 'paid') => {
     try {
       const token = localStorage.getItem('dt-admin-token')
       const response = await fetch(`/api/admin/invoices/${invoiceId}/status`, {
@@ -315,14 +342,16 @@ export default function AdminInvoices() {
                       <td className="px-6 py-4">
                         <select
                           value={invoice.status}
-                          onChange={(e) => handleStatusUpdate(invoice.id, e.target.value as 'draft' | 'sent' | 'paid')}
+                          onChange={(e) => handleStatusUpdate(invoice.id, e.target.value as 'draft' | 'ready' | 'sent' | 'paid')}
                           className={`px-4 py-1 pr-8 rounded text-sm border border-gray-600 focus:border-neon-blue focus:outline-none ${
                             invoice.status === 'draft' ? 'bg-gray-600 text-white' :
+                            invoice.status === 'ready' ? 'bg-yellow-600 text-white' :
                             invoice.status === 'sent' ? 'bg-blue-600 text-white' :
                             'bg-green-600 text-white'
                           }`}
                         >
                           <option value="draft" style={{ backgroundColor: '#1f2937', color: '#ffffff' }}>Draft</option>
+                          <option value="ready" style={{ backgroundColor: '#1f2937', color: '#ffffff' }}>Ready</option>
                           <option value="sent" style={{ backgroundColor: '#1f2937', color: '#ffffff' }}>Sent</option>
                           <option value="paid" style={{ backgroundColor: '#1f2937', color: '#ffffff' }}>Paid</option>
                         </select>
@@ -341,6 +370,15 @@ export default function AdminInvoices() {
                               >
                                 <Edit3 className="w-4 h-4" />
                               </a>
+
+                              <button
+                                onClick={() => handleEmailInvoice(invoice)}
+                                className="p-2 text-gray-400 hover:text-blue-400 transition-colors"
+                                title="Email Invoice"
+                                disabled={['paid', 'cancelled'].includes(invoice.status)}
+                              >
+                                <Send className="w-4 h-4" />
+                              </button>
 
                               <a
                                 href={`/invoice/${invoice.id}`}

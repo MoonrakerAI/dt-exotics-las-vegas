@@ -22,7 +22,7 @@ export interface InvoiceCustomer {
 export interface Invoice {
   id: string
   invoiceNumber: string
-  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled'
+  status: 'draft' | 'ready' | 'sent' | 'paid' | 'overdue' | 'cancelled'
   
   // Customer information
   customer: InvoiceCustomer

@@ -93,6 +93,7 @@ export default function PublicInvoicePage() {
     switch (status) {
       case 'paid': return 'bg-green-500/20 text-green-400 border-green-500/30'
       case 'overdue': return 'bg-red-500/20 text-red-400 border-red-500/30'
+      case 'ready': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
       case 'sent': return 'bg-blue-500/20 text-blue-400 border-blue-500/30'
       default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30'
     }
@@ -134,7 +135,8 @@ export default function PublicInvoicePage() {
           backgroundRepeat: 'no-repeat'
         }}
       ></div>
-      <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/70"></div>
+      {/* Dark overlay for better readability */}
+      <div className="absolute inset-0 bg-black/40"></div>
       
       {/* Content */}
       <div className="relative z-10 py-8 px-4">
