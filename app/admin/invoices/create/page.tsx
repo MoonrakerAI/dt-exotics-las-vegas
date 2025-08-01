@@ -84,7 +84,7 @@ export default function CreateInvoice() {
 
   const { subtotal, taxAmount, totalAmount } = calculateTotals()
 
-  const handleSave = async (status: 'draft' | 'sent' = 'draft') => {
+  const handleSave = async (status: 'draft' | 'ready' | 'sent' = 'ready') => {
     setError(null)
     setSuccess(null)
 
@@ -143,17 +143,8 @@ export default function CreateInvoice() {
 
       const data = await response.json()
       
-      if (status === 'sent') {
-        // Update status to sent
-        await fetch(`/api/admin/invoices/${data.invoice.id}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ status: 'sent' })
-        })
-      }
+      // Only update status if explicitly set to 'sent' (for future use)
+      // Default 'ready' status is already set by the API
 
       setSuccess(`Invoice created successfully!`)
       

@@ -54,6 +54,7 @@ export async function POST(
     const emailSubject = `Invoice ${invoice.invoiceNumber} from DT Exotics Las Vegas`
 
     // Send email via Resend
+    console.log('Attempting to send email to:', invoice.customer.email)
     const emailResult = await resend.emails.send({
       from: 'DT Exotics Las Vegas <invoices@dtexoticslv.com>',
       to: [invoice.customer.email],
@@ -62,10 +63,12 @@ export async function POST(
       replyTo: 'billing@dtexoticslv.com'
     })
 
+    console.log('Email result:', emailResult)
+    
     if (emailResult.error) {
       console.error('Resend error:', emailResult.error)
       return NextResponse.json(
-        { error: 'Failed to send email' },
+        { error: `Failed to send email: ${emailResult.error.message || emailResult.error}` },
         { status: 500 }
       )
     }

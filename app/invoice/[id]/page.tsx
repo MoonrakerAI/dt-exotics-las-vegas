@@ -129,7 +129,7 @@ export default function PublicInvoicePage() {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: 'url(/images/invoices/Invoice Background.avif)',
+          backgroundImage: 'url("/images/invoices/Invoice Background.avif")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
