@@ -7,7 +7,14 @@ import { Invoice } from '@/app/types/invoice'
 // Initialize Resend only when API key is available
 let resend: Resend | null = null
 if (process.env.RESEND_API_KEY) {
-  resend = new Resend(process.env.RESEND_API_KEY)
+  try {
+    resend = new Resend(process.env.RESEND_API_KEY)
+    console.log('Resend initialized successfully')
+  } catch (error) {
+    console.error('Failed to initialize Resend:', error)
+  }
+} else {
+  console.warn('RESEND_API_KEY not found in environment variables')
 }
 
 export async function POST(
@@ -39,9 +46,18 @@ export async function POST(
     }
 
     // Check if Resend is properly initialized
-    if (!resend || !process.env.RESEND_API_KEY) {
+    if (!process.env.RESEND_API_KEY) {
+      console.error('RESEND_API_KEY environment variable is not set')
       return NextResponse.json(
-        { error: 'Email service not configured' },
+        { error: 'Email service not configured - missing API key' },
+        { status: 500 }
+      )
+    }
+
+    if (!resend) {
+      console.error('Resend client failed to initialize')
+      return NextResponse.json(
+        { error: 'Email service initialization failed' },
         { status: 500 }
       )
     }
