@@ -1,0 +1,24 @@
+# Modern browsers only - reduces polyfills and transforms
+# Targets browsers that support ES2020+ features natively
+# This eliminates Array.prototype.at, Object.hasOwn, and other polyfills
+
+# Chrome 87+ (supports all modern ES features)
+Chrome >= 87
+
+# Firefox 78+ (supports all modern ES features) 
+Firefox >= 78
+
+# Safari 14+ (supports all modern ES features)
+Safari >= 14
+
+# Edge 87+ (Chromium-based)
+Edge >= 87
+
+# Mobile browsers
+iOS >= 14
+Android >= 87
+
+# Exclude legacy browsers to minimize polyfills
+not IE 11
+not dead
+not < 0.25%

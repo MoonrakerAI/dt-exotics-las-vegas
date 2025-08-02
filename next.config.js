@@ -15,6 +15,15 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   
+  // Optimize for modern browsers - reduce polyfills and transforms
+  experimental: {
+    esmExternals: true,
+    swcPlugins: [],
+  },
+  
+  // Override default transpilation to target modern browsers
+  transpilePackages: [],
+  
   // Configure headers for better caching
   async headers() {
     return [
