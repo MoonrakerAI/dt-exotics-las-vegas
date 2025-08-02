@@ -7,7 +7,7 @@ import {
   LayoutDashboard, 
   Car, 
   FileText, 
-  Settings, 
+  Bell, 
   LogOut, 
   User,
   Calendar,
@@ -47,10 +47,10 @@ const navItems = [
     description: 'Vehicle management'
   },
   { 
-    href: '/admin/settings', 
-    label: 'Settings', 
-    icon: Settings,
-    description: 'System configuration'
+    href: '/admin/notifications', 
+    label: 'Notifications', 
+    icon: Bell,
+    description: 'Email notification settings'
   }
 ]
 
