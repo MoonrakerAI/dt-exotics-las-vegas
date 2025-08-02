@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { SimpleAuth } from '../../lib/simple-auth'
 import { Plus, Search, Filter, Edit3, DollarSign, Send, Trash2, FileText, ExternalLink, Calendar, AlertCircle } from 'lucide-react'
 import { Invoice, InvoiceFilters } from '@/app/types/invoice'
+import EmailInvoiceModal from '../components/EmailInvoiceModal'
 
 export default function AdminInvoices() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
@@ -13,6 +14,8 @@ export default function AdminInvoices() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filters, setFilters] = useState<InvoiceFilters>({})
   const [showFilters, setShowFilters] = useState(false)
+  const [emailModalOpen, setEmailModalOpen] = useState(false)
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
 
   useEffect(() => {
     fetchInvoices()
@@ -81,30 +84,50 @@ export default function AdminInvoices() {
     }
   }
 
-  const handleEmailInvoice = async (invoice: Invoice) => {
+  const openEmailModal = (invoice: Invoice) => {
+    setSelectedInvoice(invoice)
+    setEmailModalOpen(true)
+  }
+
+  const handleEmailInvoice = async (recipients: string[], customMessage?: string) => {
+    if (!selectedInvoice) return
+
     try {
       const token = localStorage.getItem('dt-admin-token')
-      const response = await fetch(`/api/admin/invoices/${invoice.id}/email`, {
+      const response = await fetch(`/api/admin/invoices/${selectedInvoice.id}/email`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({
+          recipients,
+          customMessage
+        })
       })
 
       if (!response.ok) {
-        throw new Error('Failed to send invoice email')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to send invoice email')
       }
 
       // Update status to 'sent' after successful email
-      await handleStatusUpdate(invoice.id, 'sent')
+      await handleStatusUpdate(selectedInvoice.id, 'sent')
       
-      setSuccess(`Invoice emailed successfully to ${invoice.customer.email}`)
+      const recipientList = recipients.length > 1 
+        ? `${recipients.length} recipients` 
+        : recipients[0]
+      
+      setSuccess(`Invoice emailed successfully to ${recipientList}`)
       setTimeout(() => setSuccess(null), 3000)
+
+      // Close modal and clear selection
+      setEmailModalOpen(false)
+      setSelectedInvoice(null)
 
     } catch (err) {
       console.error('Email error:', err)
-      setError(err instanceof Error ? err.message : 'Failed to send invoice email')
+      throw err // Re-throw to let modal handle the error display
     }
   }
 
@@ -372,7 +395,7 @@ export default function AdminInvoices() {
                               </a>
 
                               <button
-                                onClick={() => handleEmailInvoice(invoice)}
+                                onClick={() => openEmailModal(invoice)}
                                 className="p-2 text-gray-400 hover:text-blue-400 transition-colors"
                                 title="Email Invoice"
                                 disabled={['paid', 'cancelled'].includes(invoice.status)}
@@ -409,6 +432,17 @@ export default function AdminInvoices() {
           )}
         </div>
       </div>
+
+      {/* Email Invoice Modal */}
+      <EmailInvoiceModal
+        invoice={selectedInvoice}
+        isOpen={emailModalOpen}
+        onClose={() => {
+          setEmailModalOpen(false)
+          setSelectedInvoice(null)
+        }}
+        onSend={handleEmailInvoice}
+      />
     </div>
   )
 }

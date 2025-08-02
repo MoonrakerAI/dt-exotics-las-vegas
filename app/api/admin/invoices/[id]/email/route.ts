@@ -21,8 +21,6 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params
-  
   try {
     // Verify JWT token
     const authHeader = request.headers.get('authorization')
@@ -35,6 +33,16 @@ export async function POST(
 
     if (!user) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    }
+
+    // Get invoice ID and request body
+    const { id } = await params
+    const body = await request.json()
+    const { recipients, customMessage } = body
+
+    // Validate recipients
+    if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
+      return NextResponse.json({ error: 'Recipients are required' }, { status: 400 })
     }
 
     // Get invoice from database
@@ -66,14 +74,14 @@ export async function POST(
     const invoiceUrl = `${process.env.NEXTAUTH_URL || 'https://dtexoticslv.com'}/invoice/${invoice.id}`
 
     // Create email content
-    const emailHtml = generateInvoiceEmailTemplate(invoice, invoiceUrl)
+    const emailHtml = generateInvoiceEmailTemplate(invoice, invoiceUrl, customMessage)
     const emailSubject = `Invoice ${invoice.invoiceNumber} from DT Exotics Las Vegas`
 
-    // Send email via Resend
-    console.log('Attempting to send email to:', invoice.customer.email)
+    // Send email via Resend to all recipients
+    console.log('Attempting to send email to:', recipients)
     const emailResult = await resend.emails.send({
       from: 'DT Exotics Las Vegas <invoices@dtexoticslv.com>',
-      to: [invoice.customer.email],
+      to: recipients,
       subject: emailSubject,
       html: emailHtml,
       replyTo: 'billing@dtexoticslv.com'
@@ -104,7 +112,7 @@ export async function POST(
   }
 }
 
-function generateInvoiceEmailTemplate(invoice: Invoice, invoiceUrl: string): string {
+function generateInvoiceEmailTemplate(invoice: Invoice, invoiceUrl: string, customMessage?: string): string {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -248,6 +256,8 @@ function generateInvoiceEmailTemplate(invoice: Invoice, invoiceUrl: string): str
           <div class="greeting">
             Hello ${invoice.customer.name},
           </div>
+          
+          ${customMessage ? `<div style="background-color: #e3f2fd; border-left: 4px solid #00d4ff; padding: 15px; margin: 20px 0; border-radius: 4px;"><p style="margin: 0; font-style: italic; color: #1565c0;">${customMessage}</p></div>` : ''}
           
           <p>Thank you for choosing DT Exotics for your luxury car rental experience! Please find your invoice details below:</p>
           
