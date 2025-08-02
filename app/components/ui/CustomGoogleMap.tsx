@@ -167,8 +167,8 @@ export default function CustomGoogleMap() {
 
   // Business location coordinates (DT Exotics - 9620 Las Vegas Blvd S, Las Vegas, NV 89123)
   const businessLocation = {
-    lat: 36.015278,
-    lng: -115.207222
+    lat: 36.015556,
+    lng: -115.206944
   }
 
   // Initialize map with proper error handling
