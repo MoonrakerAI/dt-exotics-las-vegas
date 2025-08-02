@@ -15,10 +15,6 @@ export interface VehicleSpecs {
   cylinders?: number;
   displacement?: number;
   features?: string[];
-  stockImages?: {
-    main?: string;
-    gallery?: string[];
-  };
   msrp?: number;
 }
 
@@ -121,8 +117,7 @@ class VehicleAPIService {
         transmission: this.formatTransmission(vehicleData.transmission),
         drivetrain: this.formatDrivetrain(vehicleData.drive),
         doors: vehicleData.doors || undefined,
-        features: this.getEnhancedFeatures(vehicleData),
-        stockImages: this.getStockImagePlaceholders(vehicleData.make || make, vehicleData.model || model)
+        features: this.getEnhancedFeatures(vehicleData)
       };
 
       // Handle top speed from API Ninja (convert km/h to MPH if needed)
@@ -208,8 +203,7 @@ class VehicleAPIService {
           model: this.capitalizeWords(model),
           year: year,
           category: this.inferCategory(make, model),
-          features: this.getDefaultFeatures(),
-          stockImages: this.getStockImagePlaceholders(make, model)
+          features: this.getDefaultFeatures()
         };
 
         return {
@@ -235,8 +229,7 @@ class VehicleAPIService {
         model: this.capitalizeWords(model),
         year: year,
         category: this.inferCategory(make, model),
-        features: this.getDefaultFeatures(),
-        stockImages: this.getStockImagePlaceholders(make, model)
+        features: this.getDefaultFeatures()
       };
 
       return {
@@ -253,8 +246,7 @@ class VehicleAPIService {
       model: this.capitalizeWords(model),
       year: year,
       category: this.inferCategory(make, model),
-      features: this.getDefaultFeatures(),
-      stockImages: this.getStockImagePlaceholders(make, model)
+      features: this.getDefaultFeatures()
     };
 
     // Add performance estimates for exotic/luxury cars
@@ -491,19 +483,7 @@ class VehicleAPIService {
     ];
   }
 
-  private getStockImagePlaceholders(make: string, model: string): { main?: string; gallery?: string[] } {
-    // For now, return placeholder URLs - in production, you'd integrate with image APIs
-    const makeModel = `${make} ${model}`.replace(/\s+/g, '-').toLowerCase();
-    
-    return {
-      main: `https://images.unsplash.com/search/photos/${encodeURIComponent(make + ' ' + model)}?w=800&h=600&fit=crop`,
-      gallery: [
-        `https://images.unsplash.com/search/photos/${encodeURIComponent(make + ' ' + model + ' interior')}?w=800&h=600&fit=crop`,
-        `https://images.unsplash.com/search/photos/${encodeURIComponent(make + ' ' + model + ' side')}?w=800&h=600&fit=crop`,
-        `https://images.unsplash.com/search/photos/${encodeURIComponent(make + ' ' + model + ' rear')}?w=800&h=600&fit=crop`
-      ]
-    };
-  }
+
 
   // Get vehicle suggestions for autocomplete
   async getVehicleSuggestions(make: string, model?: string): Promise<{
