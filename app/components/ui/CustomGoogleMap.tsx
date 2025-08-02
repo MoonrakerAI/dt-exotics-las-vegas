@@ -209,9 +209,9 @@ export default function CustomGoogleMap() {
 
       mapInstanceRef.current = map
 
-      // Custom marker icon using DT Exotics logo
+      // Custom marker icon using DT Exotics black logo for better visibility
       const customMarker = {
-        url: '/images/logo/DT Exotics Logo Icon.png',
+        url: '/images/logo/DT Exotics Logo Icon Black.png',
         scaledSize: new window.google.maps.Size(48, 48),
         origin: new window.google.maps.Point(0, 0),
         anchor: new window.google.maps.Point(24, 24)
@@ -227,7 +227,7 @@ export default function CustomGoogleMap() {
         optimized: true // Optimize marker rendering
       })
 
-      // Standard Google info window content with dark theme
+      // Standard Google info window content with dark theme (no white border)
       const infoWindowContent = `
         <div style="
           background: #1a1a1a;
@@ -237,6 +237,9 @@ export default function CustomGoogleMap() {
           border-radius: 8px;
           overflow: hidden;
           min-width: 250px;
+          border: none;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+          margin: 0;
         ">
           <!-- Business Header -->
           <div style="
@@ -324,11 +327,58 @@ export default function CustomGoogleMap() {
         </div>
       `
 
-      // Create info window with standard Google configuration
+      // Create info window with custom positioning and styling
       const infoWindow = new window.google.maps.InfoWindow({
         content: infoWindowContent,
         disableAutoPan: false,
-        maxWidth: 300
+        maxWidth: 300,
+        pixelOffset: new window.google.maps.Size(150, -50) // Position towards top-right
+      })
+
+      // Override Google's default info window styling to remove white border
+      window.google.maps.event.addListener(infoWindow, 'domready', () => {
+        const iwOuter = document.querySelector('.gm-style-iw') as HTMLElement
+        const iwBackground = document.querySelector('.gm-style-iw-d') as HTMLElement
+        const iwCloseBtn = document.querySelector('.gm-ui-hover-effect') as HTMLElement
+        
+        if (iwOuter) {
+          iwOuter.style.background = 'transparent'
+          iwOuter.style.border = 'none'
+          iwOuter.style.boxShadow = 'none'
+        }
+        
+        if (iwBackground) {
+          iwBackground.style.background = 'transparent'
+          iwBackground.style.border = 'none'
+          iwBackground.style.boxShadow = 'none'
+          iwBackground.style.overflow = 'visible'
+        }
+        
+        // Style the close button to match dark theme
+        if (iwCloseBtn) {
+          iwCloseBtn.style.background = '#333'
+          iwCloseBtn.style.borderRadius = '50%'
+          iwCloseBtn.style.width = '24px'
+          iwCloseBtn.style.height = '24px'
+          iwCloseBtn.style.top = '8px'
+          iwCloseBtn.style.right = '8px'
+        }
+        
+        // Remove the white background and border from the info window container
+        const iwContainer = document.querySelector('.gm-style-iw-c') as HTMLElement
+        if (iwContainer) {
+          iwContainer.style.background = 'transparent'
+          iwContainer.style.border = 'none'
+          iwContainer.style.borderRadius = '8px'
+          iwContainer.style.boxShadow = 'none'
+          iwContainer.style.padding = '0'
+        }
+        
+        // Remove the tail/pointer styling
+        const iwTail = document.querySelector('.gm-style-iw-t') as HTMLElement
+        if (iwTail) {
+          iwTail.style.display = 'none'
+        }
       })
 
       // Add click listener to marker
