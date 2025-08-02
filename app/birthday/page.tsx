@@ -185,19 +185,19 @@ export default function BirthdayRentals() {
       age: "30th",
       title: "Dirty Thirty Dreams",
       description: "Celebrate entering your prime with the luxury and sophistication you've earned.",
-      image: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+      image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
     },
     {
       age: "40th",
       title: "Fabulous at Forty",
       description: "You've made it! Celebrate your success with the ultimate luxury car experience.",
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+      image: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
     },
     {
       age: "50th+",
       title: "Golden Years Glory",
       description: "You've earned the finest things in life. Experience automotive excellence at its peak.",
-      image: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+      image: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
     }
   ]
 
