@@ -16,6 +16,7 @@ export default function CustomGoogleMap() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isApiLoaded, setIsApiLoaded] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
 
   // Check if Google Maps API is already loaded
   const checkGoogleMapsLoaded = () => {
@@ -45,11 +46,12 @@ export default function CustomGoogleMap() {
         resolve()
       }
 
-      // Create script element
+      // Create script element with minimal libraries to reduce unused JS
       const script = document.createElement('script')
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=${callbackName}&libraries=geometry,places&v=weekly`
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=${callbackName}&v=weekly`
       script.async = true
       script.defer = true
+      script.loading = 'lazy'
       
       script.onerror = () => {
         reject(new Error('Failed to load Google Maps API'))
@@ -404,7 +406,28 @@ export default function CustomGoogleMap() {
     }
   }
 
+  // Intersection Observer for lazy loading
   useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    if (mapRef.current) {
+      observer.observe(mapRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!isVisible) return
+
     const loadAndInitializeMap = async () => {
       try {
         setIsLoading(true)
@@ -439,7 +462,7 @@ export default function CustomGoogleMap() {
         mapInstanceRef.current = null
       }
     }
-  }, [])
+  }, [isVisible])
 
   if (error) {
     return (
