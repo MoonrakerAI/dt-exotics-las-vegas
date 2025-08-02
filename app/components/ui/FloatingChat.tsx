@@ -234,6 +234,8 @@ export default function FloatingChat() {
         className={`w-16 h-16 bg-neon-blue hover:bg-neon-blue/80 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 group ${
           isOpen ? 'rotate-0' : 'hover:shadow-[0_0_25px_rgba(0,255,255,0.5)]'
         }`}
+        aria-label={isOpen ? "Close chat" : "Open chat"}
+        aria-expanded={isOpen}
       >
         <div className={`transition-all duration-500 ${isOpen ? 'rotate-180 scale-0' : 'rotate-0 scale-100'}`}>
           <MessageCircle className="w-8 h-8 text-dark-gray" />

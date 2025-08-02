@@ -123,6 +123,8 @@ export default function Navbar() {
               <button
                 onClick={toggleMobileMenu}
                 className="text-white hover:text-neon-blue transition-colors duration-300"
+                aria-label={isMobileMenuOpen ? "Close mobile menu" : "Open mobile menu"}
+                aria-expanded={isMobileMenuOpen}
               >
                 {isMobileMenuOpen ? (
                   <X className="w-6 h-6" />

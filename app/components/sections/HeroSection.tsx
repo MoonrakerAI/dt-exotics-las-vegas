@@ -20,8 +20,16 @@ export default function HeroSection() {
           loop
           playsInline
           className="h-full w-full object-cover"
+          aria-label="DT Exotics luxury supercar showcase video"
         >
           <source src="/videos/hero/Hero Background.mp4" type="video/mp4" />
+          <track
+            kind="captions"
+            src="/videos/hero/Hero Background.vtt"
+            srcLang="en"
+            label="English captions"
+            default
+          />
         </video>
       </div>
 
