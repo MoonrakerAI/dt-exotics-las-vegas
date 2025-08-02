@@ -116,11 +116,22 @@ class VehicleAPIService {
         stockImages: this.getStockImagePlaceholders(vehicleData.make || make, vehicleData.model || model)
       };
 
-      // Add performance estimates if not provided
+      // Handle top speed from API Ninja (convert km/h to MPH if needed)
+      if (vehicleData.top_speed) {
+        // API Ninja typically returns top speed in km/h, convert to MPH
+        vehicleSpecs.topSpeed = this.convertKmhToMph(vehicleData.top_speed);
+      }
+
+      // Add performance estimates if not provided by API
       const performanceData = this.getPerformanceEstimates(vehicleData.make || make, vehicleData.model || model);
       if (performanceData) {
-        vehicleSpecs.topSpeed = performanceData.topSpeed;
-        vehicleSpecs.acceleration = performanceData.acceleration;
+        // Only use our database values if API didn't provide them
+        if (!vehicleSpecs.topSpeed) {
+          vehicleSpecs.topSpeed = performanceData.topSpeed;
+        }
+        if (!vehicleData.acceleration) {
+          vehicleSpecs.acceleration = performanceData.acceleration;
+        }
       }
 
       return {
@@ -246,9 +257,14 @@ class VehicleAPIService {
   }
 
   private capitalizeWords(str: string): string {
-    return str.replace(/\w\S*/g, (txt) => 
-      txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-    );
+    return str.split(' ').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
+  }
+
+  // Convert km/h to MPH (API Ninja may return speeds in km/h)
+  private convertKmhToMph(kmh: number): number {
+    return Math.round(kmh * 0.621371);
   }
 
   private inferCategory(make: string, model: string): string {
@@ -284,12 +300,12 @@ class VehicleAPIService {
     const makeLower = make.toLowerCase();
     const modelLower = model.toLowerCase();
 
-    // Database of common exotic/luxury car specs
+    // Database of common exotic/luxury car specs (topSpeed in MPH)
     const performanceDB: { [key: string]: any } = {
       'lamborghini_huracan': {
         engine: '5.2L V10',
         horsepower: 630,
-        topSpeed: 325,
+        topSpeed: 202, // Converted from 325 km/h to MPH
         acceleration: '3.2',
         doors: 2,
         fuel: 'Premium',
@@ -299,7 +315,7 @@ class VehicleAPIService {
       'lamborghini_urus': {
         engine: '4.0L V8 Twin-Turbo',
         horsepower: 641,
-        topSpeed: 305,
+        topSpeed: 190, // Converted from 305 km/h to MPH
         acceleration: '3.6',
         doors: 4,
         fuel: 'Premium',
@@ -309,7 +325,7 @@ class VehicleAPIService {
       'ferrari_488': {
         engine: '3.9L V8 Twin-Turbo',
         horsepower: 661,
-        topSpeed: 330,
+        topSpeed: 205, // Converted from 330 km/h to MPH
         acceleration: '3.0',
         doors: 2,
         fuel: 'Premium',
@@ -319,7 +335,7 @@ class VehicleAPIService {
       'porsche_911': {
         engine: '3.0L H6 Twin-Turbo',
         horsepower: 443,
-        topSpeed: 293,
+        topSpeed: 182, // Converted from 293 km/h to MPH
         acceleration: '3.5',
         doors: 2,
         fuel: 'Premium',
@@ -329,7 +345,7 @@ class VehicleAPIService {
       'audi_r8': {
         engine: '5.2L V10',
         horsepower: 562,
-        topSpeed: 324,
+        topSpeed: 201, // Converted from 324 km/h to MPH
         acceleration: '3.2',
         doors: 2,
         fuel: 'Premium',
@@ -339,7 +355,7 @@ class VehicleAPIService {
       'chevrolet_corvette': {
         engine: '6.2L V8',
         horsepower: 495,
-        topSpeed: 312,
+        topSpeed: 194, // Converted from 312 km/h to MPH
         acceleration: '2.9',
         doors: 2,
         fuel: 'Premium',
