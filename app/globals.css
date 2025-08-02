@@ -3,6 +3,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide video captions for decorative background videos while keeping them accessible */
+.hero-video-hidden-captions::cue {
+  display: none;
+  visibility: hidden;
+}
+
 @layer base {
   :root {
     --neon-blue: 0, 255, 255;

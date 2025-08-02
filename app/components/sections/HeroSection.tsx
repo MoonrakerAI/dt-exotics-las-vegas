@@ -19,7 +19,7 @@ export default function HeroSection() {
           muted
           loop
           playsInline
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover hero-video-hidden-captions"
           aria-label="DT Exotics luxury supercar showcase video"
           onError={(e) => {
             console.warn('Hero video failed to load:', e);
