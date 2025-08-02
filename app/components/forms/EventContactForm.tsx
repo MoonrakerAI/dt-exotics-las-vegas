@@ -505,14 +505,6 @@ export const getFormFields = (eventType: string): FormField[] => {
           placeholder: 'Your company or organization name',
           icon: <User className="w-4 h-4" />
         },
-
-        {
-          name: 'businessType',
-          label: 'Business Type',
-          type: 'text',
-          placeholder: 'Describe your business',
-          icon: <MapPin className="w-4 h-4" />
-        },
         {
           name: 'clientVolume',
           label: 'Expected Client Volume',
