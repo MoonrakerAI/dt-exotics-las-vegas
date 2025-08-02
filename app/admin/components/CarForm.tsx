@@ -989,7 +989,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     <button
                       onClick={() => mainImageRef.current?.click()}
                       disabled={uploadingFiles.mainImage}
-                      className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32"
+                      className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32 h-12 py-2"
                     >
                     {uploadingFiles.mainImage ? (
                       <>
@@ -1023,7 +1023,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                     <button
                       onClick={() => galleryImagesRef.current?.click()}
                       disabled={uploadingFiles.galleryImages}
-                      className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32"
+                      className="btn-primary disabled:opacity-50 flex items-center justify-center space-x-2 w-1/4 min-w-32 h-12 py-2"
                     >
                     {uploadingFiles.galleryImages ? (
                       <>

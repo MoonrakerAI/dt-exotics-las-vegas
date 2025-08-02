@@ -27,7 +27,11 @@ export interface VehicleLookupResponse {
 }
 
 class VehicleAPIService {
-  // NHTSA API for basic vehicle data (free)
+  // API-Ninjas Cars API for comprehensive modern car data (free tier available)
+  private readonly API_NINJAS_BASE_URL = 'https://api.api-ninjas.com/v1/cars';
+  private readonly API_NINJAS_KEY = process.env.API_NINJAS_KEY; // Get free key from api.api-ninjas.com
+
+  // NHTSA API for basic vehicle data (free) - fallback
   private readonly NHTSA_BASE_URL = 'https://vpic.nhtsa.dot.gov/api/vehicles';
 
   // Auto.dev API for detailed specs and images (requires API key)
@@ -38,7 +42,15 @@ class VehicleAPIService {
     try {
       console.log(`Looking up vehicle: ${year} ${make} ${model}`);
 
-      // Try enhanced API first if available, then fallback to NHTSA
+      // Try API-Ninjas first (best for modern cars and supercars)
+      if (this.API_NINJAS_KEY) {
+        const ninjasData = await this.getAPINinjasVehicleData(year, make, model);
+        if (ninjasData.success) {
+          return ninjasData;
+        }
+      }
+
+      // Try enhanced API if available
       if (this.AUTO_DEV_API_KEY) {
         const enhancedData = await this.getEnhancedVehicleData(year, make, model);
         if (enhancedData.success) {
@@ -55,6 +67,72 @@ class VehicleAPIService {
       return {
         success: false,
         error: 'Failed to lookup vehicle data. Please enter details manually.'
+      };
+    }
+  }
+
+  private async getAPINinjasVehicleData(year: number, make: string, model: string): Promise<VehicleLookupResponse> {
+    try {
+      const params = new URLSearchParams({
+        make: make.trim(),
+        model: model.trim(),
+        year: year.toString()
+      });
+
+      const response = await fetch(`${this.API_NINJAS_BASE_URL}?${params}`, {
+        headers: {
+          'X-Api-Key': this.API_NINJAS_KEY!
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`API-Ninjas API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data || data.length === 0) {
+        return {
+          success: false,
+          error: 'Vehicle not found in API-Ninjas database'
+        };
+      }
+
+      // Take the first result (most relevant)
+      const vehicleData = data[0];
+      
+      const vehicleSpecs: VehicleSpecs = {
+        make: this.capitalizeWords(vehicleData.make || make),
+        model: this.capitalizeWords(vehicleData.model || model),
+        year: vehicleData.year || year,
+        category: this.inferCategory(vehicleData.make || make, vehicleData.model || model),
+        engine: vehicleData.engine_type || undefined,
+        horsepower: vehicleData.horsepower || undefined,
+        fuel: vehicleData.fuel_type || undefined,
+        transmission: vehicleData.transmission || undefined,
+        drivetrain: vehicleData.drive || undefined,
+        doors: vehicleData.doors || undefined,
+        features: this.getDefaultFeatures(),
+        stockImages: this.getStockImagePlaceholders(vehicleData.make || make, vehicleData.model || model)
+      };
+
+      // Add performance estimates if not provided
+      const performanceData = this.getPerformanceEstimates(vehicleData.make || make, vehicleData.model || model);
+      if (performanceData) {
+        vehicleSpecs.topSpeed = performanceData.topSpeed;
+        vehicleSpecs.acceleration = performanceData.acceleration;
+      }
+
+      return {
+        success: true,
+        data: vehicleSpecs
+      };
+
+    } catch (error) {
+      console.error('API-Ninjas API error:', error);
+      return { 
+        success: false, 
+        error: 'API-Ninjas lookup failed' 
       };
     }
   }
