@@ -227,38 +227,171 @@ export default function CustomGoogleMap() {
         optimized: true // Optimize marker rendering
       })
 
-      // Default Google Maps info window content (no custom styling)
-      const infoWindowContent = `
-        <div>
-          <h3>DT Exotics Supercar Rentals</h3>
-          <p>9620 Las Vegas Blvd S, Las Vegas, NV 89123</p>
-          <p>Luxury Exotic Car Rentals</p>
-          <p>Phone: (702) 518-0924</p>
-          <p><a href="/book-rental" target="_blank">Book Online</a></p>
+      // Create custom positioned overlay in top-left corner (detached from marker)
+      const customInfoOverlay = document.createElement('div')
+      customInfoOverlay.innerHTML = `
+        <div style="
+          position: absolute;
+          top: 16px;
+          left: 16px;
+          z-index: 1000;
+          background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+          border: 2px solid #00FFFF;
+          border-radius: 12px;
+          padding: 20px;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          color: white;
+          box-shadow: 0 8px 32px rgba(0, 255, 255, 0.3), 0 4px 20px rgba(0, 0, 0, 0.8);
+          min-width: 280px;
+          max-width: 320px;
+          backdrop-filter: blur(10px);
+        ">
+          <!-- Business Header -->
+          <div style="
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+          ">
+            <div style="
+              width: 40px;
+              height: 40px;
+              background: linear-gradient(135deg, #00FFFF 0%, #00CCCC 100%);
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-right: 12px;
+              box-shadow: 0 4px 15px rgba(0, 255, 255, 0.4);
+            ">
+              <span style="
+                color: #000;
+                font-weight: bold;
+                font-size: 18px;
+              ">🏎️</span>
+            </div>
+            <div>
+              <h3 style="
+                margin: 0;
+                font-size: 16px;
+                font-weight: 700;
+                color: #00FFFF;
+                text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+                letter-spacing: 0.5px;
+              ">DT Exotics</h3>
+              <p style="
+                margin: 0;
+                font-size: 12px;
+                color: #b0b0b0;
+                font-weight: 500;
+              ">Supercar Rentals</p>
+            </div>
+          </div>
+          
+          <!-- Reviews -->
+          <div style="
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+          ">
+            <span style="color: #ffa500; margin-right: 6px; font-size: 14px;">★★★★★</span>
+            <span style="color: #ccc; font-size: 13px; font-weight: 500;">5.0 (Google Reviews)</span>
+          </div>
+          
+          <!-- Address -->
+          <div style="
+            margin-bottom: 16px;
+            padding: 12px;
+            background: rgba(0, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+          ">
+            <div style="
+              display: flex;
+              align-items: center;
+              color: #e0e0e0;
+              font-size: 13px;
+              font-weight: 500;
+            ">
+              <span style="margin-right: 8px; color: #00FFFF;">📍</span>
+              <span>9620 Las Vegas Blvd S, Las Vegas, NV 89123</span>
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div style="
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+          ">
+            <a href="https://www.google.com/maps/dir//DT+Exotics+Supercar+Rentals" target="_blank" style="
+              background: linear-gradient(135deg, #333 0%, #444 100%);
+              color: white;
+              padding: 10px 16px;
+              border-radius: 8px;
+              text-decoration: none;
+              font-size: 12px;
+              font-weight: 600;
+              flex: 1;
+              text-align: center;
+              border: 1px solid #555;
+              transition: all 0.3s ease;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            " onmouseover="this.style.background='linear-gradient(135deg, #444 0%, #555 100%)'; this.style.transform='translateY(-1px)'"
+               onmouseout="this.style.background='linear-gradient(135deg, #333 0%, #444 100%)'; this.style.transform='translateY(0)'">
+              Directions
+            </a>
+            <a href="sms:+17025180924" style="
+              background: linear-gradient(135deg, #00FFFF 0%, #00CCCC 100%);
+              color: #000;
+              padding: 10px 16px;
+              border-radius: 8px;
+              text-decoration: none;
+              font-size: 12px;
+              font-weight: 600;
+              flex: 1;
+              text-align: center;
+              transition: all 0.3s ease;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+            " onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 20px rgba(0, 255, 255, 0.4)'"
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0, 255, 255, 0.3)'">
+              Text Us
+            </a>
+          </div>
+          
+          <!-- Additional Info -->
+          <div style="
+            padding-top: 12px;
+            border-top: 1px solid rgba(0, 255, 255, 0.2);
+            font-size: 12px;
+            color: #ccc;
+          ">
+            <div style="margin-bottom: 6px; display: flex; align-items: center;">
+              <span style="color: #00FFFF; margin-right: 8px;">📞</span>
+              <span style="font-weight: 500;">(702) 518-0924</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+              <span style="color: #00FFFF; margin-right: 8px;">🌐</span>
+              <a href="/book-rental" style="
+                color: #00FFFF;
+                text-decoration: none;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                transition: all 0.3s ease;
+              " onmouseover="this.style.color='#00DDDD'; this.style.textShadow='0 0 8px rgba(0, 255, 255, 0.6)'"
+                 onmouseout="this.style.color='#00FFFF'; this.style.textShadow='none'">Book Online</a>
+            </div>
+          </div>
         </div>
       `
-
-      // Create info window with default Google Maps behavior
-      const infoWindow = new window.google.maps.InfoWindow({
-        content: infoWindowContent,
-        disableAutoPan: false,
-        maxWidth: 300
-      })
-
-      // Add click listener to marker
-      marker.addListener('click', () => {
-        infoWindow.open(map, marker)
-      })
-
-      // Open info window immediately and keep it open
-      infoWindow.open(map, marker)
       
-      // Ensure info window stays open (prevent accidental closing)
-      infoWindow.addListener('closeclick', () => {
-        setTimeout(() => {
-          infoWindow.open(map, marker)
-        }, 100)
-      })
+      // Add the custom overlay to the map container
+      if (mapRef.current) {
+        mapRef.current.appendChild(customInfoOverlay)
+      }
 
       setIsLoading(false)
       
