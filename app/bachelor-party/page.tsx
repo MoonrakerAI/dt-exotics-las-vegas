@@ -315,22 +315,22 @@ export default function BachelorPartyRentals() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="group cursor-pointer">
               <img
-                src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-                alt="Bachelor party group celebrating with luxury supercars"
+                src="https://images.unsplash.com/photo-1574391884720-bbc2f89956e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                alt="Group of guys celebrating bachelor party with drinks and high energy"
                 className="w-full h-64 object-cover rounded-lg group-hover:scale-105 transition-transform duration-500"
               />
             </div>
             <div className="group cursor-pointer">
               <img
-                src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-                alt="Friends toasting with champagne next to exotic cars in Las Vegas"
+                src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                alt="Bachelor party group at concert or club with live music and party atmosphere"
                 className="w-full h-64 object-cover rounded-lg group-hover:scale-105 transition-transform duration-500"
               />
             </div>
             <div className="group cursor-pointer">
               <img
-                src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-                alt="Bachelor party convoy of supercars driving through Las Vegas Strip at night"
+                src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                alt="Male friends bonding and celebrating together at exclusive party venue"
                 className="w-full h-64 object-cover rounded-lg group-hover:scale-105 transition-transform duration-500"
               />
             </div>
