@@ -315,7 +315,7 @@ export default function BachelorPartyRentals() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="group cursor-pointer">
               <img
-                src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
                 alt="Group of guys celebrating bachelor party with drinks and high energy"
                 className="w-full h-64 object-cover rounded-lg group-hover:scale-105 transition-transform duration-500"
               />
