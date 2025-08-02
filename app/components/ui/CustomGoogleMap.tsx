@@ -227,103 +227,14 @@ export default function CustomGoogleMap() {
         optimized: true // Optimize marker rendering
       })
 
-      // Standard Google info window content with dark theme (no white border)
+      // Default Google Maps info window content (no custom styling)
       const infoWindowContent = `
-        <div style="
-          background: #1a1a1a;
-          color: white;
-          font-family: 'Roboto', Arial, sans-serif;
-          padding: 0;
-          border-radius: 8px;
-          overflow: hidden;
-          min-width: 250px;
-          border: none;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
-          margin: 0;
-        ">
-          <!-- Business Header -->
-          <div style="
-            padding: 16px;
-            border-bottom: 1px solid #333;
-          ">
-            <h3 style="
-              margin: 0 0 4px 0;
-              font-size: 16px;
-              font-weight: 500;
-              color: white;
-            ">DT Exotics Supercar Rentals</h3>
-            <div style="
-              display: flex;
-              align-items: center;
-              margin: 4px 0;
-            ">
-              <span style="color: #ffa500; margin-right: 4px;">★★★★★</span>
-              <span style="color: #999; font-size: 13px;">5.0 (Google Reviews)</span>
-            </div>
-            <p style="
-              margin: 4px 0 0 0;
-              color: #ccc;
-              font-size: 13px;
-            ">Luxury Exotic Car Rentals</p>
-          </div>
-          
-          <!-- Address -->
-          <div style="
-            padding: 12px 16px;
-            border-bottom: 1px solid #333;
-          ">
-            <div style="
-              display: flex;
-              align-items: center;
-              color: #ccc;
-              font-size: 13px;
-            ">
-              <span style="margin-right: 8px;">📍</span>
-              <span>9620 Las Vegas Blvd S, Las Vegas, NV 89123</span>
-            </div>
-          </div>
-          
-          <!-- Action Buttons -->
-          <div style="
-            padding: 12px 16px;
-            display: flex;
-            gap: 8px;
-          ">
-            <a href="https://www.google.com/maps/dir//DT+Exotics+Supercar+Rentals" target="_blank" style="
-              background: #333;
-              color: white;
-              padding: 8px 12px;
-              border-radius: 4px;
-              text-decoration: none;
-              font-size: 12px;
-              font-weight: 500;
-              flex: 1;
-              text-align: center;
-              border: 1px solid #555;
-            ">Directions</a>
-            <a href="sms:+17025180924" style="
-              background: #1a73e8;
-              color: white;
-              padding: 8px 12px;
-              border-radius: 4px;
-              text-decoration: none;
-              font-size: 12px;
-              font-weight: 500;
-              flex: 1;
-              text-align: center;
-            ">Text Us</a>
-          </div>
-          
-          <!-- Additional Info -->
-          <div style="
-            padding: 8px 16px 12px 16px;
-            font-size: 12px;
-            color: #999;
-            border-top: 1px solid #333;
-          ">
-            <div style="margin-bottom: 4px;">📞 (702) 518-0924</div>
-            <div>🌐 <a href="/book-rental" style="color: #1a73e8; text-decoration: none;">Book Online</a></div>
-          </div>
+        <div>
+          <h3>DT Exotics Supercar Rentals</h3>
+          <p>9620 Las Vegas Blvd S, Las Vegas, NV 89123</p>
+          <p>Luxury Exotic Car Rentals</p>
+          <p>Phone: (702) 518-0924</p>
+          <p><a href="/book-rental" target="_blank">Book Online</a></p>
         </div>
       `
 
