@@ -35,15 +35,30 @@ export default function SettingsAdmin() {
   const loadSettings = async () => {
     try {
       const token = localStorage.getItem('dt-admin-token')
-      const response = await fetch('/api/admin/notifications', {
+      
+      // Load general settings
+      const generalResponse = await fetch('/api/admin/settings', {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       
-      if (response.ok) {
-        const data = await response.json()
+      // Load notification settings
+      const notificationResponse = await fetch('/api/admin/notifications', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      
+      if (generalResponse.ok) {
+        const generalData = await generalResponse.json()
         setSettings(prev => ({
           ...prev,
-          notifications: data.settings
+          general: generalData.settings
+        }))
+      }
+      
+      if (notificationResponse.ok) {
+        const notificationData = await notificationResponse.json()
+        setSettings(prev => ({
+          ...prev,
+          notifications: notificationData.settings
         }))
       }
     } catch (error) {
@@ -57,7 +72,19 @@ export default function SettingsAdmin() {
     setSaving(true)
     try {
       const token = localStorage.getItem('dt-admin-token')
-      const response = await fetch('/api/admin/notifications', {
+      
+      // Save general settings
+      const generalResponse = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ settings: settings.general })
+      })
+      
+      // Save notification settings
+      const notificationResponse = await fetch('/api/admin/notifications', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -66,7 +93,7 @@ export default function SettingsAdmin() {
         body: JSON.stringify({ settings: settings.notifications })
       })
       
-      if (response.ok) {
+      if (generalResponse.ok && notificationResponse.ok) {
         alert('Settings saved successfully!')
       } else {
         throw new Error('Failed to save settings')

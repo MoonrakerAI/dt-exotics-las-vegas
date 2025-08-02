@@ -3,10 +3,13 @@
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
+import { formatPhoneForLink } from '../../lib/site-settings'
+import type { SiteSettings } from '../../lib/site-settings'
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null)
   const pathname = usePathname()
 
   useEffect(() => {
@@ -17,6 +20,23 @@ export default function Navbar() {
 
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Fetch site settings on component mount
+  useEffect(() => {
+    const fetchSiteSettings = async () => {
+      try {
+        const response = await fetch('/api/site-settings')
+        const data = await response.json()
+        if (data.success && data.settings) {
+          setSiteSettings(data.settings)
+        }
+      } catch (error) {
+        console.error('Failed to fetch site settings:', error)
+      }
+    }
+
+    fetchSiteSettings()
   }, [])
 
   const navigationItems = [
@@ -38,6 +58,12 @@ export default function Navbar() {
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
+  }
+
+  // Get phone number for SMS link (with fallback)
+  const getPhoneForSMS = () => {
+    const phoneNumber = siteSettings?.phoneNumber || '+1 (702) 123-4567'
+    return `sms:${formatPhoneForLink(phoneNumber)}`
   }
 
   return (
@@ -85,7 +111,7 @@ export default function Navbar() {
             {/* CTA Button */}
             <div className="hidden lg:flex items-center">
               <a 
-                href="sms:+17025180924" 
+                href={getPhoneForSMS()} 
                 className="btn-primary text-sm px-6 py-3"
               >
                 TEXT US NOW
@@ -160,7 +186,7 @@ export default function Navbar() {
             {/* Footer CTA */}
             <div className="p-6 border-t border-gray-800">
               <a 
-                href="sms:+17025180924" 
+                href={getPhoneForSMS()} 
                 className="btn-primary w-full text-center"
                 onClick={toggleMobileMenu}
               >
