@@ -313,21 +313,21 @@ export default function BachelorPartyRentals() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="group cursor-pointer">
+            <div className="group">
               <img
-                src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                src="https://images.unsplash.com/photo-1566737236500-c8ac43014a8e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
                 alt="Group of guys celebrating bachelor party with drinks and high energy"
                 className="w-full h-64 object-cover rounded-lg group-hover:scale-105 transition-transform duration-500"
               />
             </div>
-            <div className="group cursor-pointer">
+            <div className="group">
               <img
                 src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
                 alt="Bachelor party group at concert or club with live music and party atmosphere"
                 className="w-full h-64 object-cover rounded-lg group-hover:scale-105 transition-transform duration-500"
               />
             </div>
-            <div className="group cursor-pointer">
+            <div className="group">
               <img
                 src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
                 alt="Male friends bonding and celebrating together at exclusive party venue"
