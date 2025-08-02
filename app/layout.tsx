@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import ClientChatWrapper from './components/ui/ClientChatWrapper'
-import FontLoader from './components/ui/FontLoader'
 
 export const metadata: Metadata = {
   title: 'DT Exotics Las Vegas - Premium Supercar Rentals',
@@ -41,7 +40,7 @@ export default function RootLayout({
         {/* Preload critical hero video for faster LCP */}
         <link rel="preload" href="/videos/hero/Hero Background.mp4" as="video" type="video/mp4" />
         
-        {/* Preload critical font files to reduce critical path latency */}
+        {/* Critical font loading with optimized display strategy */}
         <link
           rel="preload"
           href="https://fonts.gstatic.com/s/orbitron/v34/yMJRMIlzdpvBhQQL_Qq7dys.woff2"
@@ -57,10 +56,15 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         
+        {/* Load fonts with optimized display strategy to reduce flash */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+        
 
       </head>
       <body className="min-h-screen antialiased">
-        <FontLoader />
         <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-metal-gray/20 via-dark-gray to-dark-gray pointer-events-none" />
         {children}
         <ClientChatWrapper />
