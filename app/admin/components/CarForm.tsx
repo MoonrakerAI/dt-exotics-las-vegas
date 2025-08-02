@@ -662,7 +662,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                 <span>Auto-Populate Vehicle Data</span>
               </h2>
               <p className="text-gray-300 mb-4">
-                Enter Year, Make, and Model below, then click "Auto-Populate" to automatically fill in vehicle specifications and stock photos.
+                Enter Year, Make, and Model below, then click "Auto-Populate" to automatically fill in vehicle specifications and performance data.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
                 <div className="md:col-span-1">

@@ -162,7 +162,7 @@ class VehicleAPIService {
 
   private async getEnhancedVehicleData(year: number, make: string, model: string): Promise<VehicleLookupResponse> {
     try {
-      // This would use Auto.dev API for enhanced data including stock photos
+      // This would use Auto.dev API for enhanced vehicle data and specifications
       // For now, we'll implement a mock response since we don't have the API key
       return {
         success: false,
