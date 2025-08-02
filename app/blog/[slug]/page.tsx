@@ -127,27 +127,32 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <div className="max-w-4xl mx-auto">
           {/* Post Header */}
           <div className="glass-panel bg-dark-metal/50 p-8 mb-8 border border-gray-600/30 rounded-2xl">
-            <div className="flex items-center space-x-2">
-                <User className="w-4 h-4" />
-                <span>By {safePost.author.name || 'Admin'}</span>
-              </div>
-              <span>•</span>
-              <div className="flex items-center space-x-4 text-sm text-gray-400 mb-4">
+            {/* Author Line */}
+            <div className="flex items-center space-x-2 text-sm text-gray-400 mb-2">
+              <User className="w-4 h-4" />
+              <span>By {safePost.author.name || 'Admin'}</span>
+            </div>
+            
+            {/* Date and Category Line */}
+            <div className="flex items-center space-x-4 text-sm text-gray-400 mb-6">
+              <div className="flex items-center space-x-2">
+                <Calendar className="w-4 h-4" />
                 <span>{new Date(safePost.publishedAt!).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
                 })}</span>
-                <span>•</span>
-              {safePost.categories.length > 0 && (
-                <>
-                  <span>{safePost.categories.join(', ')}</span>
-                </>
-              )}
               </div>
+              {safePost.categories.length > 0 && (
+                <div className="flex items-center space-x-2">
+                  <span>•</span>
+                  <span>{safePost.categories.join(', ')}</span>
+                </div>
+              )}
+            </div>
               
-              <h1 className="text-4xl md:text-5xl font-tech font-bold text-white mb-6 leading-tight">
-              {safePost.title}
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                {safePost.title}
               </h1>
               
               <p className="text-xl text-gray-300 leading-relaxed">
