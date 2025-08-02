@@ -36,7 +36,7 @@ export default function ExperienceSection() {
           >
             TEXT US NOW
           </a>
-          <a href="#contact" className="btn-secondary inline-block">
+          <a href="/book-rental" className="btn-secondary inline-block">
             BOOK ONLINE
           </a>
         </div>
