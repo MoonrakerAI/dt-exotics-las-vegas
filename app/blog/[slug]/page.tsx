@@ -52,29 +52,29 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   }
 
   return {
-    title: post.seo.metaTitle,
-    description: post.seo.metaDescription,
-    keywords: post.seo.keywords,
+    title: post.seo?.metaTitle || post.title || 'Blog Post',
+    description: post.seo?.metaDescription || post.excerpt || 'Read this blog post',
+    keywords: post.seo?.keywords || [],
     openGraph: {
-      title: post.seo.ogTitle,
-      description: post.seo.ogDescription,
-      images: post.seo.ogImage ? [post.seo.ogImage] : [],
+      title: post.seo?.ogTitle || post.title || 'Blog Post',
+      description: post.seo?.ogDescription || post.excerpt || 'Read this blog post',
+      images: post.seo?.ogImage ? [post.seo.ogImage] : [],
       type: 'article',
       publishedTime: post.publishedAt,
-      authors: [post.author.name],
-      tags: post.tags
+      authors: [post.author?.name || 'Admin'],
+      tags: post.tags || []
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.seo.ogTitle,
-      description: post.seo.ogDescription,
-      images: post.seo.ogImage ? [post.seo.ogImage] : []
+      title: post.seo?.ogTitle || post.title || 'Blog Post',
+      description: post.seo?.ogDescription || post.excerpt || 'Read this blog post',
+      images: post.seo?.ogImage ? [post.seo.ogImage] : []
     },
     robots: {
-      index: !post.seo.noIndex,
-      follow: !post.seo.noFollow
+      index: !post.seo?.noIndex,
+      follow: !post.seo?.noFollow
     },
-    alternates: post.seo.canonicalUrl ? {
+    alternates: post.seo?.canonicalUrl ? {
       canonical: post.seo.canonicalUrl
     } : undefined
   }
@@ -82,69 +82,84 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
-  const post = await blogDB.getPostBySlug(slug)
   
-  if (!post || post.status !== 'published') {
-    notFound()
-  }
+  try {
+    const post = await blogDB.getPostBySlug(slug)
+    
+    if (!post || post.status !== 'published') {
+      notFound()
+    }
 
-  return (
-    <main className="relative min-h-screen">
-      <Navbar />
-      
-      {/* Hero Section */}
-      {post.featuredImage && (
-        <div className="relative h-96 w-full overflow-hidden mt-20">
-          <img
-            src={post.featuredImage}
-            alt={post.title}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/50"></div>
-        </div>
-      )}
+    // Ensure required fields exist with fallbacks
+    const safePost = {
+      ...post,
+      title: post.title || 'Untitled Post',
+      excerpt: post.excerpt || '',
+      content: post.content || '',
+      author: {
+        name: post.author?.name || 'Admin',
+        email: post.author?.email || 'admin@dtexoticslv.com',
+        avatar: post.author?.avatar || null,
+        bio: post.author?.bio || null
+      },
+      categories: post.categories || [],
+      tags: post.tags || [],
+      publishedAt: post.publishedAt || post.createdAt
+    }
+
+    return (
+      <main className="relative min-h-screen">
+        <Navbar />
+        
+        {/* Hero Section */}
+        {safePost.featuredImage && (
+          <div className="relative h-96 w-full overflow-hidden mt-20">
+            <img
+              src={safePost.featuredImage}
+              alt={safePost.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/50"></div>
+          </div>
+        )}
 
       <div className="pt-8 pb-16 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Post Header */}
           <div className="glass-panel bg-dark-metal/50 p-8 mb-8 border border-gray-600/30 rounded-2xl">
-            <div className="flex items-center space-x-4 text-sm text-gray-400 mb-4">
-              <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2">
                 <User className="w-4 h-4" />
-                <span>By {post.author.name || 'Admin'}</span>
+                <span>By {safePost.author.name || 'Admin'}</span>
               </div>
               <span>•</span>
-              <div className="flex items-center space-x-2">
-                <Calendar className="w-4 h-4" />
-                <span>{new Date(post.publishedAt!).toLocaleDateString('en-US', {
+              <div className="flex items-center space-x-4 text-sm text-gray-400 mb-4">
+                <span>{new Date(safePost.publishedAt!).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
                 })}</span>
-              </div>
-              {post.categories.length > 0 && (
+                <span>•</span>
+              {safePost.categories.length > 0 && (
                 <>
-                  <span>•</span>
-                  <span>{post.categories.join(', ')}</span>
+                  <span>{safePost.categories.join(', ')}</span>
                 </>
               )}
-            </div>
-            
-            <h1 className="text-4xl md:text-5xl font-tech font-bold text-white mb-6">
-              {post.title}
-            </h1>
-            
-            <p className="text-xl text-gray-300 mb-6">
-              {post.excerpt}
-            </p>
-
-            {/* Tags */}
-            {post.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {post.tags.map((tag, index) => (
-                  <span
+              </div>
+              
+              <h1 className="text-4xl md:text-5xl font-tech font-bold text-white mb-6 leading-tight">
+              {safePost.title}
+              </h1>
+              
+              <p className="text-xl text-gray-300 leading-relaxed">
+              {safePost.excerpt}
+              </p>
+              
+            {safePost.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-6">
+                {safePost.tags.map((tag, index) => (
+                  <span 
                     key={index}
-                    className="px-3 py-1 bg-neon-blue/10 text-neon-blue text-sm rounded-full border border-neon-blue/20"
+                    className="px-3 py-1 bg-neon-blue/20 text-neon-blue text-sm rounded-full border border-neon-blue/30"
                   >
                     #{tag}
                   </span>
@@ -156,9 +171,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           {/* Post Content */}
           <div className="glass-panel bg-dark-metal/50 p-8 border border-gray-600/30 rounded-2xl mb-8">
             <div 
-              className="prose prose-invert max-w-none text-gray-300 leading-relaxed"
-              dangerouslySetInnerHTML={{ 
-                __html: parseMarkdown(post.content)
+              className="prose prose-lg prose-invert max-w-none"
+              dangerouslySetInnerHTML={{
+                __html: parseMarkdown(safePost.content)
               }}
             />
           </div>
@@ -169,40 +184,34 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <div className="flex items-start space-x-6">
               {/* Author Avatar */}
               <div className="flex-shrink-0">
-                {post.author.avatar ? (
+                {safePost.author.avatar ? (
                   <img 
-                    src={post.author.avatar} 
-                    alt={post.author.name}
+                    src={safePost.author.avatar || ''} 
+                    alt={safePost.author.name}
                     className="w-20 h-20 rounded-full object-cover border-3 border-neon-blue/50 shadow-lg"
-                    onError={(e) => {
-                      // Fallback to initials if avatar fails to load
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const fallback = target.nextElementSibling as HTMLElement;
-                      if (fallback) fallback.style.display = 'flex';
-                    }}
                   />
-                ) : null}
-                <div 
-                  className={`w-20 h-20 bg-gradient-to-br from-neon-blue/30 to-neon-blue/10 rounded-full flex items-center justify-center border-3 border-neon-blue/50 shadow-lg ${post.author.avatar ? 'hidden' : 'flex'}`}
-                >
-                  <span className="text-neon-blue font-bold text-2xl">
-                    {post.author.name ? post.author.name.charAt(0).toUpperCase() : 'A'}
-                  </span>
-                </div>
+                ) : (
+                  <div 
+                    className={`w-20 h-20 bg-gradient-to-br from-neon-blue/30 to-neon-blue/10 rounded-full flex items-center justify-center border-3 border-neon-blue/50 shadow-lg`}
+                  >
+                    <span className="text-2xl font-bold text-neon-blue">
+                      {safePost.author.name ? safePost.author.name.charAt(0).toUpperCase() : 'A'}
+                    </span>
+                  </div>
+                )}
               </div>
               
               {/* Author Details */}
               <div className="flex-1">
-                <h4 className="text-white font-semibold text-xl mb-2">{post.author.name || 'Admin'}</h4>
+                <h4 className="text-white font-semibold text-xl mb-2">{safePost.author.name || 'Admin'}</h4>
                 <p className="text-neon-blue text-sm font-medium mb-4">Content Author & Luxury Automotive Expert</p>
-                {post.author.bio ? (
-                  <p className="text-gray-300 text-base leading-relaxed">{post.author.bio}</p>
+                {safePost.author.bio ? (
+                  <p className="text-gray-300 text-base leading-relaxed">{safePost.author.bio}</p>
                 ) : (
                   <p className="text-gray-300 text-base leading-relaxed">
-                    {post.author.name} is a passionate automotive enthusiast and expert in luxury vehicle experiences. 
-                    With extensive knowledge of the premium car rental industry, they provide valuable insights into 
-                    the world of exotic and luxury automobiles.
+                    {safePost.author.name} is a passionate automotive enthusiast and expert in luxury vehicle experiences. 
+                    With years of experience in the industry, they bring valuable insights and knowledge to help you 
+                    make the most of your luxury car rental experience in Las Vegas.
                   </p>
                 )}
               </div>
@@ -222,7 +231,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </div>
       </div>
       
-      <Footer />
-    </main>
-  )
+        <Footer />
+      </main>
+    )
+  } catch (error) {
+    console.error('Error rendering blog post:', error)
+    notFound()
+  }
 } 
