@@ -111,7 +111,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <div className="flex items-center space-x-4 text-sm text-gray-400 mb-4">
               <div className="flex items-center space-x-2">
                 <User className="w-4 h-4" />
-                <span>By {post.author.name}</span>
+                <span>By {post.author.name || 'Admin'}</span>
               </div>
               <span>•</span>
               <div className="flex items-center space-x-2">
@@ -187,14 +187,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   className={`w-20 h-20 bg-gradient-to-br from-neon-blue/30 to-neon-blue/10 rounded-full flex items-center justify-center border-3 border-neon-blue/50 shadow-lg ${post.author.avatar ? 'hidden' : 'flex'}`}
                 >
                   <span className="text-neon-blue font-bold text-2xl">
-                    {post.author.name.charAt(0).toUpperCase()}
+                    {post.author.name ? post.author.name.charAt(0).toUpperCase() : 'A'}
                   </span>
                 </div>
               </div>
               
               {/* Author Details */}
               <div className="flex-1">
-                <h4 className="text-white font-semibold text-xl mb-2">{post.author.name}</h4>
+                <h4 className="text-white font-semibold text-xl mb-2">{post.author.name || 'Admin'}</h4>
                 <p className="text-neon-blue text-sm font-medium mb-4">Content Author & Luxury Automotive Expert</p>
                 {post.author.bio ? (
                   <p className="text-gray-300 text-base leading-relaxed">{post.author.bio}</p>
