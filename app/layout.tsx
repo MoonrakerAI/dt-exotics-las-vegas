@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import ClientChatWrapper from './components/ui/ClientChatWrapper'
+import FontLoader from './components/ui/FontLoader'
 
 export const metadata: Metadata = {
   title: 'DT Exotics Las Vegas - Premium Supercar Rentals',
@@ -30,14 +31,28 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://maps.googleapis.com" />
         <link rel="preconnect" href="https://maps.gstatic.com" />
+        <link rel="preconnect" href="https://b9c4kbeqsdvzvtpz.public.blob.vercel-storage.com" />
         
-        {/* Optimized font loading with display=swap for better performance */}
+        {/* Preload critical font files to reduce critical path latency */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
+          rel="preload"
+          href="https://fonts.gstatic.com/s/orbitron/v34/yMJRMIlzdpvBhQQL_Qq7dys.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
         />
+        <link
+          rel="preload"
+          href="https://fonts.gstatic.com/s/inter/v19/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        
+
       </head>
       <body className="min-h-screen antialiased">
+        <FontLoader />
         <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-metal-gray/20 via-dark-gray to-dark-gray pointer-events-none" />
         {children}
         <ClientChatWrapper />

@@ -10,6 +10,11 @@ const nextConfig = {
   // Enable compression for better performance
   compress: true,
   
+  // Target modern browsers to reduce legacy JavaScript and polyfills
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  
   // Configure headers for better caching
   async headers() {
     return [
