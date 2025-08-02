@@ -236,7 +236,8 @@ export default function NotificationsAdmin() {
                 { type: 'customer_booking', label: 'Customer Booking', icon: '📧' },
                 { type: 'customer_payment_success', label: 'Customer Payment Success', icon: '💳' },
                 { type: 'customer_payment_failed', label: 'Customer Payment Failed', icon: '⚠️' },
-                { type: 'customer_reminder', label: 'Customer Reminder', icon: '⏰' }
+                { type: 'customer_reminder', label: 'Customer Reminder', icon: '⏰' },
+                { type: 'customer_booking_confirmed', label: 'Customer Booking Confirmed', icon: '🎉' }
               ].map(({ type, label, icon }) => (
                 <button
                   key={type}

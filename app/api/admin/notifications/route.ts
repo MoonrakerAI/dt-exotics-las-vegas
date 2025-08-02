@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
     // Validate notification type
     const validTypes = [
       'booking', 'payment_success', 'payment_failed', 'system',
-      'customer_booking', 'customer_payment_success', 'customer_payment_failed', 'customer_reminder'
+      'customer_booking', 'customer_payment_success', 'customer_payment_failed', 'customer_reminder', 'customer_booking_confirmed'
     ];
     if (!validTypes.includes(type)) {
       return new Response(

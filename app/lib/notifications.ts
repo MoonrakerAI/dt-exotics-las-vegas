@@ -365,9 +365,10 @@ Questions? Call or text us at +1 (702) 518-0924`
             
             ${payment.type === 'Deposit' ? `
             <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #0066cc; margin-top: 0;">🎉 You're All Set!</h3>
-              <p style="margin: 10px 0;">Your deposit has been processed and your booking is confirmed. We'll see you at pickup!</p>
+              <h3 style="color: #0066cc; margin-top: 0;">💳 Deposit Received!</h3>
+              <p style="margin: 10px 0;">Thank you for your deposit payment. Our team will review your request and confirm your booking shortly.</p>
               <p style="margin: 10px 0;"><strong>Remaining balance of $${payment.remainingBalance} will be due at pickup.</strong></p>
+              <p style="margin: 10px 0; font-size: 14px; color: #666;">You'll receive a separate confirmation email once your booking is approved by our team.</p>
             </div>
             ` : `
             <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -402,7 +403,9 @@ Vehicle: ${payment.vehicleName}
 Date: ${new Date().toLocaleDateString()}
 Transaction ID: ${payment.transactionId}
 
-${payment.type === 'Deposit' ? `Your deposit has been processed and your booking is confirmed. Remaining balance of $${payment.remainingBalance} will be due at pickup.` : 'Your rental is fully paid. Enjoy your luxury driving experience!'}
+${payment.type === 'Deposit' ? `Thank you for your deposit payment. Our team will review your request and confirm your booking shortly. Remaining balance of $${payment.remainingBalance} will be due at pickup.
+
+You'll receive a separate confirmation email once your booking is approved by our team.` : 'Your rental is fully paid. Enjoy your luxury driving experience!'}
 
 Need assistance? Call us at +1 (702) 518-0924
 
@@ -430,13 +433,13 @@ DT Exotics Las Vegas - Premium Supercar Rentals`
             </div>
             
             <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #856404; margin-top: 0;">⏰ Your Booking is On Hold</h3>
-              <p style="margin: 10px 0;">Don't worry - your vehicle is still reserved! We just need you to update your payment method to complete the booking.</p>
-              <p style="margin: 10px 0;"><strong>Please contact us within 24 hours to secure your reservation.</strong></p>
+              <h3 style="color: #856404; margin-top: 0;">⏰ Deposit Required</h3>
+              <p style="margin: 10px 0;">Don't worry - your vehicle is still available! We just need you to complete your deposit payment to begin the booking process.</p>
+              <p style="margin: 10px 0;"><strong>Please contact us within 24 hours to complete your deposit and secure your reservation.</strong></p>
             </div>
             
             <div style="text-align: center; margin-top: 30px;">
-              <p style="color: #666; margin-bottom: 20px;">Ready to complete your booking?</p>
+              <p style="color: #666; margin-bottom: 20px;">Ready to complete your deposit?</p>
               <a href="tel:+17025180924" 
                  style="background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-right: 10px;">
                 Call Now
@@ -461,10 +464,10 @@ We encountered an issue processing your payment for the ${payment.vehicleName} r
 Amount: $${payment.amount}
 Reason: ${payment.reason || 'Payment method declined'}
 
-Your Booking is On Hold:
-Don't worry - your vehicle is still reserved! We just need you to update your payment method to complete the booking.
+Deposit Required:
+Don't worry - your vehicle is still available! We just need you to complete your deposit payment to begin the booking process.
 
-Please contact us within 24 hours to secure your reservation.
+Please contact us within 24 hours to complete your deposit and secure your reservation.
 
 Call: +1 (702) 518-0924
 Text: +1 (702) 518-0924
@@ -538,6 +541,83 @@ DT Exotics Las Vegas - We can't wait to see you tomorrow!`
     };
   }
 
+  private getCustomerBookingConfirmedTemplate(booking: any): EmailTemplate {
+    return {
+      subject: `🎉 Booking Confirmed - Your ${booking.car.brand} ${booking.car.model} is Ready!`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
+            <h1 style="color: #00ff00; margin: 0; font-size: 28px;">Booking Confirmed!</h1>
+            <p style="color: #ffffff; margin: 10px 0; font-size: 16px;">Your luxury rental is officially confirmed</p>
+          </div>
+          
+          <div style="padding: 30px; background: #f8f9fa;">
+            <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #00ff00;">
+              <h3 style="color: #155724; margin-top: 0;">✅ You're All Set!</h3>
+              <p style="margin: 10px 0;">Great news! Our team has reviewed and confirmed your booking. Your <strong>${booking.car.brand} ${booking.car.model}</strong> is reserved and ready for your adventure!</p>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #00ffff; margin-top: 0;">Booking Details</h3>
+              <p style="margin: 5px 0;"><strong>Vehicle:</strong> ${booking.car.brand} ${booking.car.model} (${booking.car.year})</p>
+              <p style="margin: 5px 0;"><strong>Pickup Date:</strong> ${new Date(booking.rentalDates.startDate).toLocaleDateString()}</p>
+              <p style="margin: 5px 0;"><strong>Return Date:</strong> ${new Date(booking.rentalDates.endDate).toLocaleDateString()}</p>
+              <p style="margin: 5px 0;"><strong>Total Amount:</strong> $${booking.pricing.finalAmount}</p>
+              <p style="margin: 5px 0;"><strong>Deposit Paid:</strong> $${booking.pricing.depositAmount}</p>
+              <p style="margin: 5px 0;"><strong>Balance Due at Pickup:</strong> $${booking.pricing.finalAmount - booking.pricing.depositAmount}</p>
+            </div>
+            
+            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #856404; margin-top: 0;">📋 Next Steps</h3>
+              <p style="margin: 10px 0;">1. <strong>Bring valid driver's license</strong> and credit card for security deposit</p>
+              <p style="margin: 10px 0;">2. <strong>Arrive 15 minutes early</strong> for vehicle inspection and paperwork</p>
+              <p style="margin: 10px 0;">3. <strong>Complete remaining balance</strong> of $${booking.pricing.finalAmount - booking.pricing.depositAmount} at pickup</p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <p style="color: #666; margin-bottom: 20px;">Questions about your booking?</p>
+              <a href="tel:+17025180924" 
+                 style="background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-right: 10px;">
+                Call Us
+              </a>
+              <a href="sms:+17025180924" 
+                 style="background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                Text Us
+              </a>
+            </div>
+          </div>
+          
+          <div style="background: #333; padding: 20px; text-align: center;">
+            <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
+            <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">Get ready for the drive of a lifetime!</p>
+          </div>
+        </div>
+      `,
+      text: `Booking Confirmed!
+      
+Great news! Our team has reviewed and confirmed your booking. Your ${booking.car.brand} ${booking.car.model} is reserved and ready for your adventure!
+
+Booking Details:
+Vehicle: ${booking.car.brand} ${booking.car.model} (${booking.car.year})
+Pickup Date: ${new Date(booking.rentalDates.startDate).toLocaleDateString()}
+Return Date: ${new Date(booking.rentalDates.endDate).toLocaleDateString()}
+Total Amount: $${booking.pricing.finalAmount}
+Deposit Paid: $${booking.pricing.depositAmount}
+Balance Due at Pickup: $${booking.pricing.finalAmount - booking.pricing.depositAmount}
+
+Next Steps:
+1. Bring valid driver's license and credit card for security deposit
+2. Arrive 15 minutes early for vehicle inspection and paperwork
+3. Complete remaining balance of $${booking.pricing.finalAmount - booking.pricing.depositAmount} at pickup
+
+Questions? Call us at +1 (702) 518-0924 or text us!
+
+DT Exotics Las Vegas - Premium Supercar Rentals
+Get ready for the drive of a lifetime!`
+    };
+  }
+
   // Customer notification methods
   public async sendCustomerBookingConfirmation(booking: any): Promise<boolean> {
     try {
@@ -575,6 +655,16 @@ DT Exotics Las Vegas - We can't wait to see you tomorrow!`
       return await this.sendEmail(booking.customer.email, template);
     } catch (error) {
       console.error('Failed to send customer reminder:', error);
+      return false;
+    }
+  }
+
+  public async sendCustomerBookingConfirmed(booking: any): Promise<boolean> {
+    try {
+      const template = this.getCustomerBookingConfirmedTemplate(booking);
+      return await this.sendEmail(booking.customer.email, template);
+    } catch (error) {
+      console.error('Failed to send customer booking confirmed notification:', error);
       return false;
     }
   }
@@ -626,6 +716,8 @@ DT Exotics Las Vegas - We can't wait to see you tomorrow!`
         return await this.sendCustomerPaymentFailed(testData.payment);
       case 'customer_reminder':
         return await this.sendCustomerReminder(testData.booking);
+      case 'customer_booking_confirmed':
+        return await this.sendCustomerBookingConfirmed(testData.booking);
       
       default:
         return false;
