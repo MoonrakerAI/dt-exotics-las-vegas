@@ -12,6 +12,8 @@ export interface VehicleSpecs {
   fuel?: string;
   transmission?: string;
   drivetrain?: string;
+  cylinders?: number;
+  displacement?: number;
   features?: string[];
   stockImages?: {
     main?: string;
@@ -98,21 +100,28 @@ class VehicleAPIService {
         };
       }
 
-      // Take the first result (most relevant)
-      const vehicleData = data[0];
+      // Sort results by relevance (exact year match first, then closest year)
+      const sortedData = data.sort((a: any, b: any) => {
+        const aYearDiff = Math.abs((a.year || 0) - year);
+        const bYearDiff = Math.abs((b.year || 0) - year);
+        return aYearDiff - bYearDiff;
+      });
+      
+      // Take the most relevant result
+      const vehicleData = sortedData[0];
       
       const vehicleSpecs: VehicleSpecs = {
         make: this.capitalizeWords(vehicleData.make || make),
         model: this.capitalizeWords(vehicleData.model || model),
         year: vehicleData.year || year,
         category: this.inferCategory(vehicleData.make || make, vehicleData.model || model),
-        engine: vehicleData.engine_type || undefined,
+        engine: this.formatEngineInfo(vehicleData),
         horsepower: vehicleData.horsepower || undefined,
-        fuel: vehicleData.fuel_type || undefined,
-        transmission: vehicleData.transmission || undefined,
-        drivetrain: vehicleData.drive || undefined,
+        fuel: this.formatFuelType(vehicleData.fuel_type),
+        transmission: this.formatTransmission(vehicleData.transmission),
+        drivetrain: this.formatDrivetrain(vehicleData.drive),
         doors: vehicleData.doors || undefined,
-        features: this.getDefaultFeatures(),
+        features: this.getEnhancedFeatures(vehicleData),
         stockImages: this.getStockImagePlaceholders(vehicleData.make || make, vehicleData.model || model)
       };
 
@@ -122,7 +131,7 @@ class VehicleAPIService {
         vehicleSpecs.topSpeed = this.convertKmhToMph(vehicleData.top_speed);
       }
 
-      // Add performance estimates if not provided by API
+      // Enhanced performance data integration
       const performanceData = this.getPerformanceEstimates(vehicleData.make || make, vehicleData.model || model);
       if (performanceData) {
         // Only use our database values if API didn't provide them
@@ -132,6 +141,14 @@ class VehicleAPIService {
         if (!vehicleData.acceleration) {
           vehicleSpecs.acceleration = performanceData.acceleration;
         }
+      }
+      
+      // Add additional API Ninja specific data
+      if (vehicleData.cylinders) {
+        vehicleSpecs.cylinders = vehicleData.cylinders;
+      }
+      if (vehicleData.displacement) {
+        vehicleSpecs.displacement = vehicleData.displacement;
       }
 
       return {
@@ -265,6 +282,98 @@ class VehicleAPIService {
   // Convert km/h to MPH (API Ninja may return speeds in km/h)
   private convertKmhToMph(kmh: number): number {
     return Math.round(kmh * 0.621371);
+  }
+
+  // Enhanced formatting methods for API Ninja data
+  private formatEngineInfo(vehicleData: any): string | undefined {
+    if (!vehicleData.engine_type && !vehicleData.cylinders && !vehicleData.displacement) {
+      return undefined;
+    }
+    
+    let engineInfo = '';
+    if (vehicleData.displacement) {
+      engineInfo += `${vehicleData.displacement}L `;
+    }
+    if (vehicleData.cylinders) {
+      engineInfo += `V${vehicleData.cylinders} `;
+    }
+    if (vehicleData.engine_type) {
+      engineInfo += vehicleData.engine_type;
+    }
+    
+    return engineInfo.trim() || undefined;
+  }
+
+  private formatFuelType(fuelType: string | undefined): string | undefined {
+    if (!fuelType) return undefined;
+    
+    const fuelMap: { [key: string]: string } = {
+      'gas': 'Gasoline',
+      'gasoline': 'Gasoline',
+      'petrol': 'Gasoline',
+      'diesel': 'Diesel',
+      'electric': 'Electric',
+      'hybrid': 'Hybrid',
+      'plug-in hybrid': 'Plug-in Hybrid',
+      'ethanol': 'Ethanol (E85)'
+    };
+    
+    return fuelMap[fuelType.toLowerCase()] || this.capitalizeWords(fuelType);
+  }
+
+  private formatTransmission(transmission: string | undefined): string | undefined {
+    if (!transmission) return undefined;
+    
+    const transMap: { [key: string]: string } = {
+      'manual': 'Manual',
+      'automatic': 'Automatic',
+      'cvt': 'CVT',
+      'dual-clutch': 'Dual-Clutch',
+      'semi-automatic': 'Semi-Automatic',
+      'amt': 'Automated Manual'
+    };
+    
+    return transMap[transmission.toLowerCase()] || this.capitalizeWords(transmission);
+  }
+
+  private formatDrivetrain(drive: string | undefined): string | undefined {
+    if (!drive) return undefined;
+    
+    const driveMap: { [key: string]: string } = {
+      'fwd': 'Front-Wheel Drive',
+      'rwd': 'Rear-Wheel Drive',
+      'awd': 'All-Wheel Drive',
+      '4wd': 'Four-Wheel Drive',
+      'front': 'Front-Wheel Drive',
+      'rear': 'Rear-Wheel Drive',
+      'all': 'All-Wheel Drive'
+    };
+    
+    return driveMap[drive.toLowerCase()] || this.capitalizeWords(drive);
+  }
+
+  private getEnhancedFeatures(vehicleData: any): string[] {
+    const features = this.getDefaultFeatures();
+    
+    // Add features based on API Ninja data
+    if (vehicleData.fuel_type === 'electric') {
+      features.push('Electric Vehicle', 'Zero Emissions', 'Instant Torque');
+    }
+    
+    if (vehicleData.fuel_type === 'hybrid') {
+      features.push('Hybrid Technology', 'Fuel Efficient', 'Eco Mode');
+    }
+    
+    if (vehicleData.horsepower && vehicleData.horsepower > 500) {
+      features.push('High Performance', 'Track Capable');
+    }
+    
+    if (vehicleData.drive === 'awd' || vehicleData.drive === 'all') {
+      features.push('All-Wheel Drive', 'Enhanced Traction');
+    }
+    
+    // Remove duplicates and return
+    return [...new Set(features)];
   }
 
   private inferCategory(make: string, model: string): string {
@@ -402,29 +511,90 @@ class VehicleAPIService {
     models: string[];
   }> {
     try {
-      const suggestions = { makes: [], models: [] };
+      const suggestions: { makes: string[]; models: string[] } = { makes: [], models: [] };
 
-      // Get make suggestions
+      // Enhanced make suggestions with luxury/exotic car prioritization
       if (make.length >= 2) {
-        const makeResponse = await fetch(`${this.NHTSA_BASE_URL}/GetAllMakes?format=json`);
-        const makeData = await makeResponse.json();
-        
-        const makes = makeData.Results.map((m: any) => m.Make_Name);
         const makeLower = make.toLowerCase();
         
-        suggestions.makes = makes.filter((m: string) => 
-          m.toLowerCase().includes(makeLower)
-        ).slice(0, 8);
+        // Priority luxury/exotic makes that API Ninja handles well
+        const luxuryMakes = [
+          'Lamborghini', 'Ferrari', 'McLaren', 'Bugatti', 'Koenigsegg',
+          'Pagani', 'Aston Martin', 'Bentley', 'Rolls-Royce', 'Maserati',
+          'Porsche', 'BMW', 'Mercedes-Benz', 'Audi', 'Lexus', 'Acura',
+          'Jaguar', 'Land Rover', 'Tesla', 'Lotus', 'Alpine', 'Genesis'
+        ];
+        
+        // First, add matching luxury makes
+        const luxuryMatches = luxuryMakes.filter(luxuryMake => 
+          luxuryMake.toLowerCase().includes(makeLower)
+        );
+        suggestions.makes.push(...luxuryMatches);
+        
+        // If we need more suggestions, get from NHTSA
+        if (suggestions.makes.length < 8) {
+          try {
+            const makeResponse = await fetch(`${this.NHTSA_BASE_URL}/GetAllMakes?format=json`);
+            const makeData = await makeResponse.json();
+            
+            const nhtsaMakes = makeData.Results
+              .map((m: any) => m.Make_Name)
+              .filter((m: string) => 
+                m.toLowerCase().includes(makeLower) && 
+                !suggestions.makes.includes(m)
+              );
+            
+            suggestions.makes.push(...nhtsaMakes.slice(0, 8 - suggestions.makes.length));
+          } catch (error) {
+            // NHTSA failed, continue with luxury makes only
+          }
+        }
+        
+        suggestions.makes = suggestions.makes.slice(0, 8);
       }
 
-      // Get model suggestions if make is provided
+      // Enhanced model suggestions using API Ninja when possible
       if (make.length >= 2 && model && model.length >= 2) {
+        const modelLower = model.toLowerCase();
+        
+        // Try API Ninja for popular luxury makes first
+        const luxuryMakes = ['lamborghini', 'ferrari', 'mclaren', 'porsche', 'bmw', 'mercedes-benz', 'audi'];
+        if (this.API_NINJAS_KEY && luxuryMakes.includes(make.toLowerCase())) {
+          try {
+            // Use API Ninja to get more accurate model suggestions for luxury cars
+            const apiNinjaResponse = await fetch(
+              `https://api.api-ninjas.com/v1/cars?make=${encodeURIComponent(make)}&limit=50`,
+              {
+                headers: {
+                  'X-Api-Key': this.API_NINJAS_KEY
+                },
+                signal: AbortSignal.timeout(5000)
+              }
+            );
+            
+            if (apiNinjaResponse.ok) {
+              const apiNinjaData = await apiNinjaResponse.json();
+              const uniqueModels = [...new Set(apiNinjaData.map((car: any) => car.model))] as string[];
+              const models = uniqueModels
+                .filter((m: string) => m && m.toLowerCase().includes(modelLower))
+                .slice(0, 8);
+              
+              if (models.length > 0) {
+                suggestions.models = models;
+                return suggestions;
+              }
+            }
+          } catch (error) {
+            // API Ninja failed, fall back to NHTSA
+          }
+        }
+        
+        // Fallback to NHTSA for model suggestions
         try {
           const modelResponse = await fetch(`${this.NHTSA_BASE_URL}/GetModelsForMake/${encodeURIComponent(make)}?format=json`);
           const modelData = await modelResponse.json();
           
           if (modelData.Results) {
-            const modelLower = model.toLowerCase();
             suggestions.models = modelData.Results
               .map((m: any) => m.Model_Name)
               .filter((m: string) => m.toLowerCase().includes(modelLower))
