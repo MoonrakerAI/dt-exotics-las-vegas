@@ -315,22 +315,22 @@ export default function BachelorPartyRentals() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="group cursor-pointer">
               <img
-                src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-                alt="Bachelor party with supercars"
+                src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                alt="Bachelor party group celebrating with luxury supercars"
                 className="w-full h-64 object-cover rounded-lg group-hover:scale-105 transition-transform duration-500"
               />
             </div>
             <div className="group cursor-pointer">
               <img
-                src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-                alt="Group photo with exotic cars"
+                src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                alt="Friends toasting with champagne next to exotic cars in Las Vegas"
                 className="w-full h-64 object-cover rounded-lg group-hover:scale-105 transition-transform duration-500"
               />
             </div>
             <div className="group cursor-pointer">
               <img
-                src="https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-                alt="Vegas Strip with supercars"
+                src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                alt="Bachelor party convoy of supercars driving through Las Vegas Strip at night"
                 className="w-full h-64 object-cover rounded-lg group-hover:scale-105 transition-transform duration-500"
               />
             </div>
