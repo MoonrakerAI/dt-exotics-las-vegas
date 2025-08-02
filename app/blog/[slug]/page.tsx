@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation'
 import blogDB from '../../lib/blog-database'
 import { Metadata } from 'next'
+import Navbar from '../../components/navigation/Navbar'
+import Footer from '../../components/sections/Footer'
+import { Calendar, User, ArrowLeft } from 'lucide-react'
 
 function parseMarkdown(content: string): string {
   return content
@@ -86,10 +89,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-dark-gray">
+    <main className="relative min-h-screen">
+      <Navbar />
+      
       {/* Hero Section */}
       {post.featuredImage && (
-        <div className="relative h-96 w-full overflow-hidden">
+        <div className="relative h-96 w-full overflow-hidden mt-20">
           <img
             src={post.featuredImage}
             alt={post.title}
@@ -99,18 +104,24 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </div>
       )}
 
-      <div className="pt-32 pb-16 px-4">
+      <div className="pt-8 pb-16 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Post Header */}
           <div className="glass-panel bg-dark-metal/50 p-8 mb-8 border border-gray-600/30 rounded-2xl">
             <div className="flex items-center space-x-4 text-sm text-gray-400 mb-4">
-              <span>By {post.author.name}</span>
+              <div className="flex items-center space-x-2">
+                <User className="w-4 h-4" />
+                <span>By {post.author.name}</span>
+              </div>
               <span>•</span>
-              <span>{new Date(post.publishedAt!).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}</span>
+              <div className="flex items-center space-x-2">
+                <Calendar className="w-4 h-4" />
+                <span>{new Date(post.publishedAt!).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}</span>
+              </div>
               {post.categories.length > 0 && (
                 <>
                   <span>•</span>
@@ -152,16 +163,17 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             />
           </div>
 
-          {/* Author Info */}
+          {/* Author Info Footer */}
           <div className="glass-panel bg-dark-metal/50 p-8 border border-gray-600/30 rounded-2xl mb-8">
-            <div className="flex items-start space-x-4">
+            <h3 className="text-white font-tech font-bold text-xl mb-6">About the Author</h3>
+            <div className="flex items-start space-x-6">
               {/* Author Avatar */}
               <div className="flex-shrink-0">
                 {post.author.avatar ? (
                   <img 
                     src={post.author.avatar} 
                     alt={post.author.name}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-neon-blue/30"
+                    className="w-20 h-20 rounded-full object-cover border-3 border-neon-blue/50 shadow-lg"
                     onError={(e) => {
                       // Fallback to initials if avatar fails to load
                       const target = e.target as HTMLImageElement;
@@ -172,9 +184,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   />
                 ) : null}
                 <div 
-                  className={`w-16 h-16 bg-neon-blue/20 rounded-full flex items-center justify-center border-2 border-neon-blue/30 ${post.author.avatar ? 'hidden' : 'flex'}`}
+                  className={`w-20 h-20 bg-gradient-to-br from-neon-blue/30 to-neon-blue/10 rounded-full flex items-center justify-center border-3 border-neon-blue/50 shadow-lg ${post.author.avatar ? 'hidden' : 'flex'}`}
                 >
-                  <span className="text-neon-blue font-bold text-xl">
+                  <span className="text-neon-blue font-bold text-2xl">
                     {post.author.name.charAt(0).toUpperCase()}
                   </span>
                 </div>
@@ -182,10 +194,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               
               {/* Author Details */}
               <div className="flex-1">
-                <h3 className="text-white font-semibold text-lg mb-1">{post.author.name}</h3>
-                <p className="text-neon-blue text-sm mb-3">Author</p>
-                {post.author.bio && (
-                  <p className="text-gray-300 text-sm leading-relaxed">{post.author.bio}</p>
+                <h4 className="text-white font-semibold text-xl mb-2">{post.author.name}</h4>
+                <p className="text-neon-blue text-sm font-medium mb-4">Content Author & Luxury Automotive Expert</p>
+                {post.author.bio ? (
+                  <p className="text-gray-300 text-base leading-relaxed">{post.author.bio}</p>
+                ) : (
+                  <p className="text-gray-300 text-base leading-relaxed">
+                    {post.author.name} is a passionate automotive enthusiast and expert in luxury vehicle experiences. 
+                    With extensive knowledge of the premium car rental industry, they provide valuable insights into 
+                    the world of exotic and luxury automobiles.
+                  </p>
                 )}
               </div>
             </div>
@@ -197,11 +215,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               href="/blog"
               className="inline-flex items-center space-x-2 px-6 py-3 bg-neon-blue/20 text-neon-blue border border-neon-blue/30 rounded-lg hover:bg-neon-blue/30 transition-all duration-300"
             >
-              <span>← Back to Blog</span>
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Blog</span>
             </a>
           </div>
         </div>
       </div>
-    </div>
+      
+      <Footer />
+    </main>
   )
 } 
