@@ -130,7 +130,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             {/* Author Line */}
             <div className="flex items-center space-x-2 text-sm text-gray-400 mb-2">
               <User className="w-4 h-4" />
-              <span>By {safePost.author.name || 'Admin'}</span>
+              <span className="font-bold">By {safePost.author.name || 'Admin'}</span>
             </div>
             
             {/* Date and Category Line */}
@@ -208,8 +208,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               
               {/* Author Details */}
               <div className="flex-1">
-                <h4 className="text-white font-semibold text-xl mb-2">{safePost.author.name || 'Admin'}</h4>
-                <p className="text-neon-blue text-sm font-medium mb-4">Content Author & Luxury Automotive Expert</p>
+                <h4 className="text-white font-semibold text-xl mb-4">{safePost.author.name || 'Admin'}</h4>
                 {safePost.author.bio ? (
                   <p className="text-gray-300 text-base leading-relaxed">{safePost.author.bio}</p>
                 ) : (
