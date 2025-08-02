@@ -78,7 +78,16 @@ export default function EditInvoice() {
           return
         }
 
-        const invoice = await response.json()
+        const responseData = await response.json()
+        console.log('API Response:', responseData) // Debug log
+        
+        const invoice = responseData.invoice || responseData // Handle both response formats
+        console.log('Invoice data:', invoice) // Debug log
+        
+        if (!invoice || typeof invoice !== 'object') {
+          throw new Error('Invalid invoice data received')
+        }
+        
         setOriginalInvoice(invoice)
 
         // Check if invoice can be edited
@@ -89,16 +98,16 @@ export default function EditInvoice() {
 
         // Populate form with existing data
         setFormData({
-          customer: invoice.customer,
-          title: invoice.title,
+          customer: invoice.customer || { name: '', email: '', phone: '', address: { line1: '', line2: '', city: '', state: '', zipCode: '' } },
+          title: invoice.title || '',
           description: invoice.description || '',
           serviceType: invoice.serviceType || 'custom',
-          lineItems: invoice.lineItems,
-          taxRate: invoice.taxRate,
+          lineItems: invoice.lineItems || [{ description: '', quantity: 1, unitPrice: 0 }],
+          taxRate: invoice.taxRate || 8.375,
           discountAmount: invoice.discountAmount || 0,
           depositRequired: invoice.depositRequired || false,
           depositAmount: invoice.depositAmount || 0,
-          dueDate: invoice.dueDate.split('T')[0], // Convert to YYYY-MM-DD format
+          dueDate: invoice.dueDate ? invoice.dueDate.split('T')[0] : '', // Convert to YYYY-MM-DD format
           notes: invoice.notes || '',
           terms: invoice.terms || 'Payment is due within 7 business days of invoice date.'
         })
