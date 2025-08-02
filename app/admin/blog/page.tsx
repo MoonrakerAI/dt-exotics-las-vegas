@@ -5,6 +5,7 @@ import { SimpleAuth } from '../../lib/simple-auth'
 import { Plus, Edit, Trash2, Eye, Calendar, Search, Filter, Tag, FolderOpen, X, Clock } from 'lucide-react'
 import { BlogPost, BlogCategory, BlogTag } from '../../types/blog'
 import BlogEditor from '../components/BlogEditor'
+import BulkUpdateAuthors from '../components/BulkUpdateAuthors'
 
 export default function BlogAdmin() {
   const [posts, setPosts] = useState<BlogPost[]>([])
@@ -432,6 +433,11 @@ export default function BlogAdmin() {
               <span>New Post</span>
             </button>
           </div>
+        </div>
+
+        {/* Bulk Update Authors Component */}
+        <div className="mb-6">
+          <BulkUpdateAuthors />
         </div>
 
         <div className="glass-panel bg-dark-metal/20 p-6 mb-6 border border-gray-600/30 rounded-2xl backdrop-blur-sm">
