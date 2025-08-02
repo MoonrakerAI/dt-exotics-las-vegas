@@ -166,10 +166,10 @@ export default function CustomGoogleMap() {
   ]
 
   // Business location coordinates (DT Exotics - 9620 Las Vegas Blvd S, Las Vegas, NV 89123)
-  // Positioned north of South Point Hotel, near E Silverado Ranch Blvd intersection
+  // Exact coordinates for precise marker positioning
   const businessLocation = {
-    lat: 36.019444,
-    lng: -115.206944
+    lat: 36.01597,
+    lng: -115.17148
   }
 
   // Initialize map with proper error handling
