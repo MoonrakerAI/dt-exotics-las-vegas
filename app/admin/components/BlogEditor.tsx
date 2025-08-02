@@ -68,6 +68,29 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
   // Get current admin user for author info
   const [currentUser, setCurrentUser] = useState(SimpleAuth.getCurrentUser())
   
+  // Load current user profile on component mount
+  useEffect(() => {
+    const loadCurrentUser = () => {
+      const user = SimpleAuth.getCurrentUser()
+      setCurrentUser(user)
+      
+      // Update form data with current user's profile if available
+      if (user) {
+        setFormData(prev => ({
+          ...prev,
+          author: {
+            name: user.name || 'Admin',
+            email: user.email || 'admin@dtexoticslv.com',
+            avatar: user.avatar,
+            bio: user.bio
+          }
+        }))
+      }
+    }
+    
+    loadCurrentUser()
+  }, [])
+  
   // Listen for profile updates
   useEffect(() => {
     const handleProfileUpdate = () => {
@@ -107,10 +130,10 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
     tags: post?.tags || [],
     scheduledFor: post?.scheduledFor || '',
     author: {
-      name: currentUser?.name || post?.author?.name || 'Admin',
-      email: currentUser?.email || post?.author?.email || 'admin@dtexoticslv.com',
-      avatar: currentUser?.avatar || post?.author?.avatar,
-      bio: currentUser?.bio || post?.author?.bio
+      name: currentUser?.name || 'Admin',
+      email: currentUser?.email || 'admin@dtexoticslv.com',
+      avatar: currentUser?.avatar,
+      bio: currentUser?.bio
     },
     seo: {
       metaTitle: post?.seo.metaTitle || '',
