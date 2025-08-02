@@ -165,10 +165,10 @@ export default function CustomGoogleMap() {
     }
   ]
 
-  // Business location coordinates (DT Exotics - 9620 Las Vegas Blvd S)
+  // Business location coordinates (DT Exotics - 9620 Las Vegas Blvd S, Las Vegas, NV 89123)
   const businessLocation = {
-    lat: 36.015201,
-    lng: -115.207215
+    lat: 36.0152,
+    lng: -115.2072
   }
 
   // Initialize map with proper error handling
@@ -262,12 +262,13 @@ export default function CustomGoogleMap() {
               justify-content: center;
               margin-right: 12px;
               box-shadow: 0 4px 15px rgba(0, 255, 255, 0.4);
+              overflow: hidden;
             ">
-              <span style="
-                color: #000;
-                font-weight: bold;
-                font-size: 18px;
-              ">🏎️</span>
+              <img src="/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics" style="
+                width: 24px;
+                height: 24px;
+                object-fit: contain;
+              " />
             </div>
             <div>
               <h3 style="
@@ -323,7 +324,7 @@ export default function CustomGoogleMap() {
             gap: 8px;
             margin-bottom: 12px;
           ">
-            <a href="https://www.google.com/maps/dir//DT+Exotics+Supercar+Rentals" target="_blank" style="
+            <a href="https://www.google.com/maps/dir//9620+Las+Vegas+Blvd+S,+Las+Vegas,+NV+89123" target="_blank" style="
               background: linear-gradient(135deg, #333 0%, #444 100%);
               color: white;
               padding: 10px 16px;
