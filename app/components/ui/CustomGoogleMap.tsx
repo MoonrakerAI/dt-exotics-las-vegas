@@ -182,7 +182,7 @@ export default function CustomGoogleMap() {
       
       // Create map with custom styling
       const map = new window.google.maps.Map(mapRef.current, {
-        zoom: 15,
+        zoom: 12,
         center: businessLocation,
         styles: mapStyles,
         disableDefaultUI: true,
@@ -209,15 +209,12 @@ export default function CustomGoogleMap() {
 
       mapInstanceRef.current = map
 
-      // Custom marker icon (neon blue)
+      // Custom marker icon using DT Exotics logo
       const customMarker = {
-        path: window.google.maps.SymbolPath.CIRCLE,
-        scale: 12,
-        fillColor: '#00FFFF',
-        fillOpacity: 1,
-        strokeColor: '#ffffff',
-        strokeWeight: 3,
-        strokeOpacity: 1
+        url: '/images/logo/DT Exotics Logo Icon.png',
+        scaledSize: new window.google.maps.Size(48, 48),
+        origin: new window.google.maps.Point(0, 0),
+        anchor: new window.google.maps.Point(24, 24)
       }
 
       // Add marker
@@ -230,113 +227,108 @@ export default function CustomGoogleMap() {
         optimized: true // Optimize marker rendering
       })
 
-      // Custom info window content with brand styling
+      // Standard Google info window content with dark theme
       const infoWindowContent = `
         <div style="
-          background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-          border: 2px solid #00FFFF;
-          border-radius: 12px;
-          padding: 20px;
-          font-family: 'Inter', sans-serif;
+          background: #1a1a1a;
           color: white;
-          box-shadow: 0 8px 32px rgba(0, 255, 255, 0.3);
-          min-width: 280px;
-          max-width: 320px;
+          font-family: 'Roboto', Arial, sans-serif;
+          padding: 0;
+          border-radius: 8px;
+          overflow: hidden;
+          min-width: 250px;
         ">
+          <!-- Business Header -->
           <div style="
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
+            padding: 16px;
+            border-bottom: 1px solid #333;
           ">
+            <h3 style="
+              margin: 0 0 4px 0;
+              font-size: 16px;
+              font-weight: 500;
+              color: white;
+            ">DT Exotics Supercar Rentals</h3>
             <div style="
-              width: 40px;
-              height: 40px;
-              background: linear-gradient(135deg, #00FFFF 0%, #00CCCC 100%);
-              border-radius: 50%;
               display: flex;
               align-items: center;
-              justify-content: center;
-              margin-right: 12px;
-              box-shadow: 0 4px 15px rgba(0, 255, 255, 0.4);
+              margin: 4px 0;
             ">
-              <span style="
-                color: #000;
-                font-weight: bold;
-                font-size: 18px;
-              ">🏎️</span>
+              <span style="color: #ffa500; margin-right: 4px;">★★★★★</span>
+              <span style="color: #999; font-size: 13px;">5.0 (Google Reviews)</span>
             </div>
-            <div>
-              <h3 style="
-                margin: 0;
-                font-size: 16px;
-                font-weight: 700;
-                color: #00FFFF;
-                text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-              ">DT Exotics</h3>
-              <p style="
-                margin: 0;
-                font-size: 12px;
-                color: #b0b0b0;
-              ">Las Vegas, NV</p>
+            <p style="
+              margin: 4px 0 0 0;
+              color: #ccc;
+              font-size: 13px;
+            ">Luxury Exotic Car Rentals</p>
+          </div>
+          
+          <!-- Address -->
+          <div style="
+            padding: 12px 16px;
+            border-bottom: 1px solid #333;
+          ">
+            <div style="
+              display: flex;
+              align-items: center;
+              color: #ccc;
+              font-size: 13px;
+            ">
+              <span style="margin-right: 8px;">📍</span>
+              <span>9620 Las Vegas Blvd S, Las Vegas, NV 89123</span>
             </div>
           </div>
           
-          <p style="
-            margin: 0 0 16px 0;
-            font-size: 13px;
-            line-height: 1.4;
-            color: #b0b0b0;
-            font-style: italic;
-          ">
-            Luxury Exotic Car Rentals in Las Vegas
-          </p>
-          
+          <!-- Action Buttons -->
           <div style="
+            padding: 12px 16px;
             display: flex;
             gap: 8px;
-            margin-top: 16px;
-            flex-wrap: wrap;
           ">
+            <a href="https://www.google.com/maps/dir//DT+Exotics+Supercar+Rentals" target="_blank" style="
+              background: #333;
+              color: white;
+              padding: 8px 12px;
+              border-radius: 4px;
+              text-decoration: none;
+              font-size: 12px;
+              font-weight: 500;
+              flex: 1;
+              text-align: center;
+              border: 1px solid #555;
+            ">Directions</a>
             <a href="sms:+17025180924" style="
-              background: linear-gradient(135deg, #00FFFF 0%, #00CCCC 100%);
-              color: #000;
-              padding: 8px 16px;
-              border-radius: 6px;
+              background: #1a73e8;
+              color: white;
+              padding: 8px 12px;
+              border-radius: 4px;
               text-decoration: none;
               font-size: 12px;
-              font-weight: 600;
-              transition: all 0.3s ease;
-              box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+              font-weight: 500;
               flex: 1;
               text-align: center;
-            ">
-              TEXT US NOW
-            </a>
-            <a href="/book-rental" style="
-              background: transparent;
-              color: #00FFFF;
-              border: 1px solid #00FFFF;
-              padding: 8px 16px;
-              border-radius: 6px;
-              text-decoration: none;
-              font-size: 12px;
-              font-weight: 600;
-              transition: all 0.3s ease;
-              flex: 1;
-              text-align: center;
-            ">
-              BOOK ONLINE
-            </a>
+            ">Text Us</a>
+          </div>
+          
+          <!-- Additional Info -->
+          <div style="
+            padding: 8px 16px 12px 16px;
+            font-size: 12px;
+            color: #999;
+            border-top: 1px solid #333;
+          ">
+            <div style="margin-bottom: 4px;">📞 (702) 518-0924</div>
+            <div>🌐 <a href="/book-rental" style="color: #1a73e8; text-decoration: none;">Book Online</a></div>
           </div>
         </div>
       `
 
-      // Create info window with proper configuration
+      // Create info window with standard Google configuration
       const infoWindow = new window.google.maps.InfoWindow({
         content: infoWindowContent,
         disableAutoPan: false,
-        maxWidth: 350,
-        pixelOffset: new window.google.maps.Size(0, -10)
+        maxWidth: 300
       })
 
       // Add click listener to marker
