@@ -10,14 +10,6 @@ const nextConfig = {
   // Enable compression for better performance
   compress: true,
   
-  // Optimize JavaScript output
-  swcMinify: true,
-  
-  // Enable experimental features for better performance
-  experimental: {
-    optimizeCss: true,
-  },
-  
   // Configure headers for better caching
   async headers() {
     return [

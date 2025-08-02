@@ -51,7 +51,6 @@ export default function CustomGoogleMap() {
       script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=${callbackName}&v=weekly`
       script.async = true
       script.defer = true
-      script.loading = 'lazy'
       
       script.onerror = () => {
         reject(new Error('Failed to load Google Maps API'))
