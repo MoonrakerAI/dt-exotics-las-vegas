@@ -37,24 +37,10 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://www.youtube.com" />
         <link rel="dns-prefetch" href="https://i.ytimg.com" />
         
-        {/* Preload critical hero video for faster LCP */}
-        <link rel="preload" href="/videos/hero/Hero Background.mp4" as="video" type="video/mp4" />
+        {/* Preload critical hero video for faster LCP - with error handling */}
+        <link rel="preload" href="/videos/hero/Hero Background.mp4" as="video" type="video/mp4" crossOrigin="anonymous" />
         
-        {/* Critical font loading with optimized display strategy */}
-        <link
-          rel="preload"
-          href="https://fonts.gstatic.com/s/orbitron/v34/yMJRMIlzdpvBhQQL_Qq7dys.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="https://fonts.gstatic.com/s/inter/v19/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
+        {/* Optimized font loading - removed problematic preload URLs causing 404 errors */}
         
         {/* Load fonts with optimized display strategy to reduce flash */}
         <link

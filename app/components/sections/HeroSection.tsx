@@ -21,6 +21,11 @@ export default function HeroSection() {
           playsInline
           className="h-full w-full object-cover"
           aria-label="DT Exotics luxury supercar showcase video"
+          onError={(e) => {
+            console.warn('Hero video failed to load:', e);
+            // Fallback: hide video container or show static image
+            e.currentTarget.style.display = 'none';
+          }}
         >
           <source src="/videos/hero/Hero Background.mp4" type="video/mp4" />
           <track
