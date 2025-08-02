@@ -165,10 +165,10 @@ export default function CustomGoogleMap() {
     }
   ]
 
-  // Business location coordinates
+  // Business location coordinates (DT Exotics - 9620 Las Vegas Blvd S)
   const businessLocation = {
-    lat: 36.1699,
-    lng: -115.1398
+    lat: 36.015201,
+    lng: -115.207215
   }
 
   // Initialize map with proper error handling
@@ -182,7 +182,7 @@ export default function CustomGoogleMap() {
       
       // Create map with custom styling
       const map = new window.google.maps.Map(mapRef.current, {
-        zoom: 12,
+        zoom: 16,
         center: businessLocation,
         styles: mapStyles,
         disableDefaultUI: true,
@@ -327,58 +327,11 @@ export default function CustomGoogleMap() {
         </div>
       `
 
-      // Create info window with custom positioning and styling
+      // Create info window with default Google Maps behavior
       const infoWindow = new window.google.maps.InfoWindow({
         content: infoWindowContent,
         disableAutoPan: false,
-        maxWidth: 300,
-        pixelOffset: new window.google.maps.Size(150, -50) // Position towards top-right
-      })
-
-      // Override Google's default info window styling to remove white border
-      window.google.maps.event.addListener(infoWindow, 'domready', () => {
-        const iwOuter = document.querySelector('.gm-style-iw') as HTMLElement
-        const iwBackground = document.querySelector('.gm-style-iw-d') as HTMLElement
-        const iwCloseBtn = document.querySelector('.gm-ui-hover-effect') as HTMLElement
-        
-        if (iwOuter) {
-          iwOuter.style.background = 'transparent'
-          iwOuter.style.border = 'none'
-          iwOuter.style.boxShadow = 'none'
-        }
-        
-        if (iwBackground) {
-          iwBackground.style.background = 'transparent'
-          iwBackground.style.border = 'none'
-          iwBackground.style.boxShadow = 'none'
-          iwBackground.style.overflow = 'visible'
-        }
-        
-        // Style the close button to match dark theme
-        if (iwCloseBtn) {
-          iwCloseBtn.style.background = '#333'
-          iwCloseBtn.style.borderRadius = '50%'
-          iwCloseBtn.style.width = '24px'
-          iwCloseBtn.style.height = '24px'
-          iwCloseBtn.style.top = '8px'
-          iwCloseBtn.style.right = '8px'
-        }
-        
-        // Remove the white background and border from the info window container
-        const iwContainer = document.querySelector('.gm-style-iw-c') as HTMLElement
-        if (iwContainer) {
-          iwContainer.style.background = 'transparent'
-          iwContainer.style.border = 'none'
-          iwContainer.style.borderRadius = '8px'
-          iwContainer.style.boxShadow = 'none'
-          iwContainer.style.padding = '0'
-        }
-        
-        // Remove the tail/pointer styling
-        const iwTail = document.querySelector('.gm-style-iw-t') as HTMLElement
-        if (iwTail) {
-          iwTail.style.display = 'none'
-        }
+        maxWidth: 300
       })
 
       // Add click listener to marker
@@ -386,10 +339,15 @@ export default function CustomGoogleMap() {
         infoWindow.open(map, marker)
       })
 
-      // Auto-open info window after a short delay
-      setTimeout(() => {
-        infoWindow.open(map, marker)
-      }, 1000)
+      // Open info window immediately and keep it open
+      infoWindow.open(map, marker)
+      
+      // Ensure info window stays open (prevent accidental closing)
+      infoWindow.addListener('closeclick', () => {
+        setTimeout(() => {
+          infoWindow.open(map, marker)
+        }, 100)
+      })
 
       setIsLoading(false)
       
