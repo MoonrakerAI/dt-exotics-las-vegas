@@ -156,16 +156,11 @@ function generateInvoiceEmailTemplate(invoice: Invoice, invoiceUrl: string, cust
           padding: 30px;
           text-align: center;
         }
-        .logo {
-          font-size: 28px;
-          font-weight: bold;
-          margin-bottom: 8px;
-          letter-spacing: 2px;
-        }
-        .tagline {
-          font-size: 14px;
-          opacity: 0.9;
-          margin-bottom: 0;
+        .logo-img {
+          max-height: 60px;
+          width: auto;
+          margin: 0 auto;
+          display: block;
         }
         .content {
           padding: 30px;
@@ -200,8 +195,8 @@ function generateInvoiceEmailTemplate(invoice: Invoice, invoiceUrl: string, cust
         }
         .cta-button {
           display: inline-block;
-          background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
-          color: white;
+          background: #00d4ff;
+          color: #000000;
           text-decoration: none;
           padding: 15px 30px;
           border-radius: 8px;
@@ -209,12 +204,14 @@ function generateInvoiceEmailTemplate(invoice: Invoice, invoiceUrl: string, cust
           font-size: 16px;
           text-align: center;
           margin: 20px 0;
-          box-shadow: 0 4px 6px rgba(0, 212, 255, 0.3);
+          box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
           transition: all 0.3s ease;
         }
         .cta-button:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 12px rgba(0, 212, 255, 0.4);
+          background: #00b8e6;
+          color: #000000;
+          box-shadow: 0 0 25px rgba(0, 212, 255, 0.7);
+          transform: translateY(-1px);
         }
         .footer {
           background-color: #f8f9fa;
@@ -247,8 +244,7 @@ function generateInvoiceEmailTemplate(invoice: Invoice, invoiceUrl: string, cust
     <body>
       <div class="email-container">
         <div class="header">
-          <div class="logo">DT EXOTICS</div>
-          <div class="tagline">Las Vegas Luxury Car Rentals</div>
+          <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" class="logo-img" />
         </div>
         
         <div class="content">
