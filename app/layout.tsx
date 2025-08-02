@@ -26,12 +26,20 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        {/* Preconnect to external domains for faster resource loading */}
+        {/* Critical preconnect hints for faster resource loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://maps.googleapis.com" />
         <link rel="preconnect" href="https://maps.gstatic.com" />
-        <link rel="preconnect" href="https://b9c4kbeqsdvzvtpz.public.blob.vercel-storage.com" />
+        <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="preconnect" href="https://b9c4kbeqsdvzvtpz.public.blob.vercel-storage.com" crossOrigin="anonymous" />
+        
+        {/* DNS prefetch for additional performance */}
+        <link rel="dns-prefetch" href="https://www.youtube.com" />
+        <link rel="dns-prefetch" href="https://i.ytimg.com" />
+        
+        {/* Preload critical hero video for faster LCP */}
+        <link rel="preload" href="/videos/hero/Hero Background.mp4" as="video" type="video/mp4" />
         
         {/* Preload critical font files to reduce critical path latency */}
         <link
