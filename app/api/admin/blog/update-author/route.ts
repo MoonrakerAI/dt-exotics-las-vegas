@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get enriched user data with profile information
-    const enrichedUser = await getEnrichedUser(user);
+    const enrichedUser = await getEnrichedUser(user.userId);
     if (!enrichedUser) {
       return NextResponse.json({ error: 'User profile not found' }, { status: 404 });
     }
