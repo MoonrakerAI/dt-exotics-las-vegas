@@ -154,7 +154,8 @@ export default function EventContactForm({
       <div className="max-w-[800px] mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-6xl font-tech font-black mb-4">
-            <span className="text-white">{title}</span>
+            <span className="text-white">{title.split(' ').slice(0, -1).join(' ')}</span>{' '}
+            <span className="neon-text">{title.split(' ').slice(-1)[0]}</span>
           </h2>
           <p className="text-lg text-gray-400 max-w-3xl mx-auto">
             {subtitle}
@@ -471,8 +472,9 @@ export const getFormFields = (eventType: string): FormField[] => {
         {
           name: 'destinations',
           label: 'Destinations/Venues',
-          type: 'textarea',
-          placeholder: 'Where would you like to go? (restaurants, hotels, events, etc.)',
+          type: 'select',
+          placeholder: 'Select destination type',
+          options: ['Fine Dining Restaurants', 'Luxury Hotels', 'Nightclubs/Lounges', 'Shopping Centers', 'Entertainment Venues', 'Business Meetings', 'Multiple Destinations'],
           icon: <MapPin className="w-4 h-4" />
         },
         {
@@ -503,15 +505,7 @@ export const getFormFields = (eventType: string): FormField[] => {
           placeholder: 'Your company or organization name',
           icon: <User className="w-4 h-4" />
         },
-        {
-          name: 'partnershipType',
-          label: 'Partnership Interest',
-          type: 'select',
-          required: true,
-          placeholder: 'Select partnership type',
-          options: ['Hotel Partnership', 'Event Venue', 'Wedding Planner', 'Travel Agency', 'Corporate Services', 'Influencer/Content Creator', 'Other'],
-          icon: <Users className="w-4 h-4" />
-        },
+
         {
           name: 'businessType',
           label: 'Business Type',
