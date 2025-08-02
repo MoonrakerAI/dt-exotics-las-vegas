@@ -3,6 +3,7 @@
 import Navbar from '../components/navigation/Navbar'
 import Footer from '../components/sections/Footer'
 import ParallaxHero from '../components/effects/ParallaxHero'
+import EventContactForm, { getFormFields } from '../components/forms/EventContactForm'
 import { Car, Users, MapPin, Clock, Star, Shield, ChevronDown } from 'lucide-react'
 import { useState, useRef } from 'react'
 
@@ -403,32 +404,15 @@ export default function BachelorPartyRentals() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-4 relative">
-        <div className="max-w-[1000px] mx-auto text-center">
-          <h2 className="text-4xl md:text-6xl font-tech font-black mb-8">
-            <span className="text-white">READY TO MAKE IT</span><br />
-            <span className="neon-text-magenta">LEGENDARY?</span>
-          </h2>
-          
-          <p className="text-lg md:text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Don't settle for ordinary when you can have extraordinary. Contact us now to plan 
-            the bachelor party that'll become the stuff of legends.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a 
-              href="sms:+17025180924" 
-              className="btn-primary inline-block"
-            >
-              TEXT US NOW
-            </a>
-            <a href="#contact" className="btn-secondary inline-block">
-              GET CUSTOM QUOTE
-            </a>
-          </div>
-        </div>
-      </section>
+      {/* Contact Form Section */}
+      <EventContactForm
+        eventType="bachelor-party"
+        title="PLAN YOUR LEGENDARY BACHELOR PARTY"
+        subtitle="Tell us about your vision and we'll create the ultimate Vegas bachelor party experience. Every detail customized, every moment unforgettable."
+        fields={getFormFields('bachelor-party')}
+        submitButtonText="GET MY CUSTOM QUOTE"
+        successMessage="We've received your bachelor party inquiry! Our team will contact you within 24 hours with a custom quote and exclusive recommendations to make this celebration legendary."
+      />
 
       <Footer />
     </main>

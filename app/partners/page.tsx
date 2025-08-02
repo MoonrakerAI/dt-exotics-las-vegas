@@ -3,6 +3,7 @@
 import Navbar from '../components/navigation/Navbar'
 import Footer from '../components/sections/Footer'
 import ParallaxHero from '../components/effects/ParallaxHero'
+import EventContactForm, { getFormFields } from '../components/forms/EventContactForm'
 import { Car, DollarSign, Shield, Clock, TrendingUp, CheckCircle, Calculator, Users, ChevronDown, FileText, Search, HandshakeIcon, Zap } from 'lucide-react'
 import { useState, useRef } from 'react'
 
@@ -723,32 +724,15 @@ export default function VehiclePartnership() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-4 relative">
-        <div className="max-w-[1000px] mx-auto text-center">
-          <h2 className="text-4xl md:text-6xl font-tech font-black mb-8">
-            <span className="text-white">READY TO START</span><br />
-            <span className="neon-text-magenta">EARNING?</span>
-          </h2>
-          
-          <p className="text-lg md:text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Join Las Vegas's premier luxury car rental fleet and turn your exotic vehicle 
-            into a profitable asset with professional management and maximum protection.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a 
-              href="sms:+17025180924" 
-              className="btn-primary inline-block"
-            >
-              CONTACT US TODAY
-            </a>
-            <a href="#calculator" className="btn-secondary inline-block">
-              CALCULATE EARNINGS
-            </a>
-          </div>
-        </div>
-      </section>
+      {/* Contact Form Section */}
+      <EventContactForm
+        eventType="partners"
+        title="JOIN OUR PARTNERSHIP PROGRAM"
+        subtitle="Turn your exotic vehicle into a profitable asset with Las Vegas's premier luxury car rental fleet. Tell us about your vehicle and we'll provide a custom earning analysis."
+        fields={getFormFields('partners')}
+        submitButtonText="APPLY FOR PARTNERSHIP"
+        successMessage="Thank you for your interest in our partnership program! Our fleet management team will review your vehicle information and contact you within 48 hours with a detailed earning analysis and next steps to join our exclusive network."
+      />
 
       <Footer />
     </main>

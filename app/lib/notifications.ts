@@ -669,6 +669,87 @@ Get ready for the drive of a lifetime!`
     }
   }
 
+  private getEventInquiryTemplate(inquiry: any): EmailTemplate {
+    return {
+      subject: `New ${inquiry.eventType} Inquiry - ${inquiry.customerName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
+            <h1 style="color: #00ffff; margin: 0; font-size: 28px;">New Event Inquiry!</h1>
+            <p style="color: #ffffff; margin: 10px 0; font-size: 16px;">${inquiry.eventType} Request</p>
+          </div>
+          
+          <div style="padding: 30px; background: #f8f9fa;">
+            <h2 style="color: #333; margin-top: 0;">Customer Information</h2>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #00ffff; margin-top: 0;">Contact Details</h3>
+              <p style="margin: 5px 0;"><strong>Name:</strong> ${inquiry.customerName}</p>
+              <p style="margin: 5px 0;"><strong>Email:</strong> ${inquiry.customerEmail}</p>
+              <p style="margin: 5px 0;"><strong>Phone:</strong> ${inquiry.customerPhone}</p>
+              <p style="margin: 5px 0;"><strong>Event Type:</strong> ${inquiry.eventType}</p>
+              <p style="margin: 5px 0;"><strong>Submitted:</strong> ${new Date(inquiry.submittedAt).toLocaleString()}</p>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #00ffff; margin-top: 0;">Event Details</h3>
+              ${Object.entries(inquiry.formData)
+                .filter(([key]) => !['fullName', 'email', 'phone'].includes(key))
+                .map(([key, value]) => {
+                  const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())
+                  return `<p style="margin: 5px 0;"><strong>${label}:</strong> ${value || 'Not specified'}</p>`
+                }).join('')}
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <a href="tel:${inquiry.customerPhone}" 
+                 style="background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-right: 10px;">
+                Call Customer
+              </a>
+              <a href="mailto:${inquiry.customerEmail}" 
+                 style="background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                Email Customer
+              </a>
+            </div>
+          </div>
+        </div>
+      `,
+      text: `New ${inquiry.eventType} Inquiry!
+      
+Customer Information:
+Name: ${inquiry.customerName}
+Email: ${inquiry.customerEmail}
+Phone: ${inquiry.customerPhone}
+Event Type: ${inquiry.eventType}
+Submitted: ${new Date(inquiry.submittedAt).toLocaleString()}
+
+Event Details:
+${Object.entries(inquiry.formData)
+  .filter(([key]) => !['fullName', 'email', 'phone'].includes(key))
+  .map(([key, value]) => {
+    const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())
+    return `${label}: ${value || 'Not specified'}`
+  }).join('\n')}
+
+Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
+    };
+  }
+
+  public async sendEventInquiry(inquiry: any): Promise<boolean> {
+    if (!this.settings.emailNotifications) {
+      return false;
+    }
+
+    try {
+      const template = this.getEventInquiryTemplate(inquiry);
+      return await this.sendEmail(this.settings.adminEmail, template);
+    } catch (error) {
+      console.error('Failed to send event inquiry notification:', error);
+      return false;
+    }
+  }
+
   public async sendTestEmail(type: string): Promise<boolean> {
     const testData = {
       booking: {

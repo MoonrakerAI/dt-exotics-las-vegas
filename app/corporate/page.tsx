@@ -3,6 +3,7 @@
 import Navbar from '../components/navigation/Navbar'
 import Footer from '../components/sections/Footer'
 import ParallaxHero from '../components/effects/ParallaxHero'
+import EventContactForm, { getFormFields } from '../components/forms/EventContactForm'
 import { Briefcase, Handshake, Trophy, Users, Shield, Clock, ChevronDown } from 'lucide-react'
 import { useState, useRef } from 'react'
 
@@ -432,32 +433,15 @@ export default function CorporateServices() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-4 relative">
-        <div className="max-w-[1000px] mx-auto text-center">
-          <h2 className="text-4xl md:text-6xl font-tech font-black mb-8">
-            <span className="text-white">READY TO ELEVATE</span><br />
-            <span className="neon-text-magenta">YOUR BUSINESS?</span>
-          </h2>
-          
-          <p className="text-lg md:text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Partner with Las Vegas's premier luxury transportation service. Contact us to discuss 
-            how we can enhance your corporate image and business relationships.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a 
-              href="sms:+17025180924" 
-              className="btn-primary inline-block"
-            >
-              CONTACT US
-            </a>
-            <a href="#contact" className="btn-secondary inline-block">
-              REQUEST PROPOSAL
-            </a>
-          </div>
-        </div>
-      </section>
+      {/* Contact Form Section */}
+      <EventContactForm
+        eventType="corporate"
+        title="ELEVATE YOUR BUSINESS"
+        subtitle="Partner with Las Vegas's premier luxury transportation service. Tell us about your corporate needs and we'll create a custom solution that enhances your business image."
+        fields={getFormFields('corporate')}
+        submitButtonText="REQUEST PROPOSAL"
+        successMessage="Thank you for your interest in our corporate services! Our business development team will contact you within 24 hours with a customized proposal and pricing options tailored to your company's needs."
+      />
 
       <Footer />
     </main>

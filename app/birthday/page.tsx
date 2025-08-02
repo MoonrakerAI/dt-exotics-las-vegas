@@ -3,6 +3,7 @@
 import Navbar from '../components/navigation/Navbar'
 import Footer from '../components/sections/Footer'
 import ParallaxHero from '../components/effects/ParallaxHero'
+import EventContactForm, { getFormFields } from '../components/forms/EventContactForm'
 import { Gift, Camera, Star, Crown, Calendar, Users, ChevronDown } from 'lucide-react'
 import { useState, useRef } from 'react'
 
@@ -434,32 +435,15 @@ export default function BirthdayRentals() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-4 relative">
-        <div className="max-w-[1000px] mx-auto text-center">
-          <h2 className="text-4xl md:text-6xl font-tech font-black mb-8">
-            <span className="text-white">READY TO CELEBRATE</span><br />
-            <span className="neon-text-magenta">IN STYLE?</span>
-          </h2>
-          
-          <p className="text-lg md:text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Your birthday only comes once a year—make it count. Contact us to create 
-            a celebration that's as unique and amazing as you are.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a 
-              href="sms:+17025180924" 
-              className="btn-primary inline-block"
-            >
-              TEXT US NOW
-            </a>
-            <a href="#contact" className="btn-secondary inline-block">
-              PLAN MY BIRTHDAY
-            </a>
-          </div>
-        </div>
-      </section>
+      {/* Contact Form Section */}
+      <EventContactForm
+        eventType="birthday"
+        title="PLAN YOUR DREAM BIRTHDAY"
+        subtitle="Your birthday deserves to be extraordinary! Tell us about your vision and we'll create a celebration that's Instagram-worthy and unforgettable."
+        fields={getFormFields('birthday')}
+        submitButtonText="PLAN MY BIRTHDAY"
+        successMessage="Happy early birthday! We've received your inquiry and our team will contact you within 24 hours with personalized recommendations to make your special day absolutely amazing."
+      />
 
       <Footer />
     </main>

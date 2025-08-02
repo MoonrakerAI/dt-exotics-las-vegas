@@ -3,6 +3,7 @@
 import Navbar from '../components/navigation/Navbar'
 import Footer from '../components/sections/Footer'
 import ParallaxHero from '../components/effects/ParallaxHero'
+import EventContactForm, { getFormFields } from '../components/forms/EventContactForm'
 import { Watch, Utensils, Plane, Music, Sparkles, Shield, Phone, ChevronDown, CheckCircle } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 
@@ -454,32 +455,15 @@ export default function VIPServices() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-4 relative">
-        <div className="max-w-[1000px] mx-auto text-center">
-          <h2 className="text-4xl md:text-6xl font-tech font-black mb-8">
-            <span className="text-white">READY FOR THE</span><br />
-            <span className="neon-text-magenta">VIP TREATMENT?</span>
-          </h2>
-          
-          <p className="text-lg md:text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Let our concierge team create your perfect Vegas experience. From exclusive access to 
-            personalized itineraries, we make the impossible possible.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a 
-              href="sms:+17025180924" 
-              className="btn-primary inline-block"
-            >
-              TEXT US NOW
-            </a>
-            <a href="#contact" className="btn-secondary inline-block">
-              PLAN MY EXPERIENCE
-            </a>
-          </div>
-        </div>
-      </section>
+      {/* Contact Form Section */}
+      <EventContactForm
+        eventType="vip-services"
+        title="PLAN YOUR VIP EXPERIENCE"
+        subtitle="Let our concierge team create your perfect Vegas experience. Tell us about your preferences and we'll craft a personalized VIP package that exceeds your expectations."
+        fields={getFormFields('vip-services')}
+        submitButtonText="PLAN MY EXPERIENCE"
+        successMessage="Welcome to the VIP experience! Our concierge team has received your request and will contact you within 24 hours with exclusive recommendations and personalized service options tailored to your preferences."
+      />
 
       <Footer />
     </main>
