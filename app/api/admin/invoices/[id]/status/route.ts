@@ -49,9 +49,9 @@ export async function PATCH(
     const { status } = body;
 
     // Validate status
-    if (!status || !['draft', 'sent', 'paid'].includes(status)) {
+    if (!status || !['draft', 'ready', 'sent', 'paid'].includes(status)) {
       return NextResponse.json(
-        { error: 'Invalid status. Must be: draft, sent, or paid' },
+        { error: 'Invalid status. Must be: draft, ready, sent, or paid' },
         { status: 400 }
       );
     }

@@ -46,8 +46,7 @@ export async function POST(
     }
 
     // Get invoice from database
-    const invoicesData = await kv.get('invoices') as Invoice[] || []
-    const invoice = invoicesData.find(inv => inv.id === id)
+    const invoice = await kv.get(`invoice:${id}`) as Invoice
 
     if (!invoice) {
       return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
