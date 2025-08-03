@@ -203,15 +203,16 @@ export default function CustomerCalendar({
       const maxDate = start > hovered ? start : hovered
       
       // Check if the range is valid (no unavailable dates)
-      const rangeValid = checkRangeAvailability(minDate, maxDate)
+      const rangeValid = !checkRangeAvailability(minDate, maxDate)
       
       if (date >= minDate && date <= maxDate) {
-        isHoverPreview = rangeValid
-        isHovered = !rangeValid // Show as invalid if range has conflicts
-        
-        // Mark the final hovered date (end of range) to turn blue
-        if (dateStr === hoveredDate && rangeValid) {
-          isFinalHover = true
+        if (rangeValid) {
+          // All dates in valid range turn blue (including final hover date)
+          isHoverPreview = true
+          isFinalHover = true // Make all dates in range appear as blue selection
+        } else {
+          // Invalid range - show as hovered but not blue
+          isHovered = true
         }
       }
     }
@@ -240,14 +241,14 @@ export default function CustomerCalendar({
       // Past dates - muted gray (unchanged, no glass effect)
       classes += 'text-gray-500 cursor-not-allowed bg-gray-800/40 border border-gray-700/50'
     } else if (!status.isAvailable) {
-      // Unavailable dates - glass effect with red border
+      // Unavailable dates - glass effect with red border, brighter inner color
       classes += 'text-white cursor-not-allowed border-2 border-red-400 shadow-sm shadow-red-400/20'
-      classes += ' bg-gradient-to-br from-red-400/30 via-red-400/20 to-red-400/30'
+      classes += ' bg-gradient-to-br from-red-400/60 via-red-400/40 to-red-400/60'
       classes += ' backdrop-blur-sm'
     } else if (status.isSelected || status.isInRange || status.isHoverPreview || status.isHovered || status.isFinalHover) {
-      // All selection states - glass effect with neon blue border
-      classes += 'text-black border-2 border-neon-blue shadow-lg shadow-neon-blue/40 cursor-pointer'
-      classes += ' bg-gradient-to-br from-neon-blue/40 via-neon-blue/20 to-neon-blue/40'
+      // All selection states - glass effect with neon blue border, brighter inner color
+      classes += 'text-white border-2 border-neon-blue shadow-lg shadow-neon-blue/40 cursor-pointer'
+      classes += ' bg-gradient-to-br from-neon-blue/70 via-neon-blue/50 to-neon-blue/70'
       classes += ' backdrop-blur-sm'
       
       // Add single quick pulse animation if just selected
@@ -255,12 +256,12 @@ export default function CustomerCalendar({
         classes += ' animate-[pulse_0.6s_ease-out_1]'
       }
     } else {
-      // Available dates - glass effect with green border
-      classes += 'text-black font-bold cursor-pointer transition-all duration-300 hover:scale-105'
+      // Available dates - glass effect with green border, brighter inner color
+      classes += 'text-white font-bold cursor-pointer transition-all duration-300 hover:scale-105'
       classes += ' hover:shadow-lg border-2 border-[#84CD4C]'
-      classes += ' bg-gradient-to-br from-[#93DC5C]/40 via-[#93DC5C]/20 to-[#93DC5C]/40'
+      classes += ' bg-gradient-to-br from-[#93DC5C]/60 via-[#93DC5C]/40 to-[#93DC5C]/60'
       classes += ' backdrop-blur-sm'
-      classes += ' hover:border-[#75BE3C] hover:from-[#84CD4C]/50 hover:via-[#84CD4C]/30 hover:to-[#84CD4C]/50'
+      classes += ' hover:border-[#75BE3C] hover:from-[#84CD4C]/70 hover:via-[#84CD4C]/50 hover:to-[#84CD4C]/70'
       classes += ' hover:shadow-[#93DC5C]/30'
     }
     
@@ -429,15 +430,15 @@ export default function CustomerCalendar({
       {/* Legend */}
       <div className="mt-6 flex items-center justify-center space-x-8 text-sm">
         <div className="flex items-center space-x-3">
-          <div className="w-4 h-4 border-2 border-[#84CD4C] rounded-lg shadow-sm shadow-[#93DC5C]/30 bg-gradient-to-br from-[#93DC5C]/40 via-[#93DC5C]/20 to-[#93DC5C]/40 backdrop-blur-sm"></div>
+          <div className="w-4 h-4 border-2 border-[#84CD4C] rounded-lg shadow-sm shadow-[#93DC5C]/30 bg-gradient-to-br from-[#93DC5C]/60 via-[#93DC5C]/40 to-[#93DC5C]/60 backdrop-blur-sm"></div>
           <span className="text-gray-300 font-medium">Available</span>
         </div>
         <div className="flex items-center space-x-3">
-          <div className="w-4 h-4 border-2 border-red-400 rounded-lg shadow-sm shadow-red-400/20 bg-gradient-to-br from-red-400/30 via-red-400/20 to-red-400/30 backdrop-blur-sm"></div>
+          <div className="w-4 h-4 border-2 border-red-400 rounded-lg shadow-sm shadow-red-400/20 bg-gradient-to-br from-red-400/60 via-red-400/40 to-red-400/60 backdrop-blur-sm"></div>
           <span className="text-gray-300 font-medium">Unavailable</span>
         </div>
         <div className="flex items-center space-x-3">
-          <div className="w-4 h-4 border-2 border-neon-blue rounded-lg shadow-lg shadow-neon-blue/40 bg-gradient-to-br from-neon-blue/40 via-neon-blue/20 to-neon-blue/40 backdrop-blur-sm flex items-center justify-center text-black text-xs font-bold">✓</div>
+          <div className="w-4 h-4 border-2 border-neon-blue rounded-lg shadow-lg shadow-neon-blue/40 bg-gradient-to-br from-neon-blue/70 via-neon-blue/50 to-neon-blue/70 backdrop-blur-sm flex items-center justify-center text-white text-xs font-bold">✓</div>
           <span className="text-gray-300 font-medium">Selected</span>
         </div>
         <div className="flex items-center space-x-3">
