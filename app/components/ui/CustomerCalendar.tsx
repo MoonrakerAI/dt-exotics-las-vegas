@@ -152,46 +152,79 @@ export default function CustomerCalendar({
 
   const getDateStatus = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0]
+    const today = new Date()
     const isPast = date < today
     const isToday = dateStr === todayStr
+    const isAvailable = availability[dateStr]?.available !== false
     const isSelected = dateStr === selectedStartDate || dateStr === selectedEndDate
-    const isInRange = selectedStartDate && selectedEndDate && 
-      dateStr > selectedStartDate && dateStr < selectedEndDate
-    const isHovered = selectedStartDate && !selectedEndDate && hoveredDate &&
-      ((dateStr > selectedStartDate && dateStr <= hoveredDate) ||
-       (dateStr < selectedStartDate && dateStr >= hoveredDate))
-    const availData = availability[dateStr]
-    const isAvailable = !isPast && (!availData || availData.available)
-
+    
+    let isInRange = false
+    let isHovered = false
+    let isHoverPreview = false
+    
+    if (selectedStartDate && selectedEndDate) {
+      const start = new Date(selectedStartDate)
+      const end = new Date(selectedEndDate)
+      isInRange = date >= start && date <= end
+    }
+    
+    // Enhanced hover preview for range selection
+    if (hoveredDate && selectedStartDate && !selectedEndDate) {
+      const start = new Date(selectedStartDate)
+      const hovered = new Date(hoveredDate)
+      const minDate = start < hovered ? start : hovered
+      const maxDate = start > hovered ? start : hovered
+      
+      // Check if the range is valid (no unavailable dates)
+      const rangeValid = checkRangeAvailability(minDate, maxDate)
+      
+      if (date >= minDate && date <= maxDate) {
+        isHoverPreview = rangeValid
+        isHovered = !rangeValid // Show as invalid if range has conflicts
+      }
+    }
+    
     return {
       isPast,
       isToday,
+      isAvailable,
       isSelected,
       isInRange,
       isHovered,
-      isAvailable,
-      reason: availData?.reason
+      isHoverPreview,
+      reason: !isAvailable ? availability[dateStr]?.reason : undefined
     }
   }
 
   const getDateClasses = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0]
     const status = getDateStatus(date)
-    let classes = "relative h-12 w-12 flex items-center justify-center text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer"
-
+    
+    let classes = 'relative w-12 h-12 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center justify-center '
+    
     if (status.isPast) {
-      classes += " text-gray-500 cursor-not-allowed opacity-50"
+      // Past dates - muted gray
+      classes += 'text-gray-500 cursor-not-allowed bg-gray-800/40 border border-gray-700/50'
     } else if (!status.isAvailable) {
-      classes += " bg-red-500/20 text-red-300 cursor-not-allowed border border-red-500/30"
+      // Unavailable dates - red background
+      classes += 'text-white cursor-not-allowed bg-red-500/80 border border-red-400/50 shadow-sm'
     } else if (status.isSelected) {
-      classes += " bg-neon-blue text-black font-bold scale-105 shadow-lg shadow-neon-blue/50"
-    } else if (status.isInRange || status.isHovered) {
-      classes += " bg-neon-blue/30 text-white border border-neon-blue/50"
-    } else if (status.isToday) {
-      classes += " bg-gray-600 text-white border-2 border-neon-blue"
+      // Selected dates - bright blue with glow
+      classes += 'text-white bg-neon-blue border-2 border-neon-blue shadow-lg shadow-neon-blue/40 scale-105'
+    } else if (status.isInRange) {
+      // Dates in selected range - medium blue
+      classes += 'text-white bg-neon-blue/70 border border-neon-blue/60 shadow-md'
+    } else if (status.isHoverPreview) {
+      // Valid hover preview range - lighter blue
+      classes += 'text-white bg-neon-blue/40 border border-neon-blue/40 shadow-sm cursor-pointer'
+    } else if (status.isHovered) {
+      // Invalid hover range - orange warning
+      classes += 'text-white bg-orange-500/60 border border-orange-400/50 shadow-sm cursor-not-allowed'
     } else {
-      classes += " text-gray-300 hover:bg-gray-700 hover:text-white"
+      // Available dates - green background with hover effects
+      classes += 'text-white bg-green-500/70 border border-green-400/50 hover:bg-green-400/80 hover:border-green-300/60 hover:shadow-lg hover:shadow-green-400/20 hover:scale-105 cursor-pointer'
     }
-
+    
     return classes
   }
 
@@ -267,18 +300,18 @@ export default function CustomerCalendar({
       {!loading && (
         <div className="space-y-4">
           {/* Weekday Headers */}
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-3 mb-2">
             {weekDays.map(day => (
-              <div key={day} className="h-10 flex items-center justify-center text-sm font-medium text-gray-400">
+              <div key={day} className="h-12 flex items-center justify-center text-sm font-bold text-gray-300 uppercase tracking-wider">
                 {day}
               </div>
             ))}
           </div>
 
           {/* Calendar Days */}
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-3">
             {calendarDays.map((date, index) => (
-              <div key={index} className="h-12 flex items-center justify-center">
+              <div key={index} className="h-14 flex items-center justify-center">
                 {date ? (
                   <button
                     onClick={() => handleDateClick(date)}
@@ -289,16 +322,9 @@ export default function CustomerCalendar({
                     title={getDateStatus(date).reason}
                   >
                     {date.getDate()}
-                    
-                    {/* Availability indicator */}
-                    {!getDateStatus(date).isPast && (
-                      <div className={`absolute -bottom-1 -right-1 w-2 h-2 rounded-full ${
-                        getDateStatus(date).isAvailable ? 'bg-green-400' : 'bg-red-400'
-                      }`} />
-                    )}
                   </button>
                 ) : (
-                  <div />
+                  <div className="w-12 h-12" />
                 )}
               </div>
             ))}
@@ -308,41 +334,53 @@ export default function CustomerCalendar({
 
       {/* Selection Summary */}
       {(selectedStartDate || selectedEndDate) && (
-        <div className="mt-6 p-4 bg-dark-metal/50 rounded-lg border border-gray-600/30">
+        <div className="mt-6 p-6 bg-gradient-to-r from-dark-metal/60 to-dark-metal/40 rounded-xl border border-neon-blue/20 shadow-lg">
           <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <div className="flex items-center space-x-2 text-sm text-gray-300">
-                <Clock className="w-4 h-4" />
-                <span>Selected Dates:</span>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-3 text-sm text-gray-300">
+                <div className="p-1 bg-neon-blue/20 rounded-lg">
+                  <Clock className="w-4 h-4 text-neon-blue" />
+                </div>
+                <span className="font-medium">Selected Dates</span>
               </div>
-              <div className="text-white font-medium">
+              <div className="text-white font-semibold text-lg">
                 {selectedStartDate && new Date(selectedStartDate).toLocaleDateString('en-US', { 
-                  month: 'short', 
+                  month: 'long', 
                   day: 'numeric',
                   year: 'numeric'
                 })}
                 {selectedEndDate && (
                   <>
-                    {' → '}
+                    <span className="mx-3 text-neon-blue">→</span>
                     {new Date(selectedEndDate).toLocaleDateString('en-US', { 
-                      month: 'short', 
+                      month: 'long', 
                       day: 'numeric',
                       year: 'numeric'
                     })}
                   </>
+                )}
+                {!selectedEndDate && selectedStartDate && (
+                  <span className="ml-3 text-gray-400 text-sm font-normal">(Select end date)</span>
                 )}
               </div>
             </div>
             
             {calculateTotalPrice() && (
               <div className="text-right">
-                <div className="flex items-center space-x-2 text-sm text-gray-300">
-                  <DollarSign className="w-4 h-4" />
-                  <span>Total:</span>
+                <div className="flex items-center justify-end space-x-3 text-sm text-gray-300 mb-1">
+                  <div className="p-1 bg-green-500/20 rounded-lg">
+                    <DollarSign className="w-4 h-4 text-green-400" />
+                  </div>
+                  <span className="font-medium">Total Cost</span>
                 </div>
-                <div className="text-2xl font-tech font-bold text-neon-blue">
+                <div className="text-3xl font-tech font-bold text-transparent bg-gradient-to-r from-neon-blue to-green-400 bg-clip-text">
                   ${calculateTotalPrice()?.toLocaleString()}
                 </div>
+                {selectedStartDate && selectedEndDate && (
+                  <div className="text-xs text-gray-400 mt-1">
+                    {Math.ceil((new Date(selectedEndDate).getTime() - new Date(selectedStartDate).getTime()) / (1000 * 3600 * 24))} days
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -350,18 +388,22 @@ export default function CustomerCalendar({
       )}
 
       {/* Legend */}
-      <div className="mt-4 flex items-center justify-center space-x-6 text-xs text-gray-400">
-        <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-          <span>Available</span>
+      <div className="mt-6 flex items-center justify-center space-x-8 text-sm">
+        <div className="flex items-center space-x-3">
+          <div className="w-4 h-4 bg-green-500/70 border border-green-400/50 rounded-lg shadow-sm"></div>
+          <span className="text-gray-300 font-medium">Available</span>
         </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-          <span>Unavailable</span>
+        <div className="flex items-center space-x-3">
+          <div className="w-4 h-4 bg-red-500/80 border border-red-400/50 rounded-lg shadow-sm"></div>
+          <span className="text-gray-300 font-medium">Unavailable</span>
         </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 bg-neon-blue rounded-full"></div>
-          <span>Selected</span>
+        <div className="flex items-center space-x-3">
+          <div className="w-4 h-4 bg-neon-blue border border-neon-blue rounded-lg shadow-lg shadow-neon-blue/40"></div>
+          <span className="text-gray-300 font-medium">Selected</span>
+        </div>
+        <div className="flex items-center space-x-3">
+          <div className="w-4 h-4 bg-gray-800/40 border border-gray-700/50 rounded-lg"></div>
+          <span className="text-gray-300 font-medium">Past</span>
         </div>
       </div>
     </div>

@@ -714,23 +714,23 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
 
 export default function BookRentalPage() {
   return (
-    <div className="min-h-screen bg-dark-gray">
+    <div className="min-h-screen bg-dark-gray flex flex-col">
       <Navbar />
       <Elements stripe={stripePromise}>
-      <div className="pt-32 pb-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-tech font-bold text-white mb-4">
-              Book Your <span className="neon-text">Rental</span>
-            </h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Secure your dream car with our streamlined booking process
-            </p>
-          </div>
+        <div className="flex-1 flex items-center justify-center px-4 py-8">
+          <div className="w-full max-w-6xl mx-auto">
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-tech font-bold text-white mb-4">
+                Book Your <span className="neon-text">Rental</span>
+              </h1>
+              <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+                Secure your dream car with our streamlined booking process
+              </p>
+            </div>
 
-          <BookingForm />
+            <BookingForm />
+          </div>
         </div>
-      </div>
       </Elements>
       <Footer />
     </div>
