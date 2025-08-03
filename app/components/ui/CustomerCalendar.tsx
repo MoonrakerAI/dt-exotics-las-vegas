@@ -200,7 +200,7 @@ export default function CustomerCalendar({
     const dateStr = date.toISOString().split('T')[0]
     const status = getDateStatus(date)
     
-    let classes = 'relative w-12 h-12 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center justify-center '
+    let classes = 'relative w-12 h-12 rounded-xl text-sm font-semibold transition-all duration-500 flex items-center justify-center '
     
     if (status.isPast) {
       // Past dates - muted gray
@@ -209,11 +209,11 @@ export default function CustomerCalendar({
       // Unavailable dates - neon red background
       classes += 'text-white cursor-not-allowed bg-red-400/90 border border-red-300/60 shadow-sm shadow-red-400/20'
     } else if (status.isSelected) {
-      // Selected dates - bright neon blue with glow
-      classes += 'text-white bg-neon-blue border-2 border-neon-blue shadow-lg shadow-neon-blue/40 scale-105'
+      // Selected dates - bright neon blue with glow and animation
+      classes += 'text-white bg-neon-blue border-2 border-neon-blue shadow-lg shadow-neon-blue/40 scale-105 animate-pulse'
     } else if (status.isInRange) {
-      // Dates in selected range - medium neon blue
-      classes += 'text-white bg-neon-blue/70 border border-neon-blue/60 shadow-md'
+      // Dates in selected range - same as selected dates with animation
+      classes += 'text-white bg-neon-blue border-2 border-neon-blue shadow-lg shadow-neon-blue/40 scale-105 animate-pulse'
     } else if (status.isHoverPreview) {
       // Valid hover preview range - desaturated neon blue
       classes += 'text-white bg-neon-blue/30 border border-neon-blue/30 shadow-sm cursor-pointer'
@@ -221,8 +221,11 @@ export default function CustomerCalendar({
       // Invalid hover range - desaturated neon blue (same as preview but with warning cursor)
       classes += 'text-white bg-neon-blue/30 border border-neon-blue/30 shadow-sm cursor-not-allowed'
     } else {
-      // Available dates - neon lime green background with hover effects
-      classes += 'text-black bg-lime-400/80 border border-lime-300/60 hover:bg-lime-300/90 hover:border-lime-200/70 hover:shadow-lg hover:shadow-lime-400/30 hover:scale-105 cursor-pointer font-bold'
+      // Available dates - custom green #B7E892 with hover effects
+      classes += 'text-black font-bold cursor-pointer transition-all duration-300 hover:scale-105'
+      classes += ' hover:shadow-lg'
+      // Using custom green color #B7E892
+      classes += ' bg-[#B7E892] border border-[#A8D982] hover:bg-[#A8D982] hover:border-[#99CA72] hover:shadow-[#B7E892]/30'
     }
     
     return classes
@@ -368,12 +371,12 @@ export default function CustomerCalendar({
             {calculateTotalPrice() && (
               <div className="text-right">
                 <div className="flex items-center justify-end space-x-3 text-sm text-gray-300 mb-1">
-                  <div className="p-1 bg-lime-400/20 rounded-lg">
-                    <DollarSign className="w-4 h-4 text-lime-400" />
+                  <div className="p-1 bg-[#B7E892]/20 rounded-lg">
+                    <DollarSign className="w-4 h-4 text-[#B7E892]" />
                   </div>
                   <span className="font-medium">Total Cost</span>
                 </div>
-                <div className="text-3xl font-tech font-bold text-transparent bg-gradient-to-r from-neon-blue to-lime-400 bg-clip-text">
+                <div className="text-3xl font-tech font-bold text-transparent bg-gradient-to-r from-neon-blue to-[#B7E892] bg-clip-text">
                   ${calculateTotalPrice()?.toLocaleString()}
                 </div>
                 {selectedStartDate && selectedEndDate && (
@@ -390,7 +393,7 @@ export default function CustomerCalendar({
       {/* Legend */}
       <div className="mt-6 flex items-center justify-center space-x-8 text-sm">
         <div className="flex items-center space-x-3">
-          <div className="w-4 h-4 bg-lime-400/80 border border-lime-300/60 rounded-lg shadow-sm shadow-lime-400/30"></div>
+          <div className="w-4 h-4 bg-[#B7E892] border border-[#A8D982] rounded-lg shadow-sm shadow-[#B7E892]/30"></div>
           <span className="text-gray-300 font-medium">Available</span>
         </div>
         <div className="flex items-center space-x-3">
@@ -398,7 +401,7 @@ export default function CustomerCalendar({
           <span className="text-gray-300 font-medium">Unavailable</span>
         </div>
         <div className="flex items-center space-x-3">
-          <div className="w-4 h-4 bg-neon-blue border border-neon-blue rounded-lg shadow-lg shadow-neon-blue/40"></div>
+          <div className="w-4 h-4 bg-neon-blue border border-neon-blue rounded-lg shadow-lg shadow-neon-blue/40 animate-pulse"></div>
           <span className="text-gray-300 font-medium">Selected</span>
         </div>
         <div className="flex items-center space-x-3">
