@@ -42,6 +42,7 @@ export default function CustomerCalendar({
   const [hoveredDate, setHoveredDate] = useState<string | null>(null)
   const [availability, setAvailability] = useState<AvailabilityData>({})
   const [loading, setLoading] = useState(false)
+  const [justSelected, setJustSelected] = useState<Set<string>>(new Set())
 
   // Get calendar data for current month
   const year = currentDate.getFullYear()
@@ -104,11 +105,18 @@ export default function CustomerCalendar({
     // Don't allow unavailable dates
     if (availability[dateStr] && !availability[dateStr].available) return
 
+    // Clear previous pulse animations
+    setJustSelected(new Set())
+
     if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
       // Starting new selection
       setSelectedStartDate(dateStr)
       setSelectedEndDate(null)
       onDateRangeChange?.(dateStr, null)
+      
+      // Trigger single pulse for selected date
+      setJustSelected(new Set([dateStr]))
+      setTimeout(() => setJustSelected(new Set()), 600) // Clear after animation
     } else {
       // Completing selection
       const start = new Date(selectedStartDate)
@@ -119,6 +127,10 @@ export default function CustomerCalendar({
         setSelectedStartDate(dateStr)
         setSelectedEndDate(selectedStartDate)
         onDateRangeChange?.(dateStr, selectedStartDate)
+        
+        // Trigger pulse for both dates
+        setJustSelected(new Set([dateStr, selectedStartDate]))
+        setTimeout(() => setJustSelected(new Set()), 600)
       } else {
         // Check if range has any unavailable dates
         const hasUnavailableDates = checkRangeAvailability(start, end)
@@ -128,9 +140,23 @@ export default function CustomerCalendar({
           setSelectedStartDate(dateStr)
           setSelectedEndDate(null)
           onDateRangeChange?.(dateStr, null)
+          
+          // Trigger pulse for new start date
+          setJustSelected(new Set([dateStr]))
+          setTimeout(() => setJustSelected(new Set()), 600)
         } else {
           setSelectedEndDate(dateStr)
           onDateRangeChange?.(selectedStartDate, dateStr)
+          
+          // Trigger pulse for entire range
+          const rangeDates = []
+          const current = new Date(start)
+          while (current <= end) {
+            rangeDates.push(current.toISOString().split('T')[0])
+            current.setDate(current.getDate() + 1)
+          }
+          setJustSelected(new Set(rangeDates))
+          setTimeout(() => setJustSelected(new Set()), 600)
         }
       }
     }
@@ -199,34 +225,28 @@ export default function CustomerCalendar({
   const getDateClasses = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0]
     const status = getDateStatus(date)
+    const isJustSelected = justSelected.has(dateStr)
     
-    let classes = 'relative w-12 h-12 rounded-xl text-sm font-semibold transition-all duration-500 flex items-center justify-center '
+    let classes = 'relative w-12 h-12 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center justify-center '
     
     if (status.isPast) {
-      // Past dates - muted gray
+      // Past dates - muted gray (unchanged)
       classes += 'text-gray-500 cursor-not-allowed bg-gray-800/40 border border-gray-700/50'
     } else if (!status.isAvailable) {
-      // Unavailable dates - neon red background with inverted text
+      // Unavailable dates - red background (unchanged)
       classes += 'text-white cursor-not-allowed bg-red-400/90 border border-red-300/60 shadow-sm shadow-red-400/20'
-    } else if (status.isSelected) {
-      // Selected dates - bright neon blue with inverted black text and subtle pulse
-      classes += 'text-black bg-neon-blue border-2 border-neon-blue shadow-lg shadow-neon-blue/40 scale-105'
-      classes += ' animate-[pulse_2s_ease-in-out_infinite]'
-    } else if (status.isInRange) {
-      // Dates in selected range - same as selected dates with synchronized animation
-      classes += 'text-black bg-neon-blue border-2 border-neon-blue shadow-lg shadow-neon-blue/40 scale-105'
-      classes += ' animate-[pulse_2s_ease-in-out_infinite]'
-    } else if (status.isHoverPreview) {
-      // Valid hover preview range - desaturated neon blue with smart text color
-      classes += 'text-white bg-neon-blue/30 border border-neon-blue/30 shadow-sm cursor-pointer'
-    } else if (status.isHovered) {
-      // Invalid hover range - desaturated neon blue with smart text color
-      classes += 'text-white bg-neon-blue/30 border border-neon-blue/30 shadow-sm cursor-not-allowed'
+    } else if (status.isSelected || status.isInRange || status.isHoverPreview || status.isHovered) {
+      // All selection states - unified neon blue
+      classes += 'text-black bg-neon-blue border-2 border-neon-blue shadow-lg shadow-neon-blue/40 cursor-pointer'
+      
+      // Add single quick pulse animation if just selected
+      if (isJustSelected) {
+        classes += ' animate-[pulse_0.6s_ease-out_1]'
+      }
     } else {
-      // Available dates - custom green #93DC5C with black text for contrast
+      // Available dates - green #93DC5C (unchanged)
       classes += 'text-black font-bold cursor-pointer transition-all duration-300 hover:scale-105'
       classes += ' hover:shadow-lg'
-      // Using custom green color #93DC5C
       classes += ' bg-[#93DC5C] border border-[#84CD4C] hover:bg-[#84CD4C] hover:border-[#75BE3C] hover:shadow-[#93DC5C]/30'
     }
     
@@ -403,7 +423,7 @@ export default function CustomerCalendar({
           <span className="text-gray-300 font-medium">Unavailable</span>
         </div>
         <div className="flex items-center space-x-3">
-          <div className="w-4 h-4 bg-neon-blue border border-neon-blue rounded-lg shadow-lg shadow-neon-blue/40 animate-[pulse_2s_ease-in-out_infinite] flex items-center justify-center text-black text-xs font-bold">✓</div>
+          <div className="w-4 h-4 bg-neon-blue border border-neon-blue rounded-lg shadow-lg shadow-neon-blue/40 flex items-center justify-center text-black text-xs font-bold">✓</div>
           <span className="text-gray-300 font-medium">Selected</span>
         </div>
         <div className="flex items-center space-x-3">
