@@ -210,22 +210,23 @@ export default function CustomerCalendar({
     let isFinalHover = false
     
     if (selectedStartDate && selectedEndDate) {
-      const start = parseLocalDate(selectedStartDate)
-      const end = parseLocalDate(selectedEndDate)
-      isInRange = date >= start && date <= end
+      // Use string comparison for precise date matching
+      isInRange = dateStr >= selectedStartDate && dateStr <= selectedEndDate
     }
     
-    // Aggressive hover preview - force final date to be treated as selected
+    // Hover preview - show blue highlighting from start to hovered date
     if (hoveredDate && selectedStartDate && !selectedEndDate) {
-      const start = parseLocalDate(selectedStartDate)
-      const hovered = parseLocalDate(hoveredDate)
-      const minDate = start < hovered ? start : hovered
-      const maxDate = start > hovered ? start : hovered
+      const minDate = selectedStartDate < hoveredDate ? selectedStartDate : hoveredDate
+      const maxDate = selectedStartDate > hoveredDate ? selectedStartDate : hoveredDate
       
       // Check if the range is valid (no unavailable dates)
-      const rangeValid = !checkRangeAvailability(minDate, maxDate)
+      const startDateObj = parseLocalDate(selectedStartDate)
+      const hoveredDateObj = parseLocalDate(hoveredDate)
+      const minDateObj = startDateObj < hoveredDateObj ? startDateObj : hoveredDateObj
+      const maxDateObj = startDateObj > hoveredDateObj ? startDateObj : hoveredDateObj
+      const rangeValid = !checkRangeAvailability(minDateObj, maxDateObj)
       
-      if (date >= minDate && date <= maxDate && rangeValid) {
+      if (dateStr >= minDate && dateStr <= maxDate && rangeValid) {
         // Force ALL dates in range to be blue
         isHoverPreview = true
         isFinalHover = true
@@ -403,7 +404,7 @@ export default function CustomerCalendar({
                 {date ? (
                   <button
                     onClick={() => handleDateClick(date)}
-                    onMouseEnter={() => setHoveredDate(date.toISOString().split('T')[0])}
+                    onMouseEnter={() => setHoveredDate(formatLocalDate(date))}
                     onMouseLeave={() => setHoveredDate(null)}
                     className={getDateClasses(date)}
                     disabled={getDateStatus(date).isPast || !getDateStatus(date).isAvailable}
