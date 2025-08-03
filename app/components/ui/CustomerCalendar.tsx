@@ -197,6 +197,7 @@ export default function CustomerCalendar({
     
     // Enhanced hover preview for range selection
     if (hoveredDate && selectedStartDate && !selectedEndDate) {
+      console.log(`🔍 HOVER DETECTION: dateStr=${dateStr}, hoveredDate=${hoveredDate}, selectedStartDate=${selectedStartDate}`)
       const start = new Date(selectedStartDate)
       const hovered = new Date(hoveredDate)
       const minDate = start < hovered ? start : hovered
@@ -204,6 +205,7 @@ export default function CustomerCalendar({
       
       // Check if the range is valid (no unavailable dates)
       const rangeValid = !checkRangeAvailability(minDate, maxDate)
+      console.log(`📅 RANGE CHECK: minDate=${minDate.toISOString().split('T')[0]}, maxDate=${maxDate.toISOString().split('T')[0]}, rangeValid=${rangeValid}`)
       
       if (date >= minDate && date <= maxDate) {
         if (rangeValid) {
