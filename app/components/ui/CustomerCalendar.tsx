@@ -195,9 +195,8 @@ export default function CustomerCalendar({
       isInRange = date >= start && date <= end
     }
     
-    // Enhanced hover preview for range selection
+    // Simple hover preview for range selection - force all dates in range to be blue
     if (hoveredDate && selectedStartDate && !selectedEndDate) {
-      console.log(`🔍 HOVER DETECTION: dateStr=${dateStr}, hoveredDate=${hoveredDate}, selectedStartDate=${selectedStartDate}`)
       const start = new Date(selectedStartDate)
       const hovered = new Date(hoveredDate)
       const minDate = start < hovered ? start : hovered
@@ -205,28 +204,16 @@ export default function CustomerCalendar({
       
       // Check if the range is valid (no unavailable dates)
       const rangeValid = !checkRangeAvailability(minDate, maxDate)
-      console.log(`📅 RANGE CHECK: minDate=${minDate.toISOString().split('T')[0]}, maxDate=${maxDate.toISOString().split('T')[0]}, rangeValid=${rangeValid}`)
       
-      if (date >= minDate && date <= maxDate) {
-        if (rangeValid) {
-          // ALL dates in valid range turn blue, including final hovered date
-          isHoverPreview = true
-          isFinalHover = true
-          
-          // EXPLICITLY force the final hovered date to be blue
-          if (dateStr === hoveredDate) {
-            // This is the final hovered date - override any other styling
-            console.log(`🎯 FINAL HOVER DATE: ${dateStr}, hoveredDate: ${hoveredDate}`)
-            isHoverPreview = true
-            isFinalHover = true
-            // Don't set isHovered for the final date
-            isHovered = false
-            console.log(`🔵 Final date status: isHoverPreview=${isHoverPreview}, isFinalHover=${isFinalHover}, isHovered=${isHovered}`)
-          }
-        } else {
-          // Invalid range - show as hovered but not blue
-          isHovered = true
-        }
+      if (date >= minDate && date <= maxDate && rangeValid) {
+        // Force ALL dates in range to be blue - no exceptions
+        isHoverPreview = true
+        isFinalHover = true
+        // Override any other hover state
+        isHovered = false
+      } else if (date >= minDate && date <= maxDate && !rangeValid) {
+        // Invalid range - show as hovered but not blue
+        isHovered = true
       }
     }
     
@@ -260,9 +247,6 @@ export default function CustomerCalendar({
       classes += ' backdrop-blur-sm'
     } else if (status.isSelected || status.isInRange || status.isHoverPreview || status.isFinalHover) {
       // All selection states - glass effect with neon blue border, brighter inner color
-      if (status.isHoverPreview || status.isFinalHover) {
-        console.log(`🔵 BLUE STYLING for ${dateStr}: isSelected=${status.isSelected}, isInRange=${status.isInRange}, isHoverPreview=${status.isHoverPreview}, isFinalHover=${status.isFinalHover}`)
-      }
       classes += 'text-white border-2 border-neon-blue shadow-lg shadow-neon-blue/40 cursor-pointer'
       classes += ' bg-gradient-to-br from-neon-blue/70 via-neon-blue/50 to-neon-blue/70'
       classes += ' backdrop-blur-sm'
@@ -273,7 +257,6 @@ export default function CustomerCalendar({
       }
     } else if (status.isHovered) {
       // Hovered but not in valid range - show as available with hover effect
-      console.log(`🟢 GREEN HOVERED STYLING for ${dateStr}: isHovered=${status.isHovered}`)
       classes += 'text-white font-bold cursor-pointer transition-all duration-300 hover:scale-105'
       classes += ' hover:shadow-lg border-2 border-[#b0ff62]'
       classes += ' bg-gradient-to-br from-[#b0ff62]/60 via-[#b0ff62]/40 to-[#b0ff62]/60'
@@ -380,15 +363,8 @@ export default function CustomerCalendar({
                 {date ? (
                   <button
                     onClick={() => handleDateClick(date)}
-                    onMouseEnter={() => {
-                      const dateStr = date.toISOString().split('T')[0]
-                      console.log(`🖱️ MOUSE ENTER: ${dateStr}`)
-                      setHoveredDate(dateStr)
-                    }}
-                    onMouseLeave={() => {
-                      console.log(`🖱️ MOUSE LEAVE`)
-                      setHoveredDate(null)
-                    }}
+                    onMouseEnter={() => setHoveredDate(date.toISOString().split('T')[0])}
+                    onMouseLeave={() => setHoveredDate(null)}
                     className={getDateClasses(date)}
                     disabled={getDateStatus(date).isPast || !getDateStatus(date).isAvailable}
                     title={getDateStatus(date).reason}
