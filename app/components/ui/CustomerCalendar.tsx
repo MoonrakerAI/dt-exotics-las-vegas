@@ -209,7 +209,16 @@ export default function CustomerCalendar({
         if (rangeValid) {
           // ALL dates in valid range turn blue, including final hovered date
           isHoverPreview = true
-          isFinalHover = true // This will force blue styling for all dates in range
+          isFinalHover = true
+          
+          // EXPLICITLY force the final hovered date to be blue
+          if (dateStr === hoveredDate) {
+            // This is the final hovered date - override any other styling
+            isHoverPreview = true
+            isFinalHover = true
+            // Don't set isHovered for the final date
+            isHovered = false
+          }
         } else {
           // Invalid range - show as hovered but not blue
           isHovered = true
@@ -245,7 +254,7 @@ export default function CustomerCalendar({
       classes += 'text-white cursor-not-allowed border-2 border-red-400 shadow-sm shadow-red-400/20'
       classes += ' bg-gradient-to-br from-red-400/60 via-red-400/40 to-red-400/60'
       classes += ' backdrop-blur-sm'
-    } else if (status.isSelected || status.isInRange || status.isHoverPreview || status.isHovered || status.isFinalHover) {
+    } else if (status.isSelected || status.isInRange || status.isHoverPreview || status.isFinalHover) {
       // All selection states - glass effect with neon blue border, brighter inner color
       classes += 'text-white border-2 border-neon-blue shadow-lg shadow-neon-blue/40 cursor-pointer'
       classes += ' bg-gradient-to-br from-neon-blue/70 via-neon-blue/50 to-neon-blue/70'
@@ -255,14 +264,22 @@ export default function CustomerCalendar({
       if (isJustSelected) {
         classes += ' animate-[pulse_0.6s_ease-out_1]'
       }
-    } else {
-      // Available dates - glass effect with balanced chartreuse green color
+    } else if (status.isHovered) {
+      // Hovered but not in valid range - show as available with hover effect
       classes += 'text-white font-bold cursor-pointer transition-all duration-300 hover:scale-105'
-      classes += ' hover:shadow-lg border-2 border-[#7FFF00]'
-      classes += ' bg-gradient-to-br from-[#7FFF00]/60 via-[#7FFF00]/40 to-[#7FFF00]/60'
+      classes += ' hover:shadow-lg border-2 border-[#b0ff62]'
+      classes += ' bg-gradient-to-br from-[#b0ff62]/60 via-[#b0ff62]/40 to-[#b0ff62]/60'
       classes += ' backdrop-blur-sm'
-      classes += ' hover:border-[#6FE600] hover:from-[#7FFF00]/70 hover:via-[#7FFF00]/50 hover:to-[#7FFF00]/70'
-      classes += ' hover:shadow-[#7FFF00]/30'
+      classes += ' hover:border-[#9fe650] hover:from-[#b0ff62]/70 hover:via-[#b0ff62]/50 hover:to-[#b0ff62]/70'
+      classes += ' hover:shadow-[#b0ff62]/30'
+    } else {
+      // Available dates - glass effect with new green color #b0ff62
+      classes += 'text-white font-bold cursor-pointer transition-all duration-300 hover:scale-105'
+      classes += ' hover:shadow-lg border-2 border-[#b0ff62]'
+      classes += ' bg-gradient-to-br from-[#b0ff62]/60 via-[#b0ff62]/40 to-[#b0ff62]/60'
+      classes += ' backdrop-blur-sm'
+      classes += ' hover:border-[#9fe650] hover:from-[#b0ff62]/70 hover:via-[#b0ff62]/50 hover:to-[#b0ff62]/70'
+      classes += ' hover:shadow-[#b0ff62]/30'
     }
     
     return classes
@@ -430,7 +447,7 @@ export default function CustomerCalendar({
       {/* Legend */}
       <div className="mt-6 flex items-center justify-center space-x-8 text-sm">
         <div className="flex items-center space-x-3">
-          <div className="w-4 h-4 border-2 border-[#7FFF00] rounded-lg shadow-sm shadow-[#7FFF00]/30 bg-gradient-to-br from-[#7FFF00]/60 via-[#7FFF00]/40 to-[#7FFF00]/60 backdrop-blur-sm"></div>
+          <div className="w-4 h-4 border-2 border-[#b0ff62] rounded-lg shadow-sm shadow-[#b0ff62]/30 bg-gradient-to-br from-[#b0ff62]/60 via-[#b0ff62]/40 to-[#b0ff62]/60 backdrop-blur-sm"></div>
           <span className="text-gray-300 font-medium">Available</span>
         </div>
         <div className="flex items-center space-x-3">
