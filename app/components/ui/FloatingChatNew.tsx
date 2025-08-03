@@ -21,30 +21,26 @@ export default function FloatingChatNew() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  const scrollToNewMessage = () => {
-    // Find the last assistant message and scroll to its top
-    const lastAssistantMessage = messages[messages.length - 1]
-    if (lastAssistantMessage && lastAssistantMessage.role === 'assistant') {
-      setTimeout(() => {
-        const container = messagesEndRef.current?.closest('.overflow-y-auto')
-        if (container) {
-          const messageElements = container.querySelectorAll('[data-message-id]')
-          const lastMessageElement = messageElements[messageElements.length - 1]
-          if (lastMessageElement) {
-            lastMessageElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
-          }
-        }
-      }, 100)
-    }
+  const scrollToBottom = () => {
+    // Use setTimeout to ensure DOM is updated before scrolling
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, 100)
   }
 
   useEffect(() => {
-    // Only scroll for new assistant messages
-    const lastMessage = messages[messages.length - 1]
-    if (lastMessage && lastMessage.role === 'assistant') {
-      scrollToNewMessage()
+    // Scroll for all new messages (both user and assistant)
+    if (messages.length > 0) {
+      scrollToBottom()
     }
   }, [messages])
+
+  // Additional scroll trigger for when loading state changes
+  useEffect(() => {
+    if (!isLoading) {
+      scrollToBottom()
+    }
+  }, [isLoading])
 
   useEffect(() => {
     if (isOpen && inputRef.current) {

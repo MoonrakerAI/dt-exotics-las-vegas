@@ -22,12 +22,22 @@ export default function FloatingChat() {
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    // Use setTimeout to ensure DOM is updated before scrolling
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, 100)
   }
 
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // Additional scroll trigger for when loading state changes
+  useEffect(() => {
+    if (!isLoading) {
+      scrollToBottom()
+    }
+  }, [isLoading])
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
