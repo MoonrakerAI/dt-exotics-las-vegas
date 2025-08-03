@@ -97,7 +97,11 @@ export default function CustomerCalendar({
   }
 
   const handleDateClick = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0]
+    // Use local date format to avoid timezone issues
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const dateStr = `${year}-${month}-${day}`
     
     // Don't allow past dates
     if (date < today) return
@@ -412,19 +416,25 @@ export default function CustomerCalendar({
                 <span className="font-medium">Selected Dates</span>
               </div>
               <div className="text-white font-semibold text-lg">
-                {selectedStartDate && new Date(selectedStartDate + 'T00:00:00').toLocaleDateString('en-US', { 
-                  month: 'long', 
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
+                {selectedStartDate && (() => {
+                  const [year, month, day] = selectedStartDate.split('-').map(Number)
+                  return new Date(year, month - 1, day).toLocaleDateString('en-US', { 
+                    month: 'long', 
+                    day: 'numeric',
+                    year: 'numeric'
+                  })
+                })()}
                 {selectedEndDate && (
                   <>
                     <span className="mx-3 text-neon-blue">→</span>
-                    {new Date(selectedEndDate + 'T00:00:00').toLocaleDateString('en-US', { 
-                      month: 'long', 
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
+                    {(() => {
+                      const [year, month, day] = selectedEndDate.split('-').map(Number)
+                      return new Date(year, month - 1, day).toLocaleDateString('en-US', { 
+                        month: 'long', 
+                        day: 'numeric',
+                        year: 'numeric'
+                      })
+                    })()}
                   </>
                 )}
                 {!selectedEndDate && selectedStartDate && (
