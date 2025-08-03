@@ -28,6 +28,20 @@ interface AvailabilityData {
   }
 }
 
+// Helper function to parse local date strings correctly
+function parseLocalDate(dateStr: string): Date {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
+// Helper function to format dates in local format consistently
+function formatLocalDate(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 export default function CustomerCalendar({ 
   onDateRangeChange, 
   selectedCarId,
@@ -49,10 +63,7 @@ export default function CustomerCalendar({
   const month = currentDate.getMonth()
   const today = new Date()
   // Use local date format for consistency
-  const todayYear = today.getFullYear()
-  const todayMonth = String(today.getMonth() + 1).padStart(2, '0')
-  const todayDay = String(today.getDate()).padStart(2, '0')
-  const todayStr = `${todayYear}-${todayMonth}-${todayDay}`
+  const todayStr = formatLocalDate(today)
 
   // Generate calendar days
   const firstDayOfMonth = new Date(year, month, 1)
@@ -102,10 +113,7 @@ export default function CustomerCalendar({
 
   const handleDateClick = (date: Date) => {
     // Use local date format to avoid timezone issues
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    const dateStr = `${year}-${month}-${day}`
+    const dateStr = formatLocalDate(date)
     
     // Don't allow past dates
     if (date < today) return
@@ -160,7 +168,8 @@ export default function CustomerCalendar({
           const rangeDates = []
           const current = new Date(start)
           while (current <= end) {
-            rangeDates.push(current.toISOString().split('T')[0])
+            // Use local date format for consistency
+            rangeDates.push(formatLocalDate(current))
             current.setDate(current.getDate() + 1)
           }
           setJustSelected(new Set(rangeDates))
@@ -175,7 +184,9 @@ export default function CustomerCalendar({
     current.setDate(current.getDate() + 1) // Skip start date
     
     while (current < end) {
-      const dateStr = current.toISOString().split('T')[0]
+      // Use local date format for consistency
+      const dateStr = formatLocalDate(current)
+      
       if (availability[dateStr] && !availability[dateStr].available) {
         return true // Found unavailable date
       }
@@ -186,10 +197,7 @@ export default function CustomerCalendar({
 
   const getDateStatus = (date: Date) => {
     // Use same local date format as handleDateClick for consistency
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    const dateStr = `${year}-${month}-${day}`
+    const dateStr = formatLocalDate(date)
     const today = new Date()
     const isPast = date < today
     const isToday = dateStr === todayStr
@@ -202,15 +210,15 @@ export default function CustomerCalendar({
     let isFinalHover = false
     
     if (selectedStartDate && selectedEndDate) {
-      const start = new Date(selectedStartDate)
-      const end = new Date(selectedEndDate)
+      const start = parseLocalDate(selectedStartDate)
+      const end = parseLocalDate(selectedEndDate)
       isInRange = date >= start && date <= end
     }
     
     // Aggressive hover preview - force final date to be treated as selected
     if (hoveredDate && selectedStartDate && !selectedEndDate) {
-      const start = new Date(selectedStartDate)
-      const hovered = new Date(hoveredDate)
+      const start = parseLocalDate(selectedStartDate)
+      const hovered = parseLocalDate(hoveredDate)
       const minDate = start < hovered ? start : hovered
       const maxDate = start > hovered ? start : hovered
       
