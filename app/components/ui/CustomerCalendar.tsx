@@ -195,7 +195,7 @@ export default function CustomerCalendar({
       isInRange = date >= start && date <= end
     }
     
-    // Simple hover preview for range selection - force all dates in range to be blue
+    // Aggressive hover preview - force final date to be treated as selected
     if (hoveredDate && selectedStartDate && !selectedEndDate) {
       const start = new Date(selectedStartDate)
       const hovered = new Date(hoveredDate)
@@ -206,9 +206,17 @@ export default function CustomerCalendar({
       const rangeValid = !checkRangeAvailability(minDate, maxDate)
       
       if (date >= minDate && date <= maxDate && rangeValid) {
-        // Force ALL dates in range to be blue - no exceptions
+        // Force ALL dates in range to be blue
         isHoverPreview = true
         isFinalHover = true
+        
+        // AGGRESSIVE FIX: Force the final hovered date to have blue styling
+        if (dateStr === hoveredDate) {
+          // Force multiple blue flags to ensure blue styling takes precedence
+          isHoverPreview = true
+          isFinalHover = true
+        }
+        
         // Override any other hover state
         isHovered = false
       } else if (date >= minDate && date <= maxDate && !rangeValid) {
@@ -217,15 +225,18 @@ export default function CustomerCalendar({
       }
     }
     
+    // FINAL FIX: Force the final hovered date to be treated as selected for blue styling
+    const isFinalHoveredDate = hoveredDate && selectedStartDate && !selectedEndDate && dateStr === hoveredDate
+    
     return {
       isPast,
       isToday,
       isAvailable,
-      isSelected,
+      isSelected: isSelected || isFinalHoveredDate, // Force final hovered date to be treated as selected
       isInRange,
-      isHovered,
-      isHoverPreview,
-      isFinalHover,
+      isHovered: isHovered && !isFinalHoveredDate, // Don't show as hovered if it's the final date
+      isHoverPreview: isHoverPreview || isFinalHoveredDate, // Force final date to have hover preview
+      isFinalHover: isFinalHover || isFinalHoveredDate, // Force final date to have final hover flag
       reason: !isAvailable ? availability[dateStr]?.reason : undefined
     }
   }
@@ -237,15 +248,8 @@ export default function CustomerCalendar({
     
     let classes = 'relative w-12 h-12 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center justify-center '
     
-    if (status.isPast) {
-      // Past dates - muted gray (unchanged, no glass effect)
-      classes += 'text-gray-500 cursor-not-allowed bg-gray-800/40 border border-gray-700/50'
-    } else if (!status.isAvailable) {
-      // Unavailable dates - glass effect with red border, brighter inner color
-      classes += 'text-white cursor-not-allowed border-2 border-red-400 shadow-sm shadow-red-400/20'
-      classes += ' bg-gradient-to-br from-red-400/60 via-red-400/40 to-red-400/60'
-      classes += ' backdrop-blur-sm'
-    } else if (status.isSelected || status.isInRange || status.isHoverPreview || status.isFinalHover) {
+    // PRIORITY 1: Blue states (selection, range, hover preview) - MUST take precedence
+    if (status.isSelected || status.isInRange || status.isHoverPreview || status.isFinalHover) {
       // All selection states - glass effect with neon blue border, brighter inner color
       classes += 'text-white border-2 border-neon-blue shadow-lg shadow-neon-blue/40 cursor-pointer'
       classes += ' bg-gradient-to-br from-neon-blue/70 via-neon-blue/50 to-neon-blue/70'
@@ -253,9 +257,23 @@ export default function CustomerCalendar({
       
       // Add single quick pulse animation if just selected
       if (isJustSelected) {
-        classes += ' animate-[pulse_0.6s_ease-out_1]'
+        classes += ' animate-[pulse_0.15s_ease-out_1]'
       }
-    } else if (status.isHovered) {
+    }
+    // PRIORITY 2: Past dates
+    else if (status.isPast) {
+      // Past dates - muted gray (unchanged, no glass effect)
+      classes += 'text-gray-500 cursor-not-allowed bg-gray-800/40 border border-gray-700/50'
+    }
+    // PRIORITY 3: Unavailable dates
+    else if (!status.isAvailable) {
+      // Unavailable dates - glass effect with red border, brighter inner color
+      classes += 'text-white cursor-not-allowed border-2 border-red-400 shadow-sm shadow-red-400/20'
+      classes += ' bg-gradient-to-br from-red-400/60 via-red-400/40 to-red-400/60'
+      classes += ' backdrop-blur-sm'
+    }
+    // PRIORITY 4: Invalid hover (green hover for invalid ranges)
+    else if (status.isHovered) {
       // Hovered but not in valid range - show as available with hover effect
       classes += 'text-white font-bold cursor-pointer transition-all duration-300 hover:scale-105'
       classes += ' hover:shadow-lg border-2 border-[#b0ff62]'
@@ -263,7 +281,9 @@ export default function CustomerCalendar({
       classes += ' backdrop-blur-sm'
       classes += ' hover:border-[#9fe650] hover:from-[#b0ff62]/70 hover:via-[#b0ff62]/50 hover:to-[#b0ff62]/70'
       classes += ' hover:shadow-[#b0ff62]/30'
-    } else {
+    }
+    // PRIORITY 5: Default available dates (green)
+    else {
       // Available dates - glass effect with new green color #b0ff62
       classes += 'text-white font-bold cursor-pointer transition-all duration-300 hover:scale-105'
       classes += ' hover:shadow-lg border-2 border-[#b0ff62]'
