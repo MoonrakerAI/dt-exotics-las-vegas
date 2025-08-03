@@ -209,7 +209,10 @@ export default function CustomerCalendar({
         if (rangeValid) {
           // All dates in valid range turn blue (including final hover date)
           isHoverPreview = true
-          isFinalHover = true // Make all dates in range appear as blue selection
+          // Specifically mark the final hovered date to ensure it turns blue
+          if (dateStr === hoveredDate) {
+            isFinalHover = true
+          }
         } else {
           // Invalid range - show as hovered but not blue
           isHovered = true
@@ -256,13 +259,13 @@ export default function CustomerCalendar({
         classes += ' animate-[pulse_0.6s_ease-out_1]'
       }
     } else {
-      // Available dates - glass effect with green border, brighter inner color
+      // Available dates - glass effect with new green color #C3F550
       classes += 'text-white font-bold cursor-pointer transition-all duration-300 hover:scale-105'
-      classes += ' hover:shadow-lg border-2 border-[#84CD4C]'
-      classes += ' bg-gradient-to-br from-[#93DC5C]/60 via-[#93DC5C]/40 to-[#93DC5C]/60'
+      classes += ' hover:shadow-lg border-2 border-[#B4E640]'
+      classes += ' bg-gradient-to-br from-[#C3F550]/60 via-[#C3F550]/40 to-[#C3F550]/60'
       classes += ' backdrop-blur-sm'
-      classes += ' hover:border-[#75BE3C] hover:from-[#84CD4C]/70 hover:via-[#84CD4C]/50 hover:to-[#84CD4C]/70'
-      classes += ' hover:shadow-[#93DC5C]/30'
+      classes += ' hover:border-[#A5D730] hover:from-[#B4E640]/70 hover:via-[#B4E640]/50 hover:to-[#B4E640]/70'
+      classes += ' hover:shadow-[#C3F550]/30'
     }
     
     return classes
@@ -430,7 +433,7 @@ export default function CustomerCalendar({
       {/* Legend */}
       <div className="mt-6 flex items-center justify-center space-x-8 text-sm">
         <div className="flex items-center space-x-3">
-          <div className="w-4 h-4 border-2 border-[#84CD4C] rounded-lg shadow-sm shadow-[#93DC5C]/30 bg-gradient-to-br from-[#93DC5C]/60 via-[#93DC5C]/40 to-[#93DC5C]/60 backdrop-blur-sm"></div>
+          <div className="w-4 h-4 border-2 border-[#B4E640] rounded-lg shadow-sm shadow-[#C3F550]/30 bg-gradient-to-br from-[#C3F550]/60 via-[#C3F550]/40 to-[#C3F550]/60 backdrop-blur-sm"></div>
           <span className="text-gray-300 font-medium">Available</span>
         </div>
         <div className="flex items-center space-x-3">
