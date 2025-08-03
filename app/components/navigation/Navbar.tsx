@@ -69,7 +69,7 @@ export default function Navbar() {
   return (
     <>
       {/* Navigation Bar */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      <nav className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-500 ${
         isScrolled 
           ? 'opacity-100 translate-y-0 backdrop-blur-lg bg-black/70 border-b border-gray-800/50' 
           : 'opacity-0 -translate-y-full'
@@ -138,7 +138,7 @@ export default function Navbar() {
       </nav>
 
       {/* Mobile Menu Overlay */}
-      <div className={`fixed inset-0 z-40 lg:hidden transition-all duration-300 ${
+      <div className={`fixed inset-0 z-[9998] lg:hidden transition-all duration-300 ${
         isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
       }`}>
         {/* Backdrop */}

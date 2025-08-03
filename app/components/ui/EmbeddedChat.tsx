@@ -129,8 +129,8 @@ export default function EmbeddedChat() {
   const quickQuestions = [
     "What supercars do you have available?",
     "Bachelor party packages?",
-    "Pricing for a Ferrari rental?",
-    "VIP concierge services?"
+    "VIP concierge services?",
+    "Lamborghini rental pricing?"
   ]
 
   const handleQuickQuestion = (question: string) => {

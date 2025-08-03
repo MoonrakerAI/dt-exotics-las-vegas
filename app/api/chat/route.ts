@@ -172,7 +172,7 @@ DT Exotics Las Vegas specializes in luxury supercar rentals and VIP experiences 
 ## VIP CONCIERGE SERVICES
 
 **Vegas Mogul - $5,000-$7,500/day**
-- McLaren or Ferrari rental
+- Lamborghini or McLaren rental
 - Luxury watch rental (Rolex/Patek)
 - Chef's table dinner for 4
 - VIP nightclub table with bottles
