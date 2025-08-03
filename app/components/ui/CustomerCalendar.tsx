@@ -223,11 +223,11 @@ export default function CustomerCalendar({
       // Invalid hover range - desaturated neon blue with smart text color
       classes += 'text-white bg-neon-blue/30 border border-neon-blue/30 shadow-sm cursor-not-allowed'
     } else {
-      // Available dates - custom green #B7E892 with black text for contrast
+      // Available dates - custom green #93DC5C with black text for contrast
       classes += 'text-black font-bold cursor-pointer transition-all duration-300 hover:scale-105'
       classes += ' hover:shadow-lg'
-      // Using custom green color #B7E892
-      classes += ' bg-[#B7E892] border border-[#A8D982] hover:bg-[#A8D982] hover:border-[#99CA72] hover:shadow-[#B7E892]/30'
+      // Using custom green color #93DC5C
+      classes += ' bg-[#93DC5C] border border-[#84CD4C] hover:bg-[#84CD4C] hover:border-[#75BE3C] hover:shadow-[#93DC5C]/30'
     }
     
     return classes
@@ -373,12 +373,12 @@ export default function CustomerCalendar({
             {calculateTotalPrice() && (
               <div className="text-right">
                 <div className="flex items-center justify-end space-x-3 text-sm text-gray-300 mb-1">
-                  <div className="p-1 bg-[#B7E892]/20 rounded-lg">
-                    <DollarSign className="w-4 h-4 text-[#B7E892]" />
+                  <div className="p-1 bg-[#93DC5C]/20 rounded-lg">
+                    <DollarSign className="w-4 h-4 text-[#93DC5C]" />
                   </div>
                   <span className="font-medium">Total Cost</span>
                 </div>
-                <div className="text-3xl font-tech font-bold text-transparent bg-gradient-to-r from-neon-blue to-[#B7E892] bg-clip-text">
+                <div className="text-3xl font-tech font-bold text-transparent bg-gradient-to-r from-neon-blue to-[#93DC5C] bg-clip-text">
                   ${calculateTotalPrice()?.toLocaleString()}
                 </div>
                 {selectedStartDate && selectedEndDate && (
@@ -395,7 +395,7 @@ export default function CustomerCalendar({
       {/* Legend */}
       <div className="mt-6 flex items-center justify-center space-x-8 text-sm">
         <div className="flex items-center space-x-3">
-          <div className="w-4 h-4 bg-[#B7E892] border border-[#A8D982] rounded-lg shadow-sm shadow-[#B7E892]/30"></div>
+          <div className="w-4 h-4 bg-[#93DC5C] border border-[#84CD4C] rounded-lg shadow-sm shadow-[#93DC5C]/30"></div>
           <span className="text-gray-300 font-medium">Available</span>
         </div>
         <div className="flex items-center space-x-3">
