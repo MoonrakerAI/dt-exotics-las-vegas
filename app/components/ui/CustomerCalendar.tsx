@@ -206,23 +206,23 @@ export default function CustomerCalendar({
       // Past dates - muted gray
       classes += 'text-gray-500 cursor-not-allowed bg-gray-800/40 border border-gray-700/50'
     } else if (!status.isAvailable) {
-      // Unavailable dates - red background
-      classes += 'text-white cursor-not-allowed bg-red-500/80 border border-red-400/50 shadow-sm'
+      // Unavailable dates - neon red background
+      classes += 'text-white cursor-not-allowed bg-red-400/90 border border-red-300/60 shadow-sm shadow-red-400/20'
     } else if (status.isSelected) {
-      // Selected dates - bright blue with glow
+      // Selected dates - bright neon blue with glow
       classes += 'text-white bg-neon-blue border-2 border-neon-blue shadow-lg shadow-neon-blue/40 scale-105'
     } else if (status.isInRange) {
-      // Dates in selected range - medium blue
+      // Dates in selected range - medium neon blue
       classes += 'text-white bg-neon-blue/70 border border-neon-blue/60 shadow-md'
     } else if (status.isHoverPreview) {
-      // Valid hover preview range - lighter blue
-      classes += 'text-white bg-neon-blue/40 border border-neon-blue/40 shadow-sm cursor-pointer'
+      // Valid hover preview range - desaturated neon blue
+      classes += 'text-white bg-neon-blue/30 border border-neon-blue/30 shadow-sm cursor-pointer'
     } else if (status.isHovered) {
-      // Invalid hover range - orange warning
-      classes += 'text-white bg-orange-500/60 border border-orange-400/50 shadow-sm cursor-not-allowed'
+      // Invalid hover range - desaturated neon blue (same as preview but with warning cursor)
+      classes += 'text-white bg-neon-blue/30 border border-neon-blue/30 shadow-sm cursor-not-allowed'
     } else {
-      // Available dates - green background with hover effects
-      classes += 'text-white bg-green-500/70 border border-green-400/50 hover:bg-green-400/80 hover:border-green-300/60 hover:shadow-lg hover:shadow-green-400/20 hover:scale-105 cursor-pointer'
+      // Available dates - neon lime green background with hover effects
+      classes += 'text-black bg-lime-400/80 border border-lime-300/60 hover:bg-lime-300/90 hover:border-lime-200/70 hover:shadow-lg hover:shadow-lime-400/30 hover:scale-105 cursor-pointer font-bold'
     }
     
     return classes
@@ -368,12 +368,12 @@ export default function CustomerCalendar({
             {calculateTotalPrice() && (
               <div className="text-right">
                 <div className="flex items-center justify-end space-x-3 text-sm text-gray-300 mb-1">
-                  <div className="p-1 bg-green-500/20 rounded-lg">
-                    <DollarSign className="w-4 h-4 text-green-400" />
+                  <div className="p-1 bg-lime-400/20 rounded-lg">
+                    <DollarSign className="w-4 h-4 text-lime-400" />
                   </div>
                   <span className="font-medium">Total Cost</span>
                 </div>
-                <div className="text-3xl font-tech font-bold text-transparent bg-gradient-to-r from-neon-blue to-green-400 bg-clip-text">
+                <div className="text-3xl font-tech font-bold text-transparent bg-gradient-to-r from-neon-blue to-lime-400 bg-clip-text">
                   ${calculateTotalPrice()?.toLocaleString()}
                 </div>
                 {selectedStartDate && selectedEndDate && (
@@ -390,11 +390,11 @@ export default function CustomerCalendar({
       {/* Legend */}
       <div className="mt-6 flex items-center justify-center space-x-8 text-sm">
         <div className="flex items-center space-x-3">
-          <div className="w-4 h-4 bg-green-500/70 border border-green-400/50 rounded-lg shadow-sm"></div>
+          <div className="w-4 h-4 bg-lime-400/80 border border-lime-300/60 rounded-lg shadow-sm shadow-lime-400/30"></div>
           <span className="text-gray-300 font-medium">Available</span>
         </div>
         <div className="flex items-center space-x-3">
-          <div className="w-4 h-4 bg-red-500/80 border border-red-400/50 rounded-lg shadow-sm"></div>
+          <div className="w-4 h-4 bg-red-400/90 border border-red-300/60 rounded-lg shadow-sm shadow-red-400/20"></div>
           <span className="text-gray-300 font-medium">Unavailable</span>
         </div>
         <div className="flex items-center space-x-3">
