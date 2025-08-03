@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import aiKB from '../../lib/ai-knowledge-base'
 
 const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -246,10 +247,19 @@ export async function POST(req: Request) {
       }
     ]
 
+    // Generate dynamic system prompt from knowledge base
+    let systemPrompt: string;
+    try {
+      systemPrompt = await aiKB.generateSystemPrompt();
+    } catch (error) {
+      console.error('Failed to generate dynamic system prompt, using fallback:', error);
+      systemPrompt = aiKB.getFallbackSystemPrompt();
+    }
+
     const response = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',
       max_tokens: 1000,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt,
       messages: messages
     })
 

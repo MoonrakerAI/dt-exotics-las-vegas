@@ -1,6 +1,7 @@
 import { kv } from '@vercel/kv';
 import { Car } from '../data/cars';
 import kvRentalDB from './kv-database';
+import aiKB from './ai-knowledge-base';
 
 // Per-day availability: store as an array of ISO date strings (YYYY-MM-DD) when the car is unavailable
 export interface CarAvailability {
@@ -17,6 +18,15 @@ class CarDatabase {
   async createCar(car: Car): Promise<Car> {
     await kv.set(this.CAR_PREFIX + car.id, car);
     await kv.sadd(this.CAR_LIST_KEY, car.id);
+    
+    // Update AI knowledge base with new fleet information
+    try {
+      await aiKB.updateKnowledgeBase();
+      console.log('AI Knowledge Base updated after adding car:', car.id);
+    } catch (error) {
+      console.error('Failed to update AI Knowledge Base after adding car:', error);
+    }
+    
     return car;
   }
 
@@ -32,6 +42,15 @@ class CarDatabase {
     if (!existing) return null;
     const updatedCar: Car = { ...existing, ...updates };
     await kv.set(this.CAR_PREFIX + carId, updatedCar);
+    
+    // Update AI knowledge base with updated fleet information
+    try {
+      await aiKB.updateKnowledgeBase();
+      console.log('AI Knowledge Base updated after updating car:', carId);
+    } catch (error) {
+      console.error('Failed to update AI Knowledge Base after updating car:', error);
+    }
+    
     return updatedCar;
   }
 
@@ -42,6 +61,15 @@ class CarDatabase {
     await kv.del(this.CAR_PREFIX + carId);
     await kv.srem(this.CAR_LIST_KEY, carId);
     await kv.del(this.AVAILABILITY_PREFIX + carId);
+    
+    // Update AI knowledge base after removing car from fleet
+    try {
+      await aiKB.updateKnowledgeBase();
+      console.log('AI Knowledge Base updated after deleting car:', carId);
+    } catch (error) {
+      console.error('Failed to update AI Knowledge Base after deleting car:', error);
+    }
+    
     return true;
   }
 
