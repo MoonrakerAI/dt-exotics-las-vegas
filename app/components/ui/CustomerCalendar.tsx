@@ -380,8 +380,15 @@ export default function CustomerCalendar({
                 {date ? (
                   <button
                     onClick={() => handleDateClick(date)}
-                    onMouseEnter={() => setHoveredDate(date.toISOString().split('T')[0])}
-                    onMouseLeave={() => setHoveredDate(null)}
+                    onMouseEnter={() => {
+                      const dateStr = date.toISOString().split('T')[0]
+                      console.log(`🖱️ MOUSE ENTER: ${dateStr}`)
+                      setHoveredDate(dateStr)
+                    }}
+                    onMouseLeave={() => {
+                      console.log(`🖱️ MOUSE LEAVE`)
+                      setHoveredDate(null)
+                    }}
                     className={getDateClasses(date)}
                     disabled={getDateStatus(date).isPast || !getDateStatus(date).isAvailable}
                     title={getDateStatus(date).reason}
