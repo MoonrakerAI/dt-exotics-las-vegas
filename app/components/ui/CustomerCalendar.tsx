@@ -412,7 +412,7 @@ export default function CustomerCalendar({
                 <span className="font-medium">Selected Dates</span>
               </div>
               <div className="text-white font-semibold text-lg">
-                {selectedStartDate && new Date(selectedStartDate).toLocaleDateString('en-US', { 
+                {selectedStartDate && new Date(selectedStartDate + 'T00:00:00').toLocaleDateString('en-US', { 
                   month: 'long', 
                   day: 'numeric',
                   year: 'numeric'
@@ -420,7 +420,7 @@ export default function CustomerCalendar({
                 {selectedEndDate && (
                   <>
                     <span className="mx-3 text-neon-blue">→</span>
-                    {new Date(selectedEndDate).toLocaleDateString('en-US', { 
+                    {new Date(selectedEndDate + 'T00:00:00').toLocaleDateString('en-US', { 
                       month: 'long', 
                       day: 'numeric',
                       year: 'numeric'

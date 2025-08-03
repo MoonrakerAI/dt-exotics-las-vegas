@@ -40,7 +40,8 @@ function BookingFormInner() {
       lastName: '',
       email: '',
       phone: '',
-      driversLicense: ''
+      driversLicense: '',
+      driversLicenseState: ''
     }
   })
   
@@ -227,8 +228,8 @@ function BookingFormInner() {
   const handleStepTwo = () => {
     setError('')
     
-    const { firstName, lastName, email, phone, driversLicense } = formData.customer
-    if (!firstName || !lastName || !email || !phone || !driversLicense) {
+    const { firstName, lastName, email, phone, driversLicense, driversLicenseState } = formData.customer
+    if (!firstName || !lastName || !email || !phone || !driversLicense || !driversLicenseState) {
       setError('Please fill in all customer information')
       return
     }
@@ -479,18 +480,35 @@ function BookingFormInner() {
               />
             </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Driver's License Number
-              </label>
-              <input
-                type="text"
-                value={formData.customer.driversLicense}
-                onChange={(e) => handleInputChange('customer.driversLicense', e.target.value)}
-                className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                placeholder="D1234567890123"
-                required
-              />
+            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="md:col-span-3">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Driver's License Number
+                </label>
+                <input
+                  type="text"
+                  value={formData.customer.driversLicense}
+                  onChange={(e) => handleInputChange('customer.driversLicense', e.target.value)}
+                  className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  placeholder="D1234567890123"
+                  required
+                />
+              </div>
+              <div className="md:col-span-1">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  State
+                </label>
+                <input
+                  type="text"
+                  value={formData.customer.driversLicenseState}
+                  onChange={(e) => handleInputChange('customer.driversLicenseState', e.target.value)}
+                  className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  placeholder="NV"
+                  maxLength={2}
+                  style={{ textTransform: 'uppercase' }}
+                  required
+                />
+              </div>
             </div>
           </div>
 
