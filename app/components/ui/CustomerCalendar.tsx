@@ -214,10 +214,12 @@ export default function CustomerCalendar({
           // EXPLICITLY force the final hovered date to be blue
           if (dateStr === hoveredDate) {
             // This is the final hovered date - override any other styling
+            console.log(`🎯 FINAL HOVER DATE: ${dateStr}, hoveredDate: ${hoveredDate}`)
             isHoverPreview = true
             isFinalHover = true
             // Don't set isHovered for the final date
             isHovered = false
+            console.log(`🔵 Final date status: isHoverPreview=${isHoverPreview}, isFinalHover=${isFinalHover}, isHovered=${isHovered}`)
           }
         } else {
           // Invalid range - show as hovered but not blue
@@ -256,6 +258,9 @@ export default function CustomerCalendar({
       classes += ' backdrop-blur-sm'
     } else if (status.isSelected || status.isInRange || status.isHoverPreview || status.isFinalHover) {
       // All selection states - glass effect with neon blue border, brighter inner color
+      if (status.isHoverPreview || status.isFinalHover) {
+        console.log(`🔵 BLUE STYLING for ${dateStr}: isSelected=${status.isSelected}, isInRange=${status.isInRange}, isHoverPreview=${status.isHoverPreview}, isFinalHover=${status.isFinalHover}`)
+      }
       classes += 'text-white border-2 border-neon-blue shadow-lg shadow-neon-blue/40 cursor-pointer'
       classes += ' bg-gradient-to-br from-neon-blue/70 via-neon-blue/50 to-neon-blue/70'
       classes += ' backdrop-blur-sm'
@@ -266,6 +271,7 @@ export default function CustomerCalendar({
       }
     } else if (status.isHovered) {
       // Hovered but not in valid range - show as available with hover effect
+      console.log(`🟢 GREEN HOVERED STYLING for ${dateStr}: isHovered=${status.isHovered}`)
       classes += 'text-white font-bold cursor-pointer transition-all duration-300 hover:scale-105'
       classes += ' hover:shadow-lg border-2 border-[#b0ff62]'
       classes += ' bg-gradient-to-br from-[#b0ff62]/60 via-[#b0ff62]/40 to-[#b0ff62]/60'
