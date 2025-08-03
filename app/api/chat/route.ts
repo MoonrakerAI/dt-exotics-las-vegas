@@ -222,20 +222,30 @@ DT Exotics Las Vegas specializes in luxury supercar rentals and VIP experiences 
 - Custom itinerary planning available
 - Fuel, maintenance, and insurance included
 
-Always provide accurate pricing and vehicle information. For real-time availability and bookings, direct customers to text (702) 518-0924. Be enthusiastic about creating luxury experiences while staying factual about our actual services and fleet.`
+Always provide accurate pricing and vehicle information. For real-time availability and bookings, direct customers to text (702) 518-0924. Be enthusiastic about creating luxury experiences while staying factual about our actual services and fleet.
 
-export async function POST(req: Request) {
+## ESCALATION TO HUMAN SUPPORT
+If you cannot fully answer a customer's question or if they need specialized assistance beyond your knowledge base, offer to connect them with human support. Use this exact phrase: "I'd be happy to connect you with our human support team for personalized assistance. Would you like me to send your conversation to our team so they can follow up with you directly?"
+
+If the customer agrees, respond with: "ESCALATE_TO_HUMAN" followed by a brief reason for escalation.`
+
+export async function POST(request: Request) {
+  if (!anthropic) {
+    return NextResponse.json(
+      { error: 'AI service not configured' },
+      { status: 503 }
+    )
+  }
+
   try {
-    const { message, conversationHistory = [] } = await req.json()
+    const body = await request.json()
+    const { message, conversationHistory = [], escalationRequest } = body
 
-    if (!anthropic) {
-      return NextResponse.json(
-        { error: 'AI service temporarily unavailable. Please contact us directly at (702) 518-0924.' },
-        { status: 503 }
-      )
+    // Handle escalation requests
+    if (escalationRequest) {
+      return await handleEscalationRequest(escalationRequest, conversationHistory)
     }
 
-    // Format conversation history for Claude
     const messages = [
       ...conversationHistory.map((msg: any) => ({
         role: msg.role,
@@ -266,10 +276,25 @@ export async function POST(req: Request) {
     const assistantMessage = response.content[0]
     
     if (assistantMessage.type === 'text') {
+      const messageText = assistantMessage.text;
+      
+      // Check if AI is requesting escalation
+      if (messageText.includes('ESCALATE_TO_HUMAN')) {
+        const escalationReason = messageText.replace('ESCALATE_TO_HUMAN', '').trim();
+        
+        return NextResponse.json({ 
+          message: "Perfect! I'll connect you with our human support team who can provide personalized assistance. Please provide your contact information so they can reach out to you directly.",
+          success: true,
+          needsEscalation: true,
+          escalationReason: escalationReason || 'Customer needs specialized assistance beyond AI capabilities',
+          originalQuestion: message
+        });
+      }
+      
       return NextResponse.json({ 
-        message: assistantMessage.text,
+        message: messageText,
         success: true 
-      })
+      });
     } else {
       throw new Error('Unexpected response format')
     }
@@ -283,5 +308,63 @@ export async function POST(req: Request) {
       },
       { status: 500 }
     )
+  }
+}
+
+/**
+ * Handle escalation requests to human support
+ */
+async function handleEscalationRequest(escalationData: any, conversationHistory: any[]) {
+  try {
+    const {
+      customerName,
+      customerEmail,
+      customerPhone,
+      originalQuestion,
+      escalationReason,
+      urgency = 'medium'
+    } = escalationData;
+
+    // Send escalation email
+    const escalationResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/ai-escalation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        customerName,
+        customerEmail,
+        customerPhone,
+        originalQuestion,
+        conversationHistory: conversationHistory.map(msg => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.timestamp || new Date().toISOString()
+        })),
+        escalationReason,
+        urgency
+      })
+    });
+
+    if (!escalationResponse.ok) {
+      throw new Error('Failed to send escalation email');
+    }
+
+    const result = await escalationResponse.json();
+
+    return NextResponse.json({
+      success: true,
+      message: 'Your conversation has been sent to our human support team. They will contact you within 24 hours.',
+      escalated: true,
+      emailId: result.emailId
+    });
+
+  } catch (error) {
+    console.error('Escalation error:', error);
+    return NextResponse.json({
+      success: false,
+      message: 'I apologize, but there was an issue connecting you to our support team. Please contact us directly at (702) 518-0924 or contact@dtexoticslv.com.',
+      escalated: false
+    }, { status: 500 });
   }
 }
