@@ -207,9 +207,9 @@ export default function CustomerCalendar({
       
       if (date >= minDate && date <= maxDate) {
         if (rangeValid) {
-          // All dates in valid range turn blue, including the final hovered date
+          // ALL dates in valid range turn blue, including final hovered date
           isHoverPreview = true
-          isFinalHover = true // Mark ALL dates in range as blue, including final
+          isFinalHover = true // This will force blue styling for all dates in range
         } else {
           // Invalid range - show as hovered but not blue
           isHovered = true
@@ -256,13 +256,13 @@ export default function CustomerCalendar({
         classes += ' animate-[pulse_0.6s_ease-out_1]'
       }
     } else {
-      // Available dates - glass effect with neon lime green color
+      // Available dates - glass effect with balanced chartreuse green color
       classes += 'text-white font-bold cursor-pointer transition-all duration-300 hover:scale-105'
-      classes += ' hover:shadow-lg border-2 border-[#39FF14]'
-      classes += ' bg-gradient-to-br from-[#39FF14]/60 via-[#39FF14]/40 to-[#39FF14]/60'
+      classes += ' hover:shadow-lg border-2 border-[#7FFF00]'
+      classes += ' bg-gradient-to-br from-[#7FFF00]/60 via-[#7FFF00]/40 to-[#7FFF00]/60'
       classes += ' backdrop-blur-sm'
-      classes += ' hover:border-[#32E612] hover:from-[#39FF14]/70 hover:via-[#39FF14]/50 hover:to-[#39FF14]/70'
-      classes += ' hover:shadow-[#39FF14]/30'
+      classes += ' hover:border-[#6FE600] hover:from-[#7FFF00]/70 hover:via-[#7FFF00]/50 hover:to-[#7FFF00]/70'
+      classes += ' hover:shadow-[#7FFF00]/30'
     }
     
     return classes
@@ -430,7 +430,7 @@ export default function CustomerCalendar({
       {/* Legend */}
       <div className="mt-6 flex items-center justify-center space-x-8 text-sm">
         <div className="flex items-center space-x-3">
-          <div className="w-4 h-4 border-2 border-[#39FF14] rounded-lg shadow-sm shadow-[#39FF14]/30 bg-gradient-to-br from-[#39FF14]/60 via-[#39FF14]/40 to-[#39FF14]/60 backdrop-blur-sm"></div>
+          <div className="w-4 h-4 border-2 border-[#7FFF00] rounded-lg shadow-sm shadow-[#7FFF00]/30 bg-gradient-to-br from-[#7FFF00]/60 via-[#7FFF00]/40 to-[#7FFF00]/60 backdrop-blur-sm"></div>
           <span className="text-gray-300 font-medium">Available</span>
         </div>
         <div className="flex items-center space-x-3">
