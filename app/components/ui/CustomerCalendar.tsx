@@ -240,7 +240,7 @@ export default function CustomerCalendar({
         
         // Override any other hover state
         isHovered = false
-      } else if (date >= minDate && date <= maxDate && !rangeValid) {
+      } else if (dateStr >= minDate && dateStr <= maxDate && !rangeValid) {
         // Invalid range - show as hovered but not blue
         isHovered = true
       }
