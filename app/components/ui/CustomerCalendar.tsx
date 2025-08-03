@@ -48,7 +48,11 @@ export default function CustomerCalendar({
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
   const today = new Date()
-  const todayStr = today.toISOString().split('T')[0]
+  // Use local date format for consistency
+  const todayYear = today.getFullYear()
+  const todayMonth = String(today.getMonth() + 1).padStart(2, '0')
+  const todayDay = String(today.getDate()).padStart(2, '0')
+  const todayStr = `${todayYear}-${todayMonth}-${todayDay}`
 
   // Generate calendar days
   const firstDayOfMonth = new Date(year, month, 1)
@@ -181,7 +185,11 @@ export default function CustomerCalendar({
   }
 
   const getDateStatus = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0]
+    // Use same local date format as handleDateClick for consistency
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const dateStr = `${year}-${month}-${day}`
     const today = new Date()
     const isPast = date < today
     const isToday = dateStr === todayStr
