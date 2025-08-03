@@ -257,7 +257,7 @@ export default function CustomerCalendar({
       
       // Add single quick pulse animation if just selected
       if (isJustSelected) {
-        classes += ' animate-[pulse_0.15s_ease-out_1]'
+        classes += ' animate-[pulse_0.25s_ease-out_1]'
       }
     }
     // PRIORITY 2: Past dates
