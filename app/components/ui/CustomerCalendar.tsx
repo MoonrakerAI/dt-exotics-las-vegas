@@ -206,22 +206,24 @@ export default function CustomerCalendar({
       // Past dates - muted gray
       classes += 'text-gray-500 cursor-not-allowed bg-gray-800/40 border border-gray-700/50'
     } else if (!status.isAvailable) {
-      // Unavailable dates - neon red background
+      // Unavailable dates - neon red background with inverted text
       classes += 'text-white cursor-not-allowed bg-red-400/90 border border-red-300/60 shadow-sm shadow-red-400/20'
     } else if (status.isSelected) {
-      // Selected dates - bright neon blue with glow and animation
-      classes += 'text-white bg-neon-blue border-2 border-neon-blue shadow-lg shadow-neon-blue/40 scale-105 animate-pulse'
+      // Selected dates - bright neon blue with inverted black text and subtle pulse
+      classes += 'text-black bg-neon-blue border-2 border-neon-blue shadow-lg shadow-neon-blue/40 scale-105'
+      classes += ' animate-[pulse_2s_ease-in-out_infinite]'
     } else if (status.isInRange) {
-      // Dates in selected range - same as selected dates with animation
-      classes += 'text-white bg-neon-blue border-2 border-neon-blue shadow-lg shadow-neon-blue/40 scale-105 animate-pulse'
+      // Dates in selected range - same as selected dates with synchronized animation
+      classes += 'text-black bg-neon-blue border-2 border-neon-blue shadow-lg shadow-neon-blue/40 scale-105'
+      classes += ' animate-[pulse_2s_ease-in-out_infinite]'
     } else if (status.isHoverPreview) {
-      // Valid hover preview range - desaturated neon blue
+      // Valid hover preview range - desaturated neon blue with smart text color
       classes += 'text-white bg-neon-blue/30 border border-neon-blue/30 shadow-sm cursor-pointer'
     } else if (status.isHovered) {
-      // Invalid hover range - desaturated neon blue (same as preview but with warning cursor)
+      // Invalid hover range - desaturated neon blue with smart text color
       classes += 'text-white bg-neon-blue/30 border border-neon-blue/30 shadow-sm cursor-not-allowed'
     } else {
-      // Available dates - custom green #B7E892 with hover effects
+      // Available dates - custom green #B7E892 with black text for contrast
       classes += 'text-black font-bold cursor-pointer transition-all duration-300 hover:scale-105'
       classes += ' hover:shadow-lg'
       // Using custom green color #B7E892
@@ -401,7 +403,7 @@ export default function CustomerCalendar({
           <span className="text-gray-300 font-medium">Unavailable</span>
         </div>
         <div className="flex items-center space-x-3">
-          <div className="w-4 h-4 bg-neon-blue border border-neon-blue rounded-lg shadow-lg shadow-neon-blue/40 animate-pulse"></div>
+          <div className="w-4 h-4 bg-neon-blue border border-neon-blue rounded-lg shadow-lg shadow-neon-blue/40 animate-[pulse_2s_ease-in-out_infinite] flex items-center justify-center text-black text-xs font-bold">✓</div>
           <span className="text-gray-300 font-medium">Selected</span>
         </div>
         <div className="flex items-center space-x-3">
