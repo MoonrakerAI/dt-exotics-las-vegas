@@ -114,7 +114,7 @@ export async function POST() {
     const updatedFleetInfo = updatedKB?.fleetInfo || '';
     const hasTestCarAfterUpdate = updatedFleetInfo.includes('488 GTB Test');
     const hasTestCarFeatures = updatedFleetInfo.includes('Test Feature 1');
-    const hasTestCarPricing = updatedFleetInfo.includes('$1,999/day');
+    const hasTestCarPricing = updatedFleetInfo.includes('$1999/day');
 
     const kbUpdateSuccess = hasTestCarAfterUpdate && hasTestCarFeatures && hasTestCarPricing;
 
