@@ -10,13 +10,15 @@ export default function NotificationsAdmin() {
     bookingAlerts: true,
     paymentAlerts: true,
     systemAlerts: true,
-    adminEmail: 'admin@dtexoticslv.com'
+    adminEmails: ['admin@dtexoticslv.com'],
+    adminEmail: 'admin@dtexoticslv.com' // Backward compatibility
   })
 
   const [saving, setSaving] = useState(false)
   const [sendingTest, setSendingTest] = useState<string | null>(null)
   const [testResults, setTestResults] = useState<{[key: string]: 'success' | 'error' | null}>({})
   const [loading, setLoading] = useState(true)
+  const [newEmail, setNewEmail] = useState('')
 
   useEffect(() => {
     loadSettings()
@@ -98,6 +100,31 @@ export default function NotificationsAdmin() {
     }
   }
 
+  // Helper functions for managing admin emails
+  const addAdminEmail = () => {
+    if (newEmail && isValidEmail(newEmail) && !settings.adminEmails.includes(newEmail)) {
+      setSettings(prev => ({
+        ...prev,
+        adminEmails: [...prev.adminEmails, newEmail]
+      }))
+      setNewEmail('')
+    }
+  }
+
+  const removeAdminEmail = (emailToRemove: string) => {
+    if (settings.adminEmails.length > 1) { // Keep at least one admin email
+      setSettings(prev => ({
+        ...prev,
+        adminEmails: prev.adminEmails.filter(email => email !== emailToRemove)
+      }))
+    }
+  }
+
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-dark-charcoal text-white">
@@ -147,20 +174,56 @@ export default function NotificationsAdmin() {
             Email Notification Preferences
           </h2>
 
-          {/* Admin Email */}
+          {/* Admin Emails */}
           <div className="mb-8">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Admin Email Address
+            <label className="block text-sm font-medium text-gray-300 mb-4">
+              Admin Email Addresses
             </label>
-            <input
-              type="email"
-              value={settings.adminEmail}
-              onChange={(e) => setSettings(prev => ({ ...prev, adminEmail: e.target.value }))}
-              className="w-full px-4 py-3 bg-dark-gray border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-blue focus:outline-none"
-              placeholder="admin@dtexoticslv.com"
-            />
-            <p className="text-gray-400 text-sm mt-2">
-              This email will receive all admin notifications
+            
+            {/* Current Admin Emails */}
+            <div className="space-y-3 mb-4">
+              {settings.adminEmails.map((email, index) => (
+                <div key={index} className="flex items-center justify-between p-3 bg-dark-gray/50 rounded-lg border border-gray-600/30">
+                  <div className="flex items-center space-x-3">
+                    <Mail className="w-4 h-4 text-neon-blue" />
+                    <span className="text-white">{email}</span>
+                  </div>
+                  {settings.adminEmails.length > 1 && (
+                    <button
+                      onClick={() => removeAdminEmail(email)}
+                      className="p-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-colors"
+                      title="Remove email"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            
+            {/* Add New Email */}
+            <div className="flex space-x-3">
+              <input
+                type="email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && addAdminEmail()}
+                className="flex-1 px-4 py-3 bg-dark-gray border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-blue focus:outline-none"
+                placeholder="Enter new admin email..."
+              />
+              <button
+                onClick={addAdminEmail}
+                disabled={!newEmail || !isValidEmail(newEmail) || settings.adminEmails.includes(newEmail)}
+                className="px-6 py-3 bg-neon-blue text-dark-gray font-medium rounded-lg hover:bg-neon-blue/80 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                Add
+              </button>
+            </div>
+            
+            <p className="text-gray-400 text-sm mt-3">
+              All listed emails will receive admin notifications. You must have at least one admin email.
             </p>
           </div>
 

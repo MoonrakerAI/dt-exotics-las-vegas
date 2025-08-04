@@ -7,7 +7,9 @@ export interface NotificationSettings {
   bookingAlerts: boolean;
   paymentAlerts: boolean;
   systemAlerts: boolean;
-  adminEmail: string;
+  adminEmails: string[];
+  // Keep adminEmail for backward compatibility
+  adminEmail?: string;
 }
 
 export interface EmailTemplate {
@@ -26,7 +28,8 @@ export class NotificationService {
       bookingAlerts: true,
       paymentAlerts: true,
       systemAlerts: true,
-      adminEmail: 'admin@dtexoticslv.com'
+      adminEmails: ['admin@dtexoticslv.com'],
+      adminEmail: 'admin@dtexoticslv.com' // Backward compatibility
     };
   }
 
@@ -43,6 +46,31 @@ export class NotificationService {
 
   public getSettings(): NotificationSettings {
     return { ...this.settings };
+  }
+
+  // Helper method to get admin emails for notifications
+  private getAdminEmails(): string[] {
+    // If adminEmails array exists and has emails, use it
+    if (this.settings.adminEmails && this.settings.adminEmails.length > 0) {
+      return this.settings.adminEmails;
+    }
+    // Fallback to single adminEmail for backward compatibility
+    if (this.settings.adminEmail) {
+      return [this.settings.adminEmail];
+    }
+    // Default fallback
+    return ['admin@dtexoticslv.com'];
+  }
+
+  // Helper method to send email to multiple recipients
+  private async sendEmailToAdmins(template: EmailTemplate): Promise<boolean> {
+    const adminEmails = this.getAdminEmails();
+    const results = await Promise.allSettled(
+      adminEmails.map(email => this.sendEmail(email, template))
+    );
+    
+    // Return true if at least one email was sent successfully
+    return results.some(result => result.status === 'fulfilled' && result.value === true);
   }
 
   // Admin Email Templates
@@ -212,7 +240,7 @@ ${alert.details ? `Details: ${alert.details}` : ''}`
 
     try {
       const template = this.getBookingConfirmationTemplate(booking);
-      return await this.sendEmail(this.settings.adminEmail, template);
+      return await this.sendEmailToAdmins(template);
     } catch (error) {
       console.error('Failed to send booking notification:', error);
       return false;
@@ -228,7 +256,7 @@ ${alert.details ? `Details: ${alert.details}` : ''}`
       const template = success 
         ? this.getPaymentSuccessTemplate(payment)
         : this.getPaymentFailedTemplate(payment);
-      return await this.sendEmail(this.settings.adminEmail, template);
+      return await this.sendEmailToAdmins(template);
     } catch (error) {
       console.error('Failed to send payment notification:', error);
       return false;
@@ -242,7 +270,7 @@ ${alert.details ? `Details: ${alert.details}` : ''}`
 
     try {
       const template = this.getSystemAlertTemplate(alert);
-      return await this.sendEmail(this.settings.adminEmail, template);
+      return await this.sendEmailToAdmins(template);
     } catch (error) {
       console.error('Failed to send system alert:', error);
       return false;
@@ -743,7 +771,7 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
 
     try {
       const template = this.getEventInquiryTemplate(inquiry);
-      return await this.sendEmail(this.settings.adminEmail, template);
+      return await this.sendEmailToAdmins(template);
     } catch (error) {
       console.error('Failed to send event inquiry notification:', error);
       return false;

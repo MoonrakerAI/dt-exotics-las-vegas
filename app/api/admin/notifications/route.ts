@@ -68,7 +68,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Validate settings structure
-    const validKeys = ['emailNotifications', 'bookingAlerts', 'paymentAlerts', 'systemAlerts', 'adminEmail'];
+    const validKeys = ['emailNotifications', 'bookingAlerts', 'paymentAlerts', 'systemAlerts', 'adminEmail', 'adminEmails'];
     const filteredSettings = Object.keys(settings)
       .filter(key => validKeys.includes(key))
       .reduce((obj, key) => {
@@ -76,7 +76,27 @@ export async function PUT(request: NextRequest) {
         return obj;
       }, {} as any);
 
-    // Validate email if provided
+    // Validate admin emails
+    if (filteredSettings.adminEmails) {
+      if (!Array.isArray(filteredSettings.adminEmails)) {
+        return NextResponse.json(
+          { error: 'adminEmails must be an array' },
+          { status: 400 }
+        );
+      }
+      
+      // Validate each email in the array
+      for (const email of filteredSettings.adminEmails) {
+        if (!isValidEmail(email)) {
+          return NextResponse.json(
+            { error: `Invalid admin email address: ${email}` },
+            { status: 400 }
+          );
+        }
+      }
+    }
+    
+    // Validate single admin email if provided (backward compatibility)
     if (filteredSettings.adminEmail && !isValidEmail(filteredSettings.adminEmail)) {
       return NextResponse.json(
         { error: 'Invalid admin email address' },

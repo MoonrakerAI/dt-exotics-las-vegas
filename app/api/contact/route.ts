@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import NotificationService from '@/app/lib/notifications'
+import { kv } from '@vercel/kv'
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
@@ -16,24 +18,42 @@ export async function POST(req: Request) {
       )
     }
 
-    // Send email to admin
-    const { data, error } = await resend.emails.send({
-      from: 'DT Exotics <noreply@dtexoticslv.com>',
-      to: 'contact@dtexoticslv.com',
-      subject: `New Rental Inquiry - ${name}`,
-      html: `
-        <h2>New Rental Inquiry</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        <p><strong>Selected Car:</strong> ${selectedCar}</p>
-        <p><strong>Rental Period:</strong> ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}</p>
-        <p><strong>Message:</strong> ${message || 'No message provided'}</p>
-      `,
-    })
+    // Load current notification settings
+    const savedSettings = await kv.get('notification_settings')
+    if (savedSettings) {
+      NotificationService.updateSettings(savedSettings as any)
+    }
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+    // Get admin emails from notification service
+    const settings = NotificationService.getSettings()
+    const adminEmails = settings.adminEmails && settings.adminEmails.length > 0 
+      ? settings.adminEmails 
+      : (settings.adminEmail ? [settings.adminEmail] : ['contact@dtexoticslv.com'])
+
+    // Send email to all admin emails
+    const emailPromises = adminEmails.map(adminEmail => 
+      resend.emails.send({
+        from: 'DT Exotics <noreply@dtexoticslv.com>',
+        to: adminEmail,
+        subject: `New Rental Inquiry - ${name}`,
+        html: `
+          <h2>New Rental Inquiry</h2>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Phone:</strong> ${phone}</p>
+          <p><strong>Selected Car:</strong> ${selectedCar}</p>
+          <p><strong>Rental Period:</strong> ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}</p>
+          <p><strong>Message:</strong> ${message || 'No message provided'}</p>
+        `,
+      })
+    )
+
+    const results = await Promise.allSettled(emailPromises)
+    const hasSuccess = results.some(result => result.status === 'fulfilled' && !result.value.error)
+
+    if (!hasSuccess) {
+      console.error('Failed to send admin notification emails:', results)
+      return NextResponse.json({ error: 'Failed to send admin notification' }, { status: 400 })
     }
 
     // Send confirmation email to customer
