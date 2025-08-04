@@ -779,6 +779,9 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
   }
 
   public async sendTestEmail(type: string): Promise<boolean> {
+    // Get the first admin email for customer test emails
+    const firstAdminEmail = this.getAdminEmails()[0];
+    
     const testData = {
       booking: {
         car: { brand: 'Lamborghini', model: 'Huracán', year: 2024 },
@@ -791,7 +794,7 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
         amount: 750,
         type: 'Deposit',
         customerName: 'John Doe',
-        customerEmail: this.settings.adminEmail,
+        customerEmail: firstAdminEmail, // Use first admin email instead of deprecated adminEmail
         bookingId: 'TEST-123',
         reason: 'Insufficient funds',
         vehicleName: 'Lamborghini Huracán',
