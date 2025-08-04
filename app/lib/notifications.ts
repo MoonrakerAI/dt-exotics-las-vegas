@@ -107,13 +107,35 @@ export class NotificationService {
             </div>
             
             <div style="text-align: center; margin-top: 30px;">
-              <a href="https://dtexoticslv.com/admin/bookings" 
-                 style="background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-                View in Admin Dashboard
-              </a>
+              <p style="color: #666; margin-bottom: 20px; font-weight: bold;">Quick Actions:</p>
+              <div style="display: inline-block; text-align: center;">
+                <a href="tel:${booking.customer.phone}" 
+                   style="display: inline-block; background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
+                  📞 Call Customer
+                </a>
+                <a href="mailto:${booking.customer.email}" 
+                   style="display: inline-block; background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
+                  📧 Email Customer
+                </a>
+                <a href="https://dtexoticslv.com/admin/bookings" 
+                   style="display: inline-block; background: #6c757d; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
+                  🖥️ Admin Dashboard
+                </a>
+              </div>
+              <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                <p style="margin: 5px 0;">📞 Customer: <a href="tel:${booking.customer.phone}" style="color: #00ffff; text-decoration: none;">${booking.customer.phone}</a></p>
+                <p style="margin: 5px 0;">📧 Customer: <a href="mailto:${booking.customer.email}" style="color: #00ffff; text-decoration: none;">${booking.customer.email}</a></p>
+                <p style="margin: 5px 0;">📞 DT Exotics: <a href="tel:+17025180924" style="color: #00ffff; text-decoration: none;">(702) 518-0924</a></p>
+              </div>
             </div>
           </div>
         </div>
+        
+        <div style="background: #333; padding: 20px; text-align: center;">
+          <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
+          <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">Manage bookings efficiently and provide exceptional service!</p>
+        </div>
+      </div>
       `,
       text: `New Booking Confirmed!
       
@@ -325,14 +347,20 @@ ${alert.details ? `Details: ${alert.details}` : ''}`
             
             <div style="text-align: center; margin-top: 30px;">
               <p style="color: #666; margin-bottom: 20px;">Questions about your rental?</p>
-              <a href="tel:+17025180924" 
-                 style="background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-right: 10px;">
-                Call Us
-              </a>
-              <a href="sms:+17025180924" 
-                 style="background: #333; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-                Text Us
-              </a>
+              <div style="display: inline-block; text-align: center;">
+                <a href="tel:+17025180924" 
+                   style="display: inline-block; background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 120px; text-align: center;">
+                  📞 Call Us Now
+                </a>
+                <a href="sms:+17025180924" 
+                   style="display: inline-block; background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 120px; text-align: center;">
+                  💬 Text Us
+                </a>
+              </div>
+              <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                <p style="margin: 5px 0;">📞 <a href="tel:+17025180924" style="color: #00ffff; text-decoration: none;">(702) 518-0924</a></p>
+                <p style="margin: 5px 0;">📧 <a href="mailto:contact@dtexoticslv.com" style="color: #00ffff; text-decoration: none;">contact@dtexoticslv.com</a></p>
+              </div>
             </div>
           </div>
           
@@ -843,14 +871,22 @@ We can't wait to make your ${inquiry.eventType.toLowerCase()} unforgettable!`
             </div>
             
             <div style="text-align: center; margin-top: 30px;">
-              <a href="tel:${inquiry.customerPhone}" 
-                 style="background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-right: 10px;">
-                Call Customer
-              </a>
-              <a href="mailto:${inquiry.customerEmail}" 
-                 style="background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-                Email Customer
-              </a>
+              <p style="color: #666; margin-bottom: 20px; font-weight: bold;">Quick Actions:</p>
+              <div style="display: inline-block; text-align: center;">
+                <a href="tel:${inquiry.customerPhone}" 
+                   style="display: inline-block; background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
+                  📞 Call Customer
+                </a>
+                <a href="mailto:${inquiry.customerEmail}" 
+                   style="display: inline-block; background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
+                  📧 Email Customer
+                </a>
+              </div>
+              <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                <p style="margin: 5px 0;">📞 Customer: <a href="tel:${inquiry.customerPhone}" style="color: #00ffff; text-decoration: none;">${inquiry.customerPhone}</a></p>
+                <p style="margin: 5px 0;">📧 Customer: <a href="mailto:${inquiry.customerEmail}" style="color: #00ffff; text-decoration: none;">${inquiry.customerEmail}</a></p>
+                <p style="margin: 5px 0;">📞 DT Exotics: <a href="tel:+17025180924" style="color: #00ffff; text-decoration: none;">(702) 518-0924</a></p>
+              </div>
             </div>
           </div>
         </div>
