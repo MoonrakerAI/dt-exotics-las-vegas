@@ -53,21 +53,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Send admin notification email
-    const notificationSent = await NotificationService.sendEventInquiry(eventInquiry)
+    const adminNotificationSent = await NotificationService.sendEventInquiry(eventInquiry)
+    
+    // Send customer confirmation email
+    const customerConfirmationSent = await NotificationService.sendCustomerEventConfirmation(eventInquiry)
 
-    if (notificationSent) {
-      return NextResponse.json({
-        success: true,
-        message: 'Event inquiry submitted successfully'
-      })
-    } else {
-      // Still return success to user even if notification fails
+    // Log results but always return success to customer
+    if (!adminNotificationSent) {
       console.error('Failed to send admin notification for event inquiry')
-      return NextResponse.json({
-        success: true,
-        message: 'Event inquiry submitted successfully'
-      })
     }
+    if (!customerConfirmationSent) {
+      console.error('Failed to send customer confirmation for event inquiry')
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Event inquiry submitted successfully! Check your email for confirmation.'
+    })
   } catch (error) {
     console.error('Event contact form error:', error)
     return NextResponse.json(

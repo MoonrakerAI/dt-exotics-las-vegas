@@ -646,6 +646,103 @@ Get ready for the drive of a lifetime!`
     };
   }
 
+  private getCustomerEventConfirmationTemplate(inquiry: any): EmailTemplate {
+    return {
+      subject: `Thank you for your ${inquiry.eventType} inquiry - DT Exotics Las Vegas`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
+            <h1 style="color: #00ffff; margin: 0; font-size: 28px;">Thank You!</h1>
+            <p style="color: #ffffff; margin: 10px 0; font-size: 16px;">Your ${inquiry.eventType.toLowerCase()} inquiry has been received</p>
+          </div>
+          
+          <div style="padding: 30px; background: #f8f9fa;">
+            <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #00ff00;">
+              <h3 style="color: #155724; margin-top: 0;">✅ Inquiry Received!</h3>
+              <p style="margin: 10px 0;">Thank you for choosing DT Exotics Las Vegas for your ${inquiry.eventType.toLowerCase()}! Our team has received your inquiry and will review the details to create the perfect luxury experience for you.</p>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #00ffff; margin-top: 0;">Your Inquiry Details</h3>
+              <p style="margin: 5px 0;"><strong>Event Type:</strong> ${inquiry.eventType}</p>
+              <p style="margin: 5px 0;"><strong>Contact:</strong> ${inquiry.customerName}</p>
+              <p style="margin: 5px 0;"><strong>Email:</strong> ${inquiry.customerEmail}</p>
+              <p style="margin: 5px 0;"><strong>Phone:</strong> ${inquiry.customerPhone}</p>
+              <p style="margin: 5px 0;"><strong>Submitted:</strong> ${new Date(inquiry.submittedAt).toLocaleDateString()}</p>
+            </div>
+            
+            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #856404; margin-top: 0;">📞 What's Next?</h3>
+              <p style="margin: 10px 0;">1. <strong>Our team will review</strong> your inquiry within 2-4 hours during business hours</p>
+              <p style="margin: 10px 0;">2. <strong>We'll contact you</strong> at ${inquiry.customerPhone} to discuss your event details</p>
+              <p style="margin: 10px 0;">3. <strong>Custom proposal</strong> tailored to your ${inquiry.eventType.toLowerCase()} needs</p>
+              <p style="margin: 10px 0;">4. <strong>Book your experience</strong> and get ready for luxury!</p>
+            </div>
+            
+            <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #0066cc; margin-top: 0;">🚗 Why Choose DT Exotics?</h3>
+              <ul style="margin: 10px 0; padding-left: 20px; color: #0066cc;">
+                <li><strong>Premium Fleet:</strong> Lamborghini, McLaren, Ferrari & more</li>
+                <li><strong>Professional Service:</strong> White-glove concierge experience</li>
+                <li><strong>Event Specialists:</strong> Tailored packages for every occasion</li>
+                <li><strong>Full Coverage:</strong> Insurance and fuel included</li>
+                <li><strong>Photography:</strong> Professional photos of your experience</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <p style="color: #666; margin-bottom: 20px;">Need immediate assistance?</p>
+              <a href="tel:+17025180924" 
+                 style="background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-right: 10px;">
+                Call Us Now
+              </a>
+              <a href="sms:+17025180924" 
+                 style="background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                Text Us
+              </a>
+            </div>
+          </div>
+          
+          <div style="background: #333; padding: 20px; text-align: center;">
+            <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
+            <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">We can't wait to make your ${inquiry.eventType.toLowerCase()} unforgettable!</p>
+          </div>
+        </div>
+      `,
+      text: `Thank you for your ${inquiry.eventType} inquiry!
+      
+Your inquiry has been received and our team will review the details to create the perfect luxury experience for you.
+
+Your Details:
+Event Type: ${inquiry.eventType}
+Contact: ${inquiry.customerName}
+Email: ${inquiry.customerEmail}
+Phone: ${inquiry.customerPhone}
+Submitted: ${new Date(inquiry.submittedAt).toLocaleDateString()}
+
+What's Next:
+1. Our team will review your inquiry within 2-4 hours during business hours
+2. We'll contact you at ${inquiry.customerPhone} to discuss your event details
+3. Custom proposal tailored to your ${inquiry.eventType.toLowerCase()} needs
+4. Book your experience and get ready for luxury!
+
+Why Choose DT Exotics?
+- Premium Fleet: Lamborghini, McLaren, Ferrari & more
+- Professional Service: White-glove concierge experience
+- Event Specialists: Tailored packages for every occasion
+- Full Coverage: Insurance and fuel included
+- Photography: Professional photos of your experience
+
+Need immediate assistance?
+Call: +1 (702) 518-0924
+Text: +1 (702) 518-0924
+
+DT Exotics Las Vegas - Premium Supercar Rentals
+We can't wait to make your ${inquiry.eventType.toLowerCase()} unforgettable!`
+    };
+  }
+
   // Customer notification methods
   public async sendCustomerBookingConfirmation(booking: any): Promise<boolean> {
     try {
@@ -693,6 +790,16 @@ Get ready for the drive of a lifetime!`
       return await this.sendEmail(booking.customer.email, template);
     } catch (error) {
       console.error('Failed to send customer booking confirmed notification:', error);
+      return false;
+    }
+  }
+
+  public async sendCustomerEventConfirmation(inquiry: any): Promise<boolean> {
+    try {
+      const template = this.getCustomerEventConfirmationTemplate(inquiry);
+      return await this.sendEmail(inquiry.customerEmail, template);
+    } catch (error) {
+      console.error('Failed to send customer event confirmation:', error);
       return false;
     }
   }
@@ -818,6 +925,21 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
         type: 'Database Connection',
         message: 'Database connection restored after temporary outage',
         details: 'Connection was down for 2 minutes'
+      },
+      eventInquiry: {
+        eventType: 'Bachelor Party',
+        customerName: 'John Doe',
+        customerEmail: 'john@example.com',
+        customerPhone: '+1 (555) 123-4567',
+        formData: {
+          fullName: 'John Doe',
+          email: 'john@example.com',
+          phone: '+1 (555) 123-4567',
+          eventDate: '2024-06-15',
+          guestCount: '8',
+          preferredVehicles: 'Lamborghini, McLaren'
+        },
+        submittedAt: new Date().toISOString()
       }
     };
 
@@ -843,6 +965,8 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
         return await this.sendCustomerReminder(testData.booking);
       case 'customer_booking_confirmed':
         return await this.sendCustomerBookingConfirmed(testData.booking);
+      case 'customer_event_confirmation':
+        return await this.sendCustomerEventConfirmation(testData.eventInquiry);
       
       default:
         return false;

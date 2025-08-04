@@ -356,7 +356,8 @@ export default function NotificationsAdmin() {
                 { type: 'customer_payment_success', label: 'Payment Receipt', icon: '💳', desc: 'Test customer payment receipt' },
                 { type: 'customer_payment_failed', label: 'Payment Failed Notice', icon: '⚠️', desc: 'Test customer payment failure notice' },
                 { type: 'customer_reminder', label: 'Pickup Reminder', icon: '⏰', desc: 'Test customer pickup reminder' },
-                { type: 'customer_booking_confirmed', label: 'Booking Confirmed', icon: '🎉', desc: 'Test final booking confirmation' }
+                { type: 'customer_booking_confirmed', label: 'Booking Confirmed', icon: '🎉', desc: 'Test final booking confirmation' },
+                { type: 'customer_event_confirmation', label: 'Event Inquiry Confirmation', icon: '🎆', desc: 'Test event inquiry confirmation' }
               ].map(({ type, label, icon, desc }) => (
                 <button
                   key={type}
