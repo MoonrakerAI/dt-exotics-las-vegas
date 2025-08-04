@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import NotificationService from '@/app/lib/notifications'
+import { kv } from '@vercel/kv'
 
 // Event type labels for better email formatting
 const EVENT_TYPE_LABELS: { [key: string]: string } = {
@@ -40,6 +41,12 @@ export async function POST(request: NextRequest) {
         { error: 'Invalid email format' },
         { status: 400 }
       )
+    }
+
+    // Load current notification settings
+    const savedSettings = await kv.get('notification_settings')
+    if (savedSettings) {
+      NotificationService.updateSettings(savedSettings as any)
     }
 
     // Create event inquiry data for notification

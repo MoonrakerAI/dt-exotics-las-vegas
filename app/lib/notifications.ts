@@ -648,23 +648,23 @@ Get ready for the drive of a lifetime!`
 
   private getCustomerEventConfirmationTemplate(inquiry: any): EmailTemplate {
     return {
-      subject: `Thank you for your ${inquiry.eventType} inquiry - DT Exotics Las Vegas`,
+      subject: `Thank you for your ${inquiry.eventType} request - DT Exotics Las Vegas`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
             <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
             <h1 style="color: #00ffff; margin: 0; font-size: 28px;">Thank You!</h1>
-            <p style="color: #ffffff; margin: 10px 0; font-size: 16px;">Your ${inquiry.eventType.toLowerCase()} inquiry has been received</p>
+            <p style="color: #ffffff; margin: 10px 0; font-size: 16px;">Your ${inquiry.eventType.toLowerCase()} request has been received</p>
           </div>
           
           <div style="padding: 30px; background: #f8f9fa;">
             <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #00ff00;">
-              <h3 style="color: #155724; margin-top: 0;">✅ Inquiry Received!</h3>
-              <p style="margin: 10px 0;">Thank you for choosing DT Exotics Las Vegas for your ${inquiry.eventType.toLowerCase()}! Our team has received your inquiry and will review the details to create the perfect luxury experience for you.</p>
+              <h3 style="color: #155724; margin-top: 0;">✅ Request Received!</h3>
+              <p style="margin: 10px 0;">Thank you for choosing DT Exotics Las Vegas for your ${inquiry.eventType.toLowerCase()}! Our team has received your request and will review the details to create the perfect luxury experience for you.</p>
             </div>
             
             <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #00ffff; margin-top: 0;">Your Inquiry Details</h3>
+              <h3 style="color: #00ffff; margin-top: 0;">Your Request Details</h3>
               <p style="margin: 5px 0;"><strong>Event Type:</strong> ${inquiry.eventType}</p>
               <p style="margin: 5px 0;"><strong>Contact:</strong> ${inquiry.customerName}</p>
               <p style="margin: 5px 0;"><strong>Email:</strong> ${inquiry.customerEmail}</p>

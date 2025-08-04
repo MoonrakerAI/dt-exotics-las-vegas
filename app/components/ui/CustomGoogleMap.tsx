@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useGoogleReviews } from '@/app/hooks/useGoogleReviews'
 
 declare global {
   interface Window {
@@ -17,6 +18,9 @@ export default function CustomGoogleMap() {
   const [error, setError] = useState<string | null>(null)
   const [isApiLoaded, setIsApiLoaded] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
+  
+  // Google Reviews data
+  const { data: reviewsData, loading: reviewsLoading, error: reviewsError } = useGoogleReviews()
 
   // Check if Google Maps API is already loaded
   const checkGoogleMapsLoaded = () => {
@@ -296,8 +300,13 @@ export default function CustomGoogleMap() {
             align-items: center;
             margin-bottom: 12px;
           ">
-            <span style="color: #ffa500; margin-right: 6px; font-size: 14px;">★★★★★</span>
-            <span style="color: #ccc; font-size: 13px; font-weight: 500;">5.0 (Google Reviews)</span>
+            ${reviewsData ? `
+              <span style="color: #ffa500; margin-right: 6px; font-size: 14px;">${'★'.repeat(Math.round(reviewsData.rating))}</span>
+              <span style="color: #ccc; font-size: 13px; font-weight: 500;">${reviewsData.rating.toFixed(1)} (${reviewsData.totalReviews} Google Review${reviewsData.totalReviews !== 1 ? 's' : ''})</span>
+            ` : `
+              <span style="color: #ffa500; margin-right: 6px; font-size: 14px;">★★★★★</span>
+              <span style="color: #ccc; font-size: 13px; font-weight: 500;">5.0 (Google Reviews)</span>
+            `}
           </div>
           
           <!-- Address -->
@@ -319,6 +328,53 @@ export default function CustomGoogleMap() {
               <span>9620 Las Vegas Blvd S, Las Vegas, NV 89123</span>
             </div>
           </div>
+          
+          <!-- Individual Reviews -->
+          ${reviewsData && reviewsData.reviews && reviewsData.reviews.length > 0 ? `
+            <div style="
+              margin-bottom: 16px;
+              padding: 12px;
+              background: rgba(0, 255, 255, 0.03);
+              border-radius: 8px;
+              border: 1px solid rgba(0, 255, 255, 0.15);
+              max-height: 120px;
+              overflow-y: auto;
+            ">
+              <div style="
+                color: #00FFFF;
+                font-size: 12px;
+                font-weight: 600;
+                margin-bottom: 8px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+              ">Recent Reviews</div>
+              ${reviewsData.reviews.slice(0, 2).map(review => `
+                <div style="
+                  margin-bottom: 8px;
+                  padding-bottom: 8px;
+                  border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+                ">
+                  <div style="
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 4px;
+                  ">
+                    <span style="color: #ffa500; margin-right: 6px; font-size: 11px;">${'★'.repeat(review.rating)}</span>
+                    <span style="color: #ccc; font-size: 11px; font-weight: 500;">${review.author}</span>
+                    <span style="color: #888; font-size: 10px; margin-left: 6px;">${review.relativeTime}</span>
+                  </div>
+                  <div style="
+                    color: #e0e0e0;
+                    font-size: 11px;
+                    line-height: 1.3;
+                    max-height: 32px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  ">${review.text.length > 80 ? review.text.substring(0, 80) + '...' : review.text}</div>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
           
           <!-- Action Buttons -->
           <div style="

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Send, CheckCircle, AlertTriangle, User, Mail, Phone, Calendar, Users, MapPin, Car, MessageSquare } from 'lucide-react'
+import { Send, CheckCircle, AlertTriangle, User, Mail, Phone, Calendar, Users, MapPin, Car, MessageSquare, TrendingUp } from 'lucide-react'
 
 interface FormField {
   name: string
@@ -509,16 +509,18 @@ export const getFormFields = (eventType: string): FormField[] => {
           name: 'clientVolume',
           label: 'Expected Client Volume',
           type: 'select',
+          required: true,
           placeholder: 'How many referrals per month?',
           options: ['1-5 clients/month', '5-15 clients/month', '15-30 clients/month', '30+ clients/month'],
           icon: <Users className="w-4 h-4" />
         },
         {
-          name: 'website',
-          label: 'Website/Social Media',
-          type: 'text',
-          placeholder: 'Your website or main social media handle',
-          icon: <MessageSquare className="w-4 h-4" />
+          name: 'desiredClientVolume',
+          label: 'Desired Client Volume',
+          type: 'select',
+          placeholder: 'What volume are you targeting?',
+          options: ['5-10 clients/month', '10-25 clients/month', '25-50 clients/month', '50+ clients/month'],
+          icon: <TrendingUp className="w-4 h-4" />
         },
         {
           name: 'partnershipGoals',
