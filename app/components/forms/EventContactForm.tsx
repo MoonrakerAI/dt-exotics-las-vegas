@@ -39,14 +39,41 @@ export default function EventContactForm({
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  // Helper function to format date for display (DD/MM/YY)
-  const formatDateForDisplay = (dateString: string): string => {
-    if (!dateString) return ''
-    const date = new Date(dateString)
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear().toString().slice(-2)
-    return `${day}/${month}/${year}`
+  // Helper function to format date input as DD/MM/YY
+  const formatDateInput = (value: string): string => {
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '')
+    
+    // Format as DD/MM/YY
+    if (digits.length <= 2) {
+      return digits
+    } else if (digits.length <= 4) {
+      return `${digits.slice(0, 2)}/${digits.slice(2)}`
+    } else {
+      return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 6)}`
+    }
+  }
+
+  // Helper function to validate DD/MM/YY date format
+  const isValidDate = (dateString: string): boolean => {
+    if (!dateString || dateString.length !== 8) return false // DD/MM/YY format
+    
+    const match = dateString.match(/^(\d{2})\/(\d{2})\/(\d{2})$/)
+    if (!match) return false
+    
+    const day = parseInt(match[1], 10)
+    const month = parseInt(match[2], 10)
+    const year = parseInt(match[3], 10) + 2000 // Convert YY to YYYY
+    
+    // Basic validation
+    if (month < 1 || month > 12) return false
+    if (day < 1 || day > 31) return false
+    
+    // Check if date is valid
+    const date = new Date(year, month - 1, day)
+    return date.getFullYear() === year && 
+           date.getMonth() === month - 1 && 
+           date.getDate() === day
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,16 +150,26 @@ export default function EventContactForm({
         return (
           <div key={field.name} className="relative">
             <input
-              type="date"
+              type="text"
               name={field.name}
               required={field.required}
+              placeholder="DD/MM/YY"
               value={formData[field.name] || ''}
-              onChange={(e) => handleInputChange(field.name, e.target.value)}
-              className={commonClasses}
+              onChange={(e) => {
+                const formatted = formatDateInput(e.target.value)
+                handleInputChange(field.name, formatted)
+              }}
+              className={`${commonClasses} ${formData[field.name] && !isValidDate(formData[field.name]) ? 'border-red-500' : ''}`}
+              maxLength={8}
             />
-            {formData[field.name] && (
-              <div className="mt-1 text-xs text-gray-400">
-                Selected: {formatDateForDisplay(formData[field.name])}
+            {formData[field.name] && !isValidDate(formData[field.name]) && (
+              <div className="mt-1 text-xs text-red-400">
+                Please enter a valid date in DD/MM/YY format
+              </div>
+            )}
+            {formData[field.name] && isValidDate(formData[field.name]) && (
+              <div className="mt-1 text-xs text-green-400">
+                ✓ Valid date: {formData[field.name]}
               </div>
             )}
           </div>
