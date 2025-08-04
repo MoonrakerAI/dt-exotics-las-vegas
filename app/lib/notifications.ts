@@ -73,8 +73,27 @@ export class NotificationService {
     return results.some(result => result.status === 'fulfilled' && result.value === true);
   }
 
+  // Helper method to format phone numbers to international format
+  private formatPhoneNumber(phone: string): string {
+    // Remove all non-digits
+    const digits = phone.replace(/\D/g, '');
+    
+    // If it's a US number (10 digits) or already has country code (11 digits starting with 1)
+    if (digits.length === 10) {
+      return `+1 ${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+    } else if (digits.length === 11 && digits.startsWith('1')) {
+      return `+1 ${digits.slice(1, 4)}-${digits.slice(4, 7)}-${digits.slice(7)}`;
+    }
+    
+    // Return original if format is unclear
+    return phone;
+  }
+
   // Admin Email Templates
   private getBookingConfirmationTemplate(booking: any): EmailTemplate {
+    const formattedCustomerPhone = this.formatPhoneNumber(booking.customer.phone);
+    const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
+    
     return {
       subject: `New Booking Confirmed - ${booking.car.brand} ${booking.car.model}`,
       html: `
@@ -94,7 +113,7 @@ export class NotificationService {
               <h3 style="color: #00ffff; margin-top: 20px;">Customer</h3>
               <p style="margin: 5px 0;">${booking.customer.firstName} ${booking.customer.lastName}</p>
               <p style="margin: 5px 0;">${booking.customer.email}</p>
-              <p style="margin: 5px 0;">${booking.customer.phone}</p>
+              <p style="margin: 5px 0;">${formattedCustomerPhone}</p>
               
               <h3 style="color: #00ffff; margin-top: 20px;">Rental Period</h3>
               <p style="margin: 5px 0;"><strong>Start:</strong> ${new Date(booking.rentalDates.startDate).toLocaleDateString()}</p>
@@ -109,9 +128,13 @@ export class NotificationService {
             <div style="text-align: center; margin-top: 30px;">
               <p style="color: #666; margin-bottom: 20px; font-weight: bold;">Quick Actions:</p>
               <div style="display: inline-block; text-align: center;">
-                <a href="tel:${booking.customer.phone}" 
+                <a href="tel:${formattedCustomerPhone}" 
                    style="display: inline-block; background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
                   📞 Call Customer
+                </a>
+                <a href="sms:${formattedCustomerPhone}" 
+                   style="display: inline-block; background: #007bff; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
+                  💬 Text Customer
                 </a>
                 <a href="mailto:${booking.customer.email}" 
                    style="display: inline-block; background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
@@ -123,15 +146,19 @@ export class NotificationService {
                 </a>
               </div>
               <div style="margin-top: 15px; font-size: 14px; color: #666;">
-                <p style="margin: 5px 0;">📞 Customer: <a href="tel:${booking.customer.phone}" style="color: #00ffff; text-decoration: none;">${booking.customer.phone}</a></p>
+                <p style="margin: 5px 0;">📞 Customer: <a href="tel:${formattedCustomerPhone}" style="color: #00ffff; text-decoration: none;">${formattedCustomerPhone}</a></p>
+                <p style="margin: 5px 0;">💬 Customer: <a href="sms:${formattedCustomerPhone}" style="color: #007bff; text-decoration: none;">${formattedCustomerPhone}</a></p>
                 <p style="margin: 5px 0;">📧 Customer: <a href="mailto:${booking.customer.email}" style="color: #00ffff; text-decoration: none;">${booking.customer.email}</a></p>
-                <p style="margin: 5px 0;">📞 DT Exotics: <a href="tel:+17025180924" style="color: #00ffff; text-decoration: none;">(702) 518-0924</a></p>
+                <p style="margin: 5px 0;">📞 DT Exotics: <a href="tel:${formattedBusinessPhone}" style="color: #00ffff; text-decoration: none;">${formattedBusinessPhone}</a></p>
               </div>
             </div>
           </div>
         </div>
         
         <div style="background: #333; padding: 20px; text-align: center;">
+          <div style="margin-bottom: 15px;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 40px; opacity: 0.7;">
+          </div>
           <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
           <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">Manage bookings efficiently and provide exceptional service!</p>
         </div>
@@ -154,6 +181,8 @@ View in Admin Dashboard: https://dtexoticslv.com/admin/bookings`
   }
 
   private getPaymentSuccessTemplate(payment: any): EmailTemplate {
+    const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
+    
     return {
       subject: `Payment Successful - $${payment.amount}`,
       html: `
@@ -172,7 +201,21 @@ View in Admin Dashboard: https://dtexoticslv.com/admin/bookings`
               <p style="margin: 5px 0;"><strong>Booking ID:</strong> ${payment.bookingId}</p>
               <p style="margin: 5px 0;"><strong>Time:</strong> ${new Date().toLocaleString()}</p>
             </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                <p style="margin: 5px 0;">📞 DT Exotics: <a href="tel:${formattedBusinessPhone}" style="color: #00ffff; text-decoration: none;">${formattedBusinessPhone}</a></p>
+              </div>
+            </div>
           </div>
+        </div>
+        
+        <div style="background: #333; padding: 20px; text-align: center;">
+          <div style="margin-bottom: 15px;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 40px; opacity: 0.7;">
+          </div>
+          <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
+          <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">Payment processed successfully!</p>
         </div>
       `,
       text: `Payment Successful!
@@ -186,6 +229,8 @@ Time: ${new Date().toLocaleString()}`
   }
 
   private getPaymentFailedTemplate(payment: any): EmailTemplate {
+    const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
+    
     return {
       subject: `Payment Failed - Action Required`,
       html: `
@@ -207,11 +252,22 @@ Time: ${new Date().toLocaleString()}`
             
             <div style="text-align: center; margin-top: 30px;">
               <a href="https://dtexoticslv.com/admin/bookings" 
-                 style="background: #ff0000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                 style="background: #ff0000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px;">
                 Review Booking
               </a>
+              <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                <p style="margin: 5px 0;">📞 DT Exotics: <a href="tel:${formattedBusinessPhone}" style="color: #00ffff; text-decoration: none;">${formattedBusinessPhone}</a></p>
+              </div>
             </div>
           </div>
+        </div>
+        
+        <div style="background: #333; padding: 20px; text-align: center;">
+          <div style="margin-bottom: 15px;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 40px; opacity: 0.7;">
+          </div>
+          <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
+          <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">Payment issue requires attention!</p>
         </div>
       `,
       text: `Payment Failed - Action Required
@@ -227,6 +283,8 @@ Review Booking: https://dtexoticslv.com/admin/bookings`
   }
 
   private getSystemAlertTemplate(alert: any): EmailTemplate {
+    const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
+    
     return {
       subject: `System Alert: ${alert.type}`,
       html: `
@@ -243,7 +301,21 @@ Review Booking: https://dtexoticslv.com/admin/bookings`
               <p style="margin: 5px 0; color: #666;"><strong>Time:</strong> ${new Date().toLocaleString()}</p>
               ${alert.details ? `<p style="margin: 10px 0; color: #666;"><strong>Details:</strong> ${alert.details}</p>` : ''}
             </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                <p style="margin: 5px 0;">📞 DT Exotics: <a href="tel:${formattedBusinessPhone}" style="color: #00ffff; text-decoration: none;">${formattedBusinessPhone}</a></p>
+              </div>
+            </div>
           </div>
+        </div>
+        
+        <div style="background: #333; padding: 20px; text-align: center;">
+          <div style="margin-bottom: 15px;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 40px; opacity: 0.7;">
+          </div>
+          <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
+          <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">System monitoring and alerts!</p>
         </div>
       `,
       text: `System Alert: ${alert.type}
@@ -301,6 +373,8 @@ ${alert.details ? `Details: ${alert.details}` : ''}`
 
   // Customer Email Templates
   private getCustomerBookingConfirmationTemplate(booking: any): EmailTemplate {
+    const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
+    
     return {
       subject: `Booking Confirmed - Your ${booking.car.brand} ${booking.car.model} Rental`,
       html: `
@@ -336,7 +410,7 @@ ${alert.details ? `Details: ${alert.details}` : ''}`
                    target="_blank">DT Exotics Las Vegas</a>
               </p>
               <p style="margin: 5px 0;">Las Vegas, NV</p>
-              <p style="margin: 5px 0;">Phone: +1 (702) 518-0924</p>
+              <p style="margin: 5px 0;">Phone: ${formattedBusinessPhone}</p>
             </div>
             
             <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -368,6 +442,9 @@ ${alert.details ? `Details: ${alert.details}` : ''}`
           </div>
           
           <div style="background: #333; padding: 20px; text-align: center;">
+            <div style="margin-bottom: 15px;">
+              <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 40px; opacity: 0.7;">
+            </div>
             <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
             <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">This email was sent regarding your booking confirmation.</p>
           </div>
@@ -401,6 +478,8 @@ Questions? Call or text us at +1 (702) 518-0924`
   }
 
   private getCustomerPaymentReceiptTemplate(payment: any): EmailTemplate {
+    const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
+    
     return {
       subject: `Payment Receipt - $${payment.amount} for ${payment.vehicleName}`,
       html: `
@@ -437,14 +516,27 @@ Questions? Call or text us at +1 (702) 518-0924`
             
             <div style="text-align: center; margin-top: 30px;">
               <p style="color: #666; margin-bottom: 20px;">Need assistance?</p>
-              <a href="tel:+17025180924" 
-                 style="background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-                Contact Support
-              </a>
+              <div style="display: inline-block; text-align: center;">
+                <a href="tel:${formattedBusinessPhone}" 
+                   style="display: inline-block; background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 120px; text-align: center;">
+                  📞 Call Us
+                </a>
+                <a href="sms:${formattedBusinessPhone}" 
+                   style="display: inline-block; background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 120px; text-align: center;">
+                  💬 Text Us
+                </a>
+              </div>
+              <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                <p style="margin: 5px 0;">📞 <a href="tel:${formattedBusinessPhone}" style="color: #00ffff; text-decoration: none;">${formattedBusinessPhone}</a></p>
+                <p style="margin: 5px 0;">📧 <a href="mailto:contact@dtexoticslv.com" style="color: #00ffff; text-decoration: none;">contact@dtexoticslv.com</a></p>
+              </div>
             </div>
           </div>
           
           <div style="background: #333; padding: 20px; text-align: center;">
+            <div style="margin-bottom: 15px;">
+              <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 40px; opacity: 0.7;">
+            </div>
             <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
             <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">Keep this receipt for your records.</p>
           </div>
@@ -840,6 +932,9 @@ We can't wait to make your ${inquiry.eventType.toLowerCase()} unforgettable!`
   }
 
   private getEventInquiryTemplate(inquiry: any): EmailTemplate {
+    const formattedCustomerPhone = this.formatPhoneNumber(inquiry.customerPhone);
+    const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
+    
     return {
       subject: `New ${inquiry.eventType} Inquiry - ${inquiry.customerName}`,
       html: `
@@ -857,7 +952,7 @@ We can't wait to make your ${inquiry.eventType.toLowerCase()} unforgettable!`
               <h3 style="color: #00ffff; margin-top: 0;">Contact Details</h3>
               <p style="margin: 5px 0;"><strong>Name:</strong> ${inquiry.customerName}</p>
               <p style="margin: 5px 0;"><strong>Email:</strong> ${inquiry.customerEmail}</p>
-              <p style="margin: 5px 0;"><strong>Phone:</strong> ${inquiry.customerPhone}</p>
+              <p style="margin: 5px 0;"><strong>Phone:</strong> ${formattedCustomerPhone}</p>
               <p style="margin: 5px 0;"><strong>Event Type:</strong> ${inquiry.eventType}</p>
               <p style="margin: 5px 0;"><strong>Submitted:</strong> ${new Date(inquiry.submittedAt).toLocaleString()}</p>
             </div>
@@ -875,22 +970,35 @@ We can't wait to make your ${inquiry.eventType.toLowerCase()} unforgettable!`
             <div style="text-align: center; margin-top: 30px;">
               <p style="color: #666; margin-bottom: 20px; font-weight: bold;">Quick Actions:</p>
               <div style="display: inline-block; text-align: center;">
-                <a href="tel:${inquiry.customerPhone}" 
-                   style="display: inline-block; background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
-                  📞 Call Customer
-                </a>
-                <a href="mailto:${inquiry.customerEmail}" 
-                   style="display: inline-block; background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
-                  📧 Email Customer
-                </a>
+                <a href="tel:${formattedCustomerPhone}" 
+                 style="display: inline-block; background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
+                📞 Call Customer
+              </a>
+              <a href="sms:${formattedCustomerPhone}" 
+                 style="display: inline-block; background: #007bff; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
+                💬 Text Customer
+              </a>
+              <a href="mailto:${inquiry.customerEmail}" 
+                 style="display: inline-block; background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
+                📧 Email Customer
+              </a>
               </div>
               <div style="margin-top: 15px; font-size: 14px; color: #666;">
-                <p style="margin: 5px 0;">📞 Customer: <a href="tel:${inquiry.customerPhone}" style="color: #00ffff; text-decoration: none;">${inquiry.customerPhone}</a></p>
-                <p style="margin: 5px 0;">📧 Customer: <a href="mailto:${inquiry.customerEmail}" style="color: #00ffff; text-decoration: none;">${inquiry.customerEmail}</a></p>
-                <p style="margin: 5px 0;">📞 DT Exotics: <a href="tel:+17025180924" style="color: #00ffff; text-decoration: none;">(702) 518-0924</a></p>
+                <p style="margin: 5px 0;">📞 Customer: <a href="tel:${formattedCustomerPhone}" style="color: #00ffff; text-decoration: none;">${formattedCustomerPhone}</a></p>
+              <p style="margin: 5px 0;">💬 Customer: <a href="sms:${formattedCustomerPhone}" style="color: #007bff; text-decoration: none;">${formattedCustomerPhone}</a></p>
+              <p style="margin: 5px 0;">📧 Customer: <a href="mailto:${inquiry.customerEmail}" style="color: #00ffff; text-decoration: none;">${inquiry.customerEmail}</a></p>
+              <p style="margin: 5px 0;">📞 DT Exotics: <a href="tel:${formattedBusinessPhone}" style="color: #00ffff; text-decoration: none;">${formattedBusinessPhone}</a></p>
               </div>
             </div>
           </div>
+        </div>
+        
+        <div style="background: #333; padding: 20px; text-align: center;">
+          <div style="margin-bottom: 15px;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 40px; opacity: 0.7;">
+          </div>
+          <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
+          <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">New event inquiry received!</p>
         </div>
       `,
       text: `New ${inquiry.eventType} Inquiry!

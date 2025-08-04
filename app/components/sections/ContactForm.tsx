@@ -215,7 +215,7 @@ export default function ContactForm() {
                 minDate={new Date()}
                 placeholderText="Select pickup date"
                 className="w-full px-4 py-3 bg-metal-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue transition-all cursor-pointer"
-                dateFormat="MM/dd/yyyy"
+                dateFormat="dd/MM/yy"
                 required
               />
             </div>
@@ -228,7 +228,7 @@ export default function ContactForm() {
                 minDate={formData.startDate || new Date()}
                 placeholderText="Select return date"
                 className="w-full px-4 py-3 bg-metal-gray rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-blue transition-all cursor-pointer"
-                dateFormat="MM/dd/yyyy"
+                dateFormat="dd/MM/yy"
                 required
               />
           </div>

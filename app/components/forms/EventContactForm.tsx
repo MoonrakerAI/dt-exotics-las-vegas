@@ -39,6 +39,16 @@ export default function EventContactForm({
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
+  // Helper function to format date for display (DD/MM/YY)
+  const formatDateForDisplay = (dateString: string): string => {
+    if (!dateString) return ''
+    const date = new Date(dateString)
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear().toString().slice(-2)
+    return `${day}/${month}/${year}`
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -107,6 +117,25 @@ export default function EventContactForm({
               <option key={option} value={option}>{option}</option>
             ))}
           </select>
+        )
+      
+      case 'date':
+        return (
+          <div key={field.name} className="relative">
+            <input
+              type="date"
+              name={field.name}
+              required={field.required}
+              value={formData[field.name] || ''}
+              onChange={(e) => handleInputChange(field.name, e.target.value)}
+              className={commonClasses}
+            />
+            {formData[field.name] && (
+              <div className="mt-1 text-xs text-gray-400">
+                Selected: {formatDateForDisplay(formData[field.name])}
+              </div>
+            )}
+          </div>
         )
       
       default:
