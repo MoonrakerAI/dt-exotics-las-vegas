@@ -330,7 +330,11 @@ ${alert.details ? `Details: ${alert.details}` : ''}`
             
             <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
               <h3 style="color: #0066cc; margin-top: 0;">📍 Pickup Location</h3>
-              <p style="margin: 5px 0; font-weight: bold;">DT Exotics Las Vegas</p>
+              <p style="margin: 5px 0; font-weight: bold;">
+                <a href="https://www.google.com/maps/place/DT+Exotics+Supercar+Rentals/@36.0152011,-115.1747708,17z/data=!3m1!4b1!4m6!3m5!1s0x80c8cffa30913ab1:0x6b5282366b48d73!8m2!3d36.0152011!4d-115.1721959!16s%2Fg%2F11xm1b_s4j!5m1!1e4?entry=ttu&g_ep=EgoyMDI1MDczMC4wIKXMDSoASAFQAw%3D%3D" 
+                   style="color: #0066cc; text-decoration: none; font-weight: bold;" 
+                   target="_blank">DT Exotics Las Vegas</a>
+              </p>
               <p style="margin: 5px 0;">Las Vegas, NV</p>
               <p style="margin: 5px 0;">Phone: +1 (702) 518-0924</p>
             </div>
@@ -341,7 +345,6 @@ ${alert.details ? `Details: ${alert.details}` : ''}`
                 <li>Bring a valid driver's license and credit card</li>
                 <li>Must be 25+ years old to rent</li>
                 <li>Vehicle inspection will be conducted at pickup and return</li>
-                <li>Full insurance coverage is included</li>
               </ul>
             </div>
             
@@ -392,7 +395,6 @@ Important Reminders:
 - Bring a valid driver's license and credit card
 - Must be 25+ years old to rent
 - Vehicle inspection will be conducted at pickup and return
-- Full insurance coverage is included
 
 Questions? Call or text us at +1 (702) 518-0924`
     };
