@@ -35,7 +35,21 @@ export default function NotificationsAdmin() {
       
       if (notificationResponse.ok) {
         const notificationData = await notificationResponse.json()
-        setSettings(notificationData.settings)
+        const loadedSettings = notificationData.settings
+        
+        // Ensure adminEmails array exists for backward compatibility
+        if (!loadedSettings.adminEmails && loadedSettings.adminEmail) {
+          loadedSettings.adminEmails = [loadedSettings.adminEmail]
+        } else if (!loadedSettings.adminEmails) {
+          loadedSettings.adminEmails = ['admin@dtexoticslv.com']
+        }
+        
+        // Ensure adminEmail exists for backward compatibility
+        if (!loadedSettings.adminEmail && loadedSettings.adminEmails && loadedSettings.adminEmails.length > 0) {
+          loadedSettings.adminEmail = loadedSettings.adminEmails[0]
+        }
+        
+        setSettings(loadedSettings)
       }
     } catch (error) {
       console.error('Failed to load settings:', error)
@@ -102,20 +116,22 @@ export default function NotificationsAdmin() {
 
   // Helper functions for managing admin emails
   const addAdminEmail = () => {
-    if (newEmail && isValidEmail(newEmail) && !settings.adminEmails.includes(newEmail)) {
+    const currentEmails = settings.adminEmails || []
+    if (newEmail && isValidEmail(newEmail) && !currentEmails.includes(newEmail)) {
       setSettings(prev => ({
         ...prev,
-        adminEmails: [...prev.adminEmails, newEmail]
+        adminEmails: [...(prev.adminEmails || []), newEmail]
       }))
       setNewEmail('')
     }
   }
 
   const removeAdminEmail = (emailToRemove: string) => {
-    if (settings.adminEmails.length > 1) { // Keep at least one admin email
+    const currentEmails = settings.adminEmails || []
+    if (currentEmails.length > 1) { // Keep at least one admin email
       setSettings(prev => ({
         ...prev,
-        adminEmails: prev.adminEmails.filter(email => email !== emailToRemove)
+        adminEmails: (prev.adminEmails || []).filter(email => email !== emailToRemove)
       }))
     }
   }
@@ -182,13 +198,13 @@ export default function NotificationsAdmin() {
             
             {/* Current Admin Emails */}
             <div className="space-y-3 mb-4">
-              {settings.adminEmails.map((email, index) => (
+              {(settings.adminEmails || []).map((email, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-dark-gray/50 rounded-lg border border-gray-600/30">
                   <div className="flex items-center space-x-3">
                     <Mail className="w-4 h-4 text-neon-blue" />
                     <span className="text-white">{email}</span>
                   </div>
-                  {settings.adminEmails.length > 1 && (
+                  {(settings.adminEmails || []).length > 1 && (
                     <button
                       onClick={() => removeAdminEmail(email)}
                       className="p-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-colors"
@@ -215,7 +231,7 @@ export default function NotificationsAdmin() {
               />
               <button
                 onClick={addAdminEmail}
-                disabled={!newEmail || !isValidEmail(newEmail) || settings.adminEmails.includes(newEmail)}
+                disabled={!newEmail || !isValidEmail(newEmail) || (settings.adminEmails || []).includes(newEmail)}
                 className="px-6 py-3 bg-neon-blue text-dark-gray font-medium rounded-lg hover:bg-neon-blue/80 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
               >
                 Add
