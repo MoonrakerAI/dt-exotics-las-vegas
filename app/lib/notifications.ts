@@ -692,14 +692,20 @@ Get ready for the drive of a lifetime!`
             
             <div style="text-align: center; margin-top: 30px;">
               <p style="color: #666; margin-bottom: 20px;">Need immediate assistance?</p>
-              <a href="tel:+17025180924" 
-                 style="background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-right: 10px;">
-                Call Us Now
-              </a>
-              <a href="sms:+17025180924" 
-                 style="background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-                Text Us
-              </a>
+              <div style="display: inline-block; text-align: center;">
+                <a href="tel:+17025180924" 
+                   style="display: inline-block; background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 120px; text-align: center;">
+                  📞 Call Us Now
+                </a>
+                <a href="sms:+17025180924" 
+                   style="display: inline-block; background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 120px; text-align: center;">
+                  💬 Text Us
+                </a>
+              </div>
+              <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                <p style="margin: 5px 0;">📞 <a href="tel:+17025180924" style="color: #00ffff; text-decoration: none;">(702) 518-0924</a></p>
+                <p style="margin: 5px 0;">📧 <a href="mailto:contact@dtexoticslv.com" style="color: #00ffff; text-decoration: none;">contact@dtexoticslv.com</a></p>
+              </div>
             </div>
           </div>
           
