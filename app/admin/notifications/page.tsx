@@ -321,9 +321,9 @@ export default function NotificationsAdmin() {
                 >
                   <div className="flex items-center space-x-3">
                     <span className="text-xl">{icon}</span>
-                    <div>
-                      <div className="text-white font-medium">{label}</div>
-                      <div className="text-gray-400 text-xs">{desc}</div>
+                    <div className="text-left">
+                      <div className="text-white font-medium text-left">{label}</div>
+                      <div className="text-gray-400 text-xs text-left">{desc}</div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -367,9 +367,9 @@ export default function NotificationsAdmin() {
                 >
                   <div className="flex items-center space-x-3">
                     <span className="text-xl">{icon}</span>
-                    <div>
-                      <div className="text-white font-medium">{label}</div>
-                      <div className="text-gray-400 text-xs">{desc}</div>
+                    <div className="text-left">
+                      <div className="text-white font-medium text-left">{label}</div>
+                      <div className="text-gray-400 text-xs text-left">{desc}</div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
