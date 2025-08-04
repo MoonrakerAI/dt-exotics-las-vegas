@@ -661,15 +661,14 @@ Get ready for the drive of a lifetime!`
             <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #00ff00;">
               <h3 style="color: #155724; margin-top: 0;">✅ Request Received!</h3>
               <p style="margin: 10px 0;">Thank you for choosing DT Exotics Las Vegas for your ${inquiry.eventType.toLowerCase()}! Our team has received your request and will review the details to create the perfect luxury experience for you.</p>
-            </div>
-            
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #00ffff; margin-top: 0;">Your Request Details</h3>
-              <p style="margin: 5px 0;"><strong>Event Type:</strong> ${inquiry.eventType}</p>
-              <p style="margin: 5px 0;"><strong>Contact:</strong> ${inquiry.customerName}</p>
-              <p style="margin: 5px 0;"><strong>Email:</strong> ${inquiry.customerEmail}</p>
-              <p style="margin: 5px 0;"><strong>Phone:</strong> ${inquiry.customerPhone}</p>
-              <p style="margin: 5px 0;"><strong>Submitted:</strong> ${new Date(inquiry.submittedAt).toLocaleDateString()}</p>
+              
+              <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #c3e6cb;">
+                <p style="margin: 5px 0; color: #155724;"><strong>Event Type:</strong> ${inquiry.eventType}</p>
+                <p style="margin: 5px 0; color: #155724;"><strong>Contact:</strong> ${inquiry.customerName}</p>
+                <p style="margin: 5px 0; color: #155724;"><strong>Email:</strong> ${inquiry.customerEmail}</p>
+                <p style="margin: 5px 0; color: #155724;"><strong>Phone:</strong> ${inquiry.customerPhone}</p>
+                <p style="margin: 5px 0; color: #155724;"><strong>Submitted:</strong> ${new Date(inquiry.submittedAt).toLocaleDateString()}</p>
+              </div>
             </div>
             
             <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
