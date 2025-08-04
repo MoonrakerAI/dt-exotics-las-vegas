@@ -1,13 +1,13 @@
 'use client'
 
-import { Instagram, Facebook, Youtube, Zap } from 'lucide-react'
+import { Instagram, Zap } from 'lucide-react'
 
 export default function Footer() {
   return (
     <footer className="bg-black border-t border-gray-800 py-12 px-4">
       <div className="max-w-[1400px] mx-auto">
         {/* Main Footer Content */}
-        <div className="grid md:grid-cols-3 gap-12 mb-8 text-center md:text-left">
+        <div className="grid md:grid-cols-4 gap-8 mb-8 text-center md:text-left">
           {/* Left Section - Branding */}
           <div>
             <div className="mb-4 flex justify-center md:justify-start">
@@ -24,51 +24,60 @@ export default function Footer() {
             {/* Social Media Icons */}
             <div className="flex gap-4 justify-center md:justify-start">
               <a 
-                href="#" 
+                href="https://www.instagram.com/dtexoticslv/" 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 border border-gray-600 rounded flex items-center justify-center text-neon-blue hover:border-neon-blue hover:shadow-[0_0_10px_rgba(0,255,255,0.3)] transition-all duration-300"
                 aria-label="Instagram"
               >
                 <Instagram className="w-5 h-5" />
               </a>
-              <a 
-                href="#" 
-                className="w-10 h-10 border border-gray-600 rounded flex items-center justify-center text-neon-blue hover:border-neon-blue hover:shadow-[0_0_10px_rgba(0,255,255,0.3)] transition-all duration-300"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a 
-                href="#" 
-                className="w-10 h-10 border border-gray-600 rounded flex items-center justify-center text-neon-blue hover:border-neon-blue hover:shadow-[0_0_10px_rgba(0,255,255,0.3)] transition-all duration-300"
-                aria-label="YouTube"
-              >
-                <Youtube className="w-5 h-5" />
-              </a>
             </div>
           </div>
 
-          {/* Middle Section - Navigation */}
+          {/* Second Section - Navigation */}
           <div>
             <h4 className="text-sm font-tech font-bold text-white uppercase tracking-wider mb-4">
               NAVIGATION
             </h4>
             <nav className="space-y-3">
-              <a href="#" className="block text-gray-400 hover:text-neon-blue transition-colors duration-200">
+              <a href="/" className="block text-gray-400 hover:text-neon-blue transition-colors duration-200">
                 Home
               </a>
-              <a href="#cars" className="block text-gray-400 hover:text-neon-blue transition-colors duration-200">
-                Fleet
+              <a href="/partners" className="block text-gray-400 hover:text-neon-blue transition-colors duration-200">
+                Partners
               </a>
-              <a href="#contact" className="block text-gray-400 hover:text-neon-blue transition-colors duration-200">
+              <a href="/blog" className="block text-gray-400 hover:text-neon-blue transition-colors duration-200">
+                Blog
+              </a>
+              <a href="/contact" className="block text-gray-400 hover:text-neon-blue transition-colors duration-200">
                 Contact
-              </a>
-              <a href="#" className="block text-gray-400 hover:text-neon-blue transition-colors duration-200">
-                About
               </a>
             </nav>
           </div>
 
-          {/* Right Section - Legal */}
+          {/* Third Section - Experiences */}
+          <div>
+            <h4 className="text-sm font-tech font-bold text-white uppercase tracking-wider mb-4">
+              EXPERIENCES
+            </h4>
+            <nav className="space-y-3">
+              <a href="/bachelor-party" className="block text-gray-400 hover:text-neon-blue transition-colors duration-200">
+                Bachelor Parties
+              </a>
+              <a href="/birthday" className="block text-gray-400 hover:text-neon-blue transition-colors duration-200">
+                Birthdays
+              </a>
+              <a href="/corporate" className="block text-gray-400 hover:text-neon-blue transition-colors duration-200">
+                Corporate
+              </a>
+              <a href="/vip-services" className="block text-gray-400 hover:text-neon-blue transition-colors duration-200">
+                VIP Services
+              </a>
+            </nav>
+          </div>
+
+          {/* Fourth Section - Legal */}
           <div>
             <h4 className="text-sm font-tech font-bold text-white uppercase tracking-wider mb-4">
               LEGAL
