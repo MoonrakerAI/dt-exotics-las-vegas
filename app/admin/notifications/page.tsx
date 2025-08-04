@@ -298,26 +298,21 @@ export default function NotificationsAdmin() {
             </label>
           </div>
 
-          {/* Test Email Section */}
-          <div className="bg-dark-metal/30 p-6 rounded-lg border border-gray-600/30">
+          {/* Admin Test Email Section */}
+          <div className="bg-dark-metal/30 p-6 rounded-lg border border-gray-600/30 mb-6">
             <h4 className="text-lg font-medium text-white mb-4 flex items-center">
               <Mail className="w-5 h-5 mr-2 text-neon-blue" />
-              Test Email Notifications
+              Admin Notification Tests
             </h4>
-            <p className="text-gray-400 mb-6">Send test emails to verify your notification setup is working correctly.</p>
+            <p className="text-gray-400 mb-6">Test admin notifications - these will be sent to all configured admin emails.</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
-                { type: 'booking', label: 'New Booking', icon: '🚗' },
-                { type: 'payment_success', label: 'Payment Success', icon: '✅' },
-                { type: 'payment_failed', label: 'Payment Failed', icon: '❌' },
-                { type: 'system', label: 'System Alert', icon: '⚠️' },
-                { type: 'customer_booking', label: 'Customer Booking', icon: '📧' },
-                { type: 'customer_payment_success', label: 'Customer Payment Success', icon: '💳' },
-                { type: 'customer_payment_failed', label: 'Customer Payment Failed', icon: '⚠️' },
-                { type: 'customer_reminder', label: 'Customer Reminder', icon: '⏰' },
-                { type: 'customer_booking_confirmed', label: 'Customer Booking Confirmed', icon: '🎉' }
-              ].map(({ type, label, icon }) => (
+                { type: 'booking', label: 'New Booking Alert', icon: '🚗', desc: 'Test booking confirmation to admins' },
+                { type: 'payment_success', label: 'Payment Success Alert', icon: '✅', desc: 'Test payment received notification' },
+                { type: 'payment_failed', label: 'Payment Failed Alert', icon: '❌', desc: 'Test payment failure notification' },
+                { type: 'system', label: 'System Alert', icon: '⚠️', desc: 'Test system status notification' }
+              ].map(({ type, label, icon, desc }) => (
                 <button
                   key={type}
                   onClick={() => sendTestEmail(type)}
@@ -326,11 +321,59 @@ export default function NotificationsAdmin() {
                 >
                   <div className="flex items-center space-x-3">
                     <span className="text-xl">{icon}</span>
-                    <span className="text-white font-medium">{label}</span>
+                    <div>
+                      <div className="text-white font-medium">{label}</div>
+                      <div className="text-gray-400 text-xs">{desc}</div>
+                    </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     {sendingTest === type ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-neon-blue"></div>
+                    ) : testResults[type] === 'success' ? (
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                    ) : testResults[type] === 'error' ? (
+                      <AlertTriangle className="w-4 h-4 text-red-400" />
+                    ) : (
+                      <Send className="w-4 h-4 text-gray-400" />
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Customer Test Email Section */}
+          <div className="bg-dark-metal/30 p-6 rounded-lg border border-gray-600/30">
+            <h4 className="text-lg font-medium text-white mb-4 flex items-center">
+              <Mail className="w-5 h-5 mr-2 text-yellow-400" />
+              Customer Notification Tests
+            </h4>
+            <p className="text-gray-400 mb-6">Test customer notifications - these will be sent to john@example.com (test customer email).</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                { type: 'customer_booking', label: 'Booking Confirmation', icon: '📧', desc: 'Test customer booking confirmation' },
+                { type: 'customer_payment_success', label: 'Payment Receipt', icon: '💳', desc: 'Test customer payment receipt' },
+                { type: 'customer_payment_failed', label: 'Payment Failed Notice', icon: '⚠️', desc: 'Test customer payment failure notice' },
+                { type: 'customer_reminder', label: 'Pickup Reminder', icon: '⏰', desc: 'Test customer pickup reminder' },
+                { type: 'customer_booking_confirmed', label: 'Booking Confirmed', icon: '🎉', desc: 'Test final booking confirmation' }
+              ].map(({ type, label, icon, desc }) => (
+                <button
+                  key={type}
+                  onClick={() => sendTestEmail(type)}
+                  disabled={sendingTest === type || !settings.emailNotifications}
+                  className="flex items-center justify-between p-4 bg-dark-gray border border-gray-600 rounded-lg hover:border-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex items-center space-x-3">
+                    <span className="text-xl">{icon}</span>
+                    <div>
+                      <div className="text-white font-medium">{label}</div>
+                      <div className="text-gray-400 text-xs">{desc}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {sendingTest === type ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-400"></div>
                     ) : testResults[type] === 'success' ? (
                       <CheckCircle className="w-4 h-4 text-green-400" />
                     ) : testResults[type] === 'error' ? (

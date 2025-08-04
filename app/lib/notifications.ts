@@ -779,7 +779,7 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
   }
 
   public async sendTestEmail(type: string): Promise<boolean> {
-    // Get the first admin email for customer test emails
+    // Get the first admin email for admin test emails
     const firstAdminEmail = this.getAdminEmails()[0];
     
     const testData = {
@@ -790,11 +790,24 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
         pricing: { finalAmount: 2500, depositAmount: 750 },
         status: 'confirmed'
       },
-      payment: {
+      // Payment data for admin notifications
+      adminPayment: {
         amount: 750,
         type: 'Deposit',
         customerName: 'John Doe',
-        customerEmail: firstAdminEmail, // Use first admin email instead of deprecated adminEmail
+        customerEmail: firstAdminEmail,
+        bookingId: 'TEST-123',
+        reason: 'Insufficient funds',
+        vehicleName: 'Lamborghini Huracán',
+        transactionId: 'TXN-' + Date.now(),
+        remainingBalance: 1750
+      },
+      // Payment data for customer notifications (consistent structure)
+      customerPayment: {
+        amount: 750,
+        type: 'Deposit',
+        customerName: 'John Doe',
+        customerEmail: 'john@example.com', // Customer email for customer notifications
         bookingId: 'TEST-123',
         reason: 'Insufficient funds',
         vehicleName: 'Lamborghini Huracán',
@@ -813,9 +826,9 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
       case 'booking':
         return await this.sendBookingNotification(testData.booking);
       case 'payment_success':
-        return await this.sendPaymentNotification(testData.payment, true);
+        return await this.sendPaymentNotification(testData.adminPayment, true);
       case 'payment_failed':
-        return await this.sendPaymentNotification(testData.payment, false);
+        return await this.sendPaymentNotification(testData.adminPayment, false);
       case 'system':
         return await this.sendSystemAlert(testData.alert);
       
@@ -823,9 +836,9 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
       case 'customer_booking':
         return await this.sendCustomerBookingConfirmation(testData.booking);
       case 'customer_payment_success':
-        return await this.sendCustomerPaymentReceipt(testData.payment);
+        return await this.sendCustomerPaymentReceipt(testData.customerPayment);
       case 'customer_payment_failed':
-        return await this.sendCustomerPaymentFailed(testData.payment);
+        return await this.sendCustomerPaymentFailed(testData.customerPayment);
       case 'customer_reminder':
         return await this.sendCustomerReminder(testData.booking);
       case 'customer_booking_confirmed':
