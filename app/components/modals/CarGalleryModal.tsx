@@ -229,15 +229,25 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ top: '80px' }}>
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-fadeIn"
+        className="absolute bg-black/80 backdrop-blur-sm animate-fadeIn"
+        style={{ 
+          top: '-80px',
+          left: '0',
+          right: '0',
+          bottom: '0'
+        }}
         onClick={onClose}
       />
       
       {/* Modal */}
-      <div className="relative w-full max-w-6xl mx-2 sm:mx-4 animate-slideIn max-h-[95vh] sm:max-h-[90vh] flex flex-col">
+      <div className="relative w-full max-w-6xl mx-2 sm:mx-4 animate-slideIn flex flex-col" style={{ 
+        maxHeight: 'calc(100vh - 100px)',
+        marginTop: '10px',
+        marginBottom: '10px'
+      }}>
         <div className="bg-dark-metal border border-neon-blue/30 rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(0,255,255,0.3)] flex flex-col h-full">
           {/* Header */}
           <div className="bg-black/50 px-6 py-4 flex items-center justify-between border-b border-gray-800 flex-shrink-0">
@@ -271,7 +281,7 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                   onMouseUp={handleMouseUp}
                   onMouseLeave={handleMouseUp}
                   style={{
-                    maxHeight: isMobile ? 'calc(95vh - 320px)' : 'calc(90vh - 280px)',
+                    maxHeight: isMobile ? 'calc(100vh - 400px)' : 'calc(100vh - 360px)',
                     minHeight: '150px',
                     cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
                   }}
