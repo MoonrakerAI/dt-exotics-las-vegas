@@ -995,19 +995,31 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
       case 'system':
         return await this.sendSystemAlert(testData.alert);
       
-      // Customer notifications
-      case 'customer_booking':
-        return await this.sendCustomerBookingConfirmation(testData.booking);
-      case 'customer_payment_success':
-        return await this.sendCustomerPaymentReceipt(testData.customerPayment);
-      case 'customer_payment_failed':
-        return await this.sendCustomerPaymentFailed(testData.customerPayment);
-      case 'customer_reminder':
-        return await this.sendCustomerReminder(testData.booking);
-      case 'customer_booking_confirmed':
-        return await this.sendCustomerBookingConfirmed(testData.booking);
-      case 'customer_event_confirmation':
-        return await this.sendCustomerEventConfirmation(testData.eventInquiry);
+      // Customer notifications (sent to admin emails for testing)
+      case 'customer_booking': {
+        const template = this.getCustomerBookingConfirmationTemplate(testData.booking);
+        return await this.sendEmailToAdmins(template);
+      }
+      case 'customer_payment_success': {
+        const template = this.getCustomerPaymentReceiptTemplate(testData.customerPayment);
+        return await this.sendEmailToAdmins(template);
+      }
+      case 'customer_payment_failed': {
+        const template = this.getCustomerPaymentFailedTemplate(testData.customerPayment);
+        return await this.sendEmailToAdmins(template);
+      }
+      case 'customer_reminder': {
+        const template = this.getCustomerReminderTemplate(testData.booking);
+        return await this.sendEmailToAdmins(template);
+      }
+      case 'customer_booking_confirmed': {
+        const template = this.getCustomerBookingConfirmedTemplate(testData.booking);
+        return await this.sendEmailToAdmins(template);
+      }
+      case 'customer_event_confirmation': {
+        const template = this.getCustomerEventConfirmationTemplate(testData.eventInquiry);
+        return await this.sendEmailToAdmins(template);
+      }
       
       default:
         return false;
