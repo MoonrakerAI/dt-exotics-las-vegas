@@ -153,7 +153,7 @@ export default function EventContactForm({
               type="text"
               name={field.name}
               required={field.required}
-              placeholder="DD/MM/YY"
+              placeholder="dd/mm/yy"
               value={formData[field.name] || ''}
               onChange={(e) => {
                 const formatted = formatDateInput(e.target.value)
@@ -164,7 +164,7 @@ export default function EventContactForm({
             />
             {formData[field.name] && !isValidDate(formData[field.name]) && (
               <div className="mt-1 text-xs text-red-400">
-                Please enter a valid date in DD/MM/YY format
+                Please enter a valid date in dd/mm/yy format
               </div>
             )}
             {formData[field.name] && isValidDate(formData[field.name]) && (
@@ -572,18 +572,10 @@ export const getFormFields = (eventType: string): FormField[] => {
           icon: <User className="w-4 h-4" />
         },
         {
-          name: 'clientVolume',
-          label: 'Expected Client Volume',
-          type: 'select',
-          required: true,
-          placeholder: 'How many referrals per month?',
-          options: ['1-5 clients/month', '5-15 clients/month', '15-30 clients/month', '30+ clients/month'],
-          icon: <Users className="w-4 h-4" />
-        },
-        {
           name: 'desiredClientVolume',
           label: 'Desired Client Volume',
           type: 'select',
+          required: true,
           placeholder: 'What volume are you targeting?',
           options: ['5-10 clients/month', '10-25 clients/month', '25-50 clients/month', '50+ clients/month'],
           icon: <TrendingUp className="w-4 h-4" />
