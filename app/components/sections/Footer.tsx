@@ -89,7 +89,7 @@ export default function Footer() {
               <a href="/privacy" className="block text-gray-400 hover:text-neon-blue transition-colors duration-200">
                 Privacy Policy
               </a>
-              <a href="#" className="block text-gray-400 hover:text-neon-blue transition-colors duration-200">
+              <a href="/legal/rental-agreement.html" target="_blank" rel="noopener noreferrer" className="block text-gray-400 hover:text-neon-blue transition-colors duration-200">
                 Rental Agreement
               </a>
               <a href="#" className="block text-gray-400 hover:text-neon-blue transition-colors duration-200">
