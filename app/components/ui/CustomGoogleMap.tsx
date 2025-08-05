@@ -170,11 +170,11 @@ export default function CustomGoogleMap() {
     }
   ]
 
-  // Business location coordinates (DT Exotics - 9620 Las Vegas Blvd S, Las Vegas, NV 89123)
+  // Business location coordinates (DT Exotics - 2687 S Sammy Davis Jr Dr, Las Vegas, NV 89109)
   // Exact coordinates for precise marker positioning
   const businessLocation = {
-    lat: 36.01597,
-    lng: -115.17148
+    lat: 36.140366,
+    lng: -115.1674489
   }
 
   // Initialize map with proper error handling
@@ -325,7 +325,7 @@ export default function CustomGoogleMap() {
               font-weight: 500;
             ">
               <span style="margin-right: 8px; color: #00FFFF;">📍</span>
-              <span>9620 Las Vegas Blvd S, Las Vegas, NV 89123</span>
+              <span>2687 S Sammy Davis Jr Dr, Las Vegas, NV 89109</span>
             </div>
           </div>
           

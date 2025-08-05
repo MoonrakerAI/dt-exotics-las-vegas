@@ -27,7 +27,8 @@ export default function ContactInfoBoxes() {
           </svg>
         </div>
         <p className="font-tech text-sm mb-1 text-white">VISIT US</p>
-        <p className="text-gray-400">Las Vegas, NV</p>
+        <p className="text-gray-400">2687 S Sammy Davis Jr Dr</p>
+        <p className="text-gray-400">Las Vegas, NV 89109</p>
       </div>
     </div>
   )
