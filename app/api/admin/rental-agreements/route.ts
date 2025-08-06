@@ -1,23 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { kv } from '@vercel/kv';
-import { SimpleAuth } from '@/app/lib/simple-auth';
+import { verifyJWT } from '@/app/lib/auth';
 import { RentalAgreement, CreateRentalAgreementRequest } from '@/app/types/rental-agreement';
 import { RentalBooking } from '@/app/types/rental';
 import { NotificationService } from '@/app/lib/notifications';
+
+// Helper function to verify admin authentication
+async function isAdminAuthenticated(request: NextRequest): Promise<{user: any} | null> {
+  const authHeader = request.headers.get('authorization');
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+  
+  const token = authHeader.substring(7);
+  
+  try {
+    const user = await verifyJWT(token);
+    return user && user.role === 'admin' ? {user} : null;
+  } catch {
+    return null;
+  }
+}
 
 // GET /api/admin/rental-agreements - Get all rental agreements or specific one
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const authResult = await isAdminAuthenticated(request);
+    if (!authResult) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const user = SimpleAuth.verifyToken(token);
-    if (!user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -67,15 +79,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Verify admin authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const authResult = await isAdminAuthenticated(request);
+    if (!authResult) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const user = SimpleAuth.verifyToken(token);
-    if (!user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
     const body: CreateRentalAgreementRequest = await request.json();
@@ -181,7 +187,7 @@ export async function POST(request: NextRequest) {
       },
       sentAt: now,
       expiresAt,
-      sentBy: user.email,
+      sentBy: authResult.user.email || 'admin',
       emailSent: false,
       remindersSent: 0,
       createdAt: now,
@@ -197,7 +203,7 @@ export async function POST(request: NextRequest) {
     try {
       const agreementUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/rental-agreement/${agreementId}`;
       
-      await NotificationService.sendRentalAgreementEmail({
+      await NotificationService.getInstance().sendRentalAgreementEmail({
         customerEmail: booking.customer.email,
         customerName: `${booking.customer.firstName} ${booking.customer.lastName}`,
         bookingId: booking.id,
@@ -240,15 +246,9 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     // Verify admin authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const authResult = await isAdminAuthenticated(request);
+    if (!authResult) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const user = SimpleAuth.verifyToken(token);
-    if (!user) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -274,7 +274,7 @@ export async function PUT(request: NextRequest) {
       try {
         const agreementUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/rental-agreement/${agreementId}`;
         
-        await NotificationService.sendRentalAgreementEmail({
+        await NotificationService.getInstance().sendRentalAgreementEmail({
           customerEmail: booking.customer.email,
           customerName: `${booking.customer.firstName} ${booking.customer.lastName}`,
           bookingId: booking.id,

@@ -83,7 +83,7 @@ export async function POST(
   try {
     const params = await context.params;
     const agreementId = params.id;
-    const clientIpAddress = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
+    const clientIpAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
 
     if (!agreementId) {
       return NextResponse.json({ error: 'Agreement ID is required' }, { status: 400 });
@@ -207,7 +207,7 @@ export async function POST(
     if (booking) {
       // Send notification to admin about completed agreement
       try {
-        await NotificationService.sendRentalAgreementCompletedNotification({
+        await NotificationService.getInstance().sendRentalAgreementCompletedNotification({
           bookingId: booking.id,
           agreementId: agreementId,
           customerName: formData.fullName,
