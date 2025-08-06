@@ -35,11 +35,12 @@ export async function POST(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { amount, memo } = body;
+    const { amount, memo, chargeNow = false } = body;
 
-    if (!amount || amount <= 0) {
+    // Allow negative amounts for discounts/refunds
+    if (amount === undefined || amount === null || isNaN(amount)) {
       return NextResponse.json(
-        { error: 'Valid amount is required' },
+        { error: 'Valid amount is required (can be positive or negative)' },
         { status: 400 }
       );
     }
@@ -53,98 +54,99 @@ export async function POST(
       );
     }
 
-    // Get the original payment method from the deposit payment intent
-    const originalPaymentIntent = await stripe.paymentIntents.retrieve(
-      rental.payment.depositPaymentIntentId
-    );
+    // Create adjustment record
+    const adjustmentId = `adj_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const adjustment = {
+      id: adjustmentId,
+      amount: amount,
+      memo: memo || (amount > 0 ? 'Additional charge' : 'Discount/Refund'),
+      createdAt: new Date().toISOString(),
+      status: chargeNow ? 'pending' : 'manual' as const,
+      type: amount > 0 ? 'charge' : 'credit' as const
+    };
 
-    if (!originalPaymentIntent.payment_method) {
-      return NextResponse.json(
-        { error: 'No payment method available for additional charges' },
-        { status: 400 }
-      );
+    // If chargeNow is true, attempt to process payment through Stripe
+    if (chargeNow && amount > 0) {
+      try {
+        // Get the original payment method from the deposit payment intent
+        const originalPaymentIntent = await stripe.paymentIntents.retrieve(
+          rental.payment.depositPaymentIntentId
+        );
+
+        if (!originalPaymentIntent.payment_method) {
+          return NextResponse.json(
+            { error: 'No payment method available for automatic charging. Use manual adjustment instead.' },
+            { status: 400 }
+          );
+        }
+
+        // Create a new payment intent for the additional charge
+        const additionalPaymentIntent = await stripe.paymentIntents.create({
+          amount: Math.round(amount * 100), // Convert to cents
+          currency: 'usd',
+          customer: rental.payment.stripeCustomerId,
+          payment_method: originalPaymentIntent.payment_method as string,
+          confirm: true,
+          return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/admin/bookings/${id}`,
+          description: `Additional charge for rental ${id}: ${memo || 'Additional services'}`,
+          metadata: {
+            rentalId: id,
+            type: 'additional_charge',
+            memo: memo || 'Additional charge'
+          }
+        });
+
+        if (additionalPaymentIntent.status === 'succeeded') {
+          adjustment.status = 'succeeded';
+          adjustment.stripePaymentIntentId = additionalPaymentIntent.id;
+        } else {
+          adjustment.status = 'failed';
+          adjustment.error = `Payment failed with status: ${additionalPaymentIntent.status}`;
+        }
+      } catch (stripeError: any) {
+        console.error('Stripe payment error:', stripeError);
+        adjustment.status = 'failed';
+        adjustment.error = stripeError.message || 'Payment processing failed';
+      }
     }
 
-    // Create a new payment intent for the additional charge
-    const additionalPaymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
-      currency: 'usd',
-      customer: rental.payment.stripeCustomerId,
-      payment_method: originalPaymentIntent.payment_method as string,
-      confirm: true,
-      return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/admin/bookings/${id}`,
-      description: `Additional charge for rental ${id}: ${memo || 'Additional services'}`,
-      metadata: {
-        rentalId: id,
-        type: 'additional_charge',
-        memo: memo || 'Additional charge'
+    // Update rental with pricing adjustment (regardless of payment status)
+    const updatedRental = {
+      ...rental,
+      pricing: {
+        ...rental.pricing,
+        additionalCharges: (rental.pricing.additionalCharges || 0) + amount,
+        finalAmount: rental.pricing.finalAmount + amount
+      },
+      payment: {
+        ...rental.payment,
+        additionalCharges: [
+          ...(rental.payment.additionalCharges || []),
+          adjustment
+        ]
+      },
+      updatedAt: new Date().toISOString()
+    };
+
+    await kvRentalDB.updateRental(id, updatedRental);
+
+    return NextResponse.json({
+      success: true,
+      message: chargeNow 
+        ? (adjustment.status === 'succeeded' ? 'Additional charge processed and paid successfully' : 'Pricing adjusted, but payment failed')
+        : 'Pricing adjustment applied successfully',
+      data: {
+        adjustment,
+        rental: updatedRental,
+        newTotal: updatedRental.pricing.finalAmount
       }
     });
 
-    if (additionalPaymentIntent.status === 'succeeded') {
-      // Update rental with additional charge information
-      const updatedRental = {
-        ...rental,
-        pricing: {
-          ...rental.pricing,
-          additionalCharges: (rental.pricing.additionalCharges || 0) + amount,
-          finalAmount: rental.pricing.finalAmount + amount
-        },
-        payment: {
-          ...rental.payment,
-          additionalCharges: [
-            ...(rental.payment.additionalCharges || []),
-            {
-              id: additionalPaymentIntent.id,
-              amount: amount,
-              memo: memo || 'Additional services',
-              chargedAt: new Date().toISOString(),
-              status: 'succeeded' as const
-            }
-          ]
-        },
-        updatedAt: new Date().toISOString()
-      };
-
-      await kvRentalDB.updateRental(id, updatedRental);
-
-      return NextResponse.json({
-        success: true,
-        message: 'Additional charge processed successfully',
-        data: {
-          paymentIntentId: additionalPaymentIntent.id,
-          amount: amount,
-          status: additionalPaymentIntent.status,
-          rental: updatedRental
-        }
-      });
-    } else {
-      return NextResponse.json(
-        { error: `Payment failed with status: ${additionalPaymentIntent.status}` },
-        { status: 400 }
-      );
-    }
-
   } catch (error: any) {
-    console.error('Additional charge error:', error);
+    console.error('Pricing adjustment error:', error);
     
-    // Handle specific Stripe errors
-    if (error.type === 'StripeCardError') {
-      return NextResponse.json(
-        { error: `Card error: ${error.message}` },
-        { status: 400 }
-      );
-    }
-    
-    if (error.type === 'StripeInvalidRequestError') {
-      return NextResponse.json(
-        { error: `Invalid request: ${error.message}` },
-        { status: 400 }
-      );
-    }
-
     return NextResponse.json(
-      { error: 'Failed to process additional charge' },
+      { error: 'Failed to process pricing adjustment' },
       { status: 500 }
     );
   }

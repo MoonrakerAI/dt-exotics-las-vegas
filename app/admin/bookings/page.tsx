@@ -24,12 +24,13 @@ export default function BookingsManagement() {
   const [amountRangeFilter, setAmountRangeFilter] = useState({ min: '', max: '' })
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   
-  // Additional charge modal state
-  const [showAdditionalChargeModal, setShowAdditionalChargeModal] = useState(false)
-  const [selectedBookingForCharge, setSelectedBookingForCharge] = useState<RentalBooking | null>(null)
-  const [additionalChargeAmount, setAdditionalChargeAmount] = useState('')
-  const [additionalChargeMemo, setAdditionalChargeMemo] = useState('')
-  const [chargingAdditional, setChargingAdditional] = useState(false)
+  // Pricing adjustment modal state
+  const [showPricingModal, setShowPricingModal] = useState(false)
+  const [selectedBookingForAdjustment, setSelectedBookingForAdjustment] = useState<RentalBooking | null>(null)
+  const [adjustmentAmount, setAdjustmentAmount] = useState('')
+  const [adjustmentMemo, setAdjustmentMemo] = useState('')
+  const [chargeNow, setChargeNow] = useState(false)
+  const [processingAdjustment, setProcessingAdjustment] = useState(false)
   
   // Reschedule modal state
   const [showRescheduleModal, setShowRescheduleModal] = useState(false)
@@ -309,48 +310,56 @@ export default function BookingsManagement() {
   }
 
 
-  const handleChargeAdditional = (booking: RentalBooking) => {
-    setSelectedBookingForCharge(booking)
-    setAdditionalChargeAmount('')
-    setAdditionalChargeMemo('')
-    setShowAdditionalChargeModal(true)
+  const handlePricingAdjustment = (booking: RentalBooking) => {
+    setSelectedBookingForAdjustment(booking)
+    setAdjustmentAmount('')
+    setAdjustmentMemo('')
+    setChargeNow(false)
+    setShowPricingModal(true)
   }
 
-  const processAdditionalCharge = async () => {
-    if (!selectedBookingForCharge || !additionalChargeAmount || parseFloat(additionalChargeAmount) <= 0) {
+  const processPricingAdjustment = async () => {
+    if (!selectedBookingForAdjustment || !adjustmentAmount || isNaN(parseFloat(adjustmentAmount))) {
       return
     }
 
-    setChargingAdditional(true)
+    setProcessingAdjustment(true)
 
     try {
       const token = localStorage.getItem('dt-admin-token')
-      const response = await fetch(`/api/admin/rentals/${selectedBookingForCharge.id}/charge-additional`, {
+      const response = await fetch(`/api/admin/rentals/${selectedBookingForAdjustment.id}/charge-additional`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          amount: parseFloat(additionalChargeAmount),
-          memo: additionalChargeMemo.trim() || 'Additional charge'
+          amount: parseFloat(adjustmentAmount),
+          memo: adjustmentMemo.trim() || (parseFloat(adjustmentAmount) > 0 ? 'Additional charge' : 'Discount/Refund'),
+          chargeNow: chargeNow
         })
       })
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to charge additional amount')
+        throw new Error(errorData.error || 'Failed to process pricing adjustment')
       }
+
+      const result = await response.json()
 
       // Refresh bookings and close modal
       await fetchBookings()
-      setShowAdditionalChargeModal(false)
-      alert('Additional charge processed successfully!')
+      setShowPricingModal(false)
+      setAdjustmentAmount('')
+      setAdjustmentMemo('')
+      setChargeNow(false)
+      
+      alert(result.message || 'Pricing adjustment processed successfully!')
     } catch (err) {
-      console.error('Additional charge error:', err)
-      alert('Failed to process additional charge: ' + (err instanceof Error ? err.message : 'Unknown error'))
+      console.error('Pricing adjustment error:', err)
+      alert('Failed to process pricing adjustment: ' + (err instanceof Error ? err.message : 'Unknown error'))
     } finally {
-      setChargingAdditional(false)
+      setProcessingAdjustment(false)
     }
   }
 
@@ -877,7 +886,7 @@ export default function BookingsManagement() {
                             </button>
                           )}
                           <button 
-                            onClick={() => handleChargeAdditional(booking)}
+                            onClick={() => handlePricingAdjustment(booking)}
                             className="p-2 text-gray-400 hover:text-yellow-400 transition-colors"
                             title="Charge Additional Fees"
                           >
@@ -920,17 +929,17 @@ export default function BookingsManagement() {
           )}
         </div>
 
-        {/* Additional Charge Modal */}
-        {showAdditionalChargeModal && selectedBookingForCharge && (
+        {/* Pricing Adjustment Modal */}
+        {showPricingModal && selectedBookingForAdjustment && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-dark-metal border border-gray-600/30 rounded-2xl p-6 w-full max-w-md">
+            <div className="bg-dark-metal border border-gray-600/30 rounded-2xl p-6 w-full max-w-lg">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-tech font-bold text-white flex items-center space-x-2">
-                  <DollarSign className="w-6 h-6 text-neon-blue" />
-                  <span>Charge Additional Fee</span>
+                  <Edit className="w-6 h-6 text-neon-blue" />
+                  <span>Adjust Booking Pricing</span>
                 </h3>
                 <button
-                  onClick={() => setShowAdditionalChargeModal(false)}
+                  onClick={() => setShowPricingModal(false)}
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   <X className="w-5 h-5" />
@@ -940,31 +949,30 @@ export default function BookingsManagement() {
               <div className="space-y-4">
                 {/* Booking Info */}
                 <div className="bg-dark-gray/50 p-4 rounded-lg border border-gray-600/20">
-                  <p className="text-sm text-gray-400">Charging additional fee for:</p>
+                  <p className="text-sm text-gray-400">Adjusting pricing for:</p>
                   <p className="text-white font-medium">
-                    {selectedBookingForCharge.customer.firstName} {selectedBookingForCharge.customer.lastName}
+                    {selectedBookingForAdjustment.customer.firstName} {selectedBookingForAdjustment.customer.lastName}
                   </p>
                   <p className="text-gray-300 text-sm">
-                    {selectedBookingForCharge.car.brand} {selectedBookingForCharge.car.model} 
-                    ({selectedBookingForCharge.car.year})
+                    {selectedBookingForAdjustment.car.brand} {selectedBookingForAdjustment.car.model} 
+                    ({selectedBookingForAdjustment.car.year})
                   </p>
                   <p className="text-gray-400 text-xs mt-1">
-                    Booking ID: {selectedBookingForCharge.id.slice(0, 8)}...
+                    Booking ID: {selectedBookingForAdjustment.id.slice(0, 8)}...
                   </p>
                 </div>
 
                 {/* Amount Input */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Additional Charge Amount ($)
+                    Adjustment Amount ($)
                   </label>
                   <input
                     type="number"
                     step="0.01"
-                    min="0.01"
-                    value={additionalChargeAmount}
-                    onChange={(e) => setAdditionalChargeAmount(e.target.value)}
-                    placeholder="0.00"
+                    value={adjustmentAmount}
+                    onChange={(e) => setAdjustmentAmount(e.target.value)}
+                    placeholder="Enter amount (positive for charges, negative for discounts)"
                     className="w-full px-4 py-3 bg-dark-gray border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   />
                 </div>
@@ -975,60 +983,106 @@ export default function BookingsManagement() {
                     Description / Memo
                   </label>
                   <textarea
-                    value={additionalChargeMemo}
-                    onChange={(e) => setAdditionalChargeMemo(e.target.value)}
-                    placeholder="Reason for additional charge (e.g., damage, extra services, late fees)"
+                    value={adjustmentMemo}
+                    onChange={(e) => setAdjustmentMemo(e.target.value)}
+                    placeholder="Reason for adjustment (e.g., damage fee, discount, extra services, refund)"
                     rows={3}
                     className="w-full px-4 py-3 bg-dark-gray border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none resize-none"
                   />
+                </div>
+
+                {/* Charge Now Option */}
+                <div className="border border-gray-600 rounded-lg p-4">
+                  <label className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={chargeNow}
+                      onChange={(e) => setChargeNow(e.target.checked)}
+                      className="w-4 h-4 text-neon-blue bg-dark-gray border-gray-600 rounded focus:ring-neon-blue focus:ring-2"
+                    />
+                    <div>
+                      <span className="text-white font-medium">Charge customer immediately</span>
+                      <p className="text-xs text-gray-400">
+                        If unchecked, pricing will be adjusted manually without charging the customer
+                      </p>
+                    </div>
+                  </label>
                 </div>
 
                 {/* Current Total */}
                 <div className="bg-gray-700/30 p-3 rounded-lg border border-gray-600/20">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-400">Current Total:</span>
-                    <span className="text-white">{formatCurrency(selectedBookingForCharge.pricing.finalAmount)}</span>
+                    <span className="text-white">{formatCurrency(selectedBookingForAdjustment.pricing.finalAmount)}</span>
                   </div>
-                  {additionalChargeAmount && parseFloat(additionalChargeAmount) > 0 && (
+                  {adjustmentAmount && !isNaN(parseFloat(adjustmentAmount)) && (
                     <>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">Additional Charge:</span>
-                        <span className="text-yellow-400">+{formatCurrency(parseFloat(additionalChargeAmount))}</span>
+                        <span className="text-gray-400">Adjustment:</span>
+                        <span className={parseFloat(adjustmentAmount) >= 0 ? "text-yellow-400" : "text-green-400"}>
+                          {parseFloat(adjustmentAmount) >= 0 ? '+' : ''}{formatCurrency(parseFloat(adjustmentAmount))}
+                        </span>
                       </div>
                       <hr className="border-gray-600/50 my-2" />
                       <div className="flex justify-between font-medium">
                         <span className="text-gray-300">New Total:</span>
                         <span className="text-neon-blue">
-                          {formatCurrency(selectedBookingForCharge.pricing.finalAmount + parseFloat(additionalChargeAmount))}
+                          {formatCurrency(selectedBookingForAdjustment.pricing.finalAmount + parseFloat(adjustmentAmount))}
                         </span>
                       </div>
                     </>
                   )}
                 </div>
+
+                {/* Warnings */}
+                {chargeNow && parseFloat(adjustmentAmount) > 0 && (
+                  <div className="bg-yellow-500/10 border border-yellow-500/20 p-3 rounded-lg">
+                    <p className="text-yellow-400 text-sm">
+                      ⚠️ This will charge the customer's saved payment method immediately.
+                    </p>
+                  </div>
+                )}
+
+                {!chargeNow && (
+                  <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg">
+                    <p className="text-blue-400 text-sm">
+                      ℹ️ Pricing will be adjusted manually. You can process payment separately if needed.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}
               <div className="flex space-x-3 mt-6">
                 <button
-                  onClick={() => setShowAdditionalChargeModal(false)}
+                  onClick={() => setShowPricingModal(false)}
                   className="flex-1 px-4 py-3 bg-gray-600/20 text-gray-300 border border-gray-600/30 rounded-lg hover:bg-gray-600/30 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={processAdditionalCharge}
-                  disabled={!additionalChargeAmount || parseFloat(additionalChargeAmount) <= 0 || chargingAdditional}
+                  onClick={processPricingAdjustment}
+                  disabled={!adjustmentAmount || isNaN(parseFloat(adjustmentAmount)) || processingAdjustment}
                   className="flex-1 px-4 py-3 bg-neon-blue text-black font-medium rounded-lg hover:bg-neon-blue/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
                 >
-                  {chargingAdditional ? (
+                  {processingAdjustment ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
                       <span>Processing...</span>
                     </>
                   ) : (
                     <>
-                      <CreditCard className="w-4 h-4" />
-                      <span>Charge Card</span>
+                      {chargeNow && parseFloat(adjustmentAmount) > 0 ? (
+                        <>
+                          <CreditCard className="w-4 h-4" />
+                          <span>Adjust & Charge</span>
+                        </>
+                      ) : (
+                        <>
+                          <Edit className="w-4 h-4" />
+                          <span>Adjust Pricing</span>
+                        </>
+                      )}
                     </>
                   )}
                 </button>
