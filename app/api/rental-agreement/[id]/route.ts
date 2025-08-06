@@ -7,9 +7,10 @@ import { NotificationService } from '@/app/lib/notifications';
 // GET /api/rental-agreement/[id] - Get rental agreement for client completion
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     const agreementId = params.id;
 
     if (!agreementId) {
@@ -77,9 +78,10 @@ export async function GET(
 // POST /api/rental-agreement/[id] - Submit completed rental agreement
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     const agreementId = params.id;
     const clientIpAddress = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
 
