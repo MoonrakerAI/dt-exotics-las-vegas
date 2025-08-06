@@ -52,14 +52,23 @@ export default function AdminDashboard() {
       })
       ])
 
-      if (!bookingsRes.ok || !carsRes.ok) {
-        throw new Error('Failed to fetch dashboard data')
+      if (!bookingsRes.ok) {
+        const errorText = await bookingsRes.text()
+        console.error('Bookings API error:', bookingsRes.status, errorText)
+        throw new Error(`Failed to fetch bookings: ${bookingsRes.status}`)
+      }
+      
+      if (!carsRes.ok) {
+        const errorText = await carsRes.text()
+        console.error('Fleet API error:', carsRes.status, errorText)
+        throw new Error(`Failed to fetch fleet: ${carsRes.status}`)
       }
 
       const bookingsData = await bookingsRes.json()
       const carsData = await carsRes.json()
       
-      const bookings = bookingsData.rentals || []
+      // Handle different API response formats
+      const bookings = bookingsData.data || bookingsData.rentals || []
       const cars = carsData.cars || []
 
       // Calculate stats
