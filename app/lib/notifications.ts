@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { RentalAgreementEmailService, RentalAgreementEmailData, RentalAgreementCompletedData } from './rental-agreement-emails';
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
@@ -1157,6 +1158,27 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
       return true;
     } catch (error) {
       console.error('Failed to send email:', error);
+      return false;
+    }
+  }
+
+  // Rental Agreement Email Methods
+  public async sendRentalAgreementEmail(data: RentalAgreementEmailData): Promise<boolean> {
+    try {
+      const template = RentalAgreementEmailService.getRentalAgreementEmailTemplate(data);
+      return await this.sendEmail(data.customerEmail, template);
+    } catch (error) {
+      console.error('Failed to send rental agreement email:', error);
+      return false;
+    }
+  }
+
+  public async sendRentalAgreementCompletedNotification(data: RentalAgreementCompletedData): Promise<boolean> {
+    try {
+      const template = RentalAgreementEmailService.getRentalAgreementCompletedTemplate(data);
+      return await this.sendEmailToAdmins(template);
+    } catch (error) {
+      console.error('Failed to send rental agreement completion notification:', error);
       return false;
     }
   }

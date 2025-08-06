@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { formatCurrency } from '../../lib/rental-utils'
 import { RentalBooking } from '../../types/rental'
 import { SimpleAuth } from '../../lib/simple-auth'
-import { Calendar, Search, Filter, Download, Eye, Edit, CreditCard, X, Clock, CheckCircle, AlertCircle, Plus, DollarSign, CalendarDays, Trash2 } from 'lucide-react'
+import { Calendar, Search, Filter, Download, Eye, Edit, CreditCard, X, Clock, CheckCircle, AlertCircle, Plus, DollarSign, CalendarDays, Trash2, FileText } from 'lucide-react'
+import RentalAgreementModal from '../components/RentalAgreementModal'
 
 export default function BookingsManagement() {
   const [bookings, setBookings] = useState<RentalBooking[]>([])
@@ -44,6 +45,10 @@ export default function BookingsManagement() {
   const [cancelReason, setCancelReason] = useState('')
   const [refundAmount, setRefundAmount] = useState('')
   const [cancelling, setCancelling] = useState(false)
+  
+  // Rental agreement modal state
+  const [showRentalAgreementModal, setShowRentalAgreementModal] = useState(false)
+  const [selectedBookingForAgreement, setSelectedBookingForAgreement] = useState<RentalBooking | null>(null)
 
   useEffect(() => {
     fetchBookings()
@@ -464,6 +469,11 @@ export default function BookingsManagement() {
     setShowCancelModal(true)
   }
 
+  const handleRentalAgreementModal = (booking: RentalBooking) => {
+    setSelectedBookingForAgreement(booking)
+    setShowRentalAgreementModal(true)
+  }
+
   const processCancel = async () => {
     if (!selectedBookingForCancel || !cancelReason.trim()) {
       return
@@ -872,6 +882,15 @@ export default function BookingsManagement() {
                           >
                             <Plus className="w-4 h-4" />
                           </button>
+                          {(booking.status === 'confirmed' || booking.status === 'pending') && (
+                            <button 
+                              onClick={() => handleRentalAgreementModal(booking)}
+                              className="p-2 text-gray-400 hover:text-purple-400 transition-colors"
+                              title="Send Rental Agreement"
+                            >
+                              <FileText className="w-4 h-4" />
+                            </button>
+                          )}
                           {booking.status !== 'cancelled' && booking.status !== 'completed' && (
                             <button 
                               onClick={() => handleRescheduleBooking(booking)}
@@ -1234,6 +1253,21 @@ export default function BookingsManagement() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Rental Agreement Modal */}
+        {selectedBookingForAgreement && (
+          <RentalAgreementModal
+            booking={selectedBookingForAgreement}
+            isOpen={showRentalAgreementModal}
+            onClose={() => {
+              setShowRentalAgreementModal(false)
+              setSelectedBookingForAgreement(null)
+            }}
+            onSuccess={() => {
+              fetchBookings() // Refresh bookings list
+            }}
+          />
         )}
       </div>
     </div>
