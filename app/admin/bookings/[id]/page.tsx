@@ -289,7 +289,7 @@ export default function BookingDetail() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1">Daily Rate</label>
-                  <p className="text-white">{formatCurrency(booking.car.pricing.daily)}</p>
+                  <p className="text-white">{formatCurrency(booking.car.dailyPrice)}</p>
                 </div>
               </div>
             </div>
