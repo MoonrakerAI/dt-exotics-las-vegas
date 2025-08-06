@@ -77,7 +77,8 @@ export default function BookingsManagement() {
       }
 
       const data = await response.json()
-      setBookings(data.rentals || [])
+      // Handle actual API response format: { success: true, data: rentals }
+      setBookings(data.data || data.rentals || [])
 
     } catch (err) {
       console.error('Bookings fetch error:', err)
