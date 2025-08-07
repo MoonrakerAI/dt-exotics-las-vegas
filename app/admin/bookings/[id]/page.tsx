@@ -365,10 +365,10 @@ export default function BookingDetail() {
                   <span className="text-gray-400">Tax</span>
                   <span className="text-white">{formatCurrency((booking.pricing.finalAmount - booking.pricing.subtotal - (booking.pricing.additionalCharges || 0)))}</span>
                 </div>
-                {booking.pricing.additionalCharges > 0 && (
+                {(booking.pricing.additionalCharges || 0) > 0 && (
                   <div className="flex justify-between">
                     <span className="text-gray-400">Additional Charges</span>
-                    <span className="text-white">{formatCurrency(booking.pricing.additionalCharges)}</span>
+                    <span className="text-white">{formatCurrency(booking.pricing.additionalCharges || 0)}</span>
                   </div>
                 )}
                 <div className="border-t border-gray-600 pt-3">
