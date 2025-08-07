@@ -35,6 +35,8 @@ export default function BookingDetail() {
   // Pricing adjustment modal state
   const [showPricingModal, setShowPricingModal] = useState(false)
   const [adjustmentAmount, setAdjustmentAmount] = useState('')
+  const [finalAmount, setFinalAmount] = useState('')
+  const [adjustmentMode, setAdjustmentMode] = useState<'adjustment' | 'final'>('final')
   const [adjustmentMemo, setAdjustmentMemo] = useState('')
   const [chargeNow, setChargeNow] = useState(false)
   const [processingAdjustment, setProcessingAdjustment] = useState(false)
@@ -78,8 +80,16 @@ export default function BookingDetail() {
   }
 
   const processPricingAdjustment = async () => {
-    if (!booking || !adjustmentAmount || isNaN(parseFloat(adjustmentAmount))) {
-      return
+    if (!booking) return
+
+    let calculatedAdjustment: number
+    
+    if (adjustmentMode === 'final') {
+      if (!finalAmount || isNaN(parseFloat(finalAmount))) return
+      calculatedAdjustment = parseFloat(finalAmount) - booking.pricing.finalAmount
+    } else {
+      if (!adjustmentAmount || isNaN(parseFloat(adjustmentAmount))) return
+      calculatedAdjustment = parseFloat(adjustmentAmount)
     }
 
     setProcessingAdjustment(true)
@@ -93,15 +103,15 @@ export default function BookingDetail() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          amount: parseFloat(adjustmentAmount),
-          memo: adjustmentMemo.trim() || (parseFloat(adjustmentAmount) > 0 ? 'Additional charge' : 'Discount/Refund'),
+          amount: calculatedAdjustment,
+          memo: adjustmentMemo.trim() || (calculatedAdjustment > 0 ? 'Additional charge' : 'Discount/Refund'),
           chargeNow: chargeNow
         })
       })
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to process pricing adjustment')
+        throw new Error(errorData.error || 'Failed to process charge')
       }
 
       const result = await response.json()
@@ -110,13 +120,14 @@ export default function BookingDetail() {
       await fetchBookingDetail(booking.id)
       setShowPricingModal(false)
       setAdjustmentAmount('')
+      setFinalAmount('')
       setAdjustmentMemo('')
       setChargeNow(false)
       
-      alert(result.message || 'Pricing adjustment processed successfully!')
+      alert(result.message || 'Charge processed successfully!')
     } catch (err) {
-      console.error('Pricing adjustment error:', err)
-      alert('Failed to process pricing adjustment: ' + (err instanceof Error ? err.message : 'Unknown error'))
+      console.error('Charge processing error:', err)
+      alert('Failed to process charge: ' + (err instanceof Error ? err.message : 'Unknown error'))
     } finally {
       setProcessingAdjustment(false)
     }
@@ -425,8 +436,8 @@ export default function BookingDetail() {
                   onClick={() => setShowPricingModal(true)}
                   className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-neon-blue text-white font-tech rounded-lg hover:bg-neon-blue/80 transition-colors"
                 >
-                  <Edit className="w-4 h-4" />
-                  <span>Adjust Pricing</span>
+                  <DollarSign className="w-4 h-4" />
+                  <span>Charge Customer</span>
                 </button>
                 
                 <button
@@ -441,30 +452,116 @@ export default function BookingDetail() {
           </div>
         </div>
 
-        {/* Pricing Adjustment Modal */}
+        {/* Customer Charging Modal */}
         {showPricingModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-gray-800 rounded-lg p-6 w-full max-w-lg mx-4">
-              <h3 className="text-xl font-tech font-bold text-white mb-4">Adjust Booking Pricing</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-tech font-bold text-white">Charge Customer</h3>
+                <button
+                  onClick={() => setShowPricingModal(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
               
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Adjustment Amount ($) *
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={adjustmentAmount}
-                    onChange={(e) => setAdjustmentAmount(e.target.value)}
-                    className="w-full px-4 py-3 bg-dark-gray border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    placeholder="Enter amount (positive for charges, negative for discounts)"
-                  />
-                  <p className="text-xs text-gray-400 mt-1">
-                    Current total: {formatCurrency(booking.pricing.finalAmount)} | 
-                    New total: {formatCurrency(booking.pricing.finalAmount + (parseFloat(adjustmentAmount) || 0))}
-                  </p>
+                {/* Customer Info */}
+                <div className="bg-gray-700/50 rounded-lg p-3">
+                  <p className="text-gray-300 text-sm">Charging:</p>
+                  <p className="text-white font-medium">{booking.customer.name}</p>
+                  <p className="text-gray-400 text-sm">Booking ID: {booking.id.substring(0, 12)}...</p>
                 </div>
+
+                {/* Input Mode Toggle */}
+                <div className="flex bg-gray-700 rounded-lg p-1">
+                  <button
+                    onClick={() => setAdjustmentMode('final')}
+                    className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                      adjustmentMode === 'final'
+                        ? 'bg-neon-blue text-white'
+                        : 'text-gray-300 hover:text-white'
+                    }`}
+                  >
+                    Set Final Amount
+                  </button>
+                  <button
+                    onClick={() => setAdjustmentMode('adjustment')}
+                    className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                      adjustmentMode === 'adjustment'
+                        ? 'bg-neon-blue text-white'
+                        : 'text-gray-300 hover:text-white'
+                    }`}
+                  >
+                    Add/Subtract
+                  </button>
+                </div>
+
+                {/* Amount Input */}
+                {adjustmentMode === 'final' ? (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Final Total Amount ($) *
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={finalAmount}
+                      onChange={(e) => setFinalAmount(e.target.value)}
+                      className="w-full px-4 py-3 bg-dark-gray border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                      placeholder="Enter final total amount"
+                    />
+                    <div className="mt-2 space-y-1">
+                      <p className="text-xs text-gray-400">
+                        Current Total: {formatCurrency(booking.pricing.finalAmount)}
+                      </p>
+                      {finalAmount && !isNaN(parseFloat(finalAmount)) && (
+                        <p className={`text-sm font-medium ${
+                          parseFloat(finalAmount) - booking.pricing.finalAmount > 0 
+                            ? 'text-green-400' 
+                            : parseFloat(finalAmount) - booking.pricing.finalAmount < 0
+                            ? 'text-red-400'
+                            : 'text-gray-400'
+                        }`}>
+                          {parseFloat(finalAmount) - booking.pricing.finalAmount > 0 && '+'}
+                          {formatCurrency(parseFloat(finalAmount) - booking.pricing.finalAmount)} 
+                          {parseFloat(finalAmount) - booking.pricing.finalAmount > 0 
+                            ? ' additional charge' 
+                            : parseFloat(finalAmount) - booking.pricing.finalAmount < 0
+                            ? ' discount/refund'
+                            : ' no change'
+                          }
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Adjustment Amount ($) *
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={adjustmentAmount}
+                      onChange={(e) => setAdjustmentAmount(e.target.value)}
+                      className="w-full px-4 py-3 bg-dark-gray border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                      placeholder="Enter amount (positive for charges, negative for discounts)"
+                    />
+                    <div className="mt-2 space-y-1">
+                      <p className="text-xs text-gray-400">
+                        Current Total: {formatCurrency(booking.pricing.finalAmount)}
+                      </p>
+                      {adjustmentAmount && !isNaN(parseFloat(adjustmentAmount)) && (
+                        <p className="text-sm font-medium text-white">
+                          New Total: {formatCurrency(booking.pricing.finalAmount + parseFloat(adjustmentAmount))}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -473,7 +570,7 @@ export default function BookingDetail() {
                   <textarea
                     value={adjustmentMemo}
                     onChange={(e) => setAdjustmentMemo(e.target.value)}
-                    placeholder="Reason for adjustment (e.g., damage fee, discount, extra services, refund)"
+                    placeholder="Reason for charge (e.g., damage fee, extra services, cleaning fee, discount)"
                     rows={3}
                     className="w-full px-4 py-3 bg-dark-gray border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none resize-none"
                   />
@@ -488,29 +585,46 @@ export default function BookingDetail() {
                       className="w-4 h-4 text-neon-blue bg-dark-gray border-gray-600 rounded focus:ring-neon-blue focus:ring-2"
                     />
                     <div>
-                      <span className="text-white font-medium">Charge customer immediately</span>
+                      <span className="text-white font-medium">Charge customer's payment method now</span>
                       <p className="text-xs text-gray-400">
-                        If unchecked, pricing will be adjusted manually without charging the customer
+                        If unchecked, pricing will be updated but no payment will be processed
                       </p>
                     </div>
                   </label>
                 </div>
 
-                {chargeNow && parseFloat(adjustmentAmount) > 0 && (
-                  <div className="bg-yellow-500/10 border border-yellow-500/20 p-3 rounded-lg">
-                    <p className="text-yellow-400 text-sm">
-                      ⚠️ This will charge the customer's saved payment method immediately.
-                    </p>
-                  </div>
-                )}
-
-                {!chargeNow && (
-                  <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg">
-                    <p className="text-blue-400 text-sm">
-                      ℹ️ Pricing will be adjusted manually. You can process payment separately if needed.
-                    </p>
-                  </div>
-                )}
+                {(() => {
+                  const calculatedAdjustment = adjustmentMode === 'final' 
+                    ? (finalAmount && !isNaN(parseFloat(finalAmount)) ? parseFloat(finalAmount) - booking.pricing.finalAmount : 0)
+                    : (adjustmentAmount && !isNaN(parseFloat(adjustmentAmount)) ? parseFloat(adjustmentAmount) : 0)
+                  
+                  if (chargeNow && calculatedAdjustment > 0) {
+                    return (
+                      <div className="bg-yellow-500/10 border border-yellow-500/20 p-3 rounded-lg">
+                        <p className="text-yellow-400 text-sm">
+                          ⚠️ This will charge {formatCurrency(calculatedAdjustment)} to the customer's saved payment method immediately.
+                        </p>
+                      </div>
+                    )
+                  } else if (chargeNow && calculatedAdjustment < 0) {
+                    return (
+                      <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg">
+                        <p className="text-blue-400 text-sm">
+                          ℹ️ This will process a {formatCurrency(Math.abs(calculatedAdjustment))} refund to the customer.
+                        </p>
+                      </div>
+                    )
+                  } else if (!chargeNow) {
+                    return (
+                      <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg">
+                        <p className="text-blue-400 text-sm">
+                          ℹ️ Pricing will be updated manually. No payment will be processed.
+                        </p>
+                      </div>
+                    )
+                  }
+                  return null
+                })()}
               </div>
 
               <div className="flex space-x-3 mt-6">
@@ -522,7 +636,11 @@ export default function BookingDetail() {
                 </button>
                 <button
                   onClick={processPricingAdjustment}
-                  disabled={!adjustmentAmount || isNaN(parseFloat(adjustmentAmount)) || processingAdjustment}
+                  disabled={
+                    (adjustmentMode === 'final' && (!finalAmount || isNaN(parseFloat(finalAmount)))) ||
+                    (adjustmentMode === 'adjustment' && (!adjustmentAmount || isNaN(parseFloat(adjustmentAmount)))) ||
+                    processingAdjustment
+                  }
                   className="flex-1 px-4 py-3 bg-neon-blue text-white font-medium rounded-lg hover:bg-neon-blue/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
                 >
                   {processingAdjustment ? (
@@ -532,17 +650,34 @@ export default function BookingDetail() {
                     </>
                   ) : (
                     <>
-                      {chargeNow && parseFloat(adjustmentAmount) > 0 ? (
-                        <>
-                          <CreditCard className="w-4 h-4" />
-                          <span>Adjust & Charge</span>
-                        </>
-                      ) : (
-                        <>
-                          <Edit className="w-4 h-4" />
-                          <span>Adjust Pricing</span>
-                        </>
-                      )}
+                      {(() => {
+                        const calculatedAdjustment = adjustmentMode === 'final' 
+                          ? (finalAmount && !isNaN(parseFloat(finalAmount)) ? parseFloat(finalAmount) - booking.pricing.finalAmount : 0)
+                          : (adjustmentAmount && !isNaN(parseFloat(adjustmentAmount)) ? parseFloat(adjustmentAmount) : 0)
+                        
+                        if (chargeNow && calculatedAdjustment > 0) {
+                          return (
+                            <>
+                              <CreditCard className="w-4 h-4" />
+                              <span>Charge Customer</span>
+                            </>
+                          )
+                        } else if (chargeNow && calculatedAdjustment < 0) {
+                          return (
+                            <>
+                              <DollarSign className="w-4 h-4" />
+                              <span>Process Refund</span>
+                            </>
+                          )
+                        } else {
+                          return (
+                            <>
+                              <Edit className="w-4 h-4" />
+                              <span>Update Pricing</span>
+                            </>
+                          )
+                        }
+                      })()}
                     </>
                   )}
                 </button>
