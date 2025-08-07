@@ -312,7 +312,7 @@ export default function BookingDetail() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1">Duration</label>
-                  <p className="text-white">{Math.ceil((new Date(booking.rentalDates.endDate).getTime() - new Date(booking.rentalDates.startDate).getTime()) / (1000 * 60 * 60 * 24))} days</p>
+                  <p className="text-white">{booking.pricing.totalDays} days</p>
                 </div>
               </div>
             </div>
@@ -363,7 +363,7 @@ export default function BookingDetail() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Tax</span>
-                  <span className="text-white">{formatCurrency((booking.pricing.finalAmount - booking.pricing.subtotal - (booking.pricing.additionalCharges || 0)))}</span>
+                  <span className="text-white">{formatCurrency(booking.pricing.finalAmount - booking.pricing.subtotal - (booking.pricing.additionalCharges || 0))}</span>
                 </div>
                 {(booking.pricing.additionalCharges || 0) > 0 && (
                   <div className="flex justify-between">
@@ -396,7 +396,7 @@ export default function BookingDetail() {
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Deposit</span>
                   <span className={`px-2 py-1 rounded text-xs font-medium ${
-                    booking.payment.depositStatus === 'succeeded' ? 'bg-green-400/10 text-green-400' :
+                    booking.payment.depositStatus === 'captured' ? 'bg-green-400/10 text-green-400' :
                     booking.payment.depositStatus === 'pending' ? 'bg-yellow-400/10 text-yellow-400' :
                     'bg-red-400/10 text-red-400'
                   }`}>
