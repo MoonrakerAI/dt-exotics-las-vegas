@@ -470,7 +470,7 @@ export default function BookingDetail() {
                 {/* Customer Info */}
                 <div className="bg-gray-700/50 rounded-lg p-3">
                   <p className="text-gray-300 text-sm">Charging:</p>
-                  <p className="text-white font-medium">{booking.customer.name}</p>
+                  <p className="text-white font-medium">{booking.customer.firstName} {booking.customer.lastName}</p>
                   <p className="text-gray-400 text-sm">Booking ID: {booking.id.substring(0, 12)}...</p>
                 </div>
 
