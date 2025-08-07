@@ -363,7 +363,7 @@ export default function BookingDetail() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Tax</span>
-                  <span className="text-white">{formatCurrency(booking.pricing.tax)}</span>
+                  <span className="text-white">{formatCurrency((booking.pricing.finalAmount - booking.pricing.subtotal - (booking.pricing.additionalCharges || 0)))}</span>
                 </div>
                 {booking.pricing.additionalCharges > 0 && (
                   <div className="flex justify-between">
