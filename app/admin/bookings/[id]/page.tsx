@@ -312,7 +312,7 @@ export default function BookingDetail() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1">Duration</label>
-                  <p className="text-white">{booking.rentalDates.totalDays} days</p>
+                  <p className="text-white">{Math.ceil((new Date(booking.rentalDates.endDate).getTime() - new Date(booking.rentalDates.startDate).getTime()) / (1000 * 60 * 60 * 24))} days</p>
                 </div>
               </div>
             </div>
