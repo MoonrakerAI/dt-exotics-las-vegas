@@ -56,7 +56,7 @@ export async function POST(
 
     // Create adjustment record
     const adjustmentId = `adj_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const adjustment = {
+    const adjustment: any = {
       id: adjustmentId,
       amount: amount,
       memo: memo || (amount > 0 ? 'Additional charge' : 'Discount/Refund'),
