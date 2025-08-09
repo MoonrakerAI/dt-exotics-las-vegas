@@ -722,32 +722,40 @@ export default function BookingDetail() {
                 >
                   Cancel
                 </button>
-                        
-                        if (chargeNow && calculatedAdjustment > 0) {
-                          return (
-                            <>
-                              <CreditCard className="w-4 h-4" />
-                              <span>Charge Customer</span>
-                            </>
-                          )
-                        } else if (chargeNow && calculatedAdjustment < 0) {
-                          return (
-                            <>
-                              <DollarSign className="w-4 h-4" />
-                              <span>Process Refund</span>
-                            </>
-                          )
-                        } else {
-                          return (
-                            <>
-                              <Edit className="w-4 h-4" />
-                              <span>Update Pricing</span>
-                            </>
-                          )
-                        }
-                      })()}
-                    </>
-                  )}
+                
+                <button
+                  onClick={processPricingAdjustment}
+                  disabled={processingAdjustment}
+                  className={`flex-1 px-4 py-3 bg-neon-blue text-black font-tech rounded-lg hover:bg-neon-blue/80 transition-colors flex items-center justify-center space-x-2 ${processingAdjustment ? 'opacity-60 cursor-not-allowed' : ''}`}
+                >
+                  {(() => {
+                    const calculatedAdjustment = adjustmentMode === 'final' 
+                      ? (finalAmount && !isNaN(parseFloat(finalAmount)) ? parseFloat(finalAmount) - booking.pricing.finalAmount : 0)
+                      : (adjustmentAmount && !isNaN(parseFloat(adjustmentAmount)) ? parseFloat(adjustmentAmount) : 0)
+
+                    if (chargeNow && calculatedAdjustment > 0) {
+                      return (
+                        <>
+                          <CreditCard className="w-4 h-4" />
+                          <span>{processingAdjustment ? 'Charging…' : 'Charge Customer'}</span>
+                        </>
+                      )
+                    } else if (chargeNow && calculatedAdjustment < 0) {
+                      return (
+                        <>
+                          <DollarSign className="w-4 h-4" />
+                          <span>{processingAdjustment ? 'Processing…' : 'Process Refund'}</span>
+                        </>
+                      )
+                    } else {
+                      return (
+                        <>
+                          <Edit className="w-4 h-4" />
+                          <span>{processingAdjustment ? 'Updating…' : 'Update Pricing'}</span>
+                        </>
+                      )
+                    }
+                  })()}
                 </button>
               </div>
             </div>
