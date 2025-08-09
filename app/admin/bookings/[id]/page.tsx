@@ -37,9 +37,15 @@ export default function BookingDetail() {
   const [adjustmentAmount, setAdjustmentAmount] = useState('')
   const [finalAmount, setFinalAmount] = useState('')
   const [adjustmentMode, setAdjustmentMode] = useState<'adjustment' | 'final'>('final')
+  const [reauthLoading, setReauthLoading] = useState(false)
   const [adjustmentMemo, setAdjustmentMemo] = useState('')
   const [chargeNow, setChargeNow] = useState(false)
   const [processingAdjustment, setProcessingAdjustment] = useState(false)
+  const [paymentInfo, setPaymentInfo] = useState<{
+    status: string
+    amountCapturable: number | null
+    latestChargeStatus?: string | null
+  } | null>(null)
 
   useEffect(() => {
     if (params.id) {
@@ -70,6 +76,18 @@ export default function BookingDetail() {
 
       const data = await response.json()
       const normalized = (data && (data.rental || (data.data && data.data.rental))) || null
+      const rawPI = data?.paymentIntent || data?.data?.paymentIntent || null
+      if (rawPI) {
+        const amountCapturable = (typeof rawPI.amountCapturable === 'number')
+          ? rawPI.amountCapturable
+          : (typeof rawPI.amount_capturable === 'number' ? rawPI.amount_capturable : null)
+        const latestChargeStatus = (rawPI.latestChargeStatus !== undefined)
+          ? rawPI.latestChargeStatus
+          : (rawPI.latest_charge && rawPI.latest_charge.status ? rawPI.latest_charge.status : null)
+        setPaymentInfo({ status: String(rawPI.status), amountCapturable, latestChargeStatus })
+      } else {
+        setPaymentInfo(null)
+      }
       if (!normalized) {
         throw new Error('Malformed booking response from server')
       }
@@ -134,6 +152,35 @@ export default function BookingDetail() {
       alert('Failed to process charge: ' + (err instanceof Error ? err.message : 'Unknown error'))
     } finally {
       setProcessingAdjustment(false)
+    }
+  }
+
+  // Re-authorize deposit using saved payment method (off_session)
+  const reauthorizeDeposit = async () => {
+    if (!booking) return
+    setReauthLoading(true)
+    try {
+      const token = localStorage.getItem('dt-admin-token')
+      if (!token) throw new Error('No admin token found')
+      const res = await fetch(`/api/admin/rentals/${booking.id}/reauthorize-deposit`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data?.error || 'Failed to re-authorize deposit')
+      }
+      // Refresh booking to pick up new PI id/status
+      await fetchBookingDetail(booking.id)
+      alert('Deposit re-authorization attempted. Current status: ' + (data?.data?.paymentIntent?.status || 'unknown'))
+    } catch (e) {
+      console.error('Re-authorize deposit error:', e)
+      alert(e instanceof Error ? e.message : 'Failed to re-authorize deposit')
+    } finally {
+      setReauthLoading(false)
     }
   }
 
@@ -251,6 +298,34 @@ export default function BookingDetail() {
             </span>
           </div>
         </div>
+
+        {/* Payment/Capture Status Banner */}
+        {paymentInfo && (
+          <div className="mb-6">
+            {paymentInfo.status === 'requires_capture' && (paymentInfo.amountCapturable ?? 0) > 0 ? (
+              <div className="bg-green-500/10 border border-green-500/20 text-green-300 p-4 rounded-lg">
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Deposit authorized and ready to capture</p>
+                    <p className="text-sm opacity-90">Amount capturable: {formatCurrency((paymentInfo.amountCapturable || 0) / 100)}. Note: Card authorizations typically expire within ~7 days; capture before it expires.</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 p-4 rounded-lg">
+                <div className="flex items-start space-x-3">
+                  <AlertCircle className="w-5 h-5 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Deposit not capturable</p>
+                    <p className="text-sm opacity-90">Status: {paymentInfo.status || 'unknown'}{paymentInfo.latestChargeStatus ? ` · Latest charge: ${paymentInfo.latestChargeStatus}` : ''}</p>
+                    <p className="text-sm opacity-90 mt-1">If the authorization expired or was canceled, you’ll need to re-authorize or initiate a new charge.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
@@ -444,6 +519,15 @@ export default function BookingDetail() {
                   <span>Charge Customer</span>
                 </button>
                 
+                <button
+                  onClick={reauthorizeDeposit}
+                  disabled={reauthLoading}
+                  className={`w-full flex items-center justify-center space-x-2 px-4 py-3 bg-neon-blue text-black font-tech rounded-lg transition-colors ${reauthLoading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-neon-blue/80'}`}
+                >
+                  <CreditCard className="w-4 h-4" />
+                  <span>{reauthLoading ? 'Re-authorizing…' : 'Re-authorize Deposit'}</span>
+                </button>
+
                 <button
                   onClick={() => router.push(`/admin/bookings`)}
                   className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gray-600 text-white font-tech rounded-lg hover:bg-gray-500 transition-colors"

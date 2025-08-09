@@ -35,6 +35,7 @@ export interface RentalBooking {
     finalPaymentIntentId?: string;
     finalPaymentStatus?: 'pending' | 'succeeded' | 'failed';
     stripeCustomerId: string;
+    savedPaymentMethodId?: string;
     additionalCharges?: Array<{
       id: string;
       amount: number;

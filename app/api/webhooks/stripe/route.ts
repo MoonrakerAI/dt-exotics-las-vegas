@@ -33,6 +33,9 @@ export async function POST(request: NextRequest) {
 
     // Handle the event
     switch (event.type) {
+      case 'payment_intent.amount_capturable_updated':
+        await handlePaymentIntentAuthorized(event.data.object);
+        break;
       case 'payment_intent.succeeded':
         await handlePaymentIntentSucceeded(event.data.object);
         break;
@@ -64,6 +67,27 @@ export async function POST(request: NextRequest) {
   }
 }
 
+async function handlePaymentIntentAuthorized(paymentIntent: any) {
+  console.log('Payment authorized (amount capturable updated):', paymentIntent.id)
+  const rental = await kvRentalDB.getRentalByPaymentIntent(paymentIntent.id)
+  if (!rental) {
+    console.error('Rental not found for payment intent:', paymentIntent.id)
+    return
+  }
+
+  if (rental.payment.depositPaymentIntentId === paymentIntent.id) {
+    await kvRentalDB.updateRental(rental.id, {
+      payment: {
+        ...rental.payment,
+        depositStatus: 'authorized',
+        savedPaymentMethodId: (paymentIntent as any).payment_method || rental.payment.savedPaymentMethodId,
+        stripeCustomerId: (paymentIntent as any).customer || rental.payment.stripeCustomerId
+      },
+      status: rental.status === 'pending' ? 'confirmed' : rental.status
+    })
+  }
+}
+
 async function handlePaymentIntentSucceeded(paymentIntent: any) {
   console.log('Payment succeeded:', paymentIntent.id);
   
@@ -79,7 +103,10 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
     await kvRentalDB.updateRental(rental.id, {
       payment: {
         ...rental.payment,
-        depositStatus: 'authorized'
+        depositStatus: 'authorized',
+        // Store saved payment method for future off-session charges
+        savedPaymentMethodId: (paymentIntent as any).payment_method || rental.payment.savedPaymentMethodId,
+        stripeCustomerId: (paymentIntent as any).customer || rental.payment.stripeCustomerId
       },
       status: 'confirmed'
     });

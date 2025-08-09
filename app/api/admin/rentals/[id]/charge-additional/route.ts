@@ -68,26 +68,32 @@ export async function POST(
     // If chargeNow is true, attempt to process payment through Stripe
     if (chargeNow && amount > 0) {
       try {
-        // Get the original payment method from the deposit payment intent
-        const originalPaymentIntent = await stripe.paymentIntents.retrieve(
-          rental.payment.depositPaymentIntentId
-        );
+        // Prefer saved payment method for off-session charging
+        let paymentMethodToUse = rental.payment.savedPaymentMethodId as string | undefined;
 
-        if (!originalPaymentIntent.payment_method) {
+        // Fallback to the original deposit payment intent's payment method if none saved
+        if (!paymentMethodToUse) {
+          const originalPaymentIntent = await stripe.paymentIntents.retrieve(
+            rental.payment.depositPaymentIntentId
+          );
+          paymentMethodToUse = (originalPaymentIntent.payment_method as string) || undefined;
+        }
+
+        if (!paymentMethodToUse) {
           return NextResponse.json(
-            { error: 'No payment method available for automatic charging. Use manual adjustment instead.' },
+            { error: 'No saved payment method available for automatic charging. Use manual adjustment instead.' },
             { status: 400 }
           );
         }
 
-        // Create a new payment intent for the additional charge
+        // Create a new payment intent for the additional charge using off_session
         const additionalPaymentIntent = await stripe.paymentIntents.create({
           amount: Math.round(amount * 100), // Convert to cents
           currency: 'usd',
           customer: rental.payment.stripeCustomerId,
-          payment_method: originalPaymentIntent.payment_method as string,
+          payment_method: paymentMethodToUse,
           confirm: true,
-          return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/admin/bookings/${id}`,
+          off_session: true,
           description: `Additional charge for rental ${id}: ${memo || 'Additional services'}`,
           metadata: {
             rentalId: id,
@@ -99,6 +105,11 @@ export async function POST(
         if (additionalPaymentIntent.status === 'succeeded') {
           adjustment.status = 'succeeded';
           adjustment.stripePaymentIntentId = additionalPaymentIntent.id;
+        } else if (additionalPaymentIntent.status === 'requires_action') {
+          // Off-session charge could require authentication; report back for manual handling
+          adjustment.status = 'failed';
+          adjustment.error = 'Charge requires customer authentication. Please collect payment manually.';
+          adjustment.stripePaymentIntentId = additionalPaymentIntent.id;
         } else {
           adjustment.status = 'failed';
           adjustment.error = `Payment failed with status: ${additionalPaymentIntent.status}`;
@@ -106,7 +117,12 @@ export async function POST(
       } catch (stripeError: any) {
         console.error('Stripe payment error:', stripeError);
         adjustment.status = 'failed';
-        adjustment.error = stripeError.message || 'Payment processing failed';
+        // If off_session was declined due to authentication, surface a helpful message
+        if (stripeError.code === 'authentication_required' || stripeError.code === 'card_declined') {
+          adjustment.error = 'Card requires authentication for this charge. Please collect payment manually.';
+        } else {
+          adjustment.error = stripeError.message || 'Payment processing failed';
+        }
       }
     }
 
