@@ -69,7 +69,11 @@ export default function BookingDetail() {
       }
 
       const data = await response.json()
-      setBooking(data.rental || data.data || data)
+      const normalized = (data && (data.rental || (data.data && data.data.rental))) || null
+      if (!normalized) {
+        throw new Error('Malformed booking response from server')
+      }
+      setBooking(normalized)
 
     } catch (err) {
       console.error('Booking detail fetch error:', err)

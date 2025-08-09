@@ -48,17 +48,23 @@ export async function GET(
       rental.payment.depositPaymentIntentId
     );
 
+    // Return a stable, flat response while preserving backward compatibility
+    const flatPaymentIntent = {
+      id: paymentIntent.id,
+      status: paymentIntent.status,
+      amount: paymentIntent.amount,
+      captureMethod: paymentIntent.capture_method,
+      paymentMethod: paymentIntent.payment_method
+    };
+
     return NextResponse.json({
       success: true,
+      rental,
+      paymentIntent: flatPaymentIntent,
+      // Backward compatibility for older clients expecting data: { rental, paymentIntent }
       data: {
         rental,
-        paymentIntent: {
-          id: paymentIntent.id,
-          status: paymentIntent.status,
-          amount: paymentIntent.amount,
-          captureMethod: paymentIntent.capture_method,
-          paymentMethod: paymentIntent.payment_method
-        }
+        paymentIntent: flatPaymentIntent
       }
     });
 
