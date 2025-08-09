@@ -369,7 +369,7 @@ export default function AdminInvoices() {
                           className={`px-4 py-1 pr-8 rounded text-sm border border-gray-600 focus:border-neon-blue focus:outline-none ${
                             invoice.status === 'draft' ? 'bg-gray-600 text-white' :
                             invoice.status === 'ready' ? 'bg-yellow-600 text-white' :
-                            invoice.status === 'sent' ? 'bg-blue-600 text-white' :
+                            invoice.status === 'sent' ? 'bg-blue-600 text-black' :
                             'bg-green-600 text-white'
                           }`}
                         >

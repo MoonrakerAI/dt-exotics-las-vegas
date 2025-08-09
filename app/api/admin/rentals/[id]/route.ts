@@ -54,7 +54,9 @@ export async function GET(
       status: paymentIntent.status,
       amount: paymentIntent.amount,
       captureMethod: paymentIntent.capture_method,
-      paymentMethod: paymentIntent.payment_method
+      paymentMethod: paymentIntent.payment_method,
+      amountCapturable: (paymentIntent as any).amount_capturable ?? null,
+      latestChargeStatus: (paymentIntent as any).latest_charge ? (paymentIntent as any).latest_charge.status : null
     };
 
     return NextResponse.json({

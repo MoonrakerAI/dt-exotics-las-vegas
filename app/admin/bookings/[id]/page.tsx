@@ -197,7 +197,7 @@ export default function BookingDetail() {
           <p className="text-gray-400 mb-6">{error}</p>
           <button
             onClick={() => router.back()}
-            className="px-6 py-3 bg-neon-blue text-white font-tech rounded-lg hover:bg-neon-blue/80 transition-colors"
+            className="px-6 py-3 bg-neon-blue text-black font-tech rounded-lg hover:bg-neon-blue/80 transition-colors"
           >
             Go Back
           </button>
@@ -215,7 +215,7 @@ export default function BookingDetail() {
           <p className="text-gray-400 mb-6">The requested booking could not be found.</p>
           <button
             onClick={() => router.push('/admin/bookings')}
-            className="px-6 py-3 bg-neon-blue text-white font-tech rounded-lg hover:bg-neon-blue/80 transition-colors"
+            className="px-6 py-3 bg-neon-blue text-black font-tech rounded-lg hover:bg-neon-blue/80 transition-colors"
           >
             Back to Bookings
           </button>
@@ -438,7 +438,7 @@ export default function BookingDetail() {
               <div className="space-y-3">
                 <button
                   onClick={() => setShowPricingModal(true)}
-                  className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-neon-blue text-white font-tech rounded-lg hover:bg-neon-blue/80 transition-colors"
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-neon-blue text-black font-tech rounded-lg hover:bg-neon-blue/80 transition-colors"
                 >
                   <DollarSign className="w-4 h-4" />
                   <span>Charge Customer</span>
@@ -484,7 +484,7 @@ export default function BookingDetail() {
                     onClick={() => setAdjustmentMode('final')}
                     className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
                       adjustmentMode === 'final'
-                        ? 'bg-neon-blue text-white'
+                        ? 'bg-neon-blue text-black'
                         : 'text-gray-300 hover:text-white'
                     }`}
                   >
@@ -494,7 +494,7 @@ export default function BookingDetail() {
                     onClick={() => setAdjustmentMode('adjustment')}
                     className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
                       adjustmentMode === 'adjustment'
-                        ? 'bg-neon-blue text-white'
+                        ? 'bg-neon-blue text-black'
                         : 'text-gray-300 hover:text-white'
                     }`}
                   >
@@ -638,26 +638,6 @@ export default function BookingDetail() {
                 >
                   Cancel
                 </button>
-                <button
-                  onClick={processPricingAdjustment}
-                  disabled={
-                    (adjustmentMode === 'final' && (!finalAmount || isNaN(parseFloat(finalAmount)))) ||
-                    (adjustmentMode === 'adjustment' && (!adjustmentAmount || isNaN(parseFloat(adjustmentAmount)))) ||
-                    processingAdjustment
-                  }
-                  className="flex-1 px-4 py-3 bg-neon-blue text-white font-medium rounded-lg hover:bg-neon-blue/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
-                >
-                  {processingAdjustment ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>Processing...</span>
-                    </>
-                  ) : (
-                    <>
-                      {(() => {
-                        const calculatedAdjustment = adjustmentMode === 'final' 
-                          ? (finalAmount && !isNaN(parseFloat(finalAmount)) ? parseFloat(finalAmount) - booking.pricing.finalAmount : 0)
-                          : (adjustmentAmount && !isNaN(parseFloat(adjustmentAmount)) ? parseFloat(adjustmentAmount) : 0)
                         
                         if (chargeNow && calculatedAdjustment > 0) {
                           return (
