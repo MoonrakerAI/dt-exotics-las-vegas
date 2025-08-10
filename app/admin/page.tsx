@@ -40,6 +40,22 @@ interface TopCustomer {
   paymentsCount: number
 }
 
+function Spinner({ size = 24 }: { size?: number }) {
+  return (
+    <svg
+      className="animate-spin text-neon-blue"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+      <path className="opacity-80" d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="4" strokeLinecap="round"></path>
+    </svg>
+  )
+}
+
 function TopCustomersTable({ topCustomers }: { topCustomers: TopCustomer[] }) {
   const [sortKey, setSortKey] = useState<'name' | 'email' | 'paymentsCount' | 'totalSpend'>('totalSpend')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
@@ -245,6 +261,38 @@ export default function AdminDashboard() {
           </p>
         </div>
 
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400 font-tech">Gross Volume</span>
+              <DollarSign className="w-5 h-5 text-neon-blue" />
+            </div>
+            <p className="mt-3 text-2xl font-tech text-white">{overview ? formatCurrency(overview.grossVolume / 100) : '—'}</p>
+          </div>
+          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400 font-tech">Payments</span>
+              <TrendingUp className="w-5 h-5 text-neon-blue" />
+            </div>
+            <p className="mt-3 text-2xl font-tech text-white">{overview ? overview.paymentsCount : '—'}</p>
+          </div>
+          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400 font-tech">New Customers</span>
+              <Users className="w-5 h-5 text-neon-blue" />
+            </div>
+            <p className="mt-3 text-2xl font-tech text-white">{overview ? overview.newCustomers : '—'}</p>
+          </div>
+          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400 font-tech">Avg Spend</span>
+              <DollarSign className="w-5 h-5 text-neon-blue" />
+            </div>
+            <p className="mt-3 text-2xl font-tech text-white">{overview ? formatCurrency(overview.avgSpend / 100) : '—'}</p>
+          </div>
+        </div>
+
         {/* Controls: Mode + Presets + Custom Range */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div className="inline-flex rounded-xl overflow-hidden border border-gray-700">
@@ -361,7 +409,11 @@ export default function AdminDashboard() {
             <h2 className="text-2xl font-tech font-bold text-white">Revenue Over Time</h2>
           </div>
           <div className="h-72">
-            {series.length === 0 ? (
+            {loading ? (
+              <div className="h-full flex items-center justify-center">
+                <Spinner size={28} />
+              </div>
+            ) : series.length === 0 ? (
               <div className="h-full flex items-center justify-center text-gray-400">
                 <span className="font-tech">No data for selected range</span>
               </div>
@@ -374,6 +426,8 @@ export default function AdminDashboard() {
                     stroke="#9CA3AF"
                     tick={{ fill: '#9CA3AF', fontSize: 12 }}
                     tickFormatter={(v: string) => formatDateDMY(v)}
+                    interval="preserveStartEnd"
+                    tickCount={Math.min(8, Math.max(3, Math.floor(series.length / 4)))}
                   />
                   <YAxis stroke="#9CA3AF" tick={{ fill: '#9CA3AF', fontSize: 12 }} tickFormatter={(v) => `$${v}`}/>
                   <Tooltip
@@ -420,7 +474,11 @@ export default function AdminDashboard() {
               className="px-3 py-1.5 rounded-lg font-tech border border-gray-700 text-gray-200 hover:border-neon-blue/60"
             >Export CSV</button>
           </div>
-          {topCustomers.length === 0 ? (
+          {loading ? (
+            <div className="h-40 flex items-center justify-center">
+              <Spinner />
+            </div>
+          ) : topCustomers.length === 0 ? (
             <div className="text-center py-12">
               <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-400">No customers found for selected range</p>
