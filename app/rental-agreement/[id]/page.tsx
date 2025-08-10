@@ -208,24 +208,24 @@ export default function RentalAgreementPage() {
     return errors
   }
 
-  const setField = <K extends keyof RentalAgreementFormData>(key: K, value: RentalAgreementFormData[K]) => {
-    // Normalize some inputs
+  const setField = <K extends keyof RentalAgreementFormData>(key: K, rawValue: RentalAgreementFormData[K]) => {
+    // Normalize some inputs safely without suppressing TS
+    let newValue: RentalAgreementFormData[K] = rawValue
     if (key === 'driversLicenseState' || key === 'state') {
-      // @ts-expect-error string assignment
-      value = (String(value)).toUpperCase() as any
+      const upper = String(rawValue).toUpperCase()
+      newValue = upper as unknown as RentalAgreementFormData[K]
     }
     if (key === 'zipCode') {
-      // @ts-expect-error string assignment
-      value = (String(value)).replace(/[^\d-]/g, '') as any
+      const cleanedZip = String(rawValue).replace(/[^\d-]/g, '')
+      newValue = cleanedZip as unknown as RentalAgreementFormData[K]
     }
     if (key === 'emergencyContactPhone') {
       // keep digits and optional leading +
-      const raw = String(value)
+      const raw = String(rawValue)
       const cleaned = raw.replace(/[^\d+]/g, '')
-      // @ts-expect-error string assignment
-      value = cleaned as any
+      newValue = cleaned as unknown as RentalAgreementFormData[K]
     }
-    setFormData(prev => ({ ...prev, [key]: value }))
+    setFormData(prev => ({ ...prev, [key]: newValue }))
     // clear error on change
     setFieldErrors(prev => ({ ...prev, [key]: undefined }))
   }
