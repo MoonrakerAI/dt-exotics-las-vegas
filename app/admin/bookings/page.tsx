@@ -892,6 +892,15 @@ export default function BookingsManagement() {
                           >
                             <Plus className="w-4 h-4" />
                           </button>
+                          {booking.status === 'pending' && (
+                            <button 
+                              onClick={() => handleConfirmBooking(booking)}
+                              className="p-2 text-gray-400 hover:text-green-400 transition-colors"
+                              title="Confirm Booking"
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                            </button>
+                          )}
                           {(booking.status === 'confirmed' || booking.status === 'pending') && (
                             <button 
                               onClick={() => handleRentalAgreementModal(booking)}

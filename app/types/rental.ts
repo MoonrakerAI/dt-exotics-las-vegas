@@ -28,6 +28,7 @@ export interface RentalBooking {
     email: string;
     phone: string;
     driversLicense: string;
+    driversLicenseState?: string;
   };
   payment: {
     depositPaymentIntentId: string;
@@ -75,6 +76,7 @@ export interface CreateRentalRequest {
     email: string;
     phone: string;
     driversLicense: string;
+    driversLicenseState?: string;
   };
 }
 

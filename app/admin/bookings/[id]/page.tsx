@@ -358,7 +358,12 @@ export default function BookingDetail() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1">Driver's License</label>
-                  <p className="text-white">{booking.customer.driversLicense}</p>
+                  <p className="text-white">
+                    {booking.customer.driversLicense}
+                    {booking.customer.driversLicenseState ? (
+                      <span className="text-gray-300"> ({booking.customer.driversLicenseState})</span>
+                    ) : null}
+                  </p>
                 </div>
               </div>
             </div>
