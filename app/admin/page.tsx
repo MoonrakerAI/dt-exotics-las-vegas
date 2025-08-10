@@ -2,37 +2,146 @@
 
 import { useState, useEffect } from 'react'
 import { formatCurrency } from '../lib/rental-utils'
-import { RentalBooking } from '../types/rental'
 import { SimpleAuth } from '../lib/simple-auth'
 import { Car, Calendar, DollarSign, Users, TrendingUp, Clock, AlertCircle, CheckCircle, Plus, Eye, Edit, MoreHorizontal } from 'lucide-react'
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
 
-interface DashboardStats {
-  totalBookings: number
-  activeRentals: number
-  totalRevenue: number
-  availableCars: number
-  pendingPayments: number
-  completedBookings: number
+type Mode = 'live' | 'test'
+
+interface OverviewMetrics {
+  grossVolume: number
+  paymentsCount: number
+  failedPayments: number
+  newCustomers: number
+  avgSpend: number
+  uniquePayingCustomers: number
+}
+
+const formatDateDMY = (iso: string) => {
+  const d = new Date(iso)
+  const dd = String(d.getUTCDate()).padStart(2, '0')
+  const mm = String(d.getUTCMonth() + 1).padStart(2, '0')
+  const yy = String(d.getUTCFullYear()).slice(-2)
+  return `${dd}/${mm}/${yy}`
+}
+
+interface TimePoint {
+  t: string
+  grossVolume: number
+  paymentsCount: number
+  failedCount: number
+}
+
+interface TopCustomer {
+  customerId: string
+  email: string | null
+  name: string | null
+  totalSpend: number
+  paymentsCount: number
+}
+
+function TopCustomersTable({ topCustomers }: { topCustomers: TopCustomer[] }) {
+  const [sortKey, setSortKey] = useState<'name' | 'email' | 'paymentsCount' | 'totalSpend'>('totalSpend')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
+  const [page, setPage] = useState(1)
+  const pageSize = 10
+
+  const sorted = [...topCustomers].sort((a, b) => {
+    const dir = sortDir === 'asc' ? 1 : -1
+    if (sortKey === 'name') return (a.name || '').localeCompare(b.name || '') * dir
+    if (sortKey === 'email') return (a.email || '').localeCompare(b.email || '') * dir
+    if (sortKey === 'paymentsCount') return (a.paymentsCount - b.paymentsCount) * dir
+    return (a.totalSpend - b.totalSpend) * dir
+  })
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize))
+  const currentPage = Math.min(page, totalPages)
+  const start = (currentPage - 1) * pageSize
+  const pageItems = sorted.slice(start, start + pageSize)
+
+  const setSort = (key: typeof sortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDir('desc')
+    }
+  }
+
+  const Th = ({ label, k }: { label: string; k?: typeof sortKey }) => (
+    <th
+      onClick={k ? () => setSort(k) : undefined}
+      className={`text-left py-3 px-4 text-gray-400 font-tech ${k ? 'cursor-pointer select-none hover:text-neon-blue' : ''}`}
+    >
+      {label}
+      {k && sortKey === k && (
+        <span className="ml-1 text-xs text-gray-500">{sortDir === 'asc' ? '▲' : '▼'}</span>
+      )}
+    </th>
+  )
+
+  return (
+    <div className="space-y-4">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-gray-600">
+              <Th label="Customer" k="name" />
+              <Th label="Email" k="email" />
+              <Th label="Payments" k="paymentsCount" />
+              <Th label="Total Spend" k="totalSpend" />
+            </tr>
+          </thead>
+          <tbody>
+            {pageItems.map((c) => (
+              <tr key={c.customerId} className="border-b border-gray-700/50 hover:bg-gray-600/10">
+                <td className="py-3 px-4 text-white">{c.name || '—'}</td>
+                <td className="py-3 px-4 text-gray-300">{c.email || '—'}</td>
+                <td className="py-3 px-4 text-white font-tech">{c.paymentsCount}</td>
+                <td className="py-3 px-4 text-white font-tech">{formatCurrency(c.totalSpend / 100)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="flex items-center justify-between text-gray-300">
+        <span className="text-sm">Page {currentPage} of {totalPages}</span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            className="px-3 py-1.5 rounded-lg font-tech border border-gray-700 hover:border-neon-blue/60 disabled:opacity-40"
+            disabled={currentPage <= 1}
+          >Prev</button>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            className="px-3 py-1.5 rounded-lg font-tech border border-gray-700 hover:border-neon-blue/60 disabled:opacity-40"
+            disabled={currentPage >= totalPages}
+          >Next</button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<DashboardStats>({
-    totalBookings: 0,
-    activeRentals: 0,
-    totalRevenue: 0,
-    availableCars: 0,
-    pendingPayments: 0,
-    completedBookings: 0
+  const [mode, setMode] = useState<Mode>('live')
+  const [preset, setPreset] = useState<string>('30d')
+  const [range, setRange] = useState<{ from: number; to: number }>(() => {
+    const to = Math.floor(Date.now() / 1000)
+    return { from: to - 60 * 60 * 24 * 30, to }
   })
-  const [recentBookings, setRecentBookings] = useState<RentalBooking[]>([])
+  const [overview, setOverview] = useState<OverviewMetrics | null>(null)
+  const [series, setSeries] = useState<TimePoint[]>([])
+  const [topCustomers, setTopCustomers] = useState<TopCustomer[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchDashboardData()
-  }, [])
+    fetchStripeMetrics()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, range.from, range.to])
 
-  const fetchDashboardData = async () => {
+  const fetchStripeMetrics = async () => {
     setLoading(true)
     setError(null)
 
@@ -41,74 +150,24 @@ export default function AdminDashboard() {
       if (!token) {
         throw new Error('No admin token found')
       }
-
-      // Fetch bookings and stats in parallel
-      const [bookingsRes, carsRes] = await Promise.all([
-        fetch('/api/admin/rentals', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('/api/admin/fleet', {
-          headers: { 'Authorization': `Bearer ${token}` }
-      })
+      const qs = `?from=${range.from}&to=${range.to}&mode=${mode}`
+      const [overviewRes, seriesRes, topRes] = await Promise.all([
+        fetch(`/api/admin/metrics/overview${qs}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`/api/admin/metrics/timeseries${qs}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`/api/admin/metrics/top-customers${qs}`, { headers: { 'Authorization': `Bearer ${token}` } }),
       ])
 
-      if (!bookingsRes.ok) {
-        const errorText = await bookingsRes.text()
-        console.error('Bookings API error:', bookingsRes.status, errorText)
-        throw new Error(`Failed to fetch bookings: ${bookingsRes.status}`)
-      }
-      
-      if (!carsRes.ok) {
-        const errorText = await carsRes.text()
-        console.error('Fleet API error:', carsRes.status, errorText)
-        throw new Error(`Failed to fetch fleet: ${carsRes.status}`)
-      }
+      if (!overviewRes.ok) throw new Error(`Overview error: ${overviewRes.status}`)
+      if (!seriesRes.ok) throw new Error(`Timeseries error: ${seriesRes.status}`)
+      if (!topRes.ok) throw new Error(`Top customers error: ${topRes.status}`)
 
-      const bookingsData = await bookingsRes.json()
-      const carsData = await carsRes.json()
-      
-      // Handle different API response formats
-      const bookings = bookingsData.data || bookingsData.rentals || []
-      const cars = carsData.cars || []
+      const overviewJson = await overviewRes.json()
+      const seriesJson = await seriesRes.json()
+      const topJson = await topRes.json()
 
-      // Calculate stats
-      const now = new Date()
-      const activeRentals = bookings.filter((booking: RentalBooking) => 
-        booking.status === 'active' || booking.status === 'confirmed'
-      ).length
-      
-      const totalRevenue = bookings
-        .filter((booking: RentalBooking) => booking.status === 'completed')
-        .reduce((sum: number, booking: RentalBooking) => sum + booking.pricing.finalAmount, 0)
-      
-      const availableCars = cars.filter((car: any) => car.available).length
-      
-      const pendingPayments = bookings.filter((booking: RentalBooking) => 
-        booking.payment.depositStatus === 'pending' || 
-        booking.payment.finalPaymentStatus === 'pending'
-      ).length
-
-      const completedBookings = bookings.filter((booking: RentalBooking) => 
-        booking.status === 'completed'
-      ).length
-
-      setStats({
-        totalBookings: bookings.length,
-        activeRentals,
-        totalRevenue,
-        availableCars,
-        pendingPayments,
-        completedBookings
-      })
-
-      // Get recent bookings (last 10)
-      const recent = bookings
-        .sort((a: RentalBooking, b: RentalBooking) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        .slice(0, 10)
-      
-      setRecentBookings(recent)
+      setOverview(overviewJson.metrics as OverviewMetrics)
+      setSeries(seriesJson.series as TimePoint[])
+      setTopCustomers(topJson.topCustomers as TopCustomer[])
 
     } catch (err) {
       console.error('Dashboard error:', err)
@@ -118,20 +177,22 @@ export default function AdminDashboard() {
     }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'confirmed':
-      case 'active':
-        return 'text-green-400 bg-green-400/10'
-      case 'pending':
-        return 'text-yellow-400 bg-yellow-400/10'
-      case 'completed':
-        return 'text-blue-400 bg-blue-400/10'
-      case 'cancelled':
-        return 'text-red-400 bg-red-400/10'
-      default:
-        return 'text-gray-400 bg-gray-400/10'
+  const setPresetRange = (key: string) => {
+    const now = Math.floor(Date.now() / 1000)
+    let from = now - 60 * 60 * 24 * 30
+    switch (key) {
+      case 'today': from = now - 60 * 60 * 24; break
+      case '7d': from = now - 60 * 60 * 24 * 7; break
+      case '30d': from = now - 60 * 60 * 24 * 30; break
+      case 'ytd': {
+        const y = new Date()
+        const start = new Date(y.getFullYear(), 0, 1)
+        from = Math.floor(start.getTime() / 1000)
+        break
+      }
     }
+    setPreset(key)
+    setRange({ from, to: now })
   }
 
   if (!SimpleAuth.getCurrentUser()) {
@@ -163,13 +224,13 @@ export default function AdminDashboard() {
           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
           <h1 className="text-2xl font-tech mb-4">Dashboard Error</h1>
           <p className="text-gray-400 mb-4">{error}</p>
-          <button onClick={fetchDashboardData} className="btn-primary">
+          <button onClick={fetchStripeMetrics} className="btn-primary">
             Try Again
           </button>
+        </div>
       </div>
-    </div>
-  )
-}
+    )
+  }
 
   return (
     <div className="min-h-screen bg-dark-gray">
@@ -180,80 +241,196 @@ export default function AdminDashboard() {
             Admin Dashboard
           </h1>
           <p className="text-xl text-gray-300">
-            Overview of your rental business performance
+            Real-time Stripe metrics and insights
           </p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
-          {/* Total Bookings */}
-          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400 mb-1">Total Bookings</p>
-                <p className="text-2xl font-tech font-bold text-white">{stats.totalBookings}</p>
-              </div>
-              <Calendar className="w-8 h-8 text-neon-blue" />
-            </div>
+        {/* Controls: Mode + Presets + Custom Range */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          <div className="inline-flex rounded-xl overflow-hidden border border-gray-700">
+            <button
+              onClick={() => setMode('live')}
+              className={`px-4 py-2 font-tech ${mode === 'live' ? 'bg-neon-blue text-black' : 'text-gray-300 bg-dark-metal'}`}
+            >Live</button>
+            <button
+              onClick={() => setMode('test')}
+              className={`px-4 py-2 font-tech ${mode === 'test' ? 'bg-neon-blue text-black' : 'text-gray-300 bg-dark-metal'}`}
+            >Test</button>
           </div>
-
-          {/* Active Rentals */}
-          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400 mb-1">Active Rentals</p>
-                <p className="text-2xl font-tech font-bold text-green-400">{stats.activeRentals}</p>
-              </div>
-              <Clock className="w-8 h-8 text-green-400" />
-            </div>
+          <div className="flex items-center gap-2">
+            {['today','7d','30d','ytd'].map((k) => (
+              <button
+                key={k}
+                onClick={() => setPresetRange(k)}
+                className={`px-3 py-1.5 rounded-lg font-tech border ${preset === k ? 'bg-neon-blue text-black border-neon-blue' : 'border-gray-700 text-gray-300 hover:border-neon-blue/60'}`}
+              >{k.toUpperCase()}</button>
+            ))}
           </div>
-
-          {/* Total Revenue */}
-          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400 mb-1">Total Revenue</p>
-                <p className="text-2xl font-tech font-bold text-neon-blue">{formatCurrency(stats.totalRevenue)}</p>
-              </div>
-              <DollarSign className="w-8 h-8 text-neon-blue" />
-            </div>
-          </div>
-
-          {/* Available Cars */}
-          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400 mb-1">Available Cars</p>
-                <p className="text-2xl font-tech font-bold text-white">{stats.availableCars}</p>
-              </div>
-              <Car className="w-8 h-8 text-gray-400" />
-            </div>
-          </div>
-
-          {/* Pending Payments */}
-          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400 mb-1">Pending Payments</p>
-                <p className="text-2xl font-tech font-bold text-yellow-400">{stats.pendingPayments}</p>
-              </div>
-              <AlertCircle className="w-8 h-8 text-yellow-400" />
-            </div>
-          </div>
-
-          {/* Completed Bookings */}
-          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400 mb-1">Completed</p>
-                <p className="text-2xl font-tech font-bold text-blue-400">{stats.completedBookings}</p>
-              </div>
-              <CheckCircle className="w-8 h-8 text-blue-400" />
-            </div>
+          {/* Simple custom range picker */}
+          <div className="flex items-center gap-2 text-gray-300">
+            <label className="text-sm">From</label>
+            <input
+              type="date"
+              className="bg-dark-metal border border-gray-700 rounded-lg px-2 py-1 text-sm"
+              value={new Date(range.from * 1000).toISOString().slice(0,10)}
+              onChange={(e) => {
+                const d = new Date(e.target.value + 'T00:00:00Z').getTime()
+                if (!isNaN(d)) setRange((r) => ({ ...r, from: Math.floor(d/1000) }))
+              }}
+            />
+            <label className="text-sm">To</label>
+            <input
+              type="date"
+              className="bg-dark-metal border border-gray-700 rounded-lg px-2 py-1 text-sm"
+              value={new Date(range.to * 1000).toISOString().slice(0,10)}
+              onChange={(e) => {
+                const d = new Date(e.target.value + 'T23:59:59Z').getTime()
+                if (!isNaN(d)) setRange((r) => ({ ...r, to: Math.floor(d/1000) }))
+              }}
+            />
+            <button
+              onClick={() => fetchStripeMetrics()}
+              className="px-3 py-1.5 rounded-lg font-tech border border-gray-700 text-gray-200 hover:border-neon-blue/60"
+            >Apply</button>
           </div>
         </div>
 
-        {/* Quick Actions */}
+        {/* KPI Cards */}
+        {overview && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
+            <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">Gross Volume</p>
+                  <p className="text-2xl font-tech font-bold text-neon-blue">{formatCurrency(overview.grossVolume / 100)}</p>
+                </div>
+                <DollarSign className="w-8 h-8 text-neon-blue" />
+              </div>
+            </div>
+            <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">Payments</p>
+                  <p className="text-2xl font-tech font-bold text-white">{overview.paymentsCount}</p>
+                </div>
+                <TrendingUp className="w-8 h-8 text-gray-300" />
+              </div>
+            </div>
+            <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">Failed Payments</p>
+                  <p className="text-2xl font-tech font-bold text-red-400">{overview.failedPayments}</p>
+                </div>
+                <AlertCircle className="w-8 h-8 text-red-400" />
+              </div>
+            </div>
+            <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">New Customers</p>
+                  <p className="text-2xl font-tech font-bold text-white">{overview.newCustomers}</p>
+                </div>
+                <Users className="w-8 h-8 text-gray-300" />
+              </div>
+            </div>
+            <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">Avg Spend</p>
+                  <p className="text-2xl font-tech font-bold text-white">{formatCurrency(overview.avgSpend / 100)}</p>
+                </div>
+                <DollarSign className="w-8 h-8 text-gray-300" />
+              </div>
+            </div>
+            <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">Unique Customers</p>
+                  <p className="text-2xl font-tech font-bold text-white">{overview.uniquePayingCustomers}</p>
+                </div>
+                <Users className="w-8 h-8 text-gray-300" />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Revenue Time Series */}
+        <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-tech font-bold text-white">Revenue Over Time</h2>
+          </div>
+          <div className="h-72">
+            {series.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-gray-400">
+                <span className="font-tech">No data for selected range</span>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={series.map((d:any) => ({ t: d.t, revenue: Math.round(d.grossVolume/100) }))}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis
+                    dataKey="t"
+                    stroke="#9CA3AF"
+                    tick={{ fill: '#9CA3AF', fontSize: 12 }}
+                    tickFormatter={(v: string) => formatDateDMY(v)}
+                  />
+                  <YAxis stroke="#9CA3AF" tick={{ fill: '#9CA3AF', fontSize: 12 }} tickFormatter={(v) => `$${v}`}/>
+                  <Tooltip
+                    contentStyle={{ background: '#0b0f19', border: '1px solid #374151', borderRadius: '8px' }}
+                    labelStyle={{ color: '#9CA3AF' }}
+                    labelFormatter={(label: any) => formatDateDMY(String(label))}
+                    formatter={(value:any) => [formatCurrency(Number(value)), 'Revenue']}
+                  />
+                  <Line type="monotone" dataKey="revenue" stroke="#00e5ff" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+
+        {/* Top Customers (sortable + paginated) */}
+        <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-tech font-bold text-white">Top Customers</h2>
+            <button
+              onClick={() => {
+                const headers = ['Customer','Email','Payments','Total Spend']
+                const rows = topCustomers.map(c => [
+                  (c.name || ''),
+                  (c.email || ''),
+                  String(c.paymentsCount),
+                  (c.totalSpend / 100).toFixed(2)
+                ])
+                const csv = [headers, ...rows]
+                  .map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+                  .join('\n')
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+                const url = URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url
+                const fromStr = formatDateDMY(new Date(range.from * 1000).toISOString())
+                const toStr = formatDateDMY(new Date(range.to * 1000).toISOString())
+                a.download = `dt-exotics-top-customers-${fromStr}-to-${toStr}.csv`
+                document.body.appendChild(a)
+                a.click()
+                document.body.removeChild(a)
+                URL.revokeObjectURL(url)
+              }}
+              className="px-3 py-1.5 rounded-lg font-tech border border-gray-700 text-gray-200 hover:border-neon-blue/60"
+            >Export CSV</button>
+          </div>
+          {topCustomers.length === 0 ? (
+            <div className="text-center py-12">
+              <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-400">No customers found for selected range</p>
+            </div>
+          ) : (
+            <TopCustomersTable topCustomers={topCustomers} />
+          )}
+        </div>
+
+        {/* Quick Actions (kept) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <a href="/admin/fleet" className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl hover:border-neon-blue transition-colors group">
             <div className="flex items-center space-x-4">
@@ -285,84 +462,7 @@ export default function AdminDashboard() {
             </div>
           </a>
         </div>
-
-        {/* Recent Bookings */}
-        <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-tech font-bold text-white">Recent Bookings</h2>
-            <a href="/admin/bookings" className="text-neon-blue hover:text-neon-blue/80 font-tech">
-              View All →
-            </a>
-          </div>
-
-          {recentBookings.length === 0 ? (
-            <div className="text-center py-12">
-              <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-400">No recent bookings</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-600">
-                    <th className="text-left py-3 px-4 text-gray-400 font-tech">Customer</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-tech">Car</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-tech">Dates</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-tech">Amount</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-tech">Status</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-tech">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentBookings.map((booking) => (
-                    <tr key={booking.id} className="border-b border-gray-700/50 hover:bg-gray-600/10">
-                      <td className="py-3 px-4 text-white">
-            <div>
-                          <div className="font-medium">{booking.customer.firstName} {booking.customer.lastName}</div>
-                          <div className="text-sm text-gray-400">{booking.customer.email}</div>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 text-white">
-                        <div className="font-medium">{booking.car.brand} {booking.car.model}</div>
-                        <div className="text-sm text-gray-400">{booking.car.year}</div>
-                      </td>
-                      <td className="py-3 px-4 text-white">
-                        <div>{new Date(booking.rentalDates.startDate).toLocaleDateString()}</div>
-                        <div className="text-sm text-gray-400">to {new Date(booking.rentalDates.endDate).toLocaleDateString()}</div>
-                      </td>
-                      <td className="py-3 px-4 text-white font-tech">
-                        {formatCurrency(booking.pricing.finalAmount)}
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
-                          {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center space-x-2">
-                          <button 
-                            onClick={() => window.location.href = `/admin/bookings/${booking.id}`}
-                            className="p-1 text-gray-400 hover:text-neon-blue transition-colors"
-                            title="View Details"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button 
-                            className="p-1 text-gray-400 hover:text-neon-blue transition-colors"
-                            title="More Actions"
-                          >
-                            <MoreHorizontal className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-        </div>
       </div>
+    </div>
   )
 }
