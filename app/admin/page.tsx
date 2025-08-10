@@ -261,36 +261,37 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-400 font-tech">Gross Volume</span>
-              <DollarSign className="w-5 h-5 text-neon-blue" />
+        {/* Quick Actions (moved to top) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <a href="/admin/fleet" className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl hover:border-neon-blue transition-colors group">
+            <div className="flex items-center space-x-4">
+              <Car className="w-8 h-8 text-neon-blue" />
+              <div>
+                <h3 className="text-lg font-tech font-bold text-white group-hover:text-neon-blue transition-colors">Manage Fleet</h3>
+                <p className="text-gray-400">Add, edit, or configure vehicles</p>
+              </div>
             </div>
-            <p className="mt-3 text-2xl font-tech text-white">{overview ? formatCurrency(overview.grossVolume / 100) : '—'}</p>
-          </div>
-          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-400 font-tech">Payments</span>
-              <TrendingUp className="w-5 h-5 text-neon-blue" />
+          </a>
+
+          <a href="/admin/bookings" className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl hover:border-neon-blue transition-colors group">
+            <div className="flex items-center space-x-4">
+              <Calendar className="w-8 h-8 text-neon-blue" />
+              <div>
+                <h3 className="text-lg font-tech font-bold text-white group-hover:text-neon-blue transition-colors">View Bookings</h3>
+                <p className="text-gray-400">Manage reservations and payments</p>
+              </div>
             </div>
-            <p className="mt-3 text-2xl font-tech text-white">{overview ? overview.paymentsCount : '—'}</p>
-          </div>
-          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-400 font-tech">New Customers</span>
-              <Users className="w-5 h-5 text-neon-blue" />
+          </a>
+
+          <a href="/admin/invoices" className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl hover:border-neon-blue transition-colors group">
+            <div className="flex items-center space-x-4">
+              <DollarSign className="w-8 h-8 text-neon-blue" />
+              <div>
+                <h3 className="text-lg font-tech font-bold text-white group-hover:text-neon-blue transition-colors">Create Invoice</h3>
+                <p className="text-gray-400">Generate custom invoices</p>
+              </div>
             </div>
-            <p className="mt-3 text-2xl font-tech text-white">{overview ? overview.newCustomers : '—'}</p>
-          </div>
-          <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-400 font-tech">Avg Spend</span>
-              <DollarSign className="w-5 h-5 text-neon-blue" />
-            </div>
-            <p className="mt-3 text-2xl font-tech text-white">{overview ? formatCurrency(overview.avgSpend / 100) : '—'}</p>
-          </div>
+          </a>
         </div>
 
         {/* Controls: Mode + Presets + Custom Range */}
@@ -343,14 +344,14 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* KPI Cards */}
+        {/* KPI Cards (6 total, 3 per row) */}
         {overview && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400 mb-1">Gross Volume</p>
-                  <p className="text-2xl font-tech font-bold text-neon-blue">{formatCurrency(overview.grossVolume / 100)}</p>
+                  <p className="text-2xl font-tech font-bold text-white">{formatCurrency(overview.grossVolume / 100)}</p>
                 </div>
                 <DollarSign className="w-8 h-8 text-neon-blue" />
               </div>
@@ -488,38 +489,7 @@ export default function AdminDashboard() {
           )}
         </div>
 
-        {/* Quick Actions (kept) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <a href="/admin/fleet" className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl hover:border-neon-blue transition-colors group">
-            <div className="flex items-center space-x-4">
-              <Car className="w-8 h-8 text-neon-blue" />
-              <div>
-                <h3 className="text-lg font-tech font-bold text-white group-hover:text-neon-blue transition-colors">Manage Fleet</h3>
-                <p className="text-gray-400">Add, edit, or configure vehicles</p>
-              </div>
-            </div>
-          </a>
-
-          <a href="/admin/bookings" className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl hover:border-neon-blue transition-colors group">
-            <div className="flex items-center space-x-4">
-              <Calendar className="w-8 h-8 text-neon-blue" />
-              <div>
-                <h3 className="text-lg font-tech font-bold text-white group-hover:text-neon-blue transition-colors">View Bookings</h3>
-                <p className="text-gray-400">Manage reservations and payments</p>
-              </div>
-            </div>
-          </a>
-
-          <a href="/admin/invoices" className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-2xl hover:border-neon-blue transition-colors group">
-            <div className="flex items-center space-x-4">
-              <DollarSign className="w-8 h-8 text-neon-blue" />
-              <div>
-                <h3 className="text-lg font-tech font-bold text-white group-hover:text-neon-blue transition-colors">Create Invoice</h3>
-                <p className="text-gray-400">Generate custom invoices</p>
-              </div>
-            </div>
-          </a>
-        </div>
+        
       </div>
     </div>
   )
