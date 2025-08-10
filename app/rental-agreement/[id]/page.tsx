@@ -87,10 +87,50 @@ export default function RentalAgreementPage() {
       if (data.agreement.agreementData) {
         setFormData(prev => ({
           ...prev,
+          // Personal
           fullName: data.agreement.agreementData.fullName || `${data.booking.customer.firstName} ${data.booking.customer.lastName}`,
-          driversLicenseNumber: data.agreement.agreementData.driversLicenseNumber || data.booking.customer.driversLicense,
+          dateOfBirth: data.agreement.agreementData.dateOfBirth || prev.dateOfBirth,
+          // License
+          driversLicenseNumber: data.agreement.agreementData.driversLicenseNumber || data.booking.customer.driversLicense || prev.driversLicenseNumber,
+          driversLicenseState: data.agreement.agreementData.driversLicenseState || data.booking.customer.driversLicenseState || prev.driversLicenseState,
+          driversLicenseExpiry: data.agreement.agreementData.driversLicenseExpiry || prev.driversLicenseExpiry,
+          // Address
+          street: data.agreement.agreementData.address?.street || prev.street,
+          city: data.agreement.agreementData.address?.city || prev.city,
+          state: data.agreement.agreementData.address?.state || prev.state,
+          zipCode: data.agreement.agreementData.address?.zipCode || prev.zipCode,
+          // Emergency Contact
+          emergencyContactName: data.agreement.agreementData.emergencyContact?.name || prev.emergencyContactName,
+          emergencyContactRelationship: data.agreement.agreementData.emergencyContact?.relationship || prev.emergencyContactRelationship,
+          emergencyContactPhone: data.agreement.agreementData.emergencyContact?.phone || prev.emergencyContactPhone,
+          // Times
           pickupTime: data.agreement.agreementData.rentalPeriod?.pickupTime || '10:00 AM',
-          returnTime: data.agreement.agreementData.rentalPeriod?.returnTime || '10:00 AM'
+          returnTime: data.agreement.agreementData.rentalPeriod?.returnTime || '10:00 AM',
+          // Terms (preserve previously saved acknowledgments if any)
+          ageRequirement: data.agreement.agreementData.termsAccepted?.ageRequirement || false,
+          validLicense: data.agreement.agreementData.termsAccepted?.validLicense || false,
+          insurance: data.agreement.agreementData.termsAccepted?.insurance || false,
+          noViolations: data.agreement.agreementData.termsAccepted?.noViolations || false,
+          vehicleCondition: data.agreement.agreementData.termsAccepted?.vehicleCondition || false,
+          returnCondition: data.agreement.agreementData.termsAccepted?.returnCondition || false,
+          fuelPolicy: data.agreement.agreementData.termsAccepted?.fuelPolicy || false,
+          smokingPolicy: data.agreement.agreementData.termsAccepted?.smokingPolicy || false,
+          geographicLimits: data.agreement.agreementData.termsAccepted?.geographicLimits || false,
+          modifications: data.agreement.agreementData.termsAccepted?.modifications || false,
+          liability: data.agreement.agreementData.termsAccepted?.liability || false,
+          lateReturn: data.agreement.agreementData.termsAccepted?.lateReturn || false,
+          // Other
+          specialInstructions: data.agreement.agreementData.specialInstructions || prev.specialInstructions
+        }))
+      } else {
+        // Minimal prefill from booking where appropriate
+        setFormData(prev => ({
+          ...prev,
+          fullName: `${data.booking.customer.firstName} ${data.booking.customer.lastName}`,
+          driversLicenseNumber: data.booking.customer.driversLicense || prev.driversLicenseNumber,
+          driversLicenseState: data.booking.customer.driversLicenseState || prev.driversLicenseState,
+          pickupTime: '10:00 AM',
+          returnTime: '10:00 AM'
         }))
       }
 
@@ -347,7 +387,272 @@ export default function RentalAgreementPage() {
             </div>
           </div>
 
-          {/* Continue with more form sections... */}
+          {/* Driver's License */}
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h3 className="text-xl font-tech font-bold text-white mb-6">Driver's License</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  License Number *
+                </label>
+                <input
+                  type="text"
+                  value={formData.driversLicenseNumber}
+                  onChange={(e) => setFormData(prev => ({ ...prev, driversLicenseNumber: e.target.value }))}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  State *
+                </label>
+                <input
+                  type="text"
+                  value={formData.driversLicenseState}
+                  onChange={(e) => setFormData(prev => ({ ...prev, driversLicenseState: e.target.value }))}
+                  placeholder="e.g., NV"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  required
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  License Expiry *
+                </label>
+                <input
+                  type="date"
+                  value={formData.driversLicenseExpiry}
+                  onChange={(e) => setFormData(prev => ({ ...prev, driversLicenseExpiry: e.target.value }))}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Address */}
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h3 className="text-xl font-tech font-bold text-white mb-6">Address</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">Street *</label>
+                <input
+                  type="text"
+                  value={formData.street}
+                  onChange={(e) => setFormData(prev => ({ ...prev, street: e.target.value }))}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">City *</label>
+                <input
+                  type="text"
+                  value={formData.city}
+                  onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">State *</label>
+                <input
+                  type="text"
+                  value={formData.state}
+                  onChange={(e) => setFormData(prev => ({ ...prev, state: e.target.value }))}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">ZIP Code *</label>
+                <input
+                  type="text"
+                  value={formData.zipCode}
+                  onChange={(e) => setFormData(prev => ({ ...prev, zipCode: e.target.value }))}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Emergency Contact */}
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h3 className="text-xl font-tech font-bold text-white mb-6">Emergency Contact</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Name *</label>
+                <input
+                  type="text"
+                  value={formData.emergencyContactName}
+                  onChange={(e) => setFormData(prev => ({ ...prev, emergencyContactName: e.target.value }))}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Relationship *</label>
+                <input
+                  type="text"
+                  value={formData.emergencyContactRelationship}
+                  onChange={(e) => setFormData(prev => ({ ...prev, emergencyContactRelationship: e.target.value }))}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Phone *</label>
+                <input
+                  type="tel"
+                  value={formData.emergencyContactPhone}
+                  onChange={(e) => setFormData(prev => ({ ...prev, emergencyContactPhone: e.target.value }))}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Rental Details */}
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h3 className="text-xl font-tech font-bold text-white mb-6">Rental Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Pickup Date</label>
+                <input
+                  type="text"
+                  readOnly
+                  value={new Date(booking.rentalDates.startDate).toLocaleDateString()}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-300"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Return Date</label>
+                <input
+                  type="text"
+                  readOnly
+                  value={new Date(booking.rentalDates.endDate).toLocaleDateString()}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-300"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Pickup Time *</label>
+                <input
+                  type="text"
+                  value={formData.pickupTime}
+                  onChange={(e) => setFormData(prev => ({ ...prev, pickupTime: e.target.value }))}
+                  placeholder="e.g., 10:00 AM"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Return Time *</label>
+                <input
+                  type="text"
+                  value={formData.returnTime}
+                  onChange={(e) => setFormData(prev => ({ ...prev, returnTime: e.target.value }))}
+                  placeholder="e.g., 10:00 AM"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Pricing Summary */}
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h3 className="text-xl font-tech font-bold text-white mb-6">Pricing Summary</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
+              <p><span className="text-gray-400">Daily Rate:</span> ${booking.pricing.dailyRate.toFixed(2)}</p>
+              <p><span className="text-gray-400">Total Days:</span> {booking.pricing.totalDays}</p>
+              <p><span className="text-gray-400">Subtotal:</span> ${booking.pricing.subtotal.toFixed(2)}</p>
+              <p><span className="text-gray-400">Security Deposit:</span> ${booking.pricing.depositAmount.toFixed(2)}</p>
+              <p className="md:col-span-2"><span className="text-gray-400">Total Amount:</span> ${booking.pricing.finalAmount.toFixed(2)}</p>
+            </div>
+          </div>
+
+          {/* Terms & Conditions */}
+          <div className="bg-gray-800 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-tech font-bold text-white">Terms & Conditions</h3>
+              <a href="/legal/rental-agreement.html" target="_blank" rel="noopener noreferrer" className="text-neon-blue text-sm hover:underline">
+                View Full Legal Terms
+              </a>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
+              {([
+                ['ageRequirement','I am at least 25 years old'],
+                ['validLicense','I have a valid driver\'s license'],
+                ['insurance','I have adequate insurance coverage'],
+                ['noViolations','I have no major violations in the past 3 years'],
+                ['vehicleCondition','I accept the vehicle in its current condition'],
+                ['returnCondition','I will return the vehicle in the same condition'],
+                ['fuelPolicy','I will return with the same fuel level'],
+                ['smokingPolicy','I acknowledge this is a non-smoking vehicle'],
+                ['geographicLimits','I will stay within approved driving areas'],
+                ['modifications','I will not modify the vehicle'],
+                ['liability','I accept liability for damages according to the agreement'],
+                ['lateReturn','I understand late return fees apply']
+              ] as Array<[keyof RentalAgreementFormData, string]>).map(([key, label]) => (
+                <label key={key as string} className="inline-flex items-start space-x-3 bg-gray-700/40 border border-gray-600/40 rounded-lg p-3">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(formData[key])}
+                    onChange={(e) => setFormData(prev => ({ ...prev, [key]: e.target.checked }) as RentalAgreementFormData)}
+                    className="mt-1 h-4 w-4 text-neon-blue border-gray-500 bg-gray-600 rounded"
+                  />
+                  <span>{label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Signature */}
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h3 className="text-xl font-tech font-bold text-white mb-4">Digital Signature</h3>
+            <p className="text-gray-300 text-sm mb-4">Use your mouse or touch to sign in the box below.</p>
+            <div className="bg-gray-700 border border-gray-600 rounded-lg p-4">
+              <canvas
+                ref={canvasRef}
+                width={800}
+                height={200}
+                className="w-full h-48 bg-gray-900 rounded"
+                onMouseDown={startDrawing}
+                onMouseMove={draw}
+                onMouseUp={stopDrawing}
+                onMouseLeave={stopDrawing}
+              />
+              <div className="flex items-center justify-between mt-3">
+                <p className="text-xs text-gray-400">Signature is required</p>
+                <button
+                  type="button"
+                  onClick={clearSignature}
+                  className="px-3 py-2 text-sm bg-gray-600/40 border border-gray-600/60 text-gray-200 rounded hover:bg-gray-600/60"
+                >
+                  Clear Signature
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Special Instructions */}
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h3 className="text-xl font-tech font-bold text-white mb-2">Special Instructions (Optional)</h3>
+            <textarea
+              value={formData.specialInstructions}
+              onChange={(e) => setFormData(prev => ({ ...prev, specialInstructions: e.target.value }))}
+              rows={3}
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none resize-none"
+              placeholder="Any notes or requests you'd like us to know about"
+            />
+          </div>
           
           {/* Submit Button */}
           <div className="text-center">

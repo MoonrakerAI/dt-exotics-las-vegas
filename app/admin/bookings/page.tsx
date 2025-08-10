@@ -19,6 +19,14 @@ export default function BookingsManagement() {
   const [carFilter, setCarFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState('created_desc')
+  
+  // Rental agreement UX state
+  const [showRentalAgreementModal, setShowRentalAgreementModal] = useState(false)
+  const [selectedBookingForAgreement, setSelectedBookingForAgreement] = useState<RentalBooking | null>(null)
+  // Track agreements sent to avoid reminders
+  const [agreementSentFor, setAgreementSentFor] = useState<Set<string>>(new Set())
+  // Track reminders to show when modal dismissed without sending
+  const [agreementReminders, setAgreementReminders] = useState<Record<string, boolean>>({})
   const [customDateRange, setCustomDateRange] = useState({ start: '', end: '' })
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('all')
   const [amountRangeFilter, setAmountRangeFilter] = useState({ min: '', max: '' })
@@ -859,6 +867,17 @@ export default function BookingsManagement() {
                         </div>
                       </td>
                       <td className="py-4 px-6">
+                        {agreementReminders[booking.id] && booking.status === 'confirmed' && (
+                          <div className="mb-2 p-2 bg-purple-500/10 border border-purple-500/20 rounded flex items-center justify-between gap-2 text-xs text-purple-300">
+                            <span>Reminder: Send rental agreement</span>
+                            <button
+                              onClick={() => handleRentalAgreementModal(booking)}
+                              className="px-2 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors"
+                            >
+                              Send Now
+                            </button>
+                          </div>
+                        )}
                         <div className="flex items-center space-x-2">
                           <button 
                             onClick={() => window.location.href = `/admin/bookings/${booking.id}`}
@@ -1325,10 +1344,18 @@ export default function BookingsManagement() {
             booking={selectedBookingForAgreement}
             isOpen={showRentalAgreementModal}
             onClose={() => {
+              // If closed without success, show reminder for this booking
+              if (selectedBookingForAgreement && !agreementSentFor.has(selectedBookingForAgreement.id)) {
+                setAgreementReminders(prev => ({ ...prev, [selectedBookingForAgreement.id]: true }))
+              }
               setShowRentalAgreementModal(false)
               setSelectedBookingForAgreement(null)
             }}
             onSuccess={() => {
+              if (selectedBookingForAgreement) {
+                setAgreementSentFor(prev => new Set(prev).add(selectedBookingForAgreement.id))
+                setAgreementReminders(prev => ({ ...prev, [selectedBookingForAgreement.id]: false }))
+              }
               fetchBookings() // Refresh bookings list
             }}
           />
