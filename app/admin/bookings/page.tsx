@@ -490,6 +490,39 @@ export default function BookingsManagement() {
     setShowRentalAgreementModal(true)
   }
 
+  // Confirm booking and then prompt to send rental agreement
+  const handleConfirmBooking = async (booking: RentalBooking) => {
+    try {
+      const token = localStorage.getItem('dt-admin-token')
+      if (!token) {
+        alert('Admin not authenticated')
+        return
+      }
+
+      const response = await fetch(`/api/admin/rentals/${booking.id}/confirm`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}))
+        throw new Error(err.error || 'Failed to confirm booking')
+      }
+
+      await fetchBookings()
+
+      // Auto-open rental agreement modal as next step
+      setSelectedBookingForAgreement(booking)
+      setShowRentalAgreementModal(true)
+    } catch (e) {
+      console.error('Confirm booking error:', e)
+      alert(e instanceof Error ? e.message : 'Failed to confirm booking')
+    }
+  }
+
   const processCancel = async () => {
     if (!selectedBookingForCancel || !cancelReason.trim()) {
       return

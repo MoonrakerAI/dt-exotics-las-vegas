@@ -22,6 +22,18 @@ export default function RentalAgreementModal({
   const [success, setSuccess] = useState<string | null>(null)
   const [customMessage, setCustomMessage] = useState('')
   const [expirationDays, setExpirationDays] = useState(7)
+  const [recipientsText, setRecipientsText] = useState<string>(booking.customer.email || '')
+
+  const parseRecipientEmails = (input: string): string[] => {
+    const parts = input
+      .split(/[\s,;]+/)
+      .map(s => s.trim())
+      .filter(Boolean)
+    // Deduplicate and simple validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const unique = Array.from(new Set(parts))
+    return unique.filter(e => emailRegex.test(e))
+  }
 
   if (!isOpen) return null
 
@@ -31,6 +43,11 @@ export default function RentalAgreementModal({
     setSuccess(null)
 
     try {
+      const recipientEmails = parseRecipientEmails(recipientsText)
+      if (recipientEmails.length === 0) {
+        throw new Error('Please provide at least one valid recipient email')
+      }
+
       const token = localStorage.getItem('dt-admin-token')
       if (!token) {
         throw new Error('No admin token found')
@@ -45,7 +62,8 @@ export default function RentalAgreementModal({
         body: JSON.stringify({
           bookingId: booking.id,
           expirationDays,
-          customMessage: customMessage.trim() || undefined
+          customMessage: customMessage.trim() || undefined,
+          recipientEmails
         })
       })
 
@@ -135,7 +153,7 @@ export default function RentalAgreementModal({
           <div className="space-y-4 mb-6">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Agreement Expiration (Days)
+                Agreement Expiration
               </label>
               <select
                 value={expirationDays}
@@ -149,6 +167,22 @@ export default function RentalAgreementModal({
               </select>
               <p className="text-xs text-gray-400 mt-1">
                 Customer must complete the agreement within this timeframe
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Recipient Emails
+              </label>
+              <input
+                type="text"
+                value={recipientsText}
+                onChange={(e) => setRecipientsText(e.target.value)}
+                placeholder="Enter one or more emails, separated by commas"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Defaults to customer email. Supports multiple addresses separated by commas or spaces.
               </p>
             </div>
 

@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body: CreateRentalAgreementRequest = await request.json();
-    const { bookingId, expirationDays = 7, customMessage } = body;
+    const { bookingId, expirationDays = 7, customMessage, recipientEmails } = body;
 
     // Validate required fields
     if (!bookingId) {
@@ -202,25 +202,35 @@ export async function POST(request: NextRequest) {
     // Send email to customer
     try {
       const agreementUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/rental-agreement/${agreementId}`;
-      
-      await NotificationService.getInstance().sendRentalAgreementEmail({
-        customerEmail: booking.customer.email,
-        customerName: `${booking.customer.firstName} ${booking.customer.lastName}`,
-        bookingId: booking.id,
-        agreementUrl,
-        expiresAt: expiresAt,
-        vehicleInfo: `${booking.car.year} ${booking.car.brand} ${booking.car.model}`,
-        rentalDates: {
-          startDate: booking.rentalDates.startDate,
-          endDate: booking.rentalDates.endDate
-        },
-        customMessage
-      });
 
-      // Update agreement as email sent
-      agreement.emailSent = true;
-      agreement.updatedAt = new Date().toISOString();
-      await kv.set(`rental_agreement:${agreementId}`, agreement);
+      const recipients = Array.isArray(recipientEmails) && recipientEmails.length > 0
+        ? recipientEmails
+        : [booking.customer.email];
+
+      const results = await Promise.allSettled(
+        recipients.map(email => 
+          NotificationService.getInstance().sendRentalAgreementEmail({
+            customerEmail: email,
+            customerName: `${booking.customer.firstName} ${booking.customer.lastName}`,
+            bookingId: booking.id,
+            agreementUrl,
+            expiresAt: expiresAt,
+            vehicleInfo: `${booking.car.year} ${booking.car.brand} ${booking.car.model}`,
+            rentalDates: {
+              startDate: booking.rentalDates.startDate,
+              endDate: booking.rentalDates.endDate
+            },
+            customMessage
+          })
+        )
+      );
+
+      const anySuccess = results.some(r => r.status === 'fulfilled' && r.value === true);
+      if (anySuccess) {
+        agreement.emailSent = true;
+        agreement.updatedAt = new Date().toISOString();
+        await kv.set(`rental_agreement:${agreementId}`, agreement);
+      }
 
     } catch (emailError) {
       console.error('Failed to send rental agreement email:', emailError);
@@ -252,7 +262,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { agreementId, action, ...updates } = body;
+    const { agreementId, action, recipientEmails, ...updates } = body;
 
     if (!agreementId) {
       return NextResponse.json({ error: 'Agreement ID is required' }, { status: 400 });
@@ -273,27 +283,36 @@ export async function PUT(request: NextRequest) {
 
       try {
         const agreementUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/rental-agreement/${agreementId}`;
-        
-        await NotificationService.getInstance().sendRentalAgreementEmail({
-          customerEmail: booking.customer.email,
-          customerName: `${booking.customer.firstName} ${booking.customer.lastName}`,
-          bookingId: booking.id,
-          agreementUrl,
-          expiresAt: agreement.expiresAt,
-          vehicleInfo: `${booking.car.year} ${booking.car.brand} ${booking.car.model}`,
-          rentalDates: {
-            startDate: booking.rentalDates.startDate,
-            endDate: booking.rentalDates.endDate
-          },
-          isReminder: true
-        });
+        const recipients = Array.isArray(recipientEmails) && recipientEmails.length > 0
+          ? recipientEmails
+          : [booking.customer.email];
 
-        // Update reminder count
-        agreement.remindersSent += 1;
-        agreement.lastReminderAt = new Date().toISOString();
-        agreement.updatedAt = new Date().toISOString();
-        
-        await kv.set(`rental_agreement:${agreementId}`, agreement);
+        const results = await Promise.allSettled(
+          recipients.map(email => 
+            NotificationService.getInstance().sendRentalAgreementEmail({
+              customerEmail: email,
+              customerName: `${booking.customer.firstName} ${booking.customer.lastName}`,
+              bookingId: booking.id,
+              agreementUrl,
+              expiresAt: agreement.expiresAt,
+              vehicleInfo: `${booking.car.year} ${booking.car.brand} ${booking.car.model}`,
+              rentalDates: {
+                startDate: booking.rentalDates.startDate,
+                endDate: booking.rentalDates.endDate
+              },
+              isReminder: true
+            })
+          )
+        );
+
+        const anySuccess = results.some(r => r.status === 'fulfilled' && r.value === true);
+        if (anySuccess) {
+          // Update reminder count
+          agreement.remindersSent += 1;
+          agreement.lastReminderAt = new Date().toISOString();
+          agreement.updatedAt = new Date().toISOString();
+          await kv.set(`rental_agreement:${agreementId}`, agreement);
+        }
 
         return NextResponse.json({ success: true, agreement });
 

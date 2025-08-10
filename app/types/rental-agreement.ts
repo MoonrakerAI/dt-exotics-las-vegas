@@ -94,6 +94,8 @@ export interface CreateRentalAgreementRequest {
   bookingId: string;
   expirationDays?: number; // Default 7 days
   customMessage?: string;
+  // Optional list of recipient emails. If omitted, defaults to booking.customer.email
+  recipientEmails?: string[];
 }
 
 export interface RentalAgreementFormData {
