@@ -21,6 +21,7 @@ export default function RentalAgreementPage() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof RentalAgreementFormData, string>>>({})
   
   // Form state
   const [formData, setFormData] = useState<RentalAgreementFormData>({
@@ -142,6 +143,93 @@ export default function RentalAgreementPage() {
     }
   }
 
+  // Validation helpers
+  const parseLocalDate = (value: string) => {
+    if (!value) return null
+    const d = new Date(value)
+    return isNaN(d.getTime()) ? null : d
+  }
+
+  const getAge = (dobStr: string) => {
+    const dob = parseLocalDate(dobStr)
+    if (!dob) return 0
+    const today = new Date()
+    let age = today.getFullYear() - dob.getFullYear()
+    const m = today.getMonth() - dob.getMonth()
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--
+    return age
+  }
+
+  const isFutureDate = (dateStr: string) => {
+    const d = parseLocalDate(dateStr)
+    if (!d) return false
+    const today = new Date()
+    today.setHours(0,0,0,0)
+    d.setHours(0,0,0,0)
+    return d >= today
+  }
+
+  const timeRegex = /^([1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i
+
+  const validateForm = (fd: RentalAgreementFormData) => {
+    const errors: Partial<Record<keyof RentalAgreementFormData, string>> = {}
+
+    if (!fd.fullName.trim()) errors.fullName = 'Full name is required'
+    if (!fd.dateOfBirth) errors.dateOfBirth = 'Date of birth is required'
+    else if (getAge(fd.dateOfBirth) < 25) errors.dateOfBirth = 'You must be at least 25 years old'
+
+    if (!fd.driversLicenseNumber.trim()) errors.driversLicenseNumber = "Driver's license number is required"
+    if (!/^[A-Z]{2}$/.test(fd.driversLicenseState.trim().toUpperCase())) errors.driversLicenseState = 'Use 2-letter state code (e.g., NV)'
+    if (!fd.driversLicenseExpiry) errors.driversLicenseExpiry = 'License expiry is required'
+    else if (!isFutureDate(fd.driversLicenseExpiry)) errors.driversLicenseExpiry = 'License must be valid on the rental date'
+
+    if (!fd.street.trim()) errors.street = 'Street is required'
+    if (!fd.city.trim()) errors.city = 'City is required'
+    if (!/^[A-Z]{2}$/.test(fd.state.trim().toUpperCase())) errors.state = 'Use 2-letter state code'
+    if (!/^\d{5}(-\d{4})?$/.test(fd.zipCode.trim())) errors.zipCode = 'Enter a valid ZIP (5 digits)'
+
+    const digitsPhone = fd.emergencyContactPhone.replace(/\D/g, '')
+    if (!digitsPhone) errors.emergencyContactPhone = 'Phone is required'
+    else if (digitsPhone.length < 10 || digitsPhone.length > 15) errors.emergencyContactPhone = 'Enter a valid phone number'
+    if (!fd.emergencyContactName.trim()) errors.emergencyContactName = 'Name is required'
+    if (!fd.emergencyContactRelationship.trim()) errors.emergencyContactRelationship = 'Relationship is required'
+
+    if (!timeRegex.test(fd.pickupTime)) errors.pickupTime = 'Use format h:mm AM/PM'
+    if (!timeRegex.test(fd.returnTime)) errors.returnTime = 'Use format h:mm AM/PM'
+
+    // All terms must be accepted
+    const terms: (keyof RentalAgreementFormData)[] = [
+      'ageRequirement','validLicense','insurance','noViolations','vehicleCondition','returnCondition','fuelPolicy','smokingPolicy','geographicLimits','modifications','liability','lateReturn'
+    ]
+    terms.forEach(t => { if (!fd[t]) errors[t] = 'Required' })
+
+    if (!fd.signature) errors.signature = 'Signature is required'
+
+    return errors
+  }
+
+  const setField = <K extends keyof RentalAgreementFormData>(key: K, value: RentalAgreementFormData[K]) => {
+    // Normalize some inputs
+    if (key === 'driversLicenseState' || key === 'state') {
+      // @ts-expect-error string assignment
+      value = (String(value)).toUpperCase() as any
+    }
+    if (key === 'zipCode') {
+      // @ts-expect-error string assignment
+      value = (String(value)).replace(/[^\d-]/g, '') as any
+    }
+    if (key === 'emergencyContactPhone') {
+      // keep digits and optional leading +
+      const raw = String(value)
+      const cleaned = raw.replace(/[^\d+]/g, '')
+      // @ts-expect-error string assignment
+      value = cleaned as any
+    }
+    setFormData(prev => ({ ...prev, [key]: value }))
+    // clear error on change
+    setFieldErrors(prev => ({ ...prev, [key]: undefined }))
+  }
+
   // Signature canvas functions
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     setIsDrawing(true)
@@ -193,35 +281,10 @@ export default function RentalAgreementPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    // Validate required fields
-    const requiredFields = [
-      'fullName', 'dateOfBirth', 'driversLicenseNumber', 'driversLicenseState',
-      'driversLicenseExpiry', 'street', 'city', 'state', 'zipCode',
-      'emergencyContactName', 'emergencyContactRelationship', 'emergencyContactPhone'
-    ]
-    
-    const missingFields = requiredFields.filter(field => !formData[field as keyof RentalAgreementFormData])
-    if (missingFields.length > 0) {
-      setError('Please fill in all required fields')
-      return
-    }
-    
-    // Validate all terms accepted
-    const termsFields = [
-      'ageRequirement', 'validLicense', 'insurance', 'noViolations',
-      'vehicleCondition', 'returnCondition', 'fuelPolicy', 'smokingPolicy',
-      'geographicLimits', 'modifications', 'liability', 'lateReturn'
-    ]
-    
-    const unacceptedTerms = termsFields.filter(field => !formData[field as keyof RentalAgreementFormData])
-    if (unacceptedTerms.length > 0) {
-      setError('You must accept all terms and conditions to proceed')
-      return
-    }
-    
-    if (!formData.signature) {
-      setError('Digital signature is required')
+    const errors = validateForm(formData)
+    setFieldErrors(errors)
+    if (Object.values(errors).filter(Boolean).length > 0) {
+      setError('Please correct the highlighted fields')
       return
     }
 
@@ -366,10 +429,11 @@ export default function RentalAgreementPage() {
                 <input
                   type="text"
                   value={formData.fullName}
-                  onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
+                  onChange={(e) => setField('fullName', e.target.value)}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
+                {fieldErrors.fullName && <p className="text-red-400 text-xs mt-1">{fieldErrors.fullName}</p>}
               </div>
               
               <div>
@@ -379,10 +443,11 @@ export default function RentalAgreementPage() {
                 <input
                   type="date"
                   value={formData.dateOfBirth}
-                  onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                  onChange={(e) => setField('dateOfBirth', e.target.value)}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
+                {fieldErrors.dateOfBirth && <p className="text-red-400 text-xs mt-1">{fieldErrors.dateOfBirth}</p>}
               </div>
             </div>
           </div>
@@ -398,10 +463,11 @@ export default function RentalAgreementPage() {
                 <input
                   type="text"
                   value={formData.driversLicenseNumber}
-                  onChange={(e) => setFormData(prev => ({ ...prev, driversLicenseNumber: e.target.value }))}
+                  onChange={(e) => setField('driversLicenseNumber', e.target.value)}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
+                {fieldErrors.driversLicenseNumber && <p className="text-red-400 text-xs mt-1">{fieldErrors.driversLicenseNumber}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -410,11 +476,12 @@ export default function RentalAgreementPage() {
                 <input
                   type="text"
                   value={formData.driversLicenseState}
-                  onChange={(e) => setFormData(prev => ({ ...prev, driversLicenseState: e.target.value }))}
+                  onChange={(e) => setField('driversLicenseState', e.target.value)}
                   placeholder="e.g., NV"
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
+                {fieldErrors.driversLicenseState && <p className="text-red-400 text-xs mt-1">{fieldErrors.driversLicenseState}</p>}
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
@@ -425,10 +492,11 @@ export default function RentalAgreementPage() {
                 <input
                   type="date"
                   value={formData.driversLicenseExpiry}
-                  onChange={(e) => setFormData(prev => ({ ...prev, driversLicenseExpiry: e.target.value }))}
+                  onChange={(e) => setField('driversLicenseExpiry', e.target.value)}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
+                {fieldErrors.driversLicenseExpiry && <p className="text-red-400 text-xs mt-1">{fieldErrors.driversLicenseExpiry}</p>}
               </div>
             </div>
           </div>
@@ -442,40 +510,44 @@ export default function RentalAgreementPage() {
                 <input
                   type="text"
                   value={formData.street}
-                  onChange={(e) => setFormData(prev => ({ ...prev, street: e.target.value }))}
+                  onChange={(e) => setField('street', e.target.value)}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
+                {fieldErrors.street && <p className="text-red-400 text-xs mt-1">{fieldErrors.street}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">City *</label>
                 <input
                   type="text"
                   value={formData.city}
-                  onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                  onChange={(e) => setField('city', e.target.value)}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
+                {fieldErrors.city && <p className="text-red-400 text-xs mt-1">{fieldErrors.city}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">State *</label>
                 <input
                   type="text"
                   value={formData.state}
-                  onChange={(e) => setFormData(prev => ({ ...prev, state: e.target.value }))}
+                  onChange={(e) => setField('state', e.target.value)}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
+                {fieldErrors.state && <p className="text-red-400 text-xs mt-1">{fieldErrors.state}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">ZIP Code *</label>
                 <input
                   type="text"
                   value={formData.zipCode}
-                  onChange={(e) => setFormData(prev => ({ ...prev, zipCode: e.target.value }))}
+                  onChange={(e) => setField('zipCode', e.target.value)}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
+                {fieldErrors.zipCode && <p className="text-red-400 text-xs mt-1">{fieldErrors.zipCode}</p>}
               </div>
             </div>
           </div>
@@ -489,30 +561,33 @@ export default function RentalAgreementPage() {
                 <input
                   type="text"
                   value={formData.emergencyContactName}
-                  onChange={(e) => setFormData(prev => ({ ...prev, emergencyContactName: e.target.value }))}
+                  onChange={(e) => setField('emergencyContactName', e.target.value)}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
+                {fieldErrors.emergencyContactName && <p className="text-red-400 text-xs mt-1">{fieldErrors.emergencyContactName}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Relationship *</label>
                 <input
                   type="text"
                   value={formData.emergencyContactRelationship}
-                  onChange={(e) => setFormData(prev => ({ ...prev, emergencyContactRelationship: e.target.value }))}
+                  onChange={(e) => setField('emergencyContactRelationship', e.target.value)}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
+                {fieldErrors.emergencyContactRelationship && <p className="text-red-400 text-xs mt-1">{fieldErrors.emergencyContactRelationship}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Phone *</label>
                 <input
                   type="tel"
                   value={formData.emergencyContactPhone}
-                  onChange={(e) => setFormData(prev => ({ ...prev, emergencyContactPhone: e.target.value }))}
+                  onChange={(e) => setField('emergencyContactPhone', e.target.value)}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
+                {fieldErrors.emergencyContactPhone && <p className="text-red-400 text-xs mt-1">{fieldErrors.emergencyContactPhone}</p>}
               </div>
             </div>
           </div>
@@ -546,22 +621,24 @@ export default function RentalAgreementPage() {
                 <input
                   type="text"
                   value={formData.pickupTime}
-                  onChange={(e) => setFormData(prev => ({ ...prev, pickupTime: e.target.value }))}
+                  onChange={(e) => setField('pickupTime', e.target.value)}
                   placeholder="e.g., 10:00 AM"
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
+                {fieldErrors.pickupTime && <p className="text-red-400 text-xs mt-1">{fieldErrors.pickupTime}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Return Time *</label>
                 <input
                   type="text"
                   value={formData.returnTime}
-                  onChange={(e) => setFormData(prev => ({ ...prev, returnTime: e.target.value }))}
+                  onChange={(e) => setField('returnTime', e.target.value)}
                   placeholder="e.g., 10:00 AM"
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
+                {fieldErrors.returnTime && <p className="text-red-400 text-xs mt-1">{fieldErrors.returnTime}</p>}
               </div>
             </div>
           </div>

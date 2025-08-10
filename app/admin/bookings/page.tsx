@@ -55,9 +55,7 @@ export default function BookingsManagement() {
   const [refundAmount, setRefundAmount] = useState('')
   const [cancelling, setCancelling] = useState(false)
   
-  // Rental agreement modal state
-  const [showRentalAgreementModal, setShowRentalAgreementModal] = useState(false)
-  const [selectedBookingForAgreement, setSelectedBookingForAgreement] = useState<RentalBooking | null>(null)
+  // Rental agreement modal state (already declared above)
 
   useEffect(() => {
     fetchBookings()
