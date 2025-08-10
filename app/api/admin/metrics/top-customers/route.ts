@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { validateSession } from '@/app/lib/auth'
+import { kv } from '@vercel/kv'
 
 async function isAdminAuthenticated(request: NextRequest): Promise<boolean> {
   const authHeader = request.headers.get('authorization')
@@ -43,6 +44,14 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(Number(searchParams.get('limit')) || 10, 50)
     const { from, to } = parseRange(searchParams)
 
+    // KV cache lookup with versioned key
+    const version = (await kv.get<number>(`stripe:metrics:version:${mode}`)) || 0
+    const cacheKey = `stripe:metrics:top-customers:${mode}:v${version}:${from}:${to}:limit${limit}`
+    const cached = await kv.get<any>(cacheKey)
+    if (cached) {
+      return NextResponse.json(cached)
+    }
+
     const stripe = getStripe(mode)
 
     // Aggregate succeeded charge amounts per customer
@@ -82,7 +91,9 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ success: true, mode, range: { from, to }, topCustomers: results })
+    const payload = { success: true, mode, range: { from, to }, topCustomers: results }
+    await kv.set(cacheKey, payload, { ex: 90 })
+    return NextResponse.json(payload)
   } catch (err) {
     console.error('Metrics top-customers error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

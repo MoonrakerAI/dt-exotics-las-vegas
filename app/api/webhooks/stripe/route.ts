@@ -2,6 +2,33 @@ import { NextRequest, NextResponse } from 'next/server';
 import stripe from '@/app/lib/stripe';
 import kvRentalDB from '@/app/lib/kv-database';
 import { headers } from 'next/headers';
+import { kv } from '@vercel/kv';
+
+async function constructEventWithAnySecret(body: string, signature: string) {
+  const live = process.env.STRIPE_WEBHOOK_SECRET_LIVE || process.env.STRIPE_WEBHOOK_SECRET
+  const test = process.env.STRIPE_WEBHOOK_SECRET_TEST
+  const secrets = [live, test].filter(Boolean) as string[]
+  let lastError: any = null
+  for (const sec of secrets) {
+    try {
+      return stripe.webhooks.constructEvent(body, signature, sec)
+    } catch (e) {
+      lastError = e
+    }
+  }
+  throw lastError || new Error('No valid webhook secret configured')
+}
+
+async function bumpMetricsCacheVersion(livemode: boolean) {
+  const mode = livemode ? 'live' : 'test'
+  const key = `stripe:metrics:version:${mode}`
+  try {
+    await kv.incr(key)
+  } catch (e) {
+    // If key doesn't exist, set to 1
+    await kv.set(key, 1)
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,11 +45,7 @@ export async function POST(request: NextRequest) {
 
     let event;
     try {
-      event = stripe.webhooks.constructEvent(
-        body,
-        signature,
-        process.env.STRIPE_WEBHOOK_SECRET!
-      );
+      event = await constructEventWithAnySecret(body, signature)
     } catch (error) {
       console.error('Webhook signature verification failed:', error);
       return NextResponse.json(
@@ -38,10 +61,12 @@ export async function POST(request: NextRequest) {
         break;
       case 'payment_intent.succeeded':
         await handlePaymentIntentSucceeded(event.data.object);
+        await bumpMetricsCacheVersion(event.livemode)
         break;
       
       case 'payment_intent.payment_failed':
         await handlePaymentIntentFailed(event.data.object);
+        await bumpMetricsCacheVersion(event.livemode)
         break;
       
       case 'payment_intent.requires_action':
@@ -50,6 +75,7 @@ export async function POST(request: NextRequest) {
       
       case 'payment_intent.canceled':
         await handlePaymentIntentCanceled(event.data.object);
+        await bumpMetricsCacheVersion(event.livemode)
         break;
 
       default:

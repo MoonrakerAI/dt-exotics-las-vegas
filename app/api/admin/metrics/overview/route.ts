@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { validateSession } from '@/app/lib/auth'
+import { kv } from '@vercel/kv'
 
 async function isAdminAuthenticated(request: NextRequest): Promise<boolean> {
   const authHeader = request.headers.get('authorization')
@@ -41,6 +42,14 @@ export async function GET(request: NextRequest) {
     const modeParam = (searchParams.get('mode') || 'live').toLowerCase()
     const mode: 'live' | 'test' = modeParam === 'test' ? 'test' : 'live'
     const { from, to } = parseRange(searchParams)
+
+    // KV cache lookup with versioned key
+    const version = (await kv.get<number>(`stripe:metrics:version:${mode}`)) || 0
+    const cacheKey = `stripe:metrics:overview:${mode}:v${version}:${from}:${to}`
+    const cached = await kv.get<any>(cacheKey)
+    if (cached) {
+      return NextResponse.json(cached)
+    }
 
     const stripe = getStripe(mode)
 
@@ -96,7 +105,7 @@ export async function GET(request: NextRequest) {
 
     const avgSpend = uniquePayers.size > 0 ? Math.round(grossVolume / uniquePayers.size) : 0
 
-    return NextResponse.json({
+    const payload = {
       success: true,
       mode,
       range: { from, to },
@@ -108,7 +117,11 @@ export async function GET(request: NextRequest) {
         avgSpend, // in cents
         uniquePayingCustomers: uniquePayers.size,
       },
-    })
+    }
+
+    // store in cache for short TTL (90s)
+    await kv.set(cacheKey, payload, { ex: 90 })
+    return NextResponse.json(payload)
   } catch (err) {
     console.error('Metrics overview error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { validateSession } from '@/app/lib/auth'
+import { kv } from '@vercel/kv'
 
 async function isAdminAuthenticated(request: NextRequest): Promise<boolean> {
   const authHeader = request.headers.get('authorization')
@@ -64,6 +65,14 @@ export async function GET(request: NextRequest) {
     const mode: 'live' | 'test' = modeParam === 'test' ? 'test' : 'live'
     const { from, to, granularity } = parseRange(searchParams)
 
+    // KV cache lookup with versioned key
+    const version = (await kv.get<number>(`stripe:metrics:version:${mode}`)) || 0
+    const cacheKey = `stripe:metrics:timeseries:${mode}:v${version}:${from}:${to}:${granularity}`
+    const cached = await kv.get<any>(cacheKey)
+    if (cached) {
+      return NextResponse.json(cached)
+    }
+
     const stripe = getStripe(mode)
 
     type Bucket = { t: string; grossVolume: number; paymentsCount: number; failedCount: number }
@@ -107,7 +116,9 @@ export async function GET(request: NextRequest) {
     // Return sorted by time key
     const series = Array.from(buckets.values()).sort((a, b) => a.t.localeCompare(b.t))
 
-    return NextResponse.json({ success: true, mode, range: { from, to }, granularity, series })
+    const payload = { success: true, mode, range: { from, to }, granularity, series }
+    await kv.set(cacheKey, payload, { ex: 90 })
+    return NextResponse.json(payload)
   } catch (err) {
     console.error('Metrics timeseries error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
