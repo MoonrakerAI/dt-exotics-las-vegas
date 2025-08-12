@@ -94,7 +94,7 @@ function CarCard({ car, onOpenModal, onPlaySound, playingAudio }: {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-gray-400">Speed</span>
-                <span className="text-white font-bold">{Math.round(car.stats.topSpeed * 0.621371)} MPH</span>
+                <span className="text-white font-bold">{Math.round(car.stats.topSpeed)} MPH</span>
               </div>
               <div className="h-2 bg-metal-gray rounded-full overflow-hidden">
                 <div 

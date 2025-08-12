@@ -464,7 +464,7 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
               </div>
               <div className="text-center">
                 <p className="text-gray-400 text-sm mb-1">Top Speed</p>
-                <p className="text-2xl font-tech font-bold text-white">{Math.round(car.stats.topSpeed * 0.621371)} MPH</p>
+                <p className="text-2xl font-tech font-bold text-white">{Math.round(car.stats.topSpeed)} MPH</p>
               </div>
               <div className="text-center">
                 <p className="text-gray-400 text-sm mb-1">0-60 mph</p>
