@@ -74,7 +74,7 @@ export default function CorporateServices() {
     {
       id: 'insurance-coverage',
       question: 'What insurance coverage is included for corporate events?',
-      answer: 'All vehicles include comprehensive commercial insurance with $2M liability coverage, full collision and comprehensive protection, and additional corporate umbrella coverage. We can provide certificates of insurance for your events and add your company as an additional insured when required.'
+      answer: 'For self-drive rentals: All renters must provide proof of full coverage insurance that transfers to a rental vehicle. If you don\'t have coverage, we can assist with rental insurance options. For chauffeur-driven services: Our chauffeur partners carry their own commercial insurance, and clients are not responsible for insurance. We can provide certificates of insurance and add your company as an additional insured when required.'
     },
     {
       id: 'chauffeur-services',
@@ -359,9 +359,7 @@ export default function CorporateServices() {
                 PROFESSIONAL RELIABILITY
               </h2>
               <p className="text-lg text-gray-300 leading-relaxed mb-8">
-                We understand that business cannot afford delays or disappointments. Our corporate services 
-                include comprehensive insurance, professional drivers, 24/7 support, and guaranteed on-time service. 
-                Your reputation is safe with us.
+                We understand that business cannot afford delays or disappointments. Our corporate services include professional drivers, 24/7 support, and guaranteed on-time service. For self-drive rentals, renters must provide full coverage insurance that transfers to a rental vehicle. Chauffeur-driven services are covered by our partners\' commercial insurance.
               </p>
             </div>
             
@@ -373,8 +371,8 @@ export default function CorporateServices() {
               </div>
               <div>
                 <Shield className="w-8 h-8 text-neon-blue mx-auto mb-2" />
-                <h3 className="font-tech font-bold text-white mb-1">Full Insurance</h3>
-                <p className="text-gray-400 text-sm">Comprehensive coverage included</p>
+                <h3 className="font-tech font-bold text-white mb-1">Insurance Policy</h3>
+                <p className="text-gray-400 text-sm">Self-drive rentals require renter-provided full coverage insurance; chauffeur-driven services are insured by our partners.</p>
               </div>
               <div>
                 <Briefcase className="w-8 h-8 text-neon-blue mx-auto mb-2" />

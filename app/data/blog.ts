@@ -49,7 +49,7 @@ Consider your experience level, group size, and planned activities. First-time r
 
 ### What You Need
 - Valid driver's license (21+ years old)
-- Full insurance coverage
+- Insurance: All self-drive rentals require renter-provided full coverage insurance that transfers to a rental vehicle. If you don't have coverage, we can assist with rental insurance options.
 - Credit card for security deposit
 - Comfortable driving experience
 
@@ -57,7 +57,7 @@ Consider your experience level, group size, and planned activities. First-time r
 - Comprehensive safety orientation
 - 24/7 support during your rental
 - GPS tracking for emergencies
-- Full insurance coverage included
+- Chauffeur-driven services are insured by our partners; clients are not responsible for insurance in those cases.
 
 ## Making Memories
 

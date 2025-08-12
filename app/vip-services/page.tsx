@@ -122,7 +122,7 @@ export default function VIPServices() {
         "Premium watch collection - price upon inquiry",
         "Diamond jewelry for special occasions",
         "Secure delivery to your hotel",
-        "Full insurance coverage included"
+        "Insurance provided by partners where applicable; self-drive rentals require renter-provided full coverage insurance that transfers to a rental vehicle"
       ]
     },
     {

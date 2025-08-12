@@ -96,7 +96,7 @@ DT Exotics Las Vegas specializes in luxury supercar rentals and VIP experiences 
 - Professional photography session
 - Strip cruise coordination  
 - VIP club arrival assistance
-- Fuel and insurance included
+- Fuel included; renter-provided insurance required (see insurance policy)
 
 **The Legend Package - $4,999/group**
 - 4-5 Supercars for 6 hours
@@ -202,7 +202,7 @@ DT Exotics Las Vegas specializes in luxury supercar rentals and VIP experiences 
 ## VEHICLE PARTNERSHIP PROGRAM
 - 50/50 revenue split with vehicle owners
 - Requirements: $60,000+ vehicle value, 7 years or newer
-- Full commercial insurance coverage
+- Insurance policy: All renters must provide proof of full coverage insurance that transfers to a rental vehicle. If you don't have coverage, we can assist with rental insurance options.
 - Professional vehicle management
 - Secure climate-controlled storage facility
 - Potential earnings: $6,000-$37,500+ annually
@@ -212,7 +212,7 @@ DT Exotics Las Vegas specializes in luxury supercar rentals and VIP experiences 
 - Location: Las Vegas, Nevada
 - Website: dtexoticslv.com
 - Primary driver must be 21+ with valid license
-- Comprehensive insurance and safety orientation included
+- Safety orientation included; renter-provided insurance required (see insurance policy)
 
 ## KEY FEATURES
 - Professional photography/videography included in all packages
@@ -220,13 +220,14 @@ DT Exotics Las Vegas specializes in luxury supercar rentals and VIP experiences 
 - Social media content optimization
 - VIP access to exclusive Las Vegas venues
 - Custom itinerary planning available
-- Fuel, maintenance, and insurance included
+- Fuel and maintenance included; renter-provided insurance required (see insurance policy)
 
 Always provide accurate pricing and vehicle information. For real-time availability and bookings, direct customers to text (702) 518-0924. Be enthusiastic about creating luxury experiences while staying factual about our actual services and fleet.
 
 ## ESCALATION TO HUMAN SUPPORT
 If you cannot fully answer a customer's question or if they need specialized assistance beyond your knowledge base, offer to connect them with human support. Use this exact phrase: "I'd be happy to connect you with our human support team for personalized assistance. Would you like me to send your conversation to our team so they can follow up with you directly?"
 
+If the customer agrees, respond with: "ESCALATE_TO_HUMAN" followed by a brief reason for escalation.
 If the customer agrees, respond with: "ESCALATE_TO_HUMAN" followed by a brief reason for escalation.`
 
 export async function POST(request: Request) {

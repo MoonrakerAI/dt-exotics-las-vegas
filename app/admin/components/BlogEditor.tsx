@@ -67,6 +67,10 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
   
   // Get current admin user for author info
   const [currentUser, setCurrentUser] = useState(SimpleAuth.getCurrentUser())
+  // Image upload state and refs
+  const [uploading, setUploading] = useState({ featured: false, og: false })
+  const featuredImageRef = useRef<HTMLInputElement>(null)
+  const ogImageRef = useRef<HTMLInputElement>(null)
   
   // Load current user profile on component mount
   useEffect(() => {
@@ -165,33 +169,101 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
     }
   }, [formData.title, formData.slug])
 
-  // Auto-generate SEO fields from title and excerpt
-  useEffect(() => {
-    if (!formData.seo.metaTitle && formData.title) {
-      setFormData(prev => ({
-        ...prev,
-        seo: { ...prev.seo, metaTitle: formData.title }
-      }))
+  // Handlers for image uploads (featured and OG)
+  const handleFeaturedImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    setUploading(prev => ({ ...prev, featured: true }))
+    try {
+      const uploadFormData = new FormData()
+      uploadFormData.append('file', file)
+      // Reuse existing upload API; use blog slug as ID context
+      uploadFormData.append('carId', `blog-${formData.slug || 'temp'}`)
+      uploadFormData.append('fileType', 'image')
+      uploadFormData.append('uploadType', 'main')
+
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('dt-admin-token')}`
+        },
+        body: uploadFormData
+      })
+      const result = await response.json()
+      if (response.ok && result.success) {
+        const imageUrl = result.urls?.optimized || result.urls?.original
+        setFormData(prev => ({ ...prev, featuredImage: imageUrl }))
+      } else {
+        // Fallback to base64 if blob storage not available
+        if (result.fallback || response.status === 503) {
+          const reader = new FileReader()
+          reader.onload = () => {
+            const base64 = reader.result as string
+            setFormData(prev => ({ ...prev, featuredImage: base64 }))
+          }
+          reader.readAsDataURL(file)
+        } else {
+          alert(result.error || 'Failed to upload image')
+        }
+      }
+    } catch (err) {
+      console.error('Featured image upload error:', err)
+      alert('Failed to upload featured image')
+    } finally {
+      if (featuredImageRef.current) featuredImageRef.current.value = ''
+      setUploading(prev => ({ ...prev, featured: false }))
     }
-    if (!formData.seo.ogTitle && formData.title) {
-      setFormData(prev => ({
-        ...prev,
-        seo: { ...prev.seo, ogTitle: formData.title }
-      }))
+  }
+
+  const handleOgImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    setUploading(prev => ({ ...prev, og: true }))
+    try {
+      const uploadFormData = new FormData()
+      uploadFormData.append('file', file)
+      uploadFormData.append('carId', `blog-${formData.slug || 'temp'}`)
+      uploadFormData.append('fileType', 'image')
+      // Any non-'main' is treated as gallery internally; naming isn't important
+      uploadFormData.append('uploadType', 'og')
+
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('dt-admin-token')}`
+        },
+        body: uploadFormData
+      })
+      const result = await response.json()
+      if (response.ok && result.success) {
+        const imageUrl = result.urls?.optimized || result.urls?.original
+        setFormData(prev => ({
+          ...prev,
+          seo: { ...prev.seo, ogImage: imageUrl }
+        }))
+      } else {
+        if (result.fallback || response.status === 503) {
+          const reader = new FileReader()
+          reader.onload = () => {
+            const base64 = reader.result as string
+            setFormData(prev => ({
+              ...prev,
+              seo: { ...prev.seo, ogImage: base64 }
+            }))
+          }
+          reader.readAsDataURL(file)
+        } else {
+          alert(result.error || 'Failed to upload image')
+        }
+      }
+    } catch (err) {
+      console.error('OG image upload error:', err)
+      alert('Failed to upload Open Graph image')
+    } finally {
+      if (ogImageRef.current) ogImageRef.current.value = ''
+      setUploading(prev => ({ ...prev, og: false }))
     }
-    if (!formData.seo.metaDescription && formData.excerpt) {
-      setFormData(prev => ({
-        ...prev,
-        seo: { ...prev.seo, metaDescription: formData.excerpt }
-      }))
-    }
-    if (!formData.seo.ogDescription && formData.excerpt) {
-      setFormData(prev => ({
-        ...prev,
-        seo: { ...prev.seo, ogDescription: formData.excerpt }
-      }))
-    }
-  }, [formData.title, formData.excerpt])
+  }
 
   // Load categories and tags
   useEffect(() => {
@@ -601,9 +673,21 @@ export default function BlogEditor({ post, onSave, onCancel, mode }: BlogEditorP
                       className="flex-1 px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                       placeholder="https://example.com/image.jpg"
                     />
-                    <button className="px-4 py-3 bg-dark-gray text-gray-300 hover:text-white border border-gray-600 rounded-lg transition-colors">
+                    <button
+                      type="button"
+                      onClick={() => featuredImageRef.current?.click()}
+                      className="px-4 py-3 bg-dark-gray text-gray-300 hover:text-white border border-gray-600 rounded-lg transition-colors disabled:opacity-50"
+                      disabled={uploading.featured}
+                    >
                       <Upload className="w-4 h-4" />
                     </button>
+                    <input
+                      ref={featuredImageRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleFeaturedImageUpload}
+                    />
                   </div>
                 </div>
 
@@ -990,16 +1074,33 @@ Quick formatting:
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Open Graph Image URL
                     </label>
-                    <input
-                      type="text"
-                      value={formData.seo.ogImage}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        seo: { ...prev.seo, ogImage: e.target.value }
-                      }))}
-                      className="w-full px-3 py-2 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none text-sm"
-                      placeholder="https://example.com/og-image.jpg"
-                    />
+                    <div className="flex space-x-2">
+                      <input
+                        type="text"
+                        value={formData.seo.ogImage}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          seo: { ...prev.seo, ogImage: e.target.value }
+                        }))}
+                        className="flex-1 px-3 py-2 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none text-sm"
+                        placeholder="https://example.com/og-image.jpg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => ogImageRef.current?.click()}
+                        className="px-3 py-2 bg-dark-gray text-gray-300 hover:text-white border border-gray-600 rounded-lg transition-colors disabled:opacity-50"
+                        disabled={uploading.og}
+                      >
+                        <Upload className="w-4 h-4" />
+                      </button>
+                      <input
+                        ref={ogImageRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleOgImageUpload}
+                      />
+                    </div>
                   </div>
 
                   {/* Canonical URL */}

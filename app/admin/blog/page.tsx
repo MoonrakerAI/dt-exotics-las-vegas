@@ -777,24 +777,6 @@ export default function BlogAdmin() {
                 <span>Create Your First Post</span>
               </button>
             </div>
-            
-            <div className="border-t border-gray-600/30 pt-6 mt-6">
-              <h4 className="text-lg font-tech font-semibold text-white mb-4">Blog Features</h4>
-              <div className="grid md:grid-cols-3 gap-4 text-sm">
-                <div className="bg-dark-metal/30 p-4 rounded-lg border border-gray-600/20">
-                  <h5 className="font-medium text-neon-blue mb-2">SEO Optimized</h5>
-                  <p className="text-gray-400">Custom meta titles, descriptions, and structured data</p>
-                </div>
-                <div className="bg-dark-metal/30 p-4 rounded-lg border border-gray-600/20">
-                  <h5 className="font-medium text-neon-blue mb-2">Rich Editor</h5>
-                  <p className="text-gray-400">Full WYSIWYG editor with media management</p>
-                </div>
-                <div className="bg-dark-metal/30 p-4 rounded-lg border border-gray-600/20">
-                  <h5 className="font-medium text-neon-blue mb-2">Analytics Ready</h5>
-                  <p className="text-gray-400">Built-in tracking and performance metrics</p>
-                </div>
-              </div>
-            </div>
           </div>
         ) : (
           <div>

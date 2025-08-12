@@ -112,7 +112,7 @@ DT Exotics Las Vegas specializes in luxury supercar rentals and VIP experiences 
 - Professional photography session
 - Strip cruise coordination  
 - VIP club arrival assistance
-- Fuel and insurance included
+- Fuel included; renter-provided insurance required (see insurance policy)
 
 **The Legend Package - $4,999/group**
 - 3-4 Premium supercars for 6 hours
@@ -120,7 +120,7 @@ DT Exotics Las Vegas specializes in luxury supercar rentals and VIP experiences 
 - VIP nightclub table reservation
 - Dedicated concierge service
 - Custom route planning
-- All fuel, insurance, and gratuities included
+- Fuel and gratuities included; renter-provided insurance required (see insurance policy)
 
 **The Ultimate Experience - $9,999/group**
 - 4-6 Exotic supercars for 8 hours
@@ -138,7 +138,7 @@ DT Exotics Las Vegas specializes in luxury supercar rentals and VIP experiences 
 - Professional photography session
 - Birthday surprise coordination
 - Personal concierge service
-- Fuel and insurance included
+- Fuel included; renter-provided insurance required (see insurance policy)
 
 **Birthday Legend - $3,499/person**
 - Premium supercar for 6 hours
@@ -177,7 +177,7 @@ DT Exotics Las Vegas specializes in luxury supercar rentals and VIP experiences 
 ## ADDITIONAL SERVICES
 - Professional photography & videography
 - Custom route planning and GPS coordination
-- Fuel and comprehensive insurance included
+- Fuel included; renter-provided insurance required (see insurance policy)
 - 24/7 concierge support
 - VIP club and restaurant access
 - Private event coordination
@@ -280,7 +280,7 @@ ${kb.servicesInfo}
 - Always provide accurate pricing and availability information
 - Emphasize our luxury experience and professional service
 - Suggest appropriate packages based on customer needs
-- Mention that all our rentals include fuel and comprehensive insurance
+- Insurance policy: All renters must provide proof of full coverage insurance that transfers to a rental vehicle. If you don't have coverage, we can assist with rental insurance options.
 - Highlight our unique features like professional photography and concierge services
 - For specific availability, direct customers to contact us directly for real-time information
 - Use phrases like "We offer", "Our fleet includes", "We provide", "Our services"

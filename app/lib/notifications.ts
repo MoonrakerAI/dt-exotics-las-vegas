@@ -810,7 +810,7 @@ Get ready for the drive of a lifetime!`
                 <li><strong>Premium Fleet:</strong> Lamborghini, McLaren, Ferrari & more</li>
                 <li><strong>Professional Service:</strong> White-glove concierge experience</li>
                 <li><strong>Event Specialists:</strong> Tailored packages for every occasion</li>
-                <li><strong>Full Coverage:</strong> Insurance and fuel included</li>
+                <li><strong>Insurance:</strong> All self-drive rentals require renter-provided full coverage insurance that transfers to a rental vehicle. Chauffeur-driven services are insured by our partners. Fuel included.</li>
                 <li><strong>Photography:</strong> Professional photos of your experience</li>
               </ul>
             </div>
@@ -861,7 +861,7 @@ Why Choose DT Exotics?
 - Premium Fleet: Lamborghini, McLaren, Ferrari & more
 - Professional Service: White-glove concierge experience
 - Event Specialists: Tailored packages for every occasion
-- Full Coverage: Insurance and fuel included
+- Insurance: All self-drive rentals require renter-provided full coverage insurance that transfers to a rental vehicle. Chauffeur-driven services are insured by our partners. Fuel included.
 - Photography: Professional photos of your experience
 
 Need immediate assistance?

@@ -69,7 +69,7 @@ export default function BachelorPartyRentals() {
     {
       id: 'package-inclusions',
       question: "What's included in our packages?",
-      answer: 'All packages include professional photography, fuel, insurance, and 24/7 support. Higher-tier packages add VIP experiences like restaurant reservations, club access, professional videography, and custom itinerary planning. We handle all the details so you can focus on celebrating.'
+      answer: 'All packages include professional photography, fuel, and 24/7 support. Insurance is not included—renters must provide proof of full coverage insurance that transfers to a rental vehicle. If you don\'t have coverage, we can assist with rental insurance options. Higher-tier packages add VIP experiences like restaurant reservations, club access, professional videography, and custom itinerary planning. We handle all the details so you can focus on celebrating.'
     },
     {
       id: 'customization',
@@ -78,8 +78,8 @@ export default function BachelorPartyRentals() {
     },
     {
       id: 'requirements',
-      question: 'What are the age and license requirements?',
-      answer: "The primary driver must be 21+ with a valid driver's license and full insurance coverage. Additional drivers can be added for an extra fee. We require a security deposit (refundable) and all drivers must pass our brief safety orientation."
+      question: 'What are the driver and age requirements?',
+      answer: "The primary driver must be 21+ with a valid driver's license. All renters must provide proof of full coverage insurance that transfers to a rental vehicle. If you don't have coverage, we can assist with rental insurance options. Additional drivers can be added for an extra fee. We require a security deposit (refundable) and all drivers must pass our brief safety orientation."
     },
     {
       id: 'transportation',
@@ -89,7 +89,7 @@ export default function BachelorPartyRentals() {
     {
       id: 'weather-emergency',
       question: "What happens if there's bad weather or an emergency?",
-      answer: "Las Vegas enjoys over 300 sunny days per year, but we're prepared for any situation. We offer flexible rescheduling for weather emergencies and have 24/7 support for any issues. Our comprehensive insurance covers unexpected situations, giving you peace of mind."
+      answer: "Las Vegas enjoys over 300 sunny days per year, but we're prepared for any situation. We offer flexible rescheduling for weather emergencies and have 24/7 support for any issues. Renters must provide proof of full coverage insurance that transfers to a rental vehicle; if you don't have coverage, we can assist with rental insurance options."
     }
   ]
 
@@ -118,7 +118,7 @@ export default function BachelorPartyRentals() {
         "Professional photography session",
         "Strip cruise coordination",
         "VIP club arrival assistance",
-        "Fuel and insurance included"
+        "Fuel included; renter-provided insurance required"
       ]
     },
     {
@@ -349,7 +349,7 @@ export default function BachelorPartyRentals() {
               </h2>
               <p className="text-lg text-gray-300 leading-relaxed">
                 We understand the responsibility that comes with bachelor parties. All our packages include 
-                comprehensive insurance, 24/7 support, and optional professional chauffeur services to ensure 
+                24/7 support, and optional professional chauffeur services to ensure 
                 everyone gets home safely. Because the best parties are the ones everyone remembers for the right reasons.
               </p>
             </div>
@@ -362,8 +362,8 @@ export default function BachelorPartyRentals() {
               </div>
               <div>
                 <Shield className="w-8 h-8 text-neon-blue mx-auto mb-2" />
-                <h3 className="font-tech font-bold text-white mb-1">Full Insurance</h3>
-                <p className="text-gray-400 text-sm">Comprehensive coverage included</p>
+                <h3 className="font-tech font-bold text-white mb-1">Insurance Requirements</h3>
+                <p className="text-gray-400 text-sm">All renters must provide proof of full coverage insurance that transfers to a rental vehicle. If you don't have coverage, we can assist with rental insurance options. Chauffeur-driven services are insured by our partners.</p>
               </div>
               <div>
                 <Users className="w-8 h-8 text-neon-blue mx-auto mb-2" />

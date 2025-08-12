@@ -167,7 +167,7 @@ export default function FloatingChat() {
                 <div
                   className={`max-w-[80%] p-3 rounded-lg text-sm ${
                     message.role === 'user'
-                      ? 'bg-neon-pink text-dark-gray font-medium'
+                      ? 'bg-neon-pink text-dark-gray'
                       : 'bg-gray-700/50 text-gray-100 border border-gray-600/30'
                   }`}
                 >
