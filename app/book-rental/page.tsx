@@ -55,7 +55,14 @@ function BookingFormInner() {
   useEffect(() => {
     if (step === 2 && customerInfoRef.current) {
       try {
-        customerInfoRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        // Scroll to top first to avoid partial viewport issues, then center the section
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        // Ensure DOM is painted before centering
+        setTimeout(() => {
+          try {
+            customerInfoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          } catch {}
+        }, 50)
       } catch (e) {
         // no-op if scroll fails
       }
@@ -261,22 +268,30 @@ function BookingFormInner() {
       const response = await fetch('/api/rentals/create-deposit-intent', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
+        cache: 'no-store'
       })
 
       console.log('Response status:', response.status)
       console.log('Response headers:', response.headers)
 
-      const data = await response.json()
-      console.log('Response data:', data)
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create booking')
+      let data: any = null
+      try {
+        data = await response.json()
+        console.log('Response data:', data)
+      } catch (parseErr) {
+        console.warn('Failed to parse JSON response for deposit intent')
       }
 
-      return data.data
+      if (!response.ok) {
+        const message = data?.error || `Failed to create booking (HTTP ${response.status})`
+        throw new Error(message)
+      }
+
+      return data?.data
     } catch (err) {
       console.error('Error creating deposit intent:', err)
       setError(err instanceof Error ? err.message : 'Failed to create booking')
@@ -610,6 +625,8 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
     // Create the deposit intent
     const intentData = await createDepositIntent()
     if (!intentData) {
+      // Surface a helpful error when the API call fails upstream
+      setError('Unable to create deposit. Please verify your details and selected dates, then try again. If this persists, check that payment is configured and that the car is available for the selected dates.')
       setProcessing(false)
       return
     }

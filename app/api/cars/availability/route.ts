@@ -2,6 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import carDB from '@/app/lib/car-database';
 import { getClientIdentifier, apiRateLimiter } from '@/app/lib/rate-limit';
 
+// Ensure this route runs on Node.js runtime and is always dynamic
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+// Simple in-memory cache (per server instance) to speed up repeated month lookups
+// Keyed by `${carId}:${startDate}:${endDate}` and expires after CACHE_TTL_MS
+type CacheEntry = { ts: number; availability: Record<string, { available: boolean; reason?: string; price?: number }> }
+const AVAILABILITY_CACHE = new Map<string, CacheEntry>()
+const CACHE_TTL_MS = 5 * 60 * 1000 // 5 minutes
+
 // GET: Get car availability for customer calendar
 export async function GET(request: NextRequest) {
   try {
@@ -60,8 +71,31 @@ export async function GET(request: NextRequest) {
       }, { status: 404 });
     }
 
+    // Try cache first
+    const cacheKey = `${carId}:${startDate}:${endDate}`
+    const now = Date.now()
+    const cached = AVAILABILITY_CACHE.get(cacheKey)
+    if (cached && now - cached.ts < CACHE_TTL_MS) {
+      return NextResponse.json({
+        success: true,
+        availability: cached.availability,
+        car: {
+          id: car.id,
+          brand: car.brand,
+          model: car.model,
+          year: car.year,
+          dailyRate: car.price.daily,
+          weeklyRate: car.price.weekly
+        },
+        cached: true
+      })
+    }
+
     // OPTIMIZED: Use batch availability method for better performance
     const availability = await carDB.getCarAvailabilityBatch(carId, startDate, endDate);
+
+    // Store in cache
+    AVAILABILITY_CACHE.set(cacheKey, { ts: now, availability })
 
     return NextResponse.json({
       success: true,

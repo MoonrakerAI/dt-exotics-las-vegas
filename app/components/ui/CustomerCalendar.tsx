@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -57,6 +57,10 @@ export default function CustomerCalendar({
   const [availability, setAvailability] = useState<AvailabilityData>({})
   const [loading, setLoading] = useState(false)
   const [justSelected, setJustSelected] = useState<Set<string>>(new Set())
+  // Client-side month cache and request control
+  const monthCacheRef = useRef<Map<string, AvailabilityData>>(new Map())
+  const inFlightRef = useRef<AbortController | null>(null)
+  const debounceRef = useRef<number | null>(null)
 
   // Get calendar data for current month
   const year = currentDate.getFullYear()
@@ -83,31 +87,94 @@ export default function CustomerCalendar({
     calendarDays.push(new Date(year, month, day))
   }
 
-  // Fetch availability data when car or month changes
+  // Fetch availability data when car or month changes with debounce and cache
   useEffect(() => {
-    if (selectedCarId) {
+    if (!selectedCarId) return
+
+    // Debounce to avoid rapid sequential requests during quick navigation
+    if (debounceRef.current) {
+      window.clearTimeout(debounceRef.current)
+    }
+    debounceRef.current = window.setTimeout(() => {
       fetchAvailability()
+    }, 120)
+
+    return () => {
+      if (debounceRef.current) {
+        window.clearTimeout(debounceRef.current)
+      }
     }
   }, [selectedCarId, currentDate])
 
   const fetchAvailability = async () => {
     if (!selectedCarId) return
 
+    const startOfMonth = new Date(year, month, 1)
+    const endOfMonth = new Date(year, month + 1, 0)
+    const startStr = formatLocalDate(startOfMonth)
+    const endStr = formatLocalDate(endOfMonth)
+
+    const monthKey = `${selectedCarId}:${year}-${month + 1}`
+
+    // Serve from cache if present
+    if (monthCacheRef.current.has(monthKey)) {
+      setAvailability(monthCacheRef.current.get(monthKey)!)
+      setLoading(false)
+      // Prefetch neighbors in background
+      prefetchAdjacentMonths(selectedCarId, year, month)
+      return
+    }
+
     setLoading(true)
     try {
-      const startOfMonth = new Date(year, month, 1).toISOString().split('T')[0]
-      const endOfMonth = new Date(year, month + 1, 0).toISOString().split('T')[0]
+      // Abort any in-flight request
+      if (inFlightRef.current) {
+        inFlightRef.current.abort()
+      }
+      const ac = new AbortController()
+      inFlightRef.current = ac
 
-      const response = await fetch(`/api/cars/availability?carId=${selectedCarId}&startDate=${startOfMonth}&endDate=${endOfMonth}`)
+      const response = await fetch(`/api/cars/availability?carId=${selectedCarId}&startDate=${startStr}&endDate=${endStr}` , {
+        signal: ac.signal,
+        cache: 'no-store'
+      })
       
       if (response.ok) {
         const data = await response.json()
-        setAvailability(data.availability || {})
+        const monthAvailability = data.availability || {}
+        monthCacheRef.current.set(monthKey, monthAvailability)
+        setAvailability(monthAvailability)
+        // Prefetch neighbors after current settles
+        prefetchAdjacentMonths(selectedCarId, year, month)
       }
     } catch (error) {
       console.error('Error fetching availability:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Prefetch previous and next month to reduce perceived latency
+  const prefetchAdjacentMonths = async (carId: string, y: number, m: number) => {
+    const neighbors = [m - 1, m + 1]
+    for (const nm of neighbors) {
+      const d = new Date(y, nm, 1)
+      const ny = d.getFullYear()
+      const nmonth = d.getMonth()
+      const key = `${carId}:${ny}-${nmonth + 1}`
+      if (monthCacheRef.current.has(key)) continue
+
+      const start = formatLocalDate(new Date(ny, nmonth, 1))
+      const end = formatLocalDate(new Date(ny, nmonth + 1, 0))
+      try {
+        const res = await fetch(`/api/cars/availability?carId=${carId}&startDate=${start}&endDate=${end}`, { cache: 'no-store' })
+        if (res.ok) {
+          const data = await res.json()
+          monthCacheRef.current.set(key, data.availability || {})
+        }
+      } catch (_) {
+        // ignore prefetch failures
+      }
     }
   }
 
