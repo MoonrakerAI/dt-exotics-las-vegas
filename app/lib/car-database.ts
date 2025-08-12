@@ -196,8 +196,8 @@ class CarDatabase {
       
       // Check if date conflicts with any rental (in memory check)
       const hasBookingConflict = carRentals.some(rental => {
-        const rentalStart = new Date(rental.startDate);
-        const rentalEnd = new Date(rental.endDate);
+        const rentalStart = new Date(rental.rentalDates.startDate);
+        const rentalEnd = new Date(rental.rentalDates.endDate);
         return currentDateObj >= rentalStart && currentDateObj <= rentalEnd;
       });
       
