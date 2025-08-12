@@ -60,28 +60,8 @@ export async function GET(request: NextRequest) {
       }, { status: 404 });
     }
 
-    // Generate availability data for the date range
-    const availability: { [date: string]: { available: boolean; reason?: string; price?: number } } = {};
-    
-    const current = new Date(start);
-    while (current <= end) {
-      const dateStr = current.toISOString().split('T')[0];
-      
-      // Check if this specific date is available
-      const availabilityCheck = await carDB.isCarAvailableForRental(carId, dateStr, dateStr);
-      
-      availability[dateStr] = {
-        available: availabilityCheck.available,
-        reason: !availabilityCheck.available ? (
-          availabilityCheck.conflicts.bookingConflicts ? 'Already booked' :
-          availabilityCheck.conflicts.customBlocks.length > 0 ? 'Not available' :
-          'Car unavailable'
-        ) : undefined,
-        price: car.price.daily // Include daily rate for pricing calculations
-      };
-      
-      current.setDate(current.getDate() + 1);
-    }
+    // OPTIMIZED: Use batch availability method for better performance
+    const availability = await carDB.getCarAvailabilityBatch(carId, startDate, endDate);
 
     return NextResponse.json({
       success: true,

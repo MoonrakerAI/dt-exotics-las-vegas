@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+// Ensure this route runs on the Node.js runtime and is not statically optimized
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 import stripe from '@/app/lib/stripe';
 import { cars } from '@/app/data/cars';
 import { calculateRentalPricing, generateRentalId } from '@/app/lib/rental-utils';

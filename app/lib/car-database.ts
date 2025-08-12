@@ -149,6 +149,76 @@ class CarDatabase {
     };
   }
 
+  // OPTIMIZED: Get batch availability for a date range (for calendar performance)
+  async getCarAvailabilityBatch(carId: string, startDate: string, endDate: string): Promise<{
+    [date: string]: { available: boolean; reason?: string; price?: number }
+  }> {
+    // Parallel database calls for maximum efficiency
+    const [car, customUnavailableDates, conflictingRentals] = await Promise.all([
+      this.getCar(carId),
+      this.getCarAvailability(carId),
+      kvRentalDB.getRentalsByDateRange(startDate, endDate)
+    ]);
+
+    if (!car || !car.available) {
+      // Return all dates as unavailable if car doesn't exist or is disabled
+      const result: { [date: string]: { available: boolean; reason?: string; price?: number } } = {};
+      const current = new Date(startDate);
+      const end = new Date(endDate);
+      
+      while (current <= end) {
+        const dateStr = current.toISOString().split('T')[0];
+        result[dateStr] = {
+          available: false,
+          reason: 'Car unavailable'
+        };
+        current.setDate(current.getDate() + 1);
+      }
+      return result;
+    }
+
+    // Filter rentals for this specific car (excluding cancelled)
+    const carRentals = conflictingRentals.filter(rental => 
+      rental.carId === carId && rental.status !== 'cancelled'
+    );
+
+    // Process all dates in memory (no additional DB calls)
+    const availability: { [date: string]: { available: boolean; reason?: string; price?: number } } = {};
+    const current = new Date(startDate);
+    const end = new Date(endDate);
+    
+    while (current <= end) {
+      const dateStr = current.toISOString().split('T')[0];
+      const currentDateObj = new Date(dateStr);
+      
+      // Check if date is in custom blocks
+      const isCustomBlocked = customUnavailableDates.includes(dateStr);
+      
+      // Check if date conflicts with any rental (in memory check)
+      const hasBookingConflict = carRentals.some(rental => {
+        const rentalStart = new Date(rental.startDate);
+        const rentalEnd = new Date(rental.endDate);
+        return currentDateObj >= rentalStart && currentDateObj <= rentalEnd;
+      });
+      
+      const isAvailable = !isCustomBlocked && !hasBookingConflict;
+      
+      availability[dateStr] = {
+        available: isAvailable,
+        reason: !isAvailable ? (
+          hasBookingConflict ? 'Already booked' :
+          isCustomBlocked ? 'Not available' :
+          'Car unavailable'
+        ) : undefined,
+        price: car.price.daily
+      };
+      
+      current.setDate(current.getDate() + 1);
+    }
+    
+    return availability;
+  }
+
   // Get cars available for specific dates (for frontend use)
   async getAvailableCarsForDates(startDate: string, endDate: string, showOnHomepage = true): Promise<Car[]> {
     const allCars = await this.getAllCars();

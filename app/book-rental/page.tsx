@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
@@ -25,6 +25,7 @@ const stripePromise = loadStripe(stripePublishableKey).then(stripe => {
 function BookingFormInner() {
   const searchParams = useSearchParams()
   const preselectedCarId = searchParams.get('car')
+  const customerInfoRef = useRef<HTMLDivElement | null>(null)
   
   const [cars, setCars] = useState<Car[]>([])
   const [availableCars, setAvailableCars] = useState<Car[]>([])
@@ -49,6 +50,17 @@ function BookingFormInner() {
   const [step, setStep] = useState(1)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  // Smooth scroll to customer info when moving to Step 2
+  useEffect(() => {
+    if (step === 2 && customerInfoRef.current) {
+      try {
+        customerInfoRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      } catch (e) {
+        // no-op if scroll fails
+      }
+    }
+  }, [step])
 
   // Fetch all cars on component mount
   useEffect(() => {
@@ -420,7 +432,7 @@ function BookingFormInner() {
   if (step === 2) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="glass-panel p-8 mb-8">
+        <div ref={customerInfoRef} className="glass-panel p-8 mb-8">
           <h2 className="text-2xl font-tech font-bold text-white mb-6">Customer Information</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
