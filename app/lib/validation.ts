@@ -6,6 +6,13 @@ export interface ValidationResult {
   sanitizedValue?: any;
 }
 
+// Parse a YYYY-MM-DD string as a local Date (no UTC shift)
+function parseLocalDate(dateStr: string): Date {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  // Months are 0-based in JS Date
+  return new Date(y, (m || 1) - 1, d || 1);
+}
+
 // Email validation
 export function validateEmail(email: string): ValidationResult {
   if (!email || typeof email !== 'string') {
@@ -108,15 +115,21 @@ export function validateDate(date: string, fieldName: string = 'Date'): Validati
     return { valid: false, error: `${fieldName} is required` };
   }
 
-  const parsedDate = new Date(date);
-  
+  // Expect strict YYYY-MM-DD format
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateRegex.test(date)) {
+    return { valid: false, error: `Invalid ${fieldName.toLowerCase()} format` };
+  }
+
+  const parsedDate = parseLocalDate(date);
   if (isNaN(parsedDate.getTime())) {
     return { valid: false, error: `Invalid ${fieldName.toLowerCase()} format` };
   }
 
-  return { 
-    valid: true, 
-    sanitizedValue: parsedDate.toISOString().split('T')[0] 
+  // Preserve original local date string to avoid timezone conversions
+  return {
+    valid: true,
+    sanitizedValue: date
   };
 }
 
@@ -256,8 +269,8 @@ export function validateRentalRequest(data: any): ValidationResult {
   }
 
   // Validate date range
-  const startDate = new Date(startDateValidation.sanitizedValue);
-  const endDate = new Date(endDateValidation.sanitizedValue);
+  const startDate = parseLocalDate(startDateValidation.sanitizedValue);
+  const endDate = parseLocalDate(endDateValidation.sanitizedValue);
   const now = new Date();
 
   if (startDate <= now) {
