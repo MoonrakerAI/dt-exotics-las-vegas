@@ -277,21 +277,51 @@ function BookingFormInner() {
 
       console.log('Response status:', response.status)
       console.log('Response headers:', response.headers)
+      console.log('Response OK:', response.ok)
 
-      let data: any = null
+      // Handle different response types
+      const contentType = response.headers.get('content-type')
+      console.log('Response content-type:', contentType)
+
+      let text = ''
       try {
-        data = await response.json()
-        console.log('Response data:', data)
-      } catch (parseErr) {
-        console.warn('Failed to parse JSON response for deposit intent')
+        text = await response.text()
+        console.log('Response text:', text)
+      } catch (textError) {
+        console.error('Failed to read response text:', textError)
+        throw new Error('Failed to read server response')
+      }
+
+      // Try to parse as JSON
+      let data
+      try {
+        data = text ? JSON.parse(text) : {}
+      } catch (parseError) {
+        console.error('Failed to parse response as JSON:', parseError)
+        console.error('Raw response:', text)
+        
+        // Check if this might be an HTML error page
+        if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+          console.error('Received HTML instead of JSON - likely a 404 or server error page')
+          throw new Error('Server routing error - API endpoint not found')
+        }
+        
+        throw new Error('Invalid response format from server')
       }
 
       if (!response.ok) {
-        const message = data?.error || `Failed to create booking (HTTP ${response.status})`
-        throw new Error(message)
+        console.error('Response not OK. Status:', response.status, 'Error:', data.error)
+        throw new Error(data.error || `Failed with status ${response.status}`)
       }
 
-      return data?.data
+      if (!data.success || !data.data) {
+        console.error('Invalid response structure:', data)
+        throw new Error(data.error || 'Invalid response structure')
+      }
+
+      console.log('Deposit intent created successfully:', data)
+      setError('')
+      return data.data
     } catch (err) {
       console.error('Error creating deposit intent:', err)
       setError(err instanceof Error ? err.message : 'Failed to create booking')
