@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
         // Send reminder if rental starts tomorrow or day after tomorrow
         if (startDate === tomorrowStr || startDate === dayAfterTomorrowStr) {
           // Get car details
-          const car = await carDB.getCarById(rental.carId);
+          const car = await carDB.getCar(rental.carId);
           if (!car) {
             console.error(`Car not found for rental ${rental.id}`);
             errors.push(`Car not found for rental ${rental.id}`);
