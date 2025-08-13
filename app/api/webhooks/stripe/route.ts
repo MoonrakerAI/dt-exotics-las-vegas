@@ -147,12 +147,7 @@ async function handlePaymentIntentAuthorized(paymentIntent: any) {
       return
     }
 
-    // Get car details for complete rental record
-    const car = await carDB.getCar(metadata.car_id)
-    if (!car) {
-      console.error('Car not found for rental creation:', metadata.car_id)
-      return
-    }
+
 
     // Create complete rental record
     const rentalData: RentalBooking = {
