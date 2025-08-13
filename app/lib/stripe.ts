@@ -1,17 +1,9 @@
 import Stripe from 'stripe';
 
-// Initialize Stripe client conditionally
-let stripe: Stripe | null = null;
-
-// Only initialize Stripe if we have a valid secret key
-if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY !== 'sk_test_dummy') {
-  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2025-06-30.basil', // Use the latest API version expected by TypeScript
-  });
-} else {
-  // Create a dummy instance for build time, will fail at runtime if not configured
-  console.warn('[STRIPE] Stripe not initialized - secret key not configured');
-}
+// Always export a non-null Stripe client so TypeScript consumers don't need null checks.
+// If STRIPE_SECRET_KEY is missing at build/deploy time, we initialize with a dummy key.
+// Routes must still validate configuration at runtime before making real API calls.
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy');
 
 export default stripe;
 
