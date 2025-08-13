@@ -66,11 +66,20 @@ export async function POST(request: NextRequest) {
     console.log('[DEPOSIT-INTENT] Stripe API key prefix:', process.env.STRIPE_SECRET_KEY?.substring(0, 7));
     
     // Find the car
+    console.log(`[DEPOSIT-INTENT] Looking for car ID: ${body.carId}`);
+    console.log(`[DEPOSIT-INTENT] Available car IDs:`, cars.map(c => c.id));
+    
     const car = cars.find(c => c.id === body.carId);
     if (!car) {
       console.error(`[DEPOSIT-INTENT] Car not found: ${body.carId}`);
+      console.error(`[DEPOSIT-INTENT] Available cars:`, cars.map(c => ({ id: c.id, brand: c.brand, model: c.model, year: c.year })));
       return NextResponse.json(
-        { error: 'Selected car not found' },
+        { 
+          error: 'Selected car not found',
+          requestedId: body.carId,
+          availableIds: cars.map(c => c.id),
+          availableCars: cars.map(c => ({ id: c.id, brand: c.brand, model: c.model, year: c.year }))
+        },
         { status: 404 }
       );
     }
