@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import kvRentalDB from '@/app/lib/kv-database';
 import { validateSession } from '@/app/lib/auth';
+import notificationService from '@/app/lib/notifications';
+import carDB from '@/app/lib/car-database';
 
 // Secure admin authentication using JWT
 async function isAdminAuthenticated(request: NextRequest): Promise<boolean> {
@@ -60,9 +62,38 @@ export async function POST(
       );
     }
 
+    // Send booking confirmation email to customer
+    try {
+      // Get car details for email
+      const car = await carDB.getCar(updated.carId);
+      if (car) {
+        const bookingData = {
+          id: updated.id,
+          car: {
+            brand: car.brand,
+            model: car.model,
+            year: car.year
+          },
+          customer: updated.customerInfo,
+          startDate: updated.rentalDates.startDate,
+          endDate: updated.rentalDates.endDate,
+          depositAmount: updated.payment.depositAmount,
+          totalAmount: updated.pricing?.finalAmount || updated.payment.depositAmount,
+          status: updated.status
+        };
+
+        console.log('Sending booking confirmation email to customer after admin confirmation...');
+        await notificationService.sendCustomerBookingConfirmed(bookingData);
+        console.log('Booking confirmation email sent successfully');
+      }
+    } catch (emailError) {
+      console.error('Failed to send booking confirmation email:', emailError);
+      // Don't fail the confirmation if email fails
+    }
+
     return NextResponse.json({
       success: true,
-      message: 'Booking confirmed successfully',
+      message: 'Booking confirmed successfully and confirmation email sent to customer',
       data: {
         rental: updated
       }

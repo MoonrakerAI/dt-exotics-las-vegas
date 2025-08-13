@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import kvRentalDB from '@/app/lib/kv-database';
 import stripe from '@/app/lib/stripe';
 import { validateSession } from '@/app/lib/auth';
+import notificationService from '@/app/lib/notifications';
+import carDB from '@/app/lib/car-database';
 
 // Secure admin authentication using JWT
 async function isAdminAuthenticated(request: NextRequest): Promise<boolean> {
@@ -77,7 +79,7 @@ export async function POST(
     );
 
     // Update rental status
-    await kvRentalDB.updateRental(id, {
+    const updatedRental = await kvRentalDB.updateRental(id, {
       payment: {
         ...rental.payment,
         depositStatus: 'captured'
@@ -85,8 +87,42 @@ export async function POST(
       status: 'active'
     });
 
+    // Send payment receipt email to customer
+    try {
+      if (updatedRental) {
+        // Get car details for email
+        const car = await carDB.getCar(updatedRental.carId);
+        if (car) {
+          const paymentData = {
+            id: updatedRental.id,
+            car: {
+              brand: car.brand,
+              model: car.model,
+              year: car.year
+            },
+            customer: updatedRental.customerInfo,
+            startDate: updatedRental.rentalDates.startDate,
+            endDate: updatedRental.rentalDates.endDate,
+            amount: capturedPaymentIntent.amount / 100, // Convert from cents
+            paymentType: 'Deposit',
+            paymentMethod: 'Card',
+            transactionId: capturedPaymentIntent.id,
+            status: 'succeeded'
+          };
+
+          console.log('Sending payment receipt email to customer after deposit capture...');
+          await notificationService.sendCustomerPaymentReceipt(paymentData);
+          console.log('Payment receipt email sent successfully');
+        }
+      }
+    } catch (emailError) {
+      console.error('Failed to send payment receipt email:', emailError);
+      // Don't fail the capture if email fails
+    }
+
     return NextResponse.json({
       success: true,
+      message: 'Deposit captured successfully and receipt sent to customer',
       data: {
         paymentIntent: {
           id: capturedPaymentIntent.id,
