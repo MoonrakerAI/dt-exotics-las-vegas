@@ -4,12 +4,19 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextRequest, NextResponse } from 'next/server';
-import stripe from '@/app/lib/stripe';
-import kvRentalDB from '@/app/lib/kv-database';
+import Stripe from 'stripe';
+import { kvRentalDB } from '@/app/lib/kv-database';
+import { carDB } from '@/app/lib/car-database';
+import { NotificationService } from '@/app/lib/notifications';
+import type { RentalBooking } from '@/app/types/rental';
+import crypto from 'crypto';
 import { headers } from 'next/headers';
-import { kv } from '@vercel/kv';
-import notificationService from '@/app/lib/notifications';
-import carDB from '@/app/lib/car-database';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2024-11-20.acacia',
+});
+
+const notificationService = new NotificationService();
 
 async function constructEventWithAnySecret(body: string, signature: string) {
   const live = process.env.STRIPE_WEBHOOK_SECRET_LIVE || process.env.STRIPE_WEBHOOK_SECRET
@@ -140,10 +147,19 @@ async function handlePaymentIntentAuthorized(paymentIntent: any) {
       return
     }
 
-    // Create rental record
-    const rentalData = {
+    // Get car details for complete rental record
+    const car = await carDB.getCar(metadata.car_id)
+    if (!car) {
+      console.error('Car not found for rental creation:', metadata.car_id)
+      return
+    }
+
+    // Create complete rental record
+    const rentalData: RentalBooking = {
+      id: crypto.randomUUID(),
       carId: metadata.car_id,
-      customerId: paymentIntent.customer,
+      customerId: paymentIntent.customer as string,
+      stripeCustomerId: paymentIntent.customer as string,
       customer: {
         firstName: metadata.customer_first_name || (customer as any).name?.split(' ')[0] || 'Customer',
         lastName: metadata.customer_last_name || (customer as any).name?.split(' ').slice(1).join(' ') || '',
@@ -152,19 +168,30 @@ async function handlePaymentIntentAuthorized(paymentIntent: any) {
         driversLicense: 'Not provided',
         driversLicenseState: 'Not provided'
       },
+      car: {
+        id: car.id,
+        brand: car.brand,
+        model: car.model,
+        year: car.year
+      },
       rentalDates: {
         startDate: metadata.start_date,
         endDate: metadata.end_date
       },
-      payment: {
+      pricing: {
+        dailyRate: car.pricing.daily,
         depositAmount: paymentIntent.amount / 100, // Convert from cents
-        depositPaymentIntentId: paymentIntent.id,
-        depositStatus: 'authorized',
-        savedPaymentMethodId: paymentIntent.payment_method,
-        stripeCustomerId: paymentIntent.customer
+        finalAmount: car.pricing.daily * parseInt(metadata.rental_days || '1')
       },
-      status: 'confirmed',
-      createdAt: new Date().toISOString()
+      payment: {
+        depositPaymentIntentId: paymentIntent.id,
+        depositStatus: 'authorized' as const,
+        stripeCustomerId: paymentIntent.customer as string,
+        savedPaymentMethodId: paymentIntent.payment_method as string
+      },
+      status: 'pending' as const,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }
 
     rental = await kvRentalDB.createRental(rentalData)
