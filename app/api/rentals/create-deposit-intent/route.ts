@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import stripe from '@/app/lib/stripe';
+import { cars } from '@/app/data/cars';
+import { calculateRentalPricing } from '@/app/lib/rental-utils';
 
 // Enhanced test version with request handling
 export async function POST(request: NextRequest) {
@@ -50,26 +52,133 @@ export async function POST(request: NextRequest) {
                            process.env.STRIPE_SECRET_KEY !== 'sk_test_dummy' && 
                            !!stripe;
     
-    console.log('[DEPOSIT-INTENT] Stripe configured:', stripeConfigured);
-    if (stripeConfigured) {
-      console.log('[DEPOSIT-INTENT] Stripe API key prefix:', process.env.STRIPE_SECRET_KEY?.substring(0, 7));
+    if (!stripeConfigured) {
+      console.error('[DEPOSIT-INTENT] Stripe not properly configured');
+      return NextResponse.json(
+        { 
+          error: 'Payment system not configured',
+          details: 'Stripe is not properly configured on the server'
+        },
+        { status: 500 }
+      );
     }
+
+    console.log('[DEPOSIT-INTENT] Stripe API key prefix:', process.env.STRIPE_SECRET_KEY?.substring(0, 7));
     
-    // Return success response with request data
-    return NextResponse.json({
-      status: 'ok',
-      message: 'Deposit endpoint is working',
-      data: {
-        requestReceived: true,
-        stripeConfigured,
-        requestData: {
-          carId: body.carId,
+    // Find the car
+    const car = cars.find(c => c.id === body.carId);
+    if (!car) {
+      console.error(`[DEPOSIT-INTENT] Car not found: ${body.carId}`);
+      return NextResponse.json(
+        { error: 'Selected car not found' },
+        { status: 404 }
+      );
+    }
+
+    // Calculate pricing
+    const pricing = calculateRentalPricing(
+      car,
+      body.startDate,
+      body.endDate
+    );
+
+    console.log(`[DEPOSIT-INTENT] Creating payment intent for ${car.brand} ${car.model}`);
+    console.log(`[DEPOSIT-INTENT] Amount: $${pricing.depositAmount} (${pricing.depositAmount * 100} cents)`);
+    
+    try {
+      // Create or retrieve Stripe customer
+      let customer;
+      const existingCustomers = await stripe.customers.list({
+        email: body.customer.email,
+        limit: 1
+      });
+
+      if (existingCustomers.data.length > 0) {
+        customer = existingCustomers.data[0];
+        console.log(`[DEPOSIT-INTENT] Using existing customer: ${customer.id}`);
+      } else {
+        customer = await stripe.customers.create({
+          email: body.customer.email,
+          name: `${body.customer.firstName} ${body.customer.lastName}`.trim(),
+          phone: body.customer.phone,
+          metadata: {
+            firstName: body.customer.firstName,
+            lastName: body.customer.lastName
+          }
+        });
+        console.log(`[DEPOSIT-INTENT] Created new customer: ${customer.id}`);
+      }
+
+      // Create payment intent
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(pricing.depositAmount * 100), // Convert to cents
+        currency: 'usd',
+        customer: customer.id,
+        metadata: {
+          type: 'rental_deposit',
+          car_id: car.id,
+          car_model: `${car.year} ${car.brand} ${car.model}`,
+          start_date: body.startDate,
+          end_date: body.endDate,
+          customer_email: body.customer.email
+        },
+        description: `Deposit for ${car.brand} ${car.model} rental (${body.startDate} to ${body.endDate})`,
+        // For testing, you can add test cards: https://stripe.com/docs/testing#cards
+        payment_method_options: {
+          card: {
+            request_three_d_secure: 'any'
+          }
+        },
+        capture_method: 'manual', // Important: We'll capture later
+        confirm: false,
+        setup_future_usage: 'off_session' // Save payment method for future use
+      });
+
+      console.log(`[DEPOSIT-INTENT] Created payment intent: ${paymentIntent.id}`);
+      
+      // Return client secret to confirm payment on client side
+      return NextResponse.json({
+        success: true,
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id,
+        amount: paymentIntent.amount,
+        currency: paymentIntent.currency,
+        customer: {
+          id: customer.id,
+          email: customer.email
+        },
+        rental: {
+          carId: car.id,
+          carModel: `${car.year} ${car.brand} ${car.model}`,
           startDate: body.startDate,
           endDate: body.endDate,
-          customerEmail: body.customer?.email
+          depositAmount: pricing.depositAmount,
+          dailyRate: pricing.dailyRate,
+          totalDays: pricing.totalDays
         }
+      });
+      
+    } catch (error: any) {
+      console.error('[DEPOSIT-INTENT] Error creating payment intent:', error);
+      
+      let errorMessage = 'Failed to create payment';
+      if (error.type === 'StripeCardError') {
+        errorMessage = error.message || 'Card was declined';
+      } else if (error.type) {
+        // Handle other Stripe errors
+        errorMessage = `Payment error (${error.type}): ${error.message || 'Please try again'}`;
       }
-    });
+      
+      return NextResponse.json(
+        { 
+          error: 'Payment processing failed',
+          details: errorMessage,
+          code: error.code,
+          type: error.type
+        },
+        { status: 500 }
+      );
+    }
     
   } catch (error) {
     console.error('[DEPOSIT-INTENT] Error:', error);
