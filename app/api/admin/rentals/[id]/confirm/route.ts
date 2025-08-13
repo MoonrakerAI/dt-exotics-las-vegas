@@ -74,7 +74,7 @@ export async function POST(
             model: car.model,
             year: car.year
           },
-          customer: updated.customerInfo,
+          customer: updated.customer,
           startDate: updated.rentalDates.startDate,
           endDate: updated.rentalDates.endDate,
           depositAmount: updated.payment.depositAmount,

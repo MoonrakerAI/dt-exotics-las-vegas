@@ -144,11 +144,13 @@ async function handlePaymentIntentAuthorized(paymentIntent: any) {
     const rentalData = {
       carId: metadata.car_id,
       customerId: paymentIntent.customer,
-      customerInfo: {
+      customer: {
         firstName: metadata.customer_first_name || (customer as any).name?.split(' ')[0] || 'Customer',
         lastName: metadata.customer_last_name || (customer as any).name?.split(' ').slice(1).join(' ') || '',
         email: metadata.customer_email,
-        phone: (customer as any).phone || 'Not provided'
+        phone: (customer as any).phone || 'Not provided',
+        driversLicense: 'Not provided',
+        driversLicenseState: 'Not provided'
       },
       rentalDates: {
         startDate: metadata.start_date,
@@ -177,7 +179,7 @@ async function handlePaymentIntentAuthorized(paymentIntent: any) {
           model: car.model,
           year: car.year
         },
-        customer: rental.customerInfo,
+        customer: rental.customer,
         startDate: rental.rentalDates.startDate,
         endDate: rental.rentalDates.endDate,
         depositAmount: rental.payment.depositAmount,

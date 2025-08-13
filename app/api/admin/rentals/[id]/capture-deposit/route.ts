@@ -100,7 +100,7 @@ export async function POST(
               model: car.model,
               year: car.year
             },
-            customer: updatedRental.customerInfo,
+            customer: updatedRental.customer,
             startDate: updatedRental.rentalDates.startDate,
             endDate: updatedRental.rentalDates.endDate,
             amount: capturedPaymentIntent.amount / 100, // Convert from cents
