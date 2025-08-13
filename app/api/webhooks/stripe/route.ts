@@ -13,9 +13,20 @@ import crypto from 'crypto';
 import { headers } from 'next/headers';
 import { kv } from '@vercel/kv';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-06-30.basil',
-});
+// Lazy initialize Stripe to avoid build-time errors
+let stripe: Stripe | null = null;
+
+function getStripe(): Stripe {
+  if (!stripe && process.env.STRIPE_SECRET_KEY) {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-06-30.basil',
+    });
+  }
+  if (!stripe) {
+    throw new Error('Stripe not configured');
+  }
+  return stripe;
+}
 
 async function constructEventWithAnySecret(body: string, signature: string) {
   const live = process.env.STRIPE_WEBHOOK_SECRET_LIVE || process.env.STRIPE_WEBHOOK_SECRET
@@ -24,7 +35,7 @@ async function constructEventWithAnySecret(body: string, signature: string) {
   let lastError: any = null
   for (const sec of secrets) {
     try {
-      return stripe.webhooks.constructEvent(body, signature, sec)
+      return getStripe().webhooks.constructEvent(body, signature, sec)
     } catch (e) {
       lastError = e
     }
@@ -140,7 +151,7 @@ async function handlePaymentIntentAuthorized(paymentIntent: any) {
     }
 
     // Get customer details from Stripe
-    const customer = await stripe.customers.retrieve(paymentIntent.customer)
+    const customer = await getStripe().customers.retrieve(paymentIntent.customer)
     if (!customer || customer.deleted) {
       console.error('Customer not found:', paymentIntent.customer)
       return
@@ -166,16 +177,19 @@ async function handlePaymentIntentAuthorized(paymentIntent: any) {
         id: car.id,
         brand: car.brand,
         model: car.model,
-        year: car.year
+        year: car.year,
+        dailyPrice: car.price.daily
       },
       rentalDates: {
         startDate: metadata.start_date,
         endDate: metadata.end_date
       },
       pricing: {
-        dailyRate: car.pricing.daily,
+        dailyRate: car.price.daily,
+        totalDays: parseInt(metadata.rental_days || '1'),
+        subtotal: car.price.daily * parseInt(metadata.rental_days || '1'),
         depositAmount: paymentIntent.amount / 100, // Convert from cents
-        finalAmount: car.pricing.daily * parseInt(metadata.rental_days || '1')
+        finalAmount: car.price.daily * parseInt(metadata.rental_days || '1')
       },
       payment: {
         depositPaymentIntentId: paymentIntent.id,
