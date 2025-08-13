@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import stripe from '@/app/lib/stripe';
 import carDB from '@/app/lib/car-database';
+import kvRentalDB from '@/app/lib/kv-database';
 import { calculateRentalPricing } from '@/app/lib/rental-utils';
 import notificationService from '@/app/lib/notifications';
+import type { RentalBooking } from '@/app/types/rental';
 
 // Enhanced test version with request handling
 export async function POST(request: NextRequest) {
@@ -150,6 +152,54 @@ export async function POST(request: NextRequest) {
       });
 
       console.log(`[DEPOSIT-INTENT] Created payment intent: ${paymentIntent.id}`);
+      
+      // Create rental booking in database
+      const rentalId = `rental_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const rental: RentalBooking = {
+        id: rentalId,
+        customerId: customer.id,
+        stripeCustomerId: customer.id,
+        carId: car.id,
+        car: {
+          id: car.id,
+          brand: car.brand,
+          model: car.model,
+          year: car.year,
+          dailyPrice: car.price.daily
+        },
+        status: 'pending',
+        rentalDates: {
+          startDate: body.startDate,
+          endDate: body.endDate
+        },
+        customer: {
+          firstName: body.customer.firstName,
+          lastName: body.customer.lastName,
+          email: body.customer.email,
+          phone: body.customer.phone,
+          driversLicense: body.customer.driversLicense || '',
+          driversLicenseState: body.customer.driversLicenseState || 'NV'
+        },
+        payment: {
+          depositPaymentIntentId: paymentIntent.id,
+          depositStatus: 'pending',
+          finalPaymentStatus: 'pending',
+          stripeCustomerId: customer.id
+        },
+        pricing: {
+          dailyRate: pricing.dailyRate,
+          totalDays: pricing.totalDays,
+          subtotal: pricing.subtotal,
+          depositAmount: pricing.depositAmount,
+          finalAmount: pricing.subtotal - pricing.depositAmount
+        },
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      // Save rental to database
+      await kvRentalDB.createRental(rental);
+      console.log(`[DEPOSIT-INTENT] Created rental booking: ${rentalId}`);
       
       // Return client secret to confirm payment on client side
       return NextResponse.json({

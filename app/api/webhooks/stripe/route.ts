@@ -308,6 +308,37 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
     } catch (emailError) {
       console.error('Failed to send payment success notifications:', emailError);
     }
+
+    // Send booking confirmation emails (for new bookings)
+    try {
+      const bookingData = {
+        bookingId: rental.id,
+        customerName: `${rental.customer.firstName} ${rental.customer.lastName}`,
+        customerEmail: rental.customer.email,
+        customerPhone: rental.customer.phone,
+        vehicleName: `${car.brand} ${car.model}`,
+        vehicleYear: car.year,
+        startDate: rental.rentalDates.startDate,
+        endDate: rental.rentalDates.endDate,
+        totalAmount: rental.pricing.subtotal,
+        depositAmount: rental.pricing.depositAmount,
+        remainingAmount: rental.pricing.finalAmount,
+        dailyRate: rental.pricing.dailyRate,
+        totalDays: rental.pricing.totalDays
+      };
+
+      // Send admin booking notification
+      console.log('Sending admin booking notification...');
+      await notificationService.sendBookingNotification(bookingData);
+
+      // Send customer booking confirmation
+      console.log('Sending customer booking confirmation...');
+      await notificationService.sendCustomerBookingConfirmation(bookingData);
+      
+      console.log('Booking confirmation emails sent successfully');
+    } catch (emailError) {
+      console.error('Failed to send booking confirmation emails:', emailError);
+    }
   } else if (rental.payment.finalPaymentIntentId === paymentIntent.id) {
     // Final payment succeeded
     await kvRentalDB.updateRental(rental.id, {
