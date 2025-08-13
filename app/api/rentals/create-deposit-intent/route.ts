@@ -41,8 +41,9 @@ export async function POST(request: NextRequest) {
     console.log('[CREATE-DEPOSIT] Checking Stripe config...');
     console.log('[CREATE-DEPOSIT] STRIPE_SECRET_KEY exists:', !!process.env.STRIPE_SECRET_KEY);
     console.log('[CREATE-DEPOSIT] STRIPE_SECRET_KEY prefix:', process.env.STRIPE_SECRET_KEY?.substring(0, 7));
+    console.log('[CREATE-DEPOSIT] Stripe client initialized:', !!stripe);
     
-    if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === 'sk_test_dummy') {
+    if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === 'sk_test_dummy' || !stripe) {
       console.error('[CREATE-DEPOSIT] Stripe not configured properly');
       return NextResponse.json(
         { error: 'Payment system not configured. Please contact support.' },

@@ -1,18 +1,16 @@
 import Stripe from 'stripe';
 
-// Initialize Stripe with the SDK's pinned default API version to avoid type mismatches during build
-// Use conditional initialization to prevent build-time errors
-let stripe: Stripe;
+// Initialize Stripe client conditionally
+let stripe: Stripe | null = null;
 
+// Only initialize Stripe if we have a valid secret key
 if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY !== 'sk_test_dummy') {
   stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2024-06-20', // Use a specific API version for consistency
+    apiVersion: '2025-06-30.basil', // Use the latest API version expected by TypeScript
   });
 } else {
   // Create a dummy instance for build time, will fail at runtime if not configured
-  stripe = new Stripe('sk_test_dummy', {
-    apiVersion: '2024-06-20',
-  });
+  console.warn('[STRIPE] Stripe not initialized - secret key not configured');
 }
 
 export default stripe;
