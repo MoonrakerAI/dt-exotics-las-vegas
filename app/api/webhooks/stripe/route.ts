@@ -1,3 +1,8 @@
+// Runtime configuration MUST be before any imports in Next.js App Router
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { NextRequest, NextResponse } from 'next/server';
 import stripe from '@/app/lib/stripe';
 import kvRentalDB from '@/app/lib/kv-database';
@@ -31,6 +36,16 @@ async function bumpMetricsCacheVersion(livemode: boolean) {
 }
 
 export async function POST(request: NextRequest) {
+  // Guard: ensure Stripe and webhook secrets are configured at runtime
+  const hasSecretKey = !!process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY !== 'sk_test_dummy';
+  const hasWebhookSecret = !!process.env.STRIPE_WEBHOOK_SECRET_LIVE || !!process.env.STRIPE_WEBHOOK_SECRET || !!process.env.STRIPE_WEBHOOK_SECRET_TEST;
+  if (!hasSecretKey || !hasWebhookSecret) {
+    console.error('[WEBHOOK] Stripe not configured properly (missing secret key or webhook secret)');
+    return NextResponse.json(
+      { error: 'Payment system not configured. Please contact support.' },
+      { status: 500 }
+    );
+  }
   try {
     const body = await request.text();
     const headersList = await headers();
