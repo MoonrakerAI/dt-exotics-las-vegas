@@ -77,8 +77,8 @@ export async function POST(
           customer: updated.customer,
           startDate: updated.rentalDates.startDate,
           endDate: updated.rentalDates.endDate,
-          depositAmount: updated.payment.depositAmount,
-          totalAmount: updated.pricing?.finalAmount || updated.payment.depositAmount,
+          depositAmount: updated.pricing.depositAmount,
+          totalAmount: updated.pricing?.finalAmount || updated.pricing.depositAmount,
           status: updated.status
         };
 

@@ -182,7 +182,7 @@ async function handlePaymentIntentAuthorized(paymentIntent: any) {
         customer: rental.customer,
         startDate: rental.rentalDates.startDate,
         endDate: rental.rentalDates.endDate,
-        depositAmount: rental.payment.depositAmount,
+        depositAmount: rental.pricing.depositAmount,
         totalAmount: paymentIntent.amount / 100, // This would be calculated properly in real scenario
         status: rental.status
       }
