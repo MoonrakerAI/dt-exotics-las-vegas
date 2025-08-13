@@ -136,28 +136,50 @@ export async function POST(request: NextRequest) {
 
     // Create Payment Intent with manual capture for deposit
     console.log('[CREATE-DEPOSIT] Creating payment intent for amount:', pricing.depositAmount);
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: pricing.depositAmount * 100, // Convert to cents
-      currency: 'usd',
-      capture_method: 'manual', // Hold funds without capturing
-      customer: stripeCustomer.id,
-      setup_future_usage: 'off_session', // Save payment method for later
-      payment_method_types: ['card'],
-      description: `Rental Deposit - ${car.brand} ${car.model} (${car.year}) | ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()} | ${pricing.totalDays} days @ $${pricing.dailyRate}/day`,
-      statement_descriptor_suffix: 'RENTAL',
-      metadata: {
-        rental_id: rentalId,
-        car_id: carId,
-        car_model: `${car.brand} ${car.model}`,
-        start_date: startDate,
-        end_date: endDate,
-        total_days: pricing.totalDays.toString(),
-        daily_rate: pricing.dailyRate.toString(),
-        subtotal: pricing.subtotal.toString(),
-        deposit_amount: pricing.depositAmount.toString(),
-        final_amount: pricing.finalAmount.toString()
-      }
-    });
+    let paymentIntent;
+    
+    try {
+      paymentIntent = await stripe.paymentIntents.create({
+        amount: pricing.depositAmount * 100, // Convert to cents
+        currency: 'usd',
+        capture_method: 'manual', // Hold funds without capturing
+        customer: stripeCustomer.id,
+        setup_future_usage: 'off_session', // Save payment method for later
+        payment_method_types: ['card'],
+        description: `Rental Deposit - ${car.brand} ${car.model} (${car.year}) | ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()} | ${pricing.totalDays} days @ $${pricing.dailyRate}/day`,
+        statement_descriptor_suffix: 'RENTAL',
+        metadata: {
+          rental_id: rentalId,
+          car_id: carId,
+          car_model: `${car.brand} ${car.model}`,
+          start_date: startDate,
+          end_date: endDate,
+          total_days: pricing.totalDays.toString(),
+          daily_rate: pricing.dailyRate.toString(),
+          subtotal: pricing.subtotal.toString(),
+          deposit_amount: pricing.depositAmount.toString(),
+          final_amount: pricing.finalAmount.toString()
+        }
+      });
+      console.log('[CREATE-DEPOSIT] Payment intent created successfully:', paymentIntent.id);
+    } catch (stripeError: any) {
+      console.error('[CREATE-DEPOSIT] Stripe error creating payment intent:', stripeError);
+      console.error('[CREATE-DEPOSIT] Error type:', stripeError.type);
+      console.error('[CREATE-DEPOSIT] Error code:', stripeError.code);
+      console.error('[CREATE-DEPOSIT] Error message:', stripeError.message);
+      console.error('[CREATE-DEPOSIT] Raw error:', stripeError.raw);
+      
+      // Return specific error information
+      return NextResponse.json(
+        { 
+          error: 'Failed to create payment intent',
+          details: stripeError.message || 'Unknown Stripe error',
+          type: stripeError.type,
+          code: stripeError.code
+        },
+        { status: 500 }
+      );
+    }
 
     // Create rental record
     const rental: RentalBooking = {
