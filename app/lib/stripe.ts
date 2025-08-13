@@ -14,7 +14,7 @@ function getStripeInstance(): Stripe {
   // Use the actual key or a dummy one
   // The dummy key prevents build errors but will fail at runtime with clear errors
   return new Stripe(secretKey || 'sk_test_dummy', {
-    apiVersion: '2024-11-20.acacia',
+    apiVersion: '2025-06-30.basil',
     typescript: true,
   });
 }
