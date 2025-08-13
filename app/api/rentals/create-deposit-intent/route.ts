@@ -148,22 +148,24 @@ export async function POST(request: NextRequest) {
       // Return client secret to confirm payment on client side
       return NextResponse.json({
         success: true,
-        clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id,
-        amount: paymentIntent.amount,
-        currency: paymentIntent.currency,
-        customer: {
-          id: customer.id,
-          email: customer.email
-        },
-        rental: {
-          carId: car.id,
-          carModel: `${car.year} ${car.brand} ${car.model}`,
-          startDate: body.startDate,
-          endDate: body.endDate,
-          depositAmount: pricing.depositAmount,
-          dailyRate: pricing.dailyRate,
-          totalDays: pricing.totalDays
+        data: {
+          clientSecret: paymentIntent.client_secret,
+          paymentIntentId: paymentIntent.id,
+          amount: paymentIntent.amount,
+          currency: paymentIntent.currency,
+          customer: {
+            id: customer.id,
+            email: customer.email
+          },
+          rental: {
+            carId: car.id,
+            carModel: `${car.year} ${car.brand} ${car.model}`,
+            startDate: body.startDate,
+            endDate: body.endDate,
+            depositAmount: pricing.depositAmount,
+            dailyRate: pricing.dailyRate,
+            totalDays: pricing.totalDays
+          }
         }
       });
       
