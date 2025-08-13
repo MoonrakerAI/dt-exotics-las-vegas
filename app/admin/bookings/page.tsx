@@ -492,6 +492,20 @@ export default function BookingsManagement() {
 
   // Confirm booking and then prompt to send rental agreement
   const handleConfirmBooking = async (booking: RentalBooking) => {
+    // Add verification step
+    const confirmed = window.confirm(
+      `Are you sure you want to confirm this booking?\n\n` +
+      `Customer: ${booking.customer.firstName} ${booking.customer.lastName}\n` +
+      `Vehicle: ${booking.car.brand} ${booking.car.model}\n` +
+      `Dates: ${booking.rentalDates.startDate} to ${booking.rentalDates.endDate}\n` +
+      `Total: ${formatCurrency(booking.pricing.subtotal)}\n\n` +
+      `This will confirm the booking and allow the customer to proceed with their rental.`
+    )
+
+    if (!confirmed) {
+      return // User cancelled the confirmation
+    }
+
     try {
       const token = localStorage.getItem('dt-admin-token')
       if (!token) {
@@ -513,6 +527,9 @@ export default function BookingsManagement() {
       }
 
       await fetchBookings()
+
+      // Show success message
+      alert('Booking confirmed successfully! The customer has been notified.')
 
       // Auto-open rental agreement modal as next step
       setSelectedBookingForAgreement(booking)
