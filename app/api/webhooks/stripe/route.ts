@@ -8,6 +8,7 @@ import Stripe from 'stripe';
 import kvRentalDB from '@/app/lib/kv-database';
 import carDB from '@/app/lib/car-database';
 import notificationService from '@/app/lib/notifications';
+import systemAlerts from '@/app/lib/system-alerts';
 import type { RentalBooking } from '@/app/types/rental';
 import crypto from 'crypto';
 import { headers } from 'next/headers';
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
       event = await constructEventWithAnySecret(body, signature)
     } catch (error) {
       console.error('Webhook signature verification failed:', error);
+      await systemAlerts.alertWebhookFailure(error);
       return NextResponse.json(
         { error: 'Invalid signature' },
         { status: 400 }
@@ -259,6 +261,13 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
     return;
   }
 
+  // Get car details for notifications
+  const car = await carDB.getCarById(rental.carId);
+  if (!car) {
+    console.error('Car not found for rental:', rental.id);
+    return;
+  }
+
   // Update rental status based on payment type
   if (rental.payment.depositPaymentIntentId === paymentIntent.id) {
     // Deposit payment succeeded
@@ -272,6 +281,33 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
       },
       status: 'confirmed'
     });
+
+    // Send payment success notifications
+    try {
+      const paymentData = {
+        paymentId: paymentIntent.id,
+        amount: paymentIntent.amount / 100, // Convert from cents
+        currency: paymentIntent.currency.toUpperCase(),
+        customerName: `${rental.customer.firstName} ${rental.customer.lastName}`,
+        customerEmail: rental.customer.email,
+        vehicleName: `${car.brand} ${car.model}`,
+        paymentType: 'Deposit',
+        transactionId: paymentIntent.id,
+        bookingId: rental.id
+      };
+
+      // Send admin notification
+      console.log('Sending admin payment success notification...');
+      await notificationService.sendPaymentNotification(paymentData, true);
+
+      // Send customer payment receipt
+      console.log('Sending customer payment receipt...');
+      await notificationService.sendCustomerPaymentReceipt(paymentData);
+      
+      console.log('Payment success notifications sent successfully');
+    } catch (emailError) {
+      console.error('Failed to send payment success notifications:', emailError);
+    }
   } else if (rental.payment.finalPaymentIntentId === paymentIntent.id) {
     // Final payment succeeded
     await kvRentalDB.updateRental(rental.id, {
@@ -281,6 +317,33 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
       },
       status: 'completed'
     });
+
+    // Send final payment success notifications
+    try {
+      const paymentData = {
+        paymentId: paymentIntent.id,
+        amount: paymentIntent.amount / 100, // Convert from cents
+        currency: paymentIntent.currency.toUpperCase(),
+        customerName: `${rental.customer.firstName} ${rental.customer.lastName}`,
+        customerEmail: rental.customer.email,
+        vehicleName: `${car.brand} ${car.model}`,
+        paymentType: 'Final Payment',
+        transactionId: paymentIntent.id,
+        bookingId: rental.id
+      };
+
+      // Send admin notification
+      console.log('Sending admin final payment success notification...');
+      await notificationService.sendPaymentNotification(paymentData, true);
+
+      // Send customer payment receipt
+      console.log('Sending customer final payment receipt...');
+      await notificationService.sendCustomerPaymentReceipt(paymentData);
+      
+      console.log('Final payment success notifications sent successfully');
+    } catch (emailError) {
+      console.error('Failed to send final payment success notifications:', emailError);
+    }
   }
 }
 
@@ -290,6 +353,13 @@ async function handlePaymentIntentFailed(paymentIntent: any) {
   const rental = await kvRentalDB.getRentalByPaymentIntent(paymentIntent.id);
   if (!rental) {
     console.error('Rental not found for payment intent:', paymentIntent.id);
+    return;
+  }
+
+  // Get car details for notifications
+  const car = await carDB.getCarById(rental.carId);
+  if (!car) {
+    console.error('Car not found for rental:', rental.id);
     return;
   }
 
@@ -303,6 +373,35 @@ async function handlePaymentIntentFailed(paymentIntent: any) {
       },
       status: 'cancelled'
     });
+
+    // Send payment failure notifications
+    try {
+      const paymentData = {
+        paymentId: paymentIntent.id,
+        amount: paymentIntent.amount / 100, // Convert from cents
+        currency: paymentIntent.currency.toUpperCase(),
+        customerName: `${rental.customer.firstName} ${rental.customer.lastName}`,
+        customerEmail: rental.customer.email,
+        vehicleName: `${car.brand} ${car.model}`,
+        paymentType: 'Deposit',
+        transactionId: paymentIntent.id,
+        bookingId: rental.id,
+        reason: paymentIntent.last_payment_error?.message || 'Payment declined',
+        remainingBalance: paymentIntent.amount / 100
+      };
+
+      // Send admin notification
+      console.log('Sending admin payment failed notification...');
+      await notificationService.sendPaymentNotification(paymentData, false);
+
+      // Send customer payment failed notification
+      console.log('Sending customer payment failed notification...');
+      await notificationService.sendCustomerPaymentFailed(paymentData);
+      
+      console.log('Payment failure notifications sent successfully');
+    } catch (emailError) {
+      console.error('Failed to send payment failure notifications:', emailError);
+    }
   } else if (rental.payment.finalPaymentIntentId === paymentIntent.id) {
     // Final payment failed
     await kvRentalDB.updateRental(rental.id, {
@@ -311,6 +410,35 @@ async function handlePaymentIntentFailed(paymentIntent: any) {
         finalPaymentStatus: 'failed'
       }
     });
+
+    // Send final payment failure notifications
+    try {
+      const paymentData = {
+        paymentId: paymentIntent.id,
+        amount: paymentIntent.amount / 100, // Convert from cents
+        currency: paymentIntent.currency.toUpperCase(),
+        customerName: `${rental.customer.firstName} ${rental.customer.lastName}`,
+        customerEmail: rental.customer.email,
+        vehicleName: `${car.brand} ${car.model}`,
+        paymentType: 'Final Payment',
+        transactionId: paymentIntent.id,
+        bookingId: rental.id,
+        reason: paymentIntent.last_payment_error?.message || 'Payment declined',
+        remainingBalance: paymentIntent.amount / 100
+      };
+
+      // Send admin notification
+      console.log('Sending admin final payment failed notification...');
+      await notificationService.sendPaymentNotification(paymentData, false);
+
+      // Send customer payment failed notification
+      console.log('Sending customer final payment failed notification...');
+      await notificationService.sendCustomerPaymentFailed(paymentData);
+      
+      console.log('Final payment failure notifications sent successfully');
+    } catch (emailError) {
+      console.error('Failed to send final payment failure notifications:', emailError);
+    }
   }
 }
 
