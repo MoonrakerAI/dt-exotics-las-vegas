@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import stripe from '@/app/lib/stripe';
 import carDB from '@/app/lib/car-database';
 import { calculateRentalPricing } from '@/app/lib/rental-utils';
+import notificationService from '@/app/lib/notifications';
 
 // Enhanced test version with request handling
 export async function POST(request: NextRequest) {
@@ -129,7 +130,12 @@ export async function POST(request: NextRequest) {
           car_model: `${car.year} ${car.brand} ${car.model}`,
           start_date: body.startDate,
           end_date: body.endDate,
-          customer_email: body.customer.email
+          customer_email: body.customer.email,
+          customer_first_name: body.customer.firstName,
+          customer_last_name: body.customer.lastName,
+          customer_phone: body.customer.phone,
+          daily_rate: car.price.daily.toString(),
+          total_days: pricing.totalDays.toString()
         },
         description: `Deposit for ${car.brand} ${car.model} rental (${body.startDate} to ${body.endDate})`,
         // For testing, you can add test cards: https://stripe.com/docs/testing#cards

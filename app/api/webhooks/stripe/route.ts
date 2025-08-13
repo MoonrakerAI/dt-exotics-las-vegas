@@ -8,6 +8,8 @@ import stripe from '@/app/lib/stripe';
 import kvRentalDB from '@/app/lib/kv-database';
 import { headers } from 'next/headers';
 import { kv } from '@vercel/kv';
+import notificationService from '@/app/lib/notifications';
+import carDB from '@/app/lib/car-database';
 
 async function constructEventWithAnySecret(body: string, signature: string) {
   const live = process.env.STRIPE_WEBHOOK_SECRET_LIVE || process.env.STRIPE_WEBHOOK_SECRET
@@ -110,22 +112,104 @@ export async function POST(request: NextRequest) {
 
 async function handlePaymentIntentAuthorized(paymentIntent: any) {
   console.log('Payment authorized (amount capturable updated):', paymentIntent.id)
-  const rental = await kvRentalDB.getRentalByPaymentIntent(paymentIntent.id)
+  
+  // Try to get rental from database first
+  let rental = await kvRentalDB.getRentalByPaymentIntent(paymentIntent.id)
+  
+  // If no rental exists, create one from payment intent metadata
   if (!rental) {
-    console.error('Rental not found for payment intent:', paymentIntent.id)
-    return
-  }
+    console.log('No existing rental found, creating from payment intent metadata')
+    
+    const metadata = paymentIntent.metadata
+    if (!metadata || !metadata.car_id || !metadata.start_date || !metadata.end_date || !metadata.customer_email) {
+      console.error('Payment intent missing required metadata for rental creation:', paymentIntent.id)
+      return
+    }
 
-  if (rental.payment.depositPaymentIntentId === paymentIntent.id) {
-    await kvRentalDB.updateRental(rental.id, {
-      payment: {
-        ...rental.payment,
-        depositStatus: 'authorized',
-        savedPaymentMethodId: (paymentIntent as any).payment_method || rental.payment.savedPaymentMethodId,
-        stripeCustomerId: (paymentIntent as any).customer || rental.payment.stripeCustomerId
+    // Get car details
+    const car = await carDB.getCar(metadata.car_id)
+    if (!car) {
+      console.error('Car not found for rental creation:', metadata.car_id)
+      return
+    }
+
+    // Get customer details from Stripe
+    const customer = await stripe.customers.retrieve(paymentIntent.customer)
+    if (!customer || customer.deleted) {
+      console.error('Customer not found:', paymentIntent.customer)
+      return
+    }
+
+    // Create rental record
+    const rentalData = {
+      carId: metadata.car_id,
+      customerId: paymentIntent.customer,
+      customerInfo: {
+        firstName: metadata.customer_first_name || (customer as any).name?.split(' ')[0] || 'Customer',
+        lastName: metadata.customer_last_name || (customer as any).name?.split(' ').slice(1).join(' ') || '',
+        email: metadata.customer_email,
+        phone: (customer as any).phone || 'Not provided'
       },
-      status: rental.status === 'pending' ? 'confirmed' : rental.status
-    })
+      rentalDates: {
+        startDate: metadata.start_date,
+        endDate: metadata.end_date
+      },
+      payment: {
+        depositAmount: paymentIntent.amount / 100, // Convert from cents
+        depositPaymentIntentId: paymentIntent.id,
+        depositStatus: 'authorized',
+        savedPaymentMethodId: paymentIntent.payment_method,
+        stripeCustomerId: paymentIntent.customer
+      },
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    }
+
+    rental = await kvRentalDB.createRental(rentalData)
+    console.log('Created new rental:', rental.id)
+
+    // Send booking confirmation emails
+    try {
+      const bookingData = {
+        id: rental.id,
+        car: {
+          brand: car.brand,
+          model: car.model,
+          year: car.year
+        },
+        customer: rental.customerInfo,
+        startDate: rental.rentalDates.startDate,
+        endDate: rental.rentalDates.endDate,
+        depositAmount: rental.payment.depositAmount,
+        totalAmount: paymentIntent.amount / 100, // This would be calculated properly in real scenario
+        status: rental.status
+      }
+
+      // Send admin notification
+      console.log('Sending admin booking notification...')
+      await notificationService.sendBookingNotification(bookingData)
+
+      // Send customer confirmation
+      console.log('Sending customer booking confirmation...')
+      await notificationService.sendCustomerBookingConfirmation(bookingData)
+      
+      console.log('Booking confirmation emails sent successfully')
+    } catch (emailError) {
+      console.error('Failed to send booking confirmation emails:', emailError)
+    }
+  } else {
+    // Update existing rental
+    if (rental.payment.depositPaymentIntentId === paymentIntent.id) {
+      await kvRentalDB.updateRental(rental.id, {
+        payment: {
+          ...rental.payment,
+          depositStatus: 'authorized',
+          savedPaymentMethodId: (paymentIntent as any).payment_method || rental.payment.savedPaymentMethodId,
+          stripeCustomerId: (paymentIntent as any).customer || rental.payment.stripeCustomerId
+        },
+        status: rental.status === 'pending' ? 'confirmed' : rental.status
+      })
+    }
   }
 }
 

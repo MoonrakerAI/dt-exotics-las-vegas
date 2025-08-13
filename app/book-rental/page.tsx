@@ -691,9 +691,9 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-3xl font-tech font-bold text-white mb-4">Booking Confirmed!</h2>
+          <h2 className="text-3xl font-tech font-bold text-white mb-4">Booking Request Received!</h2>
           <p className="text-gray-400 mb-6">
-            Your reservation has been confirmed. You'll receive a confirmation email shortly with all the details.
+            Your booking request has been received and your deposit has been authorized. We will confirm availability and finalize your reservation within 24 hours. You'll receive a confirmation email shortly with all the details.
           </p>
           <a href="/" className="btn-primary inline-block">
             Return to Homepage
