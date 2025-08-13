@@ -284,6 +284,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
 
     // Send payment success notifications
     try {
+      console.log('=== PAYMENT SUCCESS NOTIFICATIONS START ===');
       const paymentData = {
         paymentId: paymentIntent.id,
         amount: paymentIntent.amount / 100, // Convert from cents
@@ -295,22 +296,29 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
         transactionId: paymentIntent.id,
         bookingId: rental.id
       };
+      console.log('Payment data prepared:', JSON.stringify(paymentData, null, 2));
 
       // Send admin notification
       console.log('Sending admin payment success notification...');
-      await notificationService.sendPaymentNotification(paymentData, true);
+      const adminResult = await notificationService.sendPaymentNotification(paymentData, true);
+      console.log('Admin payment notification result:', adminResult);
 
       // Send customer payment receipt
       console.log('Sending customer payment receipt...');
-      await notificationService.sendCustomerPaymentReceipt(paymentData);
+      const customerResult = await notificationService.sendCustomerPaymentReceipt(paymentData);
+      console.log('Customer payment receipt result:', customerResult);
       
-      console.log('Payment success notifications sent successfully');
+      console.log('Payment success notifications completed');
+      console.log('=== PAYMENT SUCCESS NOTIFICATIONS END ===');
     } catch (emailError) {
+      console.error('=== PAYMENT SUCCESS NOTIFICATIONS ERROR ===');
       console.error('Failed to send payment success notifications:', emailError);
+      console.error('Error stack:', emailError instanceof Error ? emailError.stack : 'No stack trace');
     }
 
     // Send booking confirmation emails (for new bookings)
     try {
+      console.log('=== BOOKING CONFIRMATION EMAILS START ===');
       const bookingData = {
         bookingId: rental.id,
         customerName: `${rental.customer.firstName} ${rental.customer.lastName}`,
@@ -326,18 +334,24 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
         dailyRate: rental.pricing.dailyRate,
         totalDays: rental.pricing.totalDays
       };
+      console.log('Booking data prepared:', JSON.stringify(bookingData, null, 2));
 
       // Send admin booking notification
       console.log('Sending admin booking notification...');
-      await notificationService.sendBookingNotification(bookingData);
+      const adminBookingResult = await notificationService.sendBookingNotification(bookingData);
+      console.log('Admin booking notification result:', adminBookingResult);
 
       // Send customer booking confirmation
       console.log('Sending customer booking confirmation...');
-      await notificationService.sendCustomerBookingConfirmation(bookingData);
+      const customerBookingResult = await notificationService.sendCustomerBookingConfirmation(bookingData);
+      console.log('Customer booking confirmation result:', customerBookingResult);
       
-      console.log('Booking confirmation emails sent successfully');
+      console.log('Booking confirmation emails completed');
+      console.log('=== BOOKING CONFIRMATION EMAILS END ===');
     } catch (emailError) {
+      console.error('=== BOOKING CONFIRMATION EMAILS ERROR ===');
       console.error('Failed to send booking confirmation emails:', emailError);
+      console.error('Error stack:', emailError instanceof Error ? emailError.stack : 'No stack trace');
     }
   } else if (rental.payment.finalPaymentIntentId === paymentIntent.id) {
     // Final payment succeeded

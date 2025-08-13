@@ -158,7 +158,7 @@ export class NotificationService {
         
         <div style="background: #333; padding: 20px; text-align: center;">
           <div style="margin-bottom: 15px;">
-            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 40px; opacity: 0.7;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 24px; opacity: 0.7;">
           </div>
           <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
           <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">Manage bookings efficiently and provide exceptional service!</p>
@@ -213,7 +213,7 @@ View in Admin Dashboard: https://dtexoticslv.com/admin/bookings`
         
         <div style="background: #333; padding: 20px; text-align: center;">
           <div style="margin-bottom: 15px;">
-            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 40px; opacity: 0.7;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 24px; opacity: 0.7;">
           </div>
           <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
           <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">Payment processed successfully!</p>
@@ -265,7 +265,7 @@ Time: ${new Date().toLocaleString()}`
         
         <div style="background: #333; padding: 20px; text-align: center;">
           <div style="margin-bottom: 15px;">
-            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 40px; opacity: 0.7;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 24px; opacity: 0.7;">
           </div>
           <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
           <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">Payment issue requires attention!</p>
@@ -313,7 +313,7 @@ Review Booking: https://dtexoticslv.com/admin/bookings`
         
         <div style="background: #333; padding: 20px; text-align: center;">
           <div style="margin-bottom: 15px;">
-            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 40px; opacity: 0.7;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 24px; opacity: 0.7;">
           </div>
           <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
           <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">System monitoring and alerts!</p>
@@ -444,7 +444,7 @@ ${alert.details ? `Details: ${alert.details}` : ''}`
           
           <div style="background: #333; padding: 20px; text-align: center;">
             <div style="margin-bottom: 15px;">
-              <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 40px; opacity: 0.7;">
+              <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 24px; opacity: 0.7;">
             </div>
             <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
             <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">This email was sent regarding your booking confirmation.</p>
@@ -536,7 +536,7 @@ Questions? Call or text us at +1 (702) 518-0924`
           
           <div style="background: #333; padding: 20px; text-align: center;">
             <div style="margin-bottom: 15px;">
-              <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 40px; opacity: 0.7;">
+              <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 24px; opacity: 0.7;">
             </div>
             <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
             <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">Keep this receipt for your records.</p>
@@ -998,7 +998,7 @@ We can't wait to make your ${inquiry.eventType.toLowerCase()} unforgettable!`
         
         <div style="background: #333; padding: 20px; text-align: center;">
           <div style="margin-bottom: 15px;">
-            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 40px; opacity: 0.7;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 24px; opacity: 0.7;">
           </div>
           <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
           <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">New event inquiry received!</p>
