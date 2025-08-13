@@ -11,6 +11,7 @@ import notificationService from '@/app/lib/notifications';
 import type { RentalBooking } from '@/app/types/rental';
 import crypto from 'crypto';
 import { headers } from 'next/headers';
+import { kv } from '@vercel/kv';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-06-30.basil',
