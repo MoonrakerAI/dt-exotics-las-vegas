@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-// Ensure this route runs on the Node.js runtime and is not statically optimized
+// Runtime configuration MUST be before any imports in Next.js App Router
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+
+import { NextRequest, NextResponse } from 'next/server';
 import stripe from '@/app/lib/stripe';
 import { cars } from '@/app/data/cars';
 import { calculateRentalPricing, generateRentalId } from '@/app/lib/rental-utils';
