@@ -5,8 +5,8 @@ export const revalidate = 0;
 
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { kvRentalDB } from '@/app/lib/kv-database';
-import { carDB } from '@/app/lib/car-database';
+import kvRentalDB from '@/app/lib/kv-database';
+import carDB from '@/app/lib/car-database';
 import { NotificationService } from '@/app/lib/notifications';
 import type { RentalBooking } from '@/app/types/rental';
 import crypto from 'crypto';
