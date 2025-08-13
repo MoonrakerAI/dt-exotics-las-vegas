@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import kvRentalDB from '@/app/lib/kv-database';
 import carDB from '@/app/lib/car-database';
-import { NotificationService } from '@/app/lib/notifications';
+import notificationService from '@/app/lib/notifications';
 import type { RentalBooking } from '@/app/types/rental';
 import crypto from 'crypto';
 import { headers } from 'next/headers';
@@ -15,8 +15,6 @@ import { headers } from 'next/headers';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-06-30.basil',
 });
-
-const notificationService = new NotificationService();
 
 async function constructEventWithAnySecret(body: string, signature: string) {
   const live = process.env.STRIPE_WEBHOOK_SECRET_LIVE || process.env.STRIPE_WEBHOOK_SECRET
