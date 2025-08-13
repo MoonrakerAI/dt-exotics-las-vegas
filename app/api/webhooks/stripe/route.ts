@@ -262,7 +262,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
   }
 
   // Get car details for notifications
-  const car = await carDB.getCarById(rental.carId);
+  const car = await carDB.getCar(rental.carId);
   if (!car) {
     console.error('Car not found for rental:', rental.id);
     return;
@@ -357,7 +357,7 @@ async function handlePaymentIntentFailed(paymentIntent: any) {
   }
 
   // Get car details for notifications
-  const car = await carDB.getCarById(rental.carId);
+  const car = await carDB.getCar(rental.carId);
   if (!car) {
     console.error('Car not found for rental:', rental.id);
     return;

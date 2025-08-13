@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { kv } from '@vercel/kv';
 import kvRentalDB from '@/app/lib/kv-database';
 import carDB from '@/app/lib/car-database';
 import notificationService from '@/app/lib/notifications';
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
 
           // Check if reminder was already sent (to avoid duplicates)
           const reminderKey = `reminder_sent:${rental.id}:${startDate}`;
-          const reminderAlreadySent = await kvRentalDB.kv.get(reminderKey);
+          const reminderAlreadySent = await kv.get(reminderKey);
           
           if (reminderAlreadySent) {
             console.log(`Reminder already sent for rental ${rental.id} on ${startDate}`);
@@ -71,8 +72,8 @@ export async function POST(request: NextRequest) {
           const reminderSent = await notificationService.sendCustomerReminder(bookingData);
 
           if (reminderSent) {
-            // Mark reminder as sent to avoid duplicates
-            await kvRentalDB.kv.set(reminderKey, true, { ex: 60 * 60 * 24 * 7 }); // Expire in 7 days
+            // Mark reminder as sent (expires in 7 days to prevent permanent storage)
+            await kv.set(reminderKey, true, { ex: 604800 }); // Expire in 7 days
             remindersSent++;
             console.log(`Reminder sent successfully for rental ${rental.id}`);
           } else {
