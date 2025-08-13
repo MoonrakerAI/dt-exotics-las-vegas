@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import stripe from '@/app/lib/stripe';
-import { cars } from '@/app/data/cars';
+import carDB from '@/app/lib/car-database';
 import { calculateRentalPricing } from '@/app/lib/rental-utils';
 
 // Enhanced test version with request handling
@@ -65,20 +65,20 @@ export async function POST(request: NextRequest) {
 
     console.log('[DEPOSIT-INTENT] Stripe API key prefix:', process.env.STRIPE_SECRET_KEY?.substring(0, 7));
     
-    // Find the car
+    // Find the car from database (to get current pricing)
     console.log(`[DEPOSIT-INTENT] Looking for car ID: ${body.carId}`);
-    console.log(`[DEPOSIT-INTENT] Available car IDs:`, cars.map(c => c.id));
     
-    const car = cars.find(c => c.id === body.carId);
+    const car = await carDB.getCar(body.carId);
     if (!car) {
       console.error(`[DEPOSIT-INTENT] Car not found: ${body.carId}`);
-      console.error(`[DEPOSIT-INTENT] Available cars:`, cars.map(c => ({ id: c.id, brand: c.brand, model: c.model, year: c.year })));
+      const allCars = await carDB.getAllCars();
+      console.error(`[DEPOSIT-INTENT] Available cars:`, allCars.map(c => ({ id: c.id, brand: c.brand, model: c.model, year: c.year })));
       return NextResponse.json(
         { 
           error: 'Selected car not found',
           requestedId: body.carId,
-          availableIds: cars.map(c => c.id),
-          availableCars: cars.map(c => ({ id: c.id, brand: c.brand, model: c.model, year: c.year }))
+          availableIds: allCars.map(c => c.id),
+          availableCars: allCars.map(c => ({ id: c.id, brand: c.brand, model: c.model, year: c.year }))
         },
         { status: 404 }
       );

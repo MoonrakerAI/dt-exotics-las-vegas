@@ -662,7 +662,7 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
     }
 
     // Confirm the payment
-    const result = await stripe.confirmCardPayment(intentData.paymentIntent.client_secret, {
+    const result = await stripe.confirmCardPayment(intentData.clientSecret, {
       payment_method: {
         card: elements.getElement(CardElement)!,
         billing_details: {
