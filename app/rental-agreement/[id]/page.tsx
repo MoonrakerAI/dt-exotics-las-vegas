@@ -327,7 +327,7 @@ export default function RentalAgreementPage() {
   if (error && !agreementData) {
     return (
       <div className="min-h-screen bg-dark-gray flex items-center justify-center p-4">
-        <div className="bg-gray-800 rounded-lg p-8 max-w-md w-full text-center">
+        <div className="bg-gray-800/60 backdrop-blur-md border border-gray-600/40 rounded-lg p-8 max-w-md w-full text-center">
           <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
           <h1 className="text-2xl font-tech font-bold text-white mb-4">Agreement Not Available</h1>
           <p className="text-gray-300 mb-6">{error}</p>
@@ -345,7 +345,7 @@ export default function RentalAgreementPage() {
   if (success) {
     return (
       <div className="min-h-screen bg-dark-gray flex items-center justify-center p-4">
-        <div className="bg-gray-800 rounded-lg p-8 max-w-md w-full text-center">
+        <div className="bg-gray-800/60 backdrop-blur-md border border-gray-600/40 rounded-lg p-8 max-w-md w-full text-center">
           <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
           <h1 className="text-2xl font-tech font-bold text-white mb-4">Agreement Completed!</h1>
           <p className="text-gray-300 mb-6">
@@ -369,22 +369,22 @@ export default function RentalAgreementPage() {
   const expiryDate = new Date(agreement.expiresAt).toLocaleDateString()
 
   return (
-    <div className="min-h-screen bg-dark-gray">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
       {/* Header */}
-      <div className="bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700">
+      <div className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 backdrop-blur-sm border-b border-gray-600/30">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-3xl font-tech font-bold text-neon-blue mb-2">
               DT EXOTICS LAS VEGAS
             </h1>
-            <p className="text-gray-300">Premium Supercar Rentals</p>
+            <p className="text-gray-200">Premium Supercar Rentals</p>
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Agreement Header */}
-        <div className="bg-gray-800 rounded-lg p-6 mb-8">
+        <div className="bg-gray-800/40 backdrop-blur-md border border-gray-600/30 rounded-lg p-6 mb-8">
           <div className="flex items-center space-x-3 mb-4">
             <FileText className="w-6 h-6 text-neon-blue" />
             <h2 className="text-2xl font-tech font-bold text-white">Rental Agreement</h2>
@@ -418,7 +418,7 @@ export default function RentalAgreementPage() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Personal Information */}
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-gray-800/40 backdrop-blur-md border border-gray-600/30 rounded-lg p-6">
             <h3 className="text-xl font-tech font-bold text-white mb-6">Personal Information</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -430,7 +430,7 @@ export default function RentalAgreementPage() {
                   type="text"
                   value={formData.fullName}
                   onChange={(e) => setField('fullName', e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  className="w-full px-4 py-3 bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
                 {fieldErrors.fullName && <p className="text-red-400 text-xs mt-1">{fieldErrors.fullName}</p>}
@@ -444,7 +444,7 @@ export default function RentalAgreementPage() {
                   type="date"
                   value={formData.dateOfBirth}
                   onChange={(e) => setField('dateOfBirth', e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  className="w-full px-4 py-3 bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
                 {fieldErrors.dateOfBirth && <p className="text-red-400 text-xs mt-1">{fieldErrors.dateOfBirth}</p>}
@@ -453,7 +453,7 @@ export default function RentalAgreementPage() {
           </div>
 
           {/* Driver's License */}
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-gray-800/40 backdrop-blur-md border border-gray-600/30 rounded-lg p-6">
             <h3 className="text-xl font-tech font-bold text-white mb-6">Driver's License</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-2">
@@ -464,7 +464,7 @@ export default function RentalAgreementPage() {
                   type="text"
                   value={formData.driversLicenseNumber}
                   onChange={(e) => setField('driversLicenseNumber', e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  className="w-full px-4 py-3 bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
                 {fieldErrors.driversLicenseNumber && <p className="text-red-400 text-xs mt-1">{fieldErrors.driversLicenseNumber}</p>}
@@ -478,7 +478,7 @@ export default function RentalAgreementPage() {
                   value={formData.driversLicenseState}
                   onChange={(e) => setField('driversLicenseState', e.target.value)}
                   placeholder="e.g., NV"
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  className="w-full px-4 py-3 bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
                 {fieldErrors.driversLicenseState && <p className="text-red-400 text-xs mt-1">{fieldErrors.driversLicenseState}</p>}
@@ -493,7 +493,7 @@ export default function RentalAgreementPage() {
                   type="date"
                   value={formData.driversLicenseExpiry}
                   onChange={(e) => setField('driversLicenseExpiry', e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  className="w-full px-4 py-3 bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
                 {fieldErrors.driversLicenseExpiry && <p className="text-red-400 text-xs mt-1">{fieldErrors.driversLicenseExpiry}</p>}
@@ -502,7 +502,7 @@ export default function RentalAgreementPage() {
           </div>
 
           {/* Address */}
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-gray-800/40 backdrop-blur-md border border-gray-600/30 rounded-lg p-6">
             <h3 className="text-xl font-tech font-bold text-white mb-6">Address</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
@@ -511,7 +511,7 @@ export default function RentalAgreementPage() {
                   type="text"
                   value={formData.street}
                   onChange={(e) => setField('street', e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  className="w-full px-4 py-3 bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
                 {fieldErrors.street && <p className="text-red-400 text-xs mt-1">{fieldErrors.street}</p>}
@@ -522,7 +522,7 @@ export default function RentalAgreementPage() {
                   type="text"
                   value={formData.city}
                   onChange={(e) => setField('city', e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  className="w-full px-4 py-3 bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
                 {fieldErrors.city && <p className="text-red-400 text-xs mt-1">{fieldErrors.city}</p>}
@@ -533,7 +533,7 @@ export default function RentalAgreementPage() {
                   type="text"
                   value={formData.state}
                   onChange={(e) => setField('state', e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  className="w-full px-4 py-3 bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
                 {fieldErrors.state && <p className="text-red-400 text-xs mt-1">{fieldErrors.state}</p>}
@@ -544,7 +544,7 @@ export default function RentalAgreementPage() {
                   type="text"
                   value={formData.zipCode}
                   onChange={(e) => setField('zipCode', e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  className="w-full px-4 py-3 bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
                 {fieldErrors.zipCode && <p className="text-red-400 text-xs mt-1">{fieldErrors.zipCode}</p>}
@@ -553,7 +553,7 @@ export default function RentalAgreementPage() {
           </div>
 
           {/* Emergency Contact */}
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-gray-800/40 backdrop-blur-md border border-gray-600/30 rounded-lg p-6">
             <h3 className="text-xl font-tech font-bold text-white mb-6">Emergency Contact</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
@@ -562,7 +562,7 @@ export default function RentalAgreementPage() {
                   type="text"
                   value={formData.emergencyContactName}
                   onChange={(e) => setField('emergencyContactName', e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  className="w-full px-4 py-3 bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
                 {fieldErrors.emergencyContactName && <p className="text-red-400 text-xs mt-1">{fieldErrors.emergencyContactName}</p>}
@@ -573,7 +573,7 @@ export default function RentalAgreementPage() {
                   type="text"
                   value={formData.emergencyContactRelationship}
                   onChange={(e) => setField('emergencyContactRelationship', e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  className="w-full px-4 py-3 bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
                 {fieldErrors.emergencyContactRelationship && <p className="text-red-400 text-xs mt-1">{fieldErrors.emergencyContactRelationship}</p>}
@@ -584,7 +584,7 @@ export default function RentalAgreementPage() {
                   type="tel"
                   value={formData.emergencyContactPhone}
                   onChange={(e) => setField('emergencyContactPhone', e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  className="w-full px-4 py-3 bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
                 {fieldErrors.emergencyContactPhone && <p className="text-red-400 text-xs mt-1">{fieldErrors.emergencyContactPhone}</p>}
@@ -593,7 +593,7 @@ export default function RentalAgreementPage() {
           </div>
 
           {/* Rental Details */}
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-gray-800/40 backdrop-blur-md border border-gray-600/30 rounded-lg p-6">
             <h3 className="text-xl font-tech font-bold text-white mb-6">Rental Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -623,7 +623,7 @@ export default function RentalAgreementPage() {
                   value={formData.pickupTime}
                   onChange={(e) => setField('pickupTime', e.target.value)}
                   placeholder="e.g., 10:00 AM"
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  className="w-full px-4 py-3 bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
                 {fieldErrors.pickupTime && <p className="text-red-400 text-xs mt-1">{fieldErrors.pickupTime}</p>}
@@ -635,7 +635,7 @@ export default function RentalAgreementPage() {
                   value={formData.returnTime}
                   onChange={(e) => setField('returnTime', e.target.value)}
                   placeholder="e.g., 10:00 AM"
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
+                  className="w-full px-4 py-3 bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   required
                 />
                 {fieldErrors.returnTime && <p className="text-red-400 text-xs mt-1">{fieldErrors.returnTime}</p>}
@@ -644,7 +644,7 @@ export default function RentalAgreementPage() {
           </div>
 
           {/* Pricing Summary */}
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-gray-800/40 backdrop-blur-md border border-gray-600/30 rounded-lg p-6">
             <h3 className="text-xl font-tech font-bold text-white mb-6">Pricing Summary</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
               <p><span className="text-gray-400">Daily Rate:</span> ${booking.pricing.dailyRate.toFixed(2)}</p>
@@ -656,7 +656,7 @@ export default function RentalAgreementPage() {
           </div>
 
           {/* Terms & Conditions */}
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-gray-800/40 backdrop-blur-md border border-gray-600/30 rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-tech font-bold text-white">Terms & Conditions</h3>
               <a href="/legal/rental-agreement.html" target="_blank" rel="noopener noreferrer" className="text-neon-blue text-sm hover:underline">
@@ -692,10 +692,10 @@ export default function RentalAgreementPage() {
           </div>
 
           {/* Signature */}
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-gray-800/40 backdrop-blur-md border border-gray-600/30 rounded-lg p-6">
             <h3 className="text-xl font-tech font-bold text-white mb-4">Digital Signature</h3>
             <p className="text-gray-300 text-sm mb-4">Use your mouse or touch to sign in the box below.</p>
-            <div className="bg-gray-700 border border-gray-600 rounded-lg p-4">
+            <div className="bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg p-4">
               <canvas
                 ref={canvasRef}
                 width={800}
@@ -720,13 +720,13 @@ export default function RentalAgreementPage() {
           </div>
 
           {/* Special Instructions */}
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-gray-800/40 backdrop-blur-md border border-gray-600/30 rounded-lg p-6">
             <h3 className="text-xl font-tech font-bold text-white mb-2">Special Instructions (Optional)</h3>
             <textarea
               value={formData.specialInstructions}
               onChange={(e) => setFormData(prev => ({ ...prev, specialInstructions: e.target.value }))}
               rows={3}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none resize-none"
+              className="w-full px-4 py-3 bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg text-white focus:border-neon-blue focus:outline-none resize-none"
               placeholder="Any notes or requests you'd like us to know about"
             />
           </div>
