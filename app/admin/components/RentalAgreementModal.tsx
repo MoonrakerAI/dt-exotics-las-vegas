@@ -70,9 +70,6 @@ export default function RentalAgreementModal({
       const data = await response.json()
 
       if (!response.ok) {
-        if (response.status === 409) {
-          throw new Error('Active rental agreement already exists for this booking')
-        }
         throw new Error(data.error || 'Failed to send rental agreement')
       }
 

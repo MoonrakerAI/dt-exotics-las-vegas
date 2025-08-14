@@ -104,15 +104,23 @@ export async function POST(request: NextRequest) {
       existingAgreementIds.map(id => kv.get<RentalAgreement>(`rental_agreement:${id}`))
     );
     
-    const activeAgreement = existingAgreements.find(agreement => 
+    // Allow multiple agreements - customers may lose them and need resends
+    // We'll mark previous agreements as 'superseded' when creating a new one
+    const activeAgreements = existingAgreements.filter(agreement => 
       agreement && (agreement.status === 'pending' || agreement.status === 'completed')
     );
 
-    if (activeAgreement) {
-      return NextResponse.json({ 
-        error: 'Active rental agreement already exists for this booking',
-        existingAgreement: activeAgreement
-      }, { status: 409 });
+    // Mark existing active agreements as superseded
+    if (activeAgreements.length > 0) {
+      await Promise.all(
+        activeAgreements.map(async (agreement) => {
+          if (agreement) {
+            agreement.status = 'superseded';
+            agreement.updatedAt = new Date().toISOString();
+            await kv.set(`rental_agreement:${agreement.id}`, agreement);
+          }
+        })
+      );
     }
 
     // Generate unique agreement ID

@@ -54,17 +54,21 @@ export async function GET(
       bookingId: agreement.bookingId,
       status: agreement.status,
       agreementData: agreement.agreementData,
-      expiresAt: agreement.expiresAt,
-      booking: {
-        id: booking.id,
-        customer: booking.customer,
-        car: booking.car,
-        rentalDates: booking.rentalDates,
-        pricing: booking.pricing
-      }
+      expiresAt: agreement.expiresAt
     };
 
-    return NextResponse.json({ agreement: clientAgreement });
+    const clientBooking = {
+      id: booking.id,
+      customer: booking.customer,
+      car: booking.car,
+      rentalDates: booking.rentalDates,
+      pricing: booking.pricing
+    };
+
+    return NextResponse.json({ 
+      agreement: clientAgreement,
+      booking: clientBooking 
+    });
 
   } catch (error) {
     console.error('Error fetching rental agreement:', error);

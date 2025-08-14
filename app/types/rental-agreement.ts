@@ -1,7 +1,7 @@
 export interface RentalAgreement {
   id: string;
   bookingId: string;
-  status: 'pending' | 'completed' | 'expired';
+  status: 'pending' | 'completed' | 'expired' | 'superseded';
   
   // Agreement content
   agreementData: {

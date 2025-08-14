@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react'
 import { formatCurrency } from '../../lib/rental-utils'
 import { RentalBooking } from '../../types/rental'
 import { SimpleAuth } from '../../lib/simple-auth'
-import { Calendar, Search, Filter, Download, Eye, Edit, CreditCard, X, Clock, CheckCircle, AlertCircle, Plus, DollarSign, CalendarDays, Trash2, FileText } from 'lucide-react'
+import { Calendar, Search, Filter, Download, Eye, Edit, CreditCard, X, Clock, CheckCircle, AlertCircle, Plus, DollarSign, CalendarDays, Trash2, FileText, ExternalLink } from 'lucide-react'
 import RentalAgreementModal from '../components/RentalAgreementModal'
+import { RentalAgreement } from '../../types/rental-agreement'
 
 export default function BookingsManagement() {
   const [bookings, setBookings] = useState<RentalBooking[]>([])
@@ -55,7 +56,8 @@ export default function BookingsManagement() {
   const [refundAmount, setRefundAmount] = useState('')
   const [cancelling, setCancelling] = useState(false)
   
-  // Rental agreement modal state (already declared above)
+  // Rental agreement tracking state
+  const [bookingAgreements, setBookingAgreements] = useState<Record<string, RentalAgreement[]>>({})
 
   useEffect(() => {
     fetchBookings()
@@ -64,6 +66,12 @@ export default function BookingsManagement() {
   useEffect(() => {
     filterAndSortBookings()
   }, [bookings, statusFilter, dateFilter, carFilter, searchQuery, sortBy, customDateRange, paymentStatusFilter, amountRangeFilter])
+
+  useEffect(() => {
+    if (bookings.length > 0) {
+      fetchAgreementsForBookings()
+    }
+  }, [bookings])
 
   const fetchBookings = async () => {
     setLoading(true)
@@ -87,11 +95,77 @@ export default function BookingsManagement() {
       // Handle actual API response format: { success: true, data: rentals }
       setBookings(data.data || data.rentals || [])
 
-    } catch (err) {
-      console.error('Bookings fetch error:', err)
-      setError(err instanceof Error ? err.message : 'Failed to load bookings')
+    } catch (error) {
+      console.error('Error fetching bookings:', error)
+      setError('Failed to load bookings. Please try again.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchAgreementsForBookings = async () => {
+    try {
+      const token = localStorage.getItem('dt-admin-token')
+      if (!token) return
+
+      // Fetch agreements for all bookings
+      const agreementPromises = bookings.map(async (booking) => {
+        try {
+          const response = await fetch(`/api/admin/rental-agreements?bookingId=${booking.id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+          if (response.ok) {
+            const data = await response.json()
+            return { bookingId: booking.id, agreements: data.agreements || [] }
+          }
+        } catch (error) {
+          console.error(`Error fetching agreements for booking ${booking.id}:`, error)
+        }
+        return { bookingId: booking.id, agreements: [] }
+      })
+
+      const results = await Promise.all(agreementPromises)
+      const agreementsMap: Record<string, RentalAgreement[]> = {}
+      results.forEach(result => {
+        agreementsMap[result.bookingId] = result.agreements
+      })
+      setBookingAgreements(agreementsMap)
+    } catch (error) {
+      console.error('Error fetching rental agreements:', error)
+    }
+  }
+
+  // Helper function to get the latest active agreement for a booking
+  const getLatestAgreement = (bookingId: string): RentalAgreement | null => {
+    const agreements = bookingAgreements[bookingId] || []
+    if (agreements.length === 0) return null
+    
+    // Find the latest non-superseded agreement
+    const activeAgreements = agreements.filter(a => a.status !== 'superseded')
+    if (activeAgreements.length === 0) return null
+    
+    // Sort by creation date and return the latest
+    return activeAgreements.sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )[0]
+  }
+
+  // Helper function to get agreement status display info
+  const getAgreementStatusInfo = (bookingId: string) => {
+    const agreement = getLatestAgreement(bookingId)
+    if (!agreement) {
+      return { status: 'none', label: 'Not Sent', color: 'text-gray-400', bgColor: 'bg-gray-500/10' }
+    }
+
+    switch (agreement.status) {
+      case 'pending':
+        return { status: 'pending', label: 'Pending', color: 'text-yellow-400', bgColor: 'bg-yellow-500/10', agreement }
+      case 'completed':
+        return { status: 'completed', label: 'Signed', color: 'text-green-400', bgColor: 'bg-green-500/10', agreement }
+      case 'expired':
+        return { status: 'expired', label: 'Expired', color: 'text-red-400', bgColor: 'bg-red-500/10', agreement }
+      default:
+        return { status: 'none', label: 'Not Sent', color: 'text-gray-400', bgColor: 'bg-gray-500/10' }
     }
   }
 
@@ -861,6 +935,7 @@ export default function BookingsManagement() {
                     <th className="text-left py-4 px-6 text-gray-400 font-tech">Rental Period</th>
                     <th className="text-left py-4 px-6 text-gray-400 font-tech">Amount</th>
                     <th className="text-left py-4 px-6 text-gray-400 font-tech">Status</th>
+                    <th className="text-left py-4 px-6 text-gray-400 font-tech">Agreement</th>
                     <th className="text-left py-4 px-6 text-gray-400 font-tech">Actions</th>
                   </tr>
                 </thead>
@@ -913,6 +988,38 @@ export default function BookingsManagement() {
                         <div className="text-gray-400 text-xs mt-1">
                           Payment: {booking.payment.depositStatus}
                         </div>
+                      </td>
+                      <td className="py-4 px-6">
+                        {(() => {
+                          const agreementInfo = getAgreementStatusInfo(booking.id)
+                          return (
+                            <div className="space-y-1">
+                              <div className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium border ${agreementInfo.bgColor} ${agreementInfo.color} border-current/20`}>
+                                <FileText className="w-3 h-3" />
+                                <span>{agreementInfo.label}</span>
+                              </div>
+                              {agreementInfo.agreement && (
+                                <div className="flex items-center space-x-1">
+                                  <a
+                                    href={`/rental-agreement/${agreementInfo.agreement.id}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-neon-blue hover:text-neon-blue/80 transition-colors flex items-center space-x-1"
+                                    title="View Agreement"
+                                  >
+                                    <ExternalLink className="w-3 h-3" />
+                                    <span>View</span>
+                                  </a>
+                                  {agreementInfo.agreement.completedAt && (
+                                    <span className="text-xs text-gray-400">
+                                      • Signed {new Date(agreementInfo.agreement.completedAt).toLocaleDateString()}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })()}
                       </td>
                       <td className="py-4 px-6">
                         {agreementReminders[booking.id] && booking.status === 'confirmed' && (
@@ -1405,6 +1512,7 @@ export default function BookingsManagement() {
                 setAgreementReminders(prev => ({ ...prev, [selectedBookingForAgreement.id]: false }))
               }
               fetchBookings() // Refresh bookings list
+              fetchAgreementsForBookings() // Refresh agreements data
             }}
           />
         )}
