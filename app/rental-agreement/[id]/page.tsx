@@ -380,9 +380,11 @@ export default function RentalAgreementPage() {
       <div className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 backdrop-blur-sm border-b border-gray-600/30">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center">
-            <h1 className="text-3xl font-tech font-bold text-neon-blue mb-2">
-              DT EXOTICS LAS VEGAS
-            </h1>
+            <img 
+              src="/images/logo/dt-exotics-logo.png" 
+              alt="DT Exotics Las Vegas" 
+              className="h-16 mx-auto mb-4"
+            />
             <p className="text-gray-200">Premium Supercar Rentals</p>
           </div>
         </div>
