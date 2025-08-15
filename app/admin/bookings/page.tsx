@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { formatCurrency } from '../../lib/rental-utils'
 import { RentalBooking } from '../../types/rental'
 import { SimpleAuth } from '../../lib/simple-auth'
-import { Calendar, Search, Filter, Download, Eye, Edit, CreditCard, X, Clock, CheckCircle, AlertCircle, Plus, DollarSign, CalendarDays, Trash2, FileText, ExternalLink } from 'lucide-react'
+import { Calendar, Search, Filter, Download, Eye, Edit, CreditCard, X, Clock, CheckCircle, AlertCircle, Plus, DollarSign, CalendarDays, Trash2, FileText, ExternalLink, Mail } from 'lucide-react'
 import RentalAgreementModal from '../components/RentalAgreementModal'
 import { RentalAgreement } from '../../types/rental-agreement'
 
@@ -981,25 +981,27 @@ export default function BookingsManagement() {
                         </div>
                       </td>
                       <td className="py-4 px-6">
-                        <div className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(booking.status)}`}>
+                        <div className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg text-sm font-medium ${getStatusColor(booking.status)}`}>
                           {getStatusIcon(booking.status)}
                           <span>{booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}</span>
                         </div>
-                        <div className="text-gray-400 text-xs mt-1">
-                          Payment: {booking.payment.depositStatus}
+                        <div className="text-gray-400 text-xs mt-2">
+                          {booking.payment.depositStatus === 'pending' && '💳 Payment Pending'}
+                          {booking.payment.depositStatus === 'authorized' && '✅ Payment Ready'}
+                          {booking.payment.depositStatus === 'captured' && '💰 Payment Captured'}
                         </div>
                       </td>
                       <td className="py-4 px-6">
                         {(() => {
                           const agreementInfo = getAgreementStatusInfo(booking.id)
                           return (
-                            <div className="space-y-1">
-                              <div className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium border ${agreementInfo.bgColor} ${agreementInfo.color} border-current/20`}>
-                                <FileText className="w-3 h-3" />
+                            <div className="space-y-2">
+                              <div className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg text-sm font-medium ${agreementInfo.bgColor} ${agreementInfo.color}`}>
+                                <FileText className="w-4 h-4" />
                                 <span>{agreementInfo.label}</span>
                               </div>
                               {agreementInfo.agreement && (
-                                <div className="flex items-center space-x-1">
+                                <div className="flex items-center space-x-2">
                                   <a
                                     href={`/rental-agreement/${agreementInfo.agreement.id}`}
                                     target="_blank"
@@ -1012,7 +1014,7 @@ export default function BookingsManagement() {
                                   </a>
                                   {agreementInfo.agreement.completedAt && (
                                     <span className="text-xs text-gray-400">
-                                      • Signed {new Date(agreementInfo.agreement.completedAt).toLocaleDateString()}
+                                      📝 Signed {new Date(agreementInfo.agreement.completedAt).toLocaleDateString()}
                                     </span>
                                   )}
                                 </div>
@@ -1041,31 +1043,31 @@ export default function BookingsManagement() {
                           >
                             <Eye className="w-4 h-4" />
                           </button>
+                          {booking.status !== 'cancelled' && booking.status !== 'completed' && (
+                            <button 
+                              onClick={() => handleRescheduleBooking(booking)}
+                              className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
+                              title="Reschedule Booking"
+                            >
+                              <CalendarDays className="w-4 h-4" />
+                            </button>
+                          )}
+                          <button 
+                            onClick={() => handlePricingAdjustment(booking)}
+                            className="p-2 text-gray-400 hover:text-yellow-400 transition-colors"
+                            title="Charge Client"
+                          >
+                            <CreditCard className="w-4 h-4" />
+                          </button>
                           {booking.payment.depositStatus === 'authorized' && (
                             <button 
                               onClick={() => handleCaptureDeposit(booking.id)}
                               className="p-2 text-gray-400 hover:text-green-400 transition-colors"
                               title="Capture Deposit"
                             >
-                              <CreditCard className="w-4 h-4" />
+                              <DollarSign className="w-4 h-4" />
                             </button>
                           )}
-                          {(booking.status === 'active' || booking.status === 'confirmed') && (
-                            <button 
-                              onClick={() => handleChargeFinal(booking.id)}
-                              className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
-                              title="Charge Final Payment"
-                            >
-                              <CreditCard className="w-4 h-4" />
-                            </button>
-                          )}
-                          <button 
-                            onClick={() => handlePricingAdjustment(booking)}
-                            className="p-2 text-gray-400 hover:text-yellow-400 transition-colors"
-                            title="Charge Additional Fees"
-                          >
-                            <Plus className="w-4 h-4" />
-                          </button>
                           {booking.status === 'pending' && (
                             <button 
                               onClick={() => handleConfirmBooking(booking)}
@@ -1081,16 +1083,7 @@ export default function BookingsManagement() {
                               className="p-2 text-gray-400 hover:text-purple-400 transition-colors"
                               title="Send Rental Agreement"
                             >
-                              <FileText className="w-4 h-4" />
-                            </button>
-                          )}
-                          {booking.status !== 'cancelled' && booking.status !== 'completed' && (
-                            <button 
-                              onClick={() => handleRescheduleBooking(booking)}
-                              className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
-                              title="Reschedule Booking"
-                            >
-                              <CalendarDays className="w-4 h-4" />
+                              <Mail className="w-4 h-4" />
                             </button>
                           )}
                           {booking.status !== 'cancelled' && booking.status !== 'completed' && (
