@@ -209,7 +209,8 @@ export async function POST(request: NextRequest) {
 
     // Send email to customer
     try {
-      const agreementUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/rental-agreement/${agreementId}`;
+      const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://dtexoticslv.com';
+      const agreementUrl = `${baseUrl}/rental-agreement/${agreementId}`;
 
       const recipients = Array.isArray(recipientEmails) && recipientEmails.length > 0
         ? recipientEmails
@@ -248,7 +249,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       success: true, 
       agreement,
-      agreementUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/rental-agreement/${agreementId}`
+      agreementUrl: `${baseUrl}/rental-agreement/${agreementId}`
     });
 
   } catch (error) {
@@ -290,7 +291,8 @@ export async function PUT(request: NextRequest) {
       }
 
       try {
-        const agreementUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/rental-agreement/${agreementId}`;
+        const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://dtexoticslv.com';
+        const agreementUrl = `${baseUrl}/rental-agreement/${agreementId}`;
         const recipients = Array.isArray(recipientEmails) && recipientEmails.length > 0
           ? recipientEmails
           : [booking.customer.email];

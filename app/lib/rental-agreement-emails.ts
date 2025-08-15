@@ -226,7 +226,7 @@ DT Exotics Las Vegas - Premium Supercar Rentals
             </div>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_BASE_URL}/admin/bookings" 
+              <a href="${process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://dtexoticslv.com'}/admin/bookings" 
                  style="display: inline-block; background: #00ffff; color: #000; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin: 10px;">
                 📊 View in Admin Panel
               </a>
@@ -275,7 +275,7 @@ Next Steps:
 - Ensure all required documentation is ready
 - Contact customer if any clarification is needed
 
-View in Admin Panel: ${process.env.NEXT_PUBLIC_BASE_URL}/admin/bookings
+View in Admin Panel: ${process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://dtexoticslv.com'}/admin/bookings
 
 DT Exotics Las Vegas - Admin System
 Rental agreement completed successfully!`

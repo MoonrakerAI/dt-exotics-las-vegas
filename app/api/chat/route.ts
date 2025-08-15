@@ -327,7 +327,7 @@ async function handleEscalationRequest(escalationData: any, conversationHistory:
     } = escalationData;
 
     // Send escalation email
-    const escalationResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/ai-escalation`, {
+    const escalationResponse = await fetch(`${process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://dtexoticslv.com'}/api/ai-escalation`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
