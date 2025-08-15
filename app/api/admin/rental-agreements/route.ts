@@ -207,9 +207,11 @@ export async function POST(request: NextRequest) {
     await kv.sadd(`booking_agreements:${bookingId}`, agreementId);
     await kv.sadd('all_rental_agreements', agreementId);
 
+    // Define base URL for use throughout function
+    const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://dtexoticslv.com';
+
     // Send email to customer
     try {
-      const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://dtexoticslv.com';
       const agreementUrl = `${baseUrl}/rental-agreement/${agreementId}`;
 
       const recipients = Array.isArray(recipientEmails) && recipientEmails.length > 0
