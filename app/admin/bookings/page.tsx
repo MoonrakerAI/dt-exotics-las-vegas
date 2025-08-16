@@ -1014,31 +1014,22 @@ export default function BookingsManagement() {
                           >
                             <CalendarDays className="w-3.5 h-3.5" />
                           </button>
+                          {(booking.status === 'confirmed' || booking.status === 'pending') && (
+                            <button 
+                              onClick={() => handleRentalAgreementModal(booking)}
+                              className="p-1.5 text-gray-400 hover:text-blue-400 transition-colors"
+                              title="Send Rental Agreement"
+                            >
+                              <Send className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                           <button 
                             onClick={() => handlePricingAdjustment(booking)}
-                            className="p-1.5 text-gray-400 hover:text-yellow-400 transition-colors"
-                            title="Adjust Pricing"
+                            className="p-1.5 text-gray-400 hover:text-green-400 transition-colors"
+                            title="Charge Customer"
                           >
-                            <Edit className="w-3.5 h-3.5" />
+                            <CreditCard className="w-3.5 h-3.5" />
                           </button>
-                          {booking.payment.finalPaymentStatus === 'pending' && (
-                            <button 
-                              onClick={() => handleChargeFinal(booking.id)}
-                              className="p-1.5 text-gray-400 hover:text-green-400 transition-colors"
-                              title="Charge Final Payment"
-                            >
-                              <CreditCard className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                          {booking.payment.depositStatus === 'pending' && (
-                            <button 
-                              onClick={() => handleChargeFinal(booking.id)}
-                              className="p-1.5 text-gray-400 hover:text-green-400 transition-colors"
-                              title="Charge Final Payment"
-                            >
-                              <CreditCard className="w-3.5 h-3.5" />
-                            </button>
-                          )}
                           {booking.payment.depositStatus === 'authorized' && (
                             <button 
                               onClick={() => handleCaptureDeposit(booking.id)}
@@ -1055,15 +1046,6 @@ export default function BookingsManagement() {
                               title="Confirm Booking"
                             >
                               <CheckCircle className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                          {(booking.status === 'confirmed' || booking.status === 'pending') && (
-                            <button 
-                              onClick={() => handleRentalAgreementModal(booking)}
-                              className="p-1.5 text-gray-400 hover:text-blue-400 transition-colors"
-                              title="Send Rental Agreement"
-                            >
-                              <Send className="w-3.5 h-3.5" />
                             </button>
                           )}
                           {booking.status !== 'cancelled' && booking.status !== 'completed' && (
@@ -1085,14 +1067,14 @@ export default function BookingsManagement() {
           )}
         </div>
 
-        {/* Pricing Adjustment Modal */}
+        {/* Charge Customer Modal */}
         {showPricingModal && selectedBookingForAdjustment && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-dark-metal border border-gray-600/30 rounded-2xl p-6 w-full max-w-lg">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-tech font-bold text-white flex items-center space-x-2">
-                  <Edit className="w-6 h-6 text-neon-blue" />
-                  <span>Adjust Booking Pricing</span>
+                  <CreditCard className="w-6 h-6 text-neon-blue" />
+                  <span>Charge Customer</span>
                 </h3>
                 <button
                   onClick={() => setShowPricingModal(false)}
@@ -1105,7 +1087,7 @@ export default function BookingsManagement() {
               <div className="space-y-4">
                 {/* Booking Info */}
                 <div className="bg-dark-gray/50 p-4 rounded-lg border border-gray-600/20">
-                  <p className="text-sm text-gray-400">Adjusting pricing for:</p>
+                  <p className="text-sm text-gray-400">Charging customer:</p>
                   <p className="text-white font-medium">
                     {selectedBookingForAdjustment.customer.firstName} {selectedBookingForAdjustment.customer.lastName}
                   </p>
@@ -1118,17 +1100,70 @@ export default function BookingsManagement() {
                   </p>
                 </div>
 
+                {/* Charge Type Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-3">
+                    Charge Type
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAdjustmentMemo('Additional services')
+                        setAdjustmentAmount('')
+                      }}
+                      className="p-3 bg-dark-gray border border-gray-600 rounded-lg text-left hover:border-neon-blue transition-colors"
+                    >
+                      <div className="text-white font-medium text-sm">Extra Services</div>
+                      <div className="text-gray-400 text-xs">Additional charges</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAdjustmentMemo('Damage fee')
+                        setAdjustmentAmount('')
+                      }}
+                      className="p-3 bg-dark-gray border border-gray-600 rounded-lg text-left hover:border-neon-blue transition-colors"
+                    >
+                      <div className="text-white font-medium text-sm">Damage Fee</div>
+                      <div className="text-gray-400 text-xs">Vehicle damage</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAdjustmentMemo('Late return fee')
+                        setAdjustmentAmount('')
+                      }}
+                      className="p-3 bg-dark-gray border border-gray-600 rounded-lg text-left hover:border-neon-blue transition-colors"
+                    >
+                      <div className="text-white font-medium text-sm">Late Fee</div>
+                      <div className="text-gray-400 text-xs">Late return</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAdjustmentMemo('Customer discount')
+                        setAdjustmentAmount('')
+                      }}
+                      className="p-3 bg-dark-gray border border-gray-600 rounded-lg text-left hover:border-neon-blue transition-colors"
+                    >
+                      <div className="text-white font-medium text-sm">Discount</div>
+                      <div className="text-gray-400 text-xs">Price reduction</div>
+                    </button>
+                  </div>
+                </div>
+
                 {/* Amount Input */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Adjustment Amount ($)
+                    Amount ($)
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     value={adjustmentAmount}
                     onChange={(e) => setAdjustmentAmount(e.target.value)}
-                    placeholder="Enter amount (positive for charges, negative for discounts)"
+                    placeholder="Enter amount (positive for charges, negative for refunds)"
                     className="w-full px-4 py-3 bg-dark-gray border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   />
                 </div>
@@ -1136,18 +1171,18 @@ export default function BookingsManagement() {
                 {/* Memo Input */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Description / Memo
+                    Description / Notes
                   </label>
                   <textarea
                     value={adjustmentMemo}
                     onChange={(e) => setAdjustmentMemo(e.target.value)}
-                    placeholder="Reason for adjustment (e.g., damage fee, discount, extra services, refund)"
+                    placeholder="Detailed description of the charge or adjustment"
                     rows={3}
                     className="w-full px-4 py-3 bg-dark-gray border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none resize-none"
                   />
                 </div>
 
-                {/* Charge Now Option */}
+                {/* Payment Options */}
                 <div className="border border-gray-600 rounded-lg p-4">
                   <label className="flex items-center space-x-3">
                     <input
@@ -1157,9 +1192,9 @@ export default function BookingsManagement() {
                       className="w-4 h-4 text-neon-blue bg-dark-gray border-gray-600 rounded focus:ring-neon-blue focus:ring-2"
                     />
                     <div>
-                      <span className="text-white font-medium">Charge customer immediately</span>
+                      <span className="text-white font-medium">Process payment immediately</span>
                       <p className="text-xs text-gray-400">
-                        If unchecked, pricing will be adjusted manually without charging the customer
+                        Charge the customer's saved payment method now. If unchecked, only adjusts booking total.
                       </p>
                     </div>
                   </label>
@@ -1231,12 +1266,17 @@ export default function BookingsManagement() {
                       {chargeNow && parseFloat(adjustmentAmount) > 0 ? (
                         <>
                           <CreditCard className="w-4 h-4" />
-                          <span>Adjust & Charge</span>
+                          <span>Charge Customer</span>
+                        </>
+                      ) : chargeNow && parseFloat(adjustmentAmount) < 0 ? (
+                        <>
+                          <CreditCard className="w-4 h-4" />
+                          <span>Process Refund</span>
                         </>
                       ) : (
                         <>
-                          <Edit className="w-4 h-4" />
-                          <span>Adjust Pricing</span>
+                          <CreditCard className="w-4 h-4" />
+                          <span>Update Total</span>
                         </>
                       )}
                     </>

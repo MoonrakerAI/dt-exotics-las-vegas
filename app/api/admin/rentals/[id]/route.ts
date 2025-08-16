@@ -78,3 +78,39 @@ export async function GET(
     );
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  if (!(await isAdminAuthenticated(request))) {
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    );
+  }
+
+  try {
+    const { id } = await params;
+    const success = await kvRentalDB.deleteRental(id);
+    
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Rental not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Rental deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Error deleting rental:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
