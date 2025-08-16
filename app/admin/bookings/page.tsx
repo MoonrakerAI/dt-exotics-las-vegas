@@ -37,6 +37,7 @@ export default function BookingsManagement() {
   const [adjustmentMemo, setAdjustmentMemo] = useState('')
   const [chargeNow, setChargeNow] = useState(false)
   const [processingAdjustment, setProcessingAdjustment] = useState(false)
+  const [selectedChargeTypes, setSelectedChargeTypes] = useState<string[]>([])
   
   // Reschedule modal state
   const [showRescheduleModal, setShowRescheduleModal] = useState(false)
@@ -313,17 +314,123 @@ export default function BookingsManagement() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'confirmed':
-      case 'active':
-        return <CheckCircle className="w-4 h-4" />
-      case 'pending':
-        return <Clock className="w-4 h-4" />
-      case 'completed':
-        return <CheckCircle className="w-4 h-4" />
-      case 'cancelled':
-        return <X className="w-4 h-4" />
-      default:
-        return <AlertCircle className="w-4 h-4" />
+      case 'pending': return <Clock className="w-3 h-3" />
+      case 'confirmed': return <CheckCircle className="w-3 h-3" />
+      case 'cancelled': return <X className="w-3 h-3" />
+      case 'completed': return <CheckCircle className="w-3 h-3" />
+      default: return <AlertCircle className="w-3 h-3" />
+    }
+  }
+
+  // Comprehensive consolidated status that combines booking status and payment information
+  const getConsolidatedStatus = (booking: RentalBooking) => {
+    const { status, payment } = booking
+    const { depositStatus, finalPaymentStatus } = payment
+    
+    // Define all possible consolidated statuses
+    if (status === 'cancelled') {
+      return {
+        label: 'Cancelled',
+        sublabel: 'Booking cancelled',
+        color: 'text-red-400',
+        bgColor: 'bg-red-500/10 border-red-500/20',
+        icon: <X className="w-3 h-3" />
+      }
+    }
+    
+    if (status === 'completed') {
+      return {
+        label: 'Completed',
+        sublabel: 'Rental finished',
+        color: 'text-green-400',
+        bgColor: 'bg-green-500/10 border-green-500/20',
+        icon: <CheckCircle className="w-3 h-3" />
+      }
+    }
+    
+    if (status === 'pending') {
+      if (depositStatus === 'pending') {
+        return {
+          label: 'Pending Payment',
+          sublabel: 'Awaiting deposit',
+          color: 'text-yellow-400',
+          bgColor: 'bg-yellow-500/10 border-yellow-500/20',
+          icon: <CreditCard className="w-3 h-3" />
+        }
+      }
+      if (depositStatus === 'authorized') {
+        return {
+          label: 'Payment Ready',
+          sublabel: 'Deposit authorized',
+          color: 'text-blue-400',
+          bgColor: 'bg-blue-500/10 border-blue-500/20',
+          icon: <DollarSign className="w-3 h-3" />
+        }
+      }
+      return {
+        label: 'Pending Review',
+        sublabel: 'Awaiting confirmation',
+        color: 'text-orange-400',
+        bgColor: 'bg-orange-500/10 border-orange-500/20',
+        icon: <Clock className="w-3 h-3" />
+      }
+    }
+    
+    if (status === 'confirmed') {
+      if (depositStatus === 'captured') {
+        if (finalPaymentStatus === 'captured') {
+          return {
+            label: 'Fully Paid',
+            sublabel: 'All payments complete',
+            color: 'text-green-400',
+            bgColor: 'bg-green-500/10 border-green-500/20',
+            icon: <CheckCircle className="w-3 h-3" />
+          }
+        }
+        if (finalPaymentStatus === 'pending') {
+          return {
+            label: 'Final Payment Due',
+            sublabel: 'Deposit paid',
+            color: 'text-yellow-400',
+            bgColor: 'bg-yellow-500/10 border-yellow-500/20',
+            icon: <CreditCard className="w-3 h-3" />
+          }
+        }
+        return {
+          label: 'Confirmed',
+          sublabel: 'Deposit paid',
+          color: 'text-green-400',
+          bgColor: 'bg-green-500/10 border-green-500/20',
+          icon: <CheckCircle className="w-3 h-3" />
+        }
+      }
+      if (depositStatus === 'authorized') {
+        return {
+          label: 'Confirmed',
+          sublabel: 'Capture deposit',
+          color: 'text-blue-400',
+          bgColor: 'bg-blue-500/10 border-blue-500/20',
+          icon: <DollarSign className="w-3 h-3" />
+        }
+      }
+      if (depositStatus === 'pending') {
+        return {
+          label: 'Confirmed',
+          sublabel: 'Awaiting payment',
+          color: 'text-yellow-400',
+          bgColor: 'bg-yellow-500/10 border-yellow-500/20',
+          icon: <CreditCard className="w-3 h-3" />
+        }
+      }
+    }
+    
+    // Fallback for any edge cases
+    return {
+      label: status.charAt(0).toUpperCase() + status.slice(1),
+      sublabel: 'Status unclear',
+      color: 'text-gray-400',
+      bgColor: 'bg-gray-500/10 border-gray-500/20',
+      icon: <AlertCircle className="w-3 h-3" />
     }
   }
 
@@ -396,6 +503,7 @@ export default function BookingsManagement() {
     setAdjustmentAmount('')
     setAdjustmentMemo('')
     setChargeNow(false)
+    setSelectedChargeTypes([])
     setShowPricingModal(true)
   }
 
@@ -650,6 +758,38 @@ export default function BookingsManagement() {
       alert('Failed to cancel booking: ' + (err instanceof Error ? err.message : 'Unknown error'))
     } finally {
       setCancelling(false)
+    }
+  }
+
+  const handleDeleteBooking = async (booking: RentalBooking) => {
+    if (!confirm(`Are you sure you want to permanently delete this booking?\n\nCustomer: ${booking.customer.firstName} ${booking.customer.lastName}\nCar: ${booking.car.brand} ${booking.car.model}\n\nThis action cannot be undone.`)) {
+      return
+    }
+
+    try {
+      const token = localStorage.getItem('dt-admin-token')
+      if (!token) {
+        throw new Error('No admin token found')
+      }
+
+      const response = await fetch(`/api/admin/rentals/${booking.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to delete booking')
+      }
+
+      // Remove from local state
+      setBookings(prev => prev.filter(b => b.id !== booking.id))
+      alert('Booking deleted successfully')
+    } catch (err) {
+      console.error('Delete error:', err)
+      alert('Failed to delete booking: ' + (err instanceof Error ? err.message : 'Unknown error'))
     }
   }
 
@@ -935,7 +1075,7 @@ export default function BookingsManagement() {
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-32">Vehicle</th>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-28">Dates</th>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-24">Amount</th>
-                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-24">Status</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-32">Status</th>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-20">Agreement</th>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-32">Actions</th>
                   </tr>
@@ -985,15 +1125,24 @@ export default function BookingsManagement() {
                         </div>
                       </td>
                       <td className="py-3 px-3">
-                        <div className={`inline-flex items-center space-x-1 px-2 py-1 rounded text-xs font-medium ${getStatusColor(booking.status)}`}>
-                          {getStatusIcon(booking.status)}
-                          <span className="truncate">{booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}</span>
-                        </div>
-                        <div className="text-gray-400 text-xs mt-1">
-                          {booking.payment.depositStatus === 'pending' && '💳 Pending'}
-                          {booking.payment.depositStatus === 'authorized' && '✅ Ready'}
-                          {booking.payment.depositStatus === 'captured' && '💰 Paid'}
-                        </div>
+                        {(() => {
+                          const statusInfo = getConsolidatedStatus(booking)
+                          return (
+                            <div className={`inline-flex items-center space-x-2 px-2 py-1 rounded border ${statusInfo.bgColor}`}>
+                              <div className={statusInfo.color}>
+                                {statusInfo.icon}
+                              </div>
+                              <div>
+                                <div className={`font-medium text-xs ${statusInfo.color}`}>
+                                  {statusInfo.label}
+                                </div>
+                                <div className="text-gray-400 text-xs">
+                                  {statusInfo.sublabel}
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        })()}
                       </td>
                       <td className="py-3 px-3">
                         {(() => {
@@ -1057,6 +1206,13 @@ export default function BookingsManagement() {
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           )}
+                          <button 
+                            onClick={() => handleDeleteBooking(booking)}
+                            className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+                            title="Delete Booking (Permanent)"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -1103,53 +1259,67 @@ export default function BookingsManagement() {
                 {/* Charge Type Selection */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-3">
-                    Charge Type
+                    Charge Type(s) - Select all that apply
                   </label>
                   <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAdjustmentMemo('Additional services')
-                        setAdjustmentAmount('')
-                      }}
-                      className="p-3 bg-dark-gray border border-gray-600 rounded-lg text-left hover:border-neon-blue transition-colors"
-                    >
-                      <div className="text-white font-medium text-sm">Extra Services</div>
-                      <div className="text-gray-400 text-xs">Additional charges</div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAdjustmentMemo('Damage fee')
-                        setAdjustmentAmount('')
-                      }}
-                      className="p-3 bg-dark-gray border border-gray-600 rounded-lg text-left hover:border-neon-blue transition-colors"
-                    >
-                      <div className="text-white font-medium text-sm">Damage Fee</div>
-                      <div className="text-gray-400 text-xs">Vehicle damage</div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAdjustmentMemo('Late return fee')
-                        setAdjustmentAmount('')
-                      }}
-                      className="p-3 bg-dark-gray border border-gray-600 rounded-lg text-left hover:border-neon-blue transition-colors"
-                    >
-                      <div className="text-white font-medium text-sm">Late Fee</div>
-                      <div className="text-gray-400 text-xs">Late return</div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAdjustmentMemo('Customer discount')
-                        setAdjustmentAmount('')
-                      }}
-                      className="p-3 bg-dark-gray border border-gray-600 rounded-lg text-left hover:border-neon-blue transition-colors"
-                    >
-                      <div className="text-white font-medium text-sm">Discount</div>
-                      <div className="text-gray-400 text-xs">Price reduction</div>
-                    </button>
+                    {[
+                      { id: 'deposit', label: 'Deposit', description: 'Security deposit' },
+                      { id: 'final-payment', label: 'Final Payment', description: 'Remaining balance' },
+                      { id: 'extra-services', label: 'Extra Services', description: 'Additional charges' },
+                      { id: 'damage-fee', label: 'Damage Fee', description: 'Vehicle damage' },
+                      { id: 'late-fee', label: 'Late Fee', description: 'Late return' },
+                      { id: 'discount', label: 'Discount', description: 'Price reduction' }
+                    ].map((chargeType) => {
+                      const isSelected = selectedChargeTypes.includes(chargeType.id)
+                      return (
+                        <button
+                          key={chargeType.id}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedChargeTypes(prev => prev.filter(id => id !== chargeType.id))
+                            } else {
+                              setSelectedChargeTypes(prev => [...prev, chargeType.id])
+                            }
+                            // Update memo based on selected types
+                            const newTypes = isSelected 
+                              ? selectedChargeTypes.filter(id => id !== chargeType.id)
+                              : [...selectedChargeTypes, chargeType.id]
+                            
+                            const typeLabels = newTypes.map(id => {
+                              const type = [
+                                { id: 'deposit', label: 'Deposit' },
+                                { id: 'final-payment', label: 'Final Payment' },
+                                { id: 'extra-services', label: 'Additional services' },
+                                { id: 'damage-fee', label: 'Damage fee' },
+                                { id: 'late-fee', label: 'Late return fee' },
+                                { id: 'discount', label: 'Customer discount' }
+                              ].find(t => t.id === id)
+                              return type?.label || ''
+                            }).filter(Boolean)
+                            
+                            setAdjustmentMemo(typeLabels.join(', '))
+                          }}
+                          className={`p-3 border rounded-lg text-left transition-colors ${
+                            isSelected 
+                              ? 'bg-neon-blue/20 border-neon-blue text-white' 
+                              : 'bg-dark-gray border-gray-600 hover:border-neon-blue'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="text-white font-medium text-sm">{chargeType.label}</div>
+                              <div className="text-gray-400 text-xs">{chargeType.description}</div>
+                            </div>
+                            {isSelected && (
+                              <div className="w-4 h-4 bg-neon-blue rounded-full flex items-center justify-center">
+                                <div className="w-2 h-2 bg-black rounded-full"></div>
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
 
