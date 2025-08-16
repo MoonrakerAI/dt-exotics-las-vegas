@@ -94,42 +94,45 @@ export default function BlogPage() {
             {featuredPost && (
               <div className="mb-12">
                 <h2 className="text-2xl font-tech font-bold text-white mb-6">Featured Article</h2>
-                <div className="glass-panel bg-dark-metal/50 p-8 border border-gray-600/30 rounded-2xl hover:border-neon-blue/50 transition-all duration-500">
-                  {featuredPost.featuredImage && (
-                    <div className="mb-6 rounded-lg overflow-hidden">
-                      <Image
-                        src={featuredPost.featuredImage}
-                        alt={featuredPost.title}
-                        width={800}
-                        height={400}
-                        className="w-full h-64 object-cover"
-                      />
+                <Link href={`/blog/${featuredPost.slug}`} className="block">
+                  <div className="glass-panel bg-dark-metal/50 p-8 border border-gray-600/30 rounded-2xl hover:border-neon-blue/50 transition-all duration-500 cursor-pointer">
+                    {featuredPost.featuredImage && (
+                      <div className="mb-6 rounded-lg overflow-hidden">
+                        <Image
+                          src={featuredPost.featuredImage}
+                          alt={featuredPost.title}
+                          width={800}
+                          height={400}
+                          className="w-full h-64 object-cover"
+                          onError={(e) => {
+                            console.log('Featured image failed to load:', featuredPost.featuredImage);
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                    <div className="flex items-center gap-4 mb-4 text-sm text-gray-400">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4" />
+                        {new Date(featuredPost.publishedAt!).toLocaleDateString()}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <User className="w-4 h-4" />
+                        {featuredPost.author.name}
+                      </div>
                     </div>
-                  )}
-                  <div className="flex items-center gap-4 mb-4 text-sm text-gray-400">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      {new Date(featuredPost.publishedAt!).toLocaleDateString()}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <User className="w-4 h-4" />
-                      {featuredPost.author.name}
+                    <h3 className="text-2xl font-tech font-bold text-white mb-4">
+                      {featuredPost.title}
+                    </h3>
+                    <p className="text-gray-300 mb-6 leading-relaxed">
+                      {featuredPost.excerpt}
+                    </p>
+                    <div className="inline-flex items-center gap-2 text-neon-blue hover:text-white transition-colors duration-300">
+                      Read Full Article
+                      <ArrowRight className="w-4 h-4" />
                     </div>
                   </div>
-                  <h3 className="text-2xl font-tech font-bold text-white mb-4">
-                    {featuredPost.title}
-                  </h3>
-                  <p className="text-gray-300 mb-6 leading-relaxed">
-                    {featuredPost.excerpt}
-                  </p>
-                  <Link
-                    href={`/blog/${featuredPost.slug}`}
-                    className="inline-flex items-center gap-2 text-neon-blue hover:text-white transition-colors duration-300"
-                  >
-                    Read Full Article
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                </div>
+                </Link>
               </div>
             )}
 
@@ -140,56 +143,56 @@ export default function BlogPage() {
                 {filteredPosts
                   .filter(post => !post.featured)
                   .map((post) => (
-                  <article
-                    key={post.id}
-                    className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-lg hover:border-neon-blue/50 transition-all duration-500"
-                  >
-                    {post.featuredImage && (
-                      <div className="mb-4 rounded-lg overflow-hidden">
-                        <Image
-                          src={post.featuredImage}
-                          alt={post.title}
-                          width={400}
-                          height={200}
-                          className="w-full h-40 object-cover"
-                        />
+                  <Link key={post.id} href={`/blog/${post.slug}`} className="block">
+                    <article className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-lg hover:border-neon-blue/50 transition-all duration-500 cursor-pointer">
+                      {post.featuredImage && (
+                        <div className="mb-4 rounded-lg overflow-hidden">
+                          <Image
+                            src={post.featuredImage}
+                            alt={post.title}
+                            width={400}
+                            height={200}
+                            className="w-full h-40 object-cover"
+                            onError={(e) => {
+                              console.log('Blog post image failed to load:', post.featuredImage);
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      )}
+                      <div className="flex items-center gap-4 mb-3 text-xs text-gray-400">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {new Date(post.publishedAt!).toLocaleDateString()}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <User className="w-3 h-3" />
+                          {post.author.name}
+                        </div>
                       </div>
-                    )}
-                    <div className="flex items-center gap-4 mb-3 text-xs text-gray-400">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(post.publishedAt!).toLocaleDateString()}
+                      <h3 className="text-lg font-tech font-bold text-white mb-3">
+                        {post.title}
+                      </h3>
+                      <p className="text-gray-300 text-sm mb-4 leading-relaxed">
+                        {post.excerpt}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-wrap gap-1">
+                          {post.tags.slice(0, 2).map((tag) => (
+                            <span
+                              key={tag}
+                              className="px-2 py-1 bg-neon-blue/10 text-neon-blue text-xs rounded-full"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="text-neon-blue hover:text-white transition-colors duration-300 text-sm">
+                          Read More →
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <User className="w-3 h-3" />
-                        {post.author.name}
-                      </div>
-                    </div>
-                    <h3 className="text-lg font-tech font-bold text-white mb-3">
-                      {post.title}
-                    </h3>
-                    <p className="text-gray-300 text-sm mb-4 leading-relaxed">
-                      {post.excerpt}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-wrap gap-1">
-                        {post.tags.slice(0, 2).map((tag) => (
-                          <span
-                            key={tag}
-                            className="px-2 py-1 bg-neon-blue/10 text-neon-blue text-xs rounded-full"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                      <Link
-                        href={`/blog/${post.slug}`}
-                        className="text-neon-blue hover:text-white transition-colors duration-300 text-sm"
-                      >
-                        Read More →
-                      </Link>
-                    </div>
-                  </article>
+                    </article>
+                  </Link>
                 ))}
               </div>
             </div>
