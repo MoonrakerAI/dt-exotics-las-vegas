@@ -1000,7 +1000,7 @@ export default function BookingsManagement() {
                           const agreementInfo = getAgreementStatusInfo(booking.id, booking.status)
                           return (
                             <div className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${agreementInfo.bgColor} ${agreementInfo.color}`}>
-                              <span className="truncate">{agreementInfo.text}</span>
+                              <span className="truncate">{agreementInfo.label}</span>
                             </div>
                           )
                         })()}
