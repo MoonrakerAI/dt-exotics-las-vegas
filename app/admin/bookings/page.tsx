@@ -1003,8 +1003,7 @@ export default function BookingsManagement() {
                               <span className="truncate">{agreementInfo.text}</span>
                             </div>
                           )
-                        })()
-                        )}
+                        })()}
                       </td>
                       <td className="py-3 px-3">
                         <div className="flex items-center space-x-1 flex-wrap">
