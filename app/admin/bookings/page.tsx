@@ -1081,10 +1081,10 @@ export default function BookingsManagement() {
                   <tr>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-36">Customer</th>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-32">Vehicle</th>
-                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-36">Dates</th>
-                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-32">Amount</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-24">Dates</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-24">Amount</th>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-32">Status</th>
-                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-20">Agreement</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-28">Agreement</th>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-32">Actions</th>
                   </tr>
                 </thead>
