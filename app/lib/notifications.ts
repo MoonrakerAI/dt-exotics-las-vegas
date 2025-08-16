@@ -726,6 +726,7 @@ DT Exotics Las Vegas - Premium Supercar Rentals`
   }
 
   private getCustomerReminderTemplate(booking: any): EmailTemplate {
+    const formattedCustomerPhone = this.formatPhoneNumber(booking.customer.phone);
     const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
     
     return {
@@ -819,7 +820,9 @@ Balance Due at Pickup: $${booking.pricing.finalAmount - booking.pricing.depositA
 Actions:
 Call Customer: ${formattedCustomerPhone}
 Email Customer: ${booking.customer.email}
-View Dashboard: https://dtexoticslv.com/admin/bookings`
+View Dashboard: https://dtexoticslv.com/admin/bookings
+
+Customer Pickup Instructions:
 1. Bring valid driver's license and credit card for security deposit
 2. Arrive 15 minutes early for vehicle inspection and paperwork
 3. Complete remaining balance of $${booking.pricing.finalAmount - booking.pricing.depositAmount} at pickup
@@ -990,7 +993,7 @@ We can't wait to make your ${inquiry.eventType.toLowerCase()} unforgettable!`
 
   public async sendCustomerBookingConfirmed(booking: any): Promise<boolean> {
     try {
-      const template = this.getCustomerBookingConfirmedTemplate(booking);
+      const template = this.getCustomerBookingConfirmationTemplate(booking);
       return await this.sendEmail(booking.customer.email, template);
     } catch (error) {
       console.error('Failed to send customer booking confirmed notification:', error);
@@ -1200,7 +1203,7 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
         return await this.sendEmailToAdmins(template);
       }
       case 'customer_booking_confirmed': {
-        const template = this.getCustomerBookingConfirmedTemplate(testData.booking);
+        const template = this.getCustomerBookingConfirmationTemplate(testData.booking);
         return await this.sendEmailToAdmins(template);
       }
       case 'customer_event_confirmation': {
