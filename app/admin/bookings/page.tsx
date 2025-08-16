@@ -1021,7 +1021,7 @@ export default function BookingsManagement() {
                           >
                             <Edit className="w-3.5 h-3.5" />
                           </button>
-                          {booking.payment.finalStatus === 'pending' && (
+                          {booking.payment.finalPaymentStatus === 'pending' && (
                             <button 
                               onClick={() => handleChargeFinal(booking.id)}
                               className="p-1.5 text-gray-400 hover:text-green-400 transition-colors"
