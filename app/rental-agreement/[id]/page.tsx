@@ -51,8 +51,7 @@ export default function RentalAgreementPage() {
     modifications: false,
     liability: false,
     lateReturn: false,
-    signature: '',
-    specialInstructions: ''
+    signature: ''
   })
   
   // Signature state
@@ -665,11 +664,8 @@ export default function RentalAgreementPage() {
 
           {/* Terms & Conditions */}
           <div className="bg-gray-800/40 backdrop-blur-md border border-gray-600/30 rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4">
               <h3 className="text-xl font-tech font-bold text-white">Terms & Conditions</h3>
-              <a href="/legal/rental-agreement.html" target="_blank" rel="noopener noreferrer" className="text-neon-blue text-sm hover:underline">
-                View Full Legal Terms
-              </a>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
               {([
@@ -1027,26 +1023,28 @@ export default function RentalAgreementPage() {
             </div>
           </div>
 
-          {/* Special Instructions */}
-          <div className="bg-gray-800/40 backdrop-blur-md border border-gray-600/30 rounded-lg p-6">
-            <h3 className="text-xl font-tech font-bold text-white mb-2">Special Instructions (Optional)</h3>
-            <textarea
-              value={formData.specialInstructions}
-              onChange={(e) => setFormData(prev => ({ ...prev, specialInstructions: e.target.value }))}
-              rows={3}
-              className="w-full px-4 py-3 bg-gray-700/60 backdrop-blur-sm border border-gray-500/40 rounded-lg text-white focus:border-neon-blue focus:outline-none resize-none"
-              placeholder="Any notes or requests you'd like us to know about"
-            />
-          </div>
-          
-          {/* Submit Button */}
-          <div className="text-center">
+          {/* Complete Agreement Button */}
+          <div className="text-center bg-gray-800/40 backdrop-blur-md border border-gray-600/30 rounded-lg p-8">
+            <div className="mb-6">
+              <h3 className="text-2xl font-tech font-bold text-white mb-2">Ready to Complete Your Agreement?</h3>
+              <p className="text-gray-300">By clicking the button below, you confirm that all information is accurate and you agree to the terms and conditions.</p>
+            </div>
             <button
               type="submit"
               disabled={submitting}
-              className="bg-neon-blue text-black px-8 py-4 rounded-lg font-tech font-bold text-lg hover:bg-neon-blue/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="bg-neon-blue text-black px-12 py-5 rounded-xl font-tech font-bold text-xl hover:bg-neon-blue/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-neon-blue/30"
             >
-              {submitting ? 'Submitting...' : 'Complete Agreement'}
+              {submitting ? (
+                <>
+                  <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-3"></div>
+                  Submitting Agreement...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="inline-block w-6 h-6 mr-3" />
+                  Complete Agreement
+                </>
+              )}
             </button>
           </div>
         </form>
