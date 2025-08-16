@@ -98,72 +98,70 @@ export class NotificationService {
     return {
       subject: `New Booking Confirmed - ${booking.car.brand} ${booking.car.model}`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
-            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
-            <h1 style="color: #00ffff; margin: 0; font-size: 28px;">New Booking Confirmed!</h1>
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 40px 30px; text-align: center; border-radius: 0;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="width: 300px; max-width: 100%; height: auto; margin-bottom: 20px;">
+            <h1 style="color: #00ffff; margin: 0; font-size: 32px; font-weight: 300; letter-spacing: 1px;">New Booking Confirmed</h1>
           </div>
           
-          <div style="padding: 30px; background: #f8f9fa;">
-            <h2 style="color: #333; margin-top: 0;">Booking Details</h2>
-            
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #00ffff; margin-top: 0;">Vehicle</h3>
-              <p style="margin: 5px 0; font-size: 16px;"><strong>${booking.car.brand} ${booking.car.model} (${booking.car.year})</strong></p>
-              
-              <h3 style="color: #00ffff; margin-top: 20px;">Customer</h3>
-              <p style="margin: 5px 0;">${booking.customer.firstName} ${booking.customer.lastName}</p>
-              <p style="margin: 5px 0;">${booking.customer.email}</p>
-              <p style="margin: 5px 0;">${formattedCustomerPhone}</p>
-              
-              <h3 style="color: #00ffff; margin-top: 20px;">Rental Period</h3>
-              <p style="margin: 5px 0;"><strong>Start:</strong> ${new Date(booking.rentalDates.startDate).toLocaleDateString()}</p>
-              <p style="margin: 5px 0;"><strong>End:</strong> ${new Date(booking.rentalDates.endDate).toLocaleDateString()}</p>
-              
-              <h3 style="color: #00ffff; margin-top: 20px;">Payment</h3>
-              <p style="margin: 5px 0;"><strong>Total:</strong> $${booking.pricing.finalAmount}</p>
-              <p style="margin: 5px 0;"><strong>Deposit:</strong> $${booking.pricing.depositAmount}</p>
-              <p style="margin: 5px 0;"><strong>Status:</strong> ${booking.status}</p>
+          <!-- Main Content -->
+          <div style="padding: 40px 30px; background: #ffffff;">
+            <!-- Vehicle & Customer Info -->
+            <div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 25px; margin-bottom: 25px;">
+              <h2 style="color: #1a1a1a; margin: 0 0 20px 0; font-size: 24px; font-weight: 400;">${booking.car.brand} ${booking.car.model}</h2>
+              <p style="color: #666; margin: 0 0 5px 0; font-size: 16px;">${booking.car.year} • ${booking.customer.firstName} ${booking.customer.lastName}</p>
+              <p style="color: #666; margin: 0; font-size: 14px;">${booking.customer.email} • ${formattedCustomerPhone}</p>
             </div>
-            
-            <div style="text-align: center; margin-top: 30px;">
-              <p style="color: #666; margin-bottom: 20px; font-weight: bold;">Quick Actions:</p>
-              <div style="display: inline-block; text-align: center;">
-                <a href="tel:${formattedCustomerPhone}" 
-                   style="display: inline-block; background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
-                  📞 Call Customer
-                </a>
-                <a href="sms:${formattedCustomerPhone}" 
-                   style="display: inline-block; background: #007bff; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
-                  💬 Text Customer
-                </a>
-                <a href="mailto:${booking.customer.email}" 
-                   style="display: inline-block; background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
-                  📧 Email Customer
-                </a>
-                <a href="https://dtexoticslv.com/admin/bookings" 
-                   style="display: inline-block; background: #6c757d; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 140px; text-align: center;">
-                  🖥️ Admin Dashboard
-                </a>
-              </div>
-              <div style="margin-top: 15px; font-size: 14px; color: #666;">
-                <p style="margin: 5px 0;">📞 Customer: <a href="tel:${formattedCustomerPhone}" style="color: #00ffff; text-decoration: none;">${formattedCustomerPhone}</a></p>
-                <p style="margin: 5px 0;">💬 Customer: <a href="sms:${formattedCustomerPhone}" style="color: #007bff; text-decoration: none;">${formattedCustomerPhone}</a></p>
-                <p style="margin: 5px 0;">📧 Customer: <a href="mailto:${booking.customer.email}" style="color: #00ffff; text-decoration: none;">${booking.customer.email}</a></p>
-                <p style="margin: 5px 0;">📞 DT Exotics: <a href="tel:${formattedBusinessPhone}" style="color: #00ffff; text-decoration: none;">${formattedBusinessPhone}</a></p>
-              </div>
+
+            <!-- Rental Details -->
+            <div style="margin-bottom: 30px;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 12px 0; color: #666; font-size: 14px; border-bottom: 1px solid #f0f0f0;">Rental Period</td>
+                  <td style="padding: 12px 0; color: #1a1a1a; font-size: 14px; text-align: right; border-bottom: 1px solid #f0f0f0; font-weight: 500;">
+                    ${new Date(booking.rentalDates.startDate).toLocaleDateString()} - ${new Date(booking.rentalDates.endDate).toLocaleDateString()}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 0; color: #666; font-size: 14px; border-bottom: 1px solid #f0f0f0;">Total Amount</td>
+                  <td style="padding: 12px 0; color: #1a1a1a; font-size: 14px; text-align: right; border-bottom: 1px solid #f0f0f0; font-weight: 500;">$${booking.pricing.finalAmount}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 0; color: #666; font-size: 14px; border-bottom: 1px solid #f0f0f0;">Deposit Paid</td>
+                  <td style="padding: 12px 0; color: #00ffff; font-size: 14px; text-align: right; border-bottom: 1px solid #f0f0f0; font-weight: 500;">$${booking.pricing.depositAmount}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 0; color: #666; font-size: 14px;">Status</td>
+                  <td style="padding: 12px 0; color: #1a1a1a; font-size: 14px; text-align: right; font-weight: 500;">${booking.status}</td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="text-align: center; padding: 20px 0; border-top: 1px solid #e0e0e0; border-bottom: 1px solid #e0e0e0;">
+              <a href="tel:${formattedCustomerPhone}" 
+                 style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 8px 4px; font-size: 14px; letter-spacing: 0.5px;">
+                📞 Call Customer
+              </a>
+              <a href="sms:${formattedCustomerPhone}" 
+                 style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 8px 4px; font-size: 14px; letter-spacing: 0.5px;">
+                💬 Text Customer
+              </a>
+              <a href="https://dtexoticslv.com/admin/bookings" 
+                 style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 8px 4px; font-size: 14px; letter-spacing: 0.5px;">
+                View Dashboard
+              </a>
             </div>
           </div>
-        </div>
-        
-        <div style="background: #333; padding: 20px; text-align: center;">
-          <div style="margin-bottom: 15px;">
-            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 24px; opacity: 0.7;">
+          
+          <!-- Footer -->
+          <div style="background: #f8f8f8; padding: 30px; text-align: center; border-top: 1px solid #e0e0e0;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics" style="width: 100px; height: auto; margin-bottom: 15px;">
+            <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">DT Exotics Las Vegas</p>
+            <p style="color: #999; margin: 0; font-size: 12px;">Premium Supercar Rentals</p>
           </div>
-          <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
-          <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">Manage bookings efficiently and provide exceptional service!</p>
         </div>
-      </div>
       `,
       text: `New Booking Confirmed!
       
@@ -183,40 +181,73 @@ View in Admin Dashboard: https://dtexoticslv.com/admin/bookings`
 
   private getPaymentSuccessTemplate(payment: any): EmailTemplate {
     const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
+    const formattedCustomerPhone = payment.customerPhone ? this.formatPhoneNumber(payment.customerPhone) : '';
     
     return {
       subject: `Payment Successful - $${payment.amount}`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
-            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
-            <h1 style="color: #00ff00; margin: 0; font-size: 28px;">Payment Successful!</h1>
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 40px 30px; text-align: center;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="width: 300px; max-width: 100%; height: auto; margin-bottom: 20px;">
+            <h1 style="color: #00ff00; margin: 0; font-size: 32px; font-weight: 300; letter-spacing: 1px;">Payment Successful</h1>
           </div>
           
-          <div style="padding: 30px; background: #f8f9fa;">
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #00ff00; margin-top: 0;">Payment Details</h3>
-              <p style="margin: 5px 0;"><strong>Amount:</strong> $${payment.amount}</p>
-              <p style="margin: 5px 0;"><strong>Type:</strong> ${payment.type}</p>
-              <p style="margin: 5px 0;"><strong>Customer:</strong> ${payment.customerName}</p>
-              <p style="margin: 5px 0;"><strong>Booking ID:</strong> ${payment.bookingId}</p>
-              <p style="margin: 5px 0;"><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+          <!-- Main Content -->
+          <div style="padding: 40px 30px; background: #ffffff;">
+            <!-- Payment Info -->
+            <div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 25px; margin-bottom: 25px;">
+              <h2 style="color: #1a1a1a; margin: 0 0 20px 0; font-size: 24px; font-weight: 400;">Payment Received</h2>
+              <p style="color: #00ff00; margin: 0; font-size: 32px; font-weight: 600;">$${payment.amount}</p>
             </div>
-            
-            <div style="text-align: center; margin-top: 30px;">
-              <div style="margin-top: 15px; font-size: 14px; color: #666;">
-                <p style="margin: 5px 0;">📞 DT Exotics: <a href="tel:${formattedBusinessPhone}" style="color: #00ffff; text-decoration: none;">${formattedBusinessPhone}</a></p>
-              </div>
+
+            <!-- Payment Details -->
+            <div style="margin-bottom: 30px;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 12px 0; color: #666; font-size: 14px; border-bottom: 1px solid #f0f0f0;">Type</td>
+                  <td style="padding: 12px 0; color: #1a1a1a; font-size: 14px; text-align: right; border-bottom: 1px solid #f0f0f0; font-weight: 500;">${payment.type}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 0; color: #666; font-size: 14px; border-bottom: 1px solid #f0f0f0;">Customer</td>
+                  <td style="padding: 12px 0; color: #1a1a1a; font-size: 14px; text-align: right; border-bottom: 1px solid #f0f0f0; font-weight: 500;">${payment.customerName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 0; color: #666; font-size: 14px; border-bottom: 1px solid #f0f0f0;">Booking ID</td>
+                  <td style="padding: 12px 0; color: #1a1a1a; font-size: 14px; text-align: right; border-bottom: 1px solid #f0f0f0; font-weight: 500;">${payment.bookingId}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 0; color: #666; font-size: 14px;">Time</td>
+                  <td style="padding: 12px 0; color: #1a1a1a; font-size: 14px; text-align: right; font-weight: 500;">${new Date().toLocaleString()}</td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="text-align: center; padding: 20px 0; border-top: 1px solid #e0e0e0; border-bottom: 1px solid #e0e0e0;">
+              ${formattedCustomerPhone ? `
+              <a href="tel:${formattedCustomerPhone}" 
+                 style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 8px 4px; font-size: 14px; letter-spacing: 0.5px;">
+                📞 Call Customer
+              </a>
+              <a href="sms:${formattedCustomerPhone}" 
+                 style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 8px 4px; font-size: 14px; letter-spacing: 0.5px;">
+                💬 Text Customer
+              </a>
+              ` : ''}
+              <a href="https://dtexoticslv.com/admin/bookings" 
+                 style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 8px 4px; font-size: 14px; letter-spacing: 0.5px;">
+                View Dashboard
+              </a>
             </div>
           </div>
-        </div>
-        
-        <div style="background: #333; padding: 20px; text-align: center;">
-          <div style="margin-bottom: 15px;">
-            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 24px; opacity: 0.7;">
+          
+          <!-- Footer -->
+          <div style="background: #f8f8f8; padding: 30px; text-align: center; border-top: 1px solid #e0e0e0;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics" style="width: 100px; height: auto; margin-bottom: 15px;">
+            <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">DT Exotics Las Vegas</p>
+            <p style="color: #999; margin: 0; font-size: 12px;">Premium Supercar Rentals</p>
           </div>
-          <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
-          <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">Payment processed successfully!</p>
         </div>
       `,
       text: `Payment Successful!
@@ -231,99 +262,134 @@ Time: ${new Date().toLocaleString()}`
 
   private getPaymentFailedTemplate(payment: any): EmailTemplate {
     const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
+    const formattedCustomerPhone = payment.customerPhone ? this.formatPhoneNumber(payment.customerPhone) : '';
     
     return {
       subject: `Payment Failed - Action Required`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
-            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
-            <h1 style="color: #ff0000; margin: 0; font-size: 28px;">Payment Failed</h1>
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 40px 30px; text-align: center;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="width: 300px; max-width: 100%; height: auto; margin-bottom: 20px;">
+            <h1 style="color: #ff3333; margin: 0; font-size: 32px; font-weight: 300; letter-spacing: 1px;">Payment Failed</h1>
           </div>
           
-          <div style="padding: 30px; background: #f8f9fa;">
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ff0000;">
-              <h3 style="color: #ff0000; margin-top: 0;">Failed Payment Details</h3>
-              <p style="margin: 5px 0;"><strong>Amount:</strong> $${payment.amount}</p>
-              <p style="margin: 5px 0;"><strong>Customer:</strong> ${payment.customerName}</p>
-              <p style="margin: 5px 0;"><strong>Booking ID:</strong> ${payment.bookingId}</p>
-              <p style="margin: 5px 0;"><strong>Reason:</strong> ${payment.reason || 'Unknown'}</p>
-              <p style="margin: 5px 0;"><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+          <!-- Main Content -->
+          <div style="padding: 40px 30px; background: #ffffff;">
+            <!-- Alert -->
+            <div style="background: #fff3cd; border-left: 4px solid #ff3333; padding: 15px; margin-bottom: 25px;">
+              <p style="margin: 0; color: #856404; font-size: 14px;"><strong>Attention:</strong> A customer payment has failed and requires immediate attention.</p>
             </div>
-            
-            <div style="text-align: center; margin-top: 30px;">
-              <a href="https://dtexoticslv.com/admin/bookings" 
-                 style="background: #ff0000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px;">
-                Review Booking
+
+            <!-- Payment Info -->
+            <div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 25px; margin-bottom: 25px;">
+              <h2 style="color: #1a1a1a; margin: 0 0 20px 0; font-size: 24px; font-weight: 400;">Failed Payment Details</h2>
+              <p style="color: #ff3333; margin: 0; font-size: 32px; font-weight: 600;">$${payment.amount}</p>
+            </div>
+
+            <!-- Payment Details -->
+            <div style="margin-bottom: 30px;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 12px 0; color: #666; font-size: 14px; border-bottom: 1px solid #f0f0f0;">Customer</td>
+                  <td style="padding: 12px 0; color: #1a1a1a; font-size: 14px; text-align: right; border-bottom: 1px solid #f0f0f0; font-weight: 500;">${payment.customerName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 0; color: #666; font-size: 14px; border-bottom: 1px solid #f0f0f0;">Booking ID</td>
+                  <td style="padding: 12px 0; color: #1a1a1a; font-size: 14px; text-align: right; border-bottom: 1px solid #f0f0f0; font-weight: 500;">${payment.bookingId}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 0; color: #666; font-size: 14px; border-bottom: 1px solid #f0f0f0;">Reason</td>
+                  <td style="padding: 12px 0; color: #ff3333; font-size: 14px; text-align: right; border-bottom: 1px solid #f0f0f0; font-weight: 500;">${payment.reason || 'Unknown'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 0; color: #666; font-size: 14px;">Time</td>
+                  <td style="padding: 12px 0; color: #1a1a1a; font-size: 14px; text-align: right; font-weight: 500;">${new Date().toLocaleString()}</td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="text-align: center; padding: 20px 0; border-top: 1px solid #e0e0e0; border-bottom: 1px solid #e0e0e0;">
+              ${formattedCustomerPhone ? `
+              <a href="tel:${formattedCustomerPhone}" 
+                 style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 8px 4px; font-size: 14px; letter-spacing: 0.5px;">
+                📞 Call Customer
               </a>
-              <div style="margin-top: 15px; font-size: 14px; color: #666;">
-                <p style="margin: 5px 0;">📞 DT Exotics: <a href="tel:${formattedBusinessPhone}" style="color: #00ffff; text-decoration: none;">${formattedBusinessPhone}</a></p>
-              </div>
+              <a href="sms:${formattedCustomerPhone}" 
+                 style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 8px 4px; font-size: 14px; letter-spacing: 0.5px;">
+                💬 Text Customer
+              </a>
+              ` : ''}
+              <a href="https://dtexoticslv.com/admin/bookings" 
+                 style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 8px 4px; font-size: 14px; letter-spacing: 0.5px;">
+                View Dashboard
+              </a>
             </div>
           </div>
-        </div>
-        
-        <div style="background: #333; padding: 20px; text-align: center;">
-          <div style="margin-bottom: 15px;">
-            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 24px; opacity: 0.7;">
+          
+          <!-- Footer -->
+          <div style="background: #f8f8f8; padding: 30px; text-align: center; border-top: 1px solid #e0e0e0;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics" style="width: 100px; height: auto; margin-bottom: 15px;">
+            <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">DT Exotics Las Vegas</p>
+            <p style="color: #999; margin: 0; font-size: 12px;">Premium Supercar Rentals</p>
           </div>
-          <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
-          <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">Payment issue requires attention!</p>
         </div>
       `,
-      text: `Payment Failed - Action Required
+      text: `Payment Failed!
       
 Amount: $${payment.amount}
 Customer: ${payment.customerName}
 Booking ID: ${payment.bookingId}
 Reason: ${payment.reason || 'Unknown'}
-Time: ${new Date().toLocaleString()}
-
-Review Booking: https://dtexoticslv.com/admin/bookings`
+Time: ${new Date().toLocaleString()}`
     };
   }
 
   private getSystemAlertTemplate(alert: any): EmailTemplate {
-    const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
-    
     return {
-      subject: `System Alert: ${alert.type}`,
+      subject: `System Alert: ${alert.title}`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
-            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
-            <h1 style="color: #ffa500; margin: 0; font-size: 28px;">System Alert</h1>
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 40px 30px; text-align: center;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="width: 300px; max-width: 100%; height: auto; margin-bottom: 20px;">
+            <h1 style="color: #ffa500; margin: 0; font-size: 32px; font-weight: 300; letter-spacing: 1px;">System Alert</h1>
           </div>
           
-          <div style="padding: 30px; background: #f8f9fa;">
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffa500;">
-              <h3 style="color: #ffa500; margin-top: 0;">${alert.type}</h3>
-              <p style="margin: 10px 0; font-size: 16px;">${alert.message}</p>
-              <p style="margin: 5px 0; color: #666;"><strong>Time:</strong> ${new Date().toLocaleString()}</p>
-              ${alert.details ? `<p style="margin: 10px 0; color: #666;"><strong>Details:</strong> ${alert.details}</p>` : ''}
+          <!-- Main Content -->
+          <div style="padding: 40px 30px; background: #ffffff;">
+            <!-- Alert Info -->
+            <div style="background: #fff8e1; border-left: 4px solid #ffa500; padding: 20px; margin-bottom: 25px;">
+              <h2 style="color: #f57c00; margin: 0 0 15px 0; font-size: 20px; font-weight: 500;">${alert.title}</h2>
+              <p style="margin: 0 0 10px 0; color: #5d4037; font-size: 14px; line-height: 1.6;">${alert.message}</p>
+              <p style="margin: 0; font-size: 12px; color: #8d6e63;"><strong>Time:</strong> ${new Date().toLocaleString()}</p>
             </div>
-            
-            <div style="text-align: center; margin-top: 30px;">
-              <div style="margin-top: 15px; font-size: 14px; color: #666;">
-                <p style="margin: 5px 0;">📞 DT Exotics: <a href="tel:${formattedBusinessPhone}" style="color: #00ffff; text-decoration: none;">${formattedBusinessPhone}</a></p>
-              </div>
+
+            <!-- Action Button -->
+            <div style="text-align: center; padding: 20px 0; border-top: 1px solid #e0e0e0;">
+              <a href="https://dtexoticslv.com/admin" 
+                 style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">
+                View Dashboard
+              </a>
             </div>
           </div>
-        </div>
-        
-        <div style="background: #333; padding: 20px; text-align: center;">
-          <div style="margin-bottom: 15px;">
-            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 24px; opacity: 0.7;">
+          
+          <!-- Footer -->
+          <div style="background: #f8f8f8; padding: 30px; text-align: center; border-top: 1px solid #e0e0e0;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics" style="width: 100px; height: auto; margin-bottom: 15px;">
+            <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">DT Exotics Las Vegas</p>
+            <p style="color: #999; margin: 0; font-size: 12px;">Premium Supercar Rentals</p>
           </div>
-          <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
-          <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">System monitoring and alerts!</p>
         </div>
       `,
-      text: `System Alert: ${alert.type}
+      text: `System Alert: ${alert.title}
       
 ${alert.message}
+
 Time: ${new Date().toLocaleString()}
-${alert.details ? `Details: ${alert.details}` : ''}`
+
+Go to Dashboard: https://dtexoticslv.com/admin`
     };
   }
 
@@ -379,75 +445,87 @@ ${alert.details ? `Details: ${alert.details}` : ''}`
     return {
       subject: `Booking Confirmed - Your ${booking.car.brand} ${booking.car.model} Rental`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
-            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
-            <h1 style="color: #00ffff; margin: 0; font-size: 28px;">Booking Confirmed!</h1>
-            <p style="color: #ffffff; margin: 10px 0; font-size: 16px;">Thank you for choosing DT Exotics Las Vegas</p>
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 40px 30px; text-align: center;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="width: 300px; max-width: 100%; height: auto; margin-bottom: 20px;">
+            <h1 style="color: #00ffff; margin: 0; font-size: 32px; font-weight: 300; letter-spacing: 1px;">Booking Confirmed!</h1>
+            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Thank you for choosing DT Exotics Las Vegas</p>
           </div>
           
-          <div style="padding: 30px; background: #f8f9fa;">
-            <h2 style="color: #333; margin-top: 0;">Your Rental Details</h2>
-            
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #00ffff;">
-              <h3 style="color: #00ffff; margin-top: 0;">Vehicle</h3>
-              <p style="margin: 5px 0; font-size: 18px; font-weight: bold;">${booking.car.brand} ${booking.car.model} (${booking.car.year})</p>
-              
-              <h3 style="color: #00ffff; margin-top: 20px;">Rental Period</h3>
-              <p style="margin: 5px 0;"><strong>Pickup:</strong> ${new Date(booking.rentalDates.startDate).toLocaleDateString()} at 10:00 AM</p>
-              <p style="margin: 5px 0;"><strong>Return:</strong> ${new Date(booking.rentalDates.endDate).toLocaleDateString()} at 6:00 PM</p>
-              
-              <h3 style="color: #00ffff; margin-top: 20px;">Payment Summary</h3>
-              <p style="margin: 5px 0;"><strong>Total Rental:</strong> $${booking.pricing.finalAmount}</p>
-              <p style="margin: 5px 0;"><strong>Deposit Paid:</strong> $${booking.pricing.depositAmount}</p>
-              <p style="margin: 5px 0; color: #28a745;"><strong>Remaining Balance:</strong> $${booking.pricing.finalAmount - booking.pricing.depositAmount} (due at pickup)</p>
+          <!-- Main Content -->
+          <div style="padding: 40px 30px; background: #ffffff;">
+            <!-- Vehicle Details -->
+            <div style="margin-bottom: 30px;">
+              <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px; font-weight: 500;">Vehicle Details</h3>
+              <div style="background: #f8f8f8; padding: 20px; border-left: 4px solid #00ffff;">
+                <p style="margin: 0 0 10px 0; font-size: 20px; font-weight: 600; color: #333;">${booking.car.brand} ${booking.car.model}</p>
+                <p style="margin: 0; color: #666;">Year: ${booking.car.year}</p>
+              </div>
             </div>
             
-            <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #0066cc; margin-top: 0;">📍 Pickup Location</h3>
-              <p style="margin: 5px 0; font-weight: bold;">
+            <!-- Rental Period -->
+            <div style="margin-bottom: 30px;">
+              <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px; font-weight: 500;">Rental Period</h3>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr><td style="padding: 8px 0; color: #666;">Pickup:</td><td style="padding: 8px 0; color: #333; font-weight: 500;">${new Date(booking.rentalDates.startDate).toLocaleDateString()} at 10:00 AM</td></tr>
+                <tr><td style="padding: 8px 0; color: #666;">Return:</td><td style="padding: 8px 0; color: #333; font-weight: 500;">${new Date(booking.rentalDates.endDate).toLocaleDateString()} at 6:00 PM</td></tr>
+              </table>
+            </div>
+            
+            <!-- Payment Summary -->
+            <div style="margin-bottom: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+              <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px; font-weight: 500;">Payment Summary</h3>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr><td style="padding: 8px 0; color: #666;">Total Rental:</td><td style="padding: 8px 0; color: #333; font-weight: 500;">$${booking.pricing.finalAmount}</td></tr>
+                <tr><td style="padding: 8px 0; color: #666;">Deposit Paid:</td><td style="padding: 8px 0; color: #00c853; font-weight: 500;">$${booking.pricing.depositAmount}</td></tr>
+                <tr><td style="padding: 8px 0; color: #666;">Balance Due:</td><td style="padding: 8px 0; color: #ff9800; font-weight: 500;">$${booking.pricing.finalAmount - booking.pricing.depositAmount} (at pickup)</td></tr>
+              </table>
+            </div>
+            
+            <!-- Pickup Location -->
+            <div style="background: #f0f9ff; padding: 20px; border-radius: 4px; margin-bottom: 30px;">
+              <h3 style="color: #0066cc; margin: 0 0 10px 0; font-size: 16px; font-weight: 500;">📍 Pickup Location</h3>
+              <p style="margin: 0 0 5px 0;">
                 <a href="https://www.google.com/maps/place/2687+S+Sammy+Davis+Jr+Dr,+Las+Vegas,+NV+89109,+USA/@36.1404573,-115.1673474,17z/data=!4m16!1m9!3m8!1s0x80c8c40b702b2785:0x8fd53ce1d3a5f2cd!2s2687+S+Sammy+Davis+Jr+Dr,+Las+Vegas,+NV+89109,+USA!3b1!8m2!3d36.140366!4d-115.1674489!10e5!16s%2Fg%2F11rtyhh5db!3m5!1s0x80c8c40b702b2785:0x8fd53ce1d3a5f2cd!8m2!3d36.140366!4d-115.1674489!16s%2Fg%2F11rtyhh5db!5m1!1e4?entry=ttu&g_ep=EgoyMDI1MDczMC4wIKXMDSoASAFQAw%3D%3D" 
-                   style="color: #0066cc; text-decoration: none; font-weight: bold;" 
+                   style="color: #0066cc; text-decoration: none; font-weight: 600;" 
                    target="_blank">DT Exotics Las Vegas</a>
               </p>
-              <p style="margin: 5px 0;">2687 S Sammy Davis Jr Dr, Las Vegas, NV 89109</p>
-              <p style="margin: 5px 0;">Phone: ${formattedBusinessPhone}</p>
+              <p style="margin: 0 0 5px 0; color: #666;">2687 S Sammy Davis Jr Dr, Las Vegas, NV 89109</p>
+              <p style="margin: 0; color: #666;">Phone: ${formattedBusinessPhone}</p>
             </div>
             
-            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #856404; margin-top: 0;">⚠️ Important Reminders</h3>
-              <ul style="margin: 10px 0; padding-left: 20px; color: #856404;">
-                <li>Bring a valid driver's license and credit card</li>
-                <li>Must be 25+ years old to rent</li>
-                <li>Vehicle inspection will be conducted at pickup and return</li>
+            <!-- Important Reminders -->
+            <div style="background: #fff8e1; padding: 20px; border-radius: 4px; margin-bottom: 30px;">
+              <h3 style="color: #f57c00; margin: 0 0 10px 0; font-size: 16px; font-weight: 500;">⚠️ Important Reminders</h3>
+              <ul style="margin: 0; padding-left: 20px; color: #5d4037;">
+                <li style="margin-bottom: 5px;">Bring a valid driver's license and credit card</li>
+                <li style="margin-bottom: 5px;">Must be 25+ years old to rent</li>
+                <li style="margin-bottom: 5px;">Vehicle inspection will be conducted at pickup and return</li>
               </ul>
             </div>
             
-            <div style="text-align: center; margin-top: 30px;">
-              <p style="color: #666; margin-bottom: 20px;">Questions about your rental?</p>
-              <div style="display: inline-block; text-align: center;">
+            <!-- Contact Buttons -->
+            <div style="text-align: center; padding: 20px 0; border-top: 1px solid #e0e0e0;">
+              <p style="color: #666; margin: 0 0 20px 0; font-size: 14px;">Questions about your rental?</p>
+              <div>
                 <a href="tel:+17025180924" 
-                   style="display: inline-block; background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 120px; text-align: center;">
-                  📞 Call Us Now
+                   style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 0 5px; font-size: 14px; letter-spacing: 0.5px;">
+                  📞 Call Us
                 </a>
                 <a href="sms:+17025180924" 
-                   style="display: inline-block; background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 120px; text-align: center;">
+                   style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 0 5px; font-size: 14px; letter-spacing: 0.5px;">
                   💬 Text Us
                 </a>
-              </div>
-              <div style="margin-top: 15px; font-size: 14px; color: #666;">
-                <p style="margin: 5px 0;">📞 <a href="tel:+17025180924" style="color: #00ffff; text-decoration: none;">(702) 518-0924</a></p>
-                <p style="margin: 5px 0;">📧 <a href="mailto:contact@dtexoticslv.com" style="color: #00ffff; text-decoration: none;">contact@dtexoticslv.com</a></p>
               </div>
             </div>
           </div>
           
-          <div style="background: #333; padding: 20px; text-align: center;">
-            <div style="margin-bottom: 15px;">
-              <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 24px; opacity: 0.7;">
-            </div>
-            <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
-            <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">This email was sent regarding your booking confirmation.</p>
+          <!-- Footer -->
+          <div style="background: #f8f8f8; padding: 30px; text-align: center; border-top: 1px solid #e0e0e0;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics" style="width: 100px; height: auto; margin-bottom: 15px;">
+            <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">DT Exotics Las Vegas</p>
+            <p style="color: #999; margin: 0; font-size: 12px;">Premium Supercar Rentals</p>
           </div>
         </div>
       `,
@@ -484,62 +562,65 @@ Questions? Call or text us at +1 (702) 518-0924`
     return {
       subject: `Payment Receipt - $${payment.amount} for ${payment.vehicleName}`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
-            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
-            <h1 style="color: #00ff00; margin: 0; font-size: 28px;">Payment Received!</h1>
-            <p style="color: #ffffff; margin: 10px 0; font-size: 16px;">Thank you for your payment</p>
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 40px 30px; text-align: center;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="width: 300px; max-width: 100%; height: auto; margin-bottom: 20px;">
+            <h1 style="color: #00ffff; margin: 0; font-size: 32px; font-weight: 300; letter-spacing: 1px;">Payment Received!</h1>
+            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Thank you for your payment</p>
           </div>
           
-          <div style="padding: 30px; background: #f8f9fa;">
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #00ff00;">
-              <h3 style="color: #00ff00; margin-top: 0;">Payment Details</h3>
-              <p style="margin: 5px 0;"><strong>Amount:</strong> $${payment.amount}</p>
-              <p style="margin: 5px 0;"><strong>Payment Type:</strong> ${payment.type}</p>
-              <p style="margin: 5px 0;"><strong>Vehicle:</strong> ${payment.vehicleName}</p>
-              <p style="margin: 5px 0;"><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
-              <p style="margin: 5px 0;"><strong>Transaction ID:</strong> ${payment.transactionId}</p>
+          <!-- Main Content -->
+          <div style="padding: 40px 30px; background: #ffffff;">
+            <!-- Payment Details -->
+            <div style="margin-bottom: 30px;">
+              <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px; font-weight: 500;">Payment Details</h3>
+              <table style="width: 100%; border-collapse: collapse; background: #f8f8f8; padding: 20px;">
+                <tr><td style="padding: 12px 20px; color: #666; border-bottom: 1px solid #e0e0e0;">Amount:</td><td style="padding: 12px 20px; color: #333; font-weight: 600; border-bottom: 1px solid #e0e0e0;">$${payment.amount}</td></tr>
+                <tr><td style="padding: 12px 20px; color: #666; border-bottom: 1px solid #e0e0e0;">Payment Type:</td><td style="padding: 12px 20px; color: #333; font-weight: 500; border-bottom: 1px solid #e0e0e0;">${payment.type}</td></tr>
+                <tr><td style="padding: 12px 20px; color: #666; border-bottom: 1px solid #e0e0e0;">Vehicle:</td><td style="padding: 12px 20px; color: #333; font-weight: 500; border-bottom: 1px solid #e0e0e0;">${payment.vehicleName}</td></tr>
+                <tr><td style="padding: 12px 20px; color: #666; border-bottom: 1px solid #e0e0e0;">Date:</td><td style="padding: 12px 20px; color: #333; font-weight: 500; border-bottom: 1px solid #e0e0e0;">${new Date().toLocaleDateString()}</td></tr>
+                <tr><td style="padding: 12px 20px; color: #666;">Transaction ID:</td><td style="padding: 12px 20px; color: #333; font-weight: 500;">${payment.transactionId}</td></tr>
+              </table>
             </div>
             
             ${payment.type === 'Deposit' ? `
-            <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #0066cc; margin-top: 0;">💳 Deposit Received!</h3>
-              <p style="margin: 10px 0;">Thank you for your deposit payment. Our team will review your request and confirm your booking shortly.</p>
-              <p style="margin: 10px 0;"><strong>Remaining balance of $${payment.remainingBalance} will be due at pickup.</strong></p>
-              <p style="margin: 10px 0; font-size: 14px; color: #666;">You'll receive a separate confirmation email once your booking is approved by our team.</p>
+            <!-- Deposit Information -->
+            <div style="background: #e3f2fd; padding: 20px; border-radius: 4px; margin-bottom: 30px; border-left: 4px solid #00ffff;">
+              <h3 style="color: #1565c0; margin: 0 0 10px 0; font-size: 16px; font-weight: 500;">💳 Deposit Received!</h3>
+              <p style="margin: 0 0 10px 0; color: #424242;">Thank you for your deposit payment. Our team will review your request and confirm your booking shortly.</p>
+              <p style="margin: 0 0 10px 0; color: #ff9800; font-weight: 600;">Remaining balance of $${payment.remainingBalance} will be due at pickup.</p>
+              <p style="margin: 0; font-size: 14px; color: #666;">You'll receive a separate confirmation email once your booking is approved by our team.</p>
             </div>
             ` : `
-            <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #155724; margin-top: 0;">✅ Payment Complete!</h3>
-              <p style="margin: 10px 0;">Your rental is fully paid. Enjoy your luxury driving experience!</p>
+            <!-- Full Payment Information -->
+            <div style="background: #e8f5e9; padding: 20px; border-radius: 4px; margin-bottom: 30px; border-left: 4px solid #4caf50;">
+              <h3 style="color: #2e7d32; margin: 0 0 10px 0; font-size: 16px; font-weight: 500;">✅ Payment Complete!</h3>
+              <p style="margin: 0; color: #424242;">Your rental is fully paid. Enjoy your luxury driving experience!</p>
             </div>
             `}
             
-            <div style="text-align: center; margin-top: 30px;">
-              <p style="color: #666; margin-bottom: 20px;">Need assistance?</p>
-              <div style="display: inline-block; text-align: center;">
-                <a href="tel:${formattedBusinessPhone}" 
-                   style="display: inline-block; background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 120px; text-align: center;">
+            <!-- Contact Buttons -->
+            <div style="text-align: center; padding: 20px 0; border-top: 1px solid #e0e0e0;">
+              <p style="color: #666; margin: 0 0 20px 0; font-size: 14px;">Need assistance?</p>
+              <div>
+                <a href="tel:+17025180924" 
+                   style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 0 5px; font-size: 14px; letter-spacing: 0.5px;">
                   📞 Call Us
                 </a>
-                <a href="sms:${formattedBusinessPhone}" 
-                   style="display: inline-block; background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 120px; text-align: center;">
+                <a href="sms:+17025180924" 
+                   style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 0 5px; font-size: 14px; letter-spacing: 0.5px;">
                   💬 Text Us
                 </a>
-              </div>
-              <div style="margin-top: 15px; font-size: 14px; color: #666;">
-                <p style="margin: 5px 0;">📞 <a href="tel:${formattedBusinessPhone}" style="color: #00ffff; text-decoration: none;">${formattedBusinessPhone}</a></p>
-                <p style="margin: 5px 0;">📧 <a href="mailto:contact@dtexoticslv.com" style="color: #00ffff; text-decoration: none;">contact@dtexoticslv.com</a></p>
               </div>
             </div>
           </div>
           
-          <div style="background: #333; padding: 20px; text-align: center;">
-            <div style="margin-bottom: 15px;">
-              <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 24px; opacity: 0.7;">
-            </div>
-            <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
-            <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">Keep this receipt for your records.</p>
+          <!-- Footer -->
+          <div style="background: #f8f8f8; padding: 30px; text-align: center; border-top: 1px solid #e0e0e0;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics" style="width: 100px; height: auto; margin-bottom: 15px;">
+            <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">DT Exotics Las Vegas</p>
+            <p style="color: #999; margin: 0; font-size: 12px;">Keep this receipt for your records</p>
           </div>
         </div>
       `,
@@ -565,46 +646,63 @@ DT Exotics Las Vegas - Premium Supercar Rentals`
   }
 
   private getCustomerPaymentFailedTemplate(payment: any): EmailTemplate {
+    const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
+    
     return {
       subject: `Payment Issue - Action Required for Your ${payment.vehicleName} Rental`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
-            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
-            <h1 style="color: #ff6b6b; margin: 0; font-size: 28px;">Payment Issue</h1>
-            <p style="color: #ffffff; margin: 10px 0; font-size: 16px;">We need your help to complete your booking</p>
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 40px 30px; text-align: center;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="width: 300px; max-width: 100%; height: auto; margin-bottom: 20px;">
+            <h1 style="color: #ff6b6b; margin: 0; font-size: 32px; font-weight: 300; letter-spacing: 1px;">Payment Issue</h1>
+            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">We need your help to complete your booking</p>
           </div>
           
-          <div style="padding: 30px; background: #f8f9fa;">
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ff6b6b;">
-              <h3 style="color: #ff6b6b; margin-top: 0;">Payment Could Not Be Processed</h3>
-              <p style="margin: 10px 0;">We encountered an issue processing your payment for the <strong>${payment.vehicleName}</strong> rental.</p>
-              <p style="margin: 10px 0;"><strong>Amount:</strong> $${payment.amount}</p>
-              <p style="margin: 10px 0;"><strong>Reason:</strong> ${payment.reason || 'Payment method declined'}</p>
+          <!-- Main Content -->
+          <div style="padding: 40px 30px; background: #ffffff;">
+            <!-- Payment Issue Details -->
+            <div style="margin-bottom: 30px;">
+              <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px; font-weight: 500;">Payment Could Not Be Processed</h3>
+              <div style="background: #ffebee; padding: 20px; border-left: 4px solid #ff6b6b;">
+                <p style="margin: 0 0 10px 0; color: #333;">We encountered an issue processing your payment for:</p>
+                <p style="margin: 0 0 15px 0; font-size: 18px; font-weight: 600; color: #333;">${payment.vehicleName}</p>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr><td style="padding: 5px 0; color: #666;">Amount:</td><td style="padding: 5px 0; color: #333; font-weight: 500;">$${payment.amount}</td></tr>
+                  <tr><td style="padding: 5px 0; color: #666;">Reason:</td><td style="padding: 5px 0; color: #d32f2f; font-weight: 500;">${payment.reason || 'Payment method declined'}</td></tr>
+                </table>
+              </div>
             </div>
             
-            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #856404; margin-top: 0;">⏰ Deposit Required</h3>
-              <p style="margin: 10px 0;">Don't worry - your vehicle is still available! We just need you to complete your deposit payment to begin the booking process.</p>
-              <p style="margin: 10px 0;"><strong>Please contact us within 24 hours to complete your deposit and secure your reservation.</strong></p>
+            <!-- Action Required Alert -->
+            <div style="background: #fff8e1; padding: 20px; border-radius: 4px; margin-bottom: 30px;">
+              <h3 style="color: #f57c00; margin: 0 0 10px 0; font-size: 16px; font-weight: 500;">⏰ Deposit Required</h3>
+              <p style="margin: 0 0 10px 0; color: #5d4037;">Don't worry - your vehicle is still available! We just need you to complete your deposit payment to begin the booking process.</p>
+              <p style="margin: 0; color: #d84315; font-weight: 600;">Please contact us within 24 hours to complete your deposit and secure your reservation.</p>
             </div>
             
-            <div style="text-align: center; margin-top: 30px;">
-              <p style="color: #666; margin-bottom: 20px;">Ready to complete your deposit?</p>
-              <a href="tel:+17025180924" 
-                 style="background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-right: 10px;">
-                Call Now
-              </a>
-              <a href="sms:+17025180924" 
-                 style="background: #ff6b6b; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-                Text Us
-              </a>
+            <!-- Contact Buttons -->
+            <div style="text-align: center; padding: 20px 0; border-top: 1px solid #e0e0e0;">
+              <p style="color: #666; margin: 0 0 20px 0; font-size: 14px;">Ready to complete your deposit?</p>
+              <div>
+                <a href="tel:+17025180924" 
+                   style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 0 5px; font-size: 14px; letter-spacing: 0.5px;">
+                  📞 Call Now
+                </a>
+                <a href="sms:+17025180924" 
+                   style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 0 5px; font-size: 14px; letter-spacing: 0.5px;">
+                  💬 Text Us
+                </a>
+              </div>
+              <p style="margin: 15px 0 0 0; color: #999; font-size: 12px;">Our team is standing by to assist you</p>
             </div>
           </div>
           
-          <div style="background: #333; padding: 20px; text-align: center;">
-            <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
-            <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">We're here to help complete your luxury rental experience.</p>
+          <!-- Footer -->
+          <div style="background: #f8f8f8; padding: 30px; text-align: center; border-top: 1px solid #e0e0e0;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics" style="width: 100px; height: auto; margin-bottom: 15px;">
+            <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">DT Exotics Las Vegas</p>
+            <p style="color: #999; margin: 0; font-size: 12px;">We're here to help complete your luxury rental experience</p>
           </div>
         </div>
       `,
@@ -628,48 +726,71 @@ DT Exotics Las Vegas - Premium Supercar Rentals`
   }
 
   private getCustomerReminderTemplate(booking: any): EmailTemplate {
+    const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
+    
     return {
       subject: `Reminder: Your ${booking.car.brand} ${booking.car.model} pickup is tomorrow!`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
-            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
-            <h1 style="color: #ffd700; margin: 0; font-size: 28px;">Almost Time!</h1>
-            <p style="color: #ffffff; margin: 10px 0; font-size: 16px;">Your luxury rental pickup is tomorrow</p>
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 40px 30px; text-align: center;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="width: 300px; max-width: 100%; height: auto; margin-bottom: 20px;">
+            <h1 style="color: #00ffff; margin: 0; font-size: 32px; font-weight: 300; letter-spacing: 1px;">Almost Time!</h1>
+            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Your luxury rental pickup is tomorrow</p>
           </div>
           
-          <div style="padding: 30px; background: #f8f9fa;">
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffd700;">
-              <h3 style="color: #ffd700; margin-top: 0;">🚗 Tomorrow's Pickup</h3>
-              <p style="margin: 5px 0; font-size: 18px; font-weight: bold;">${booking.car.brand} ${booking.car.model} (${booking.car.year})</p>
-              <p style="margin: 10px 0;"><strong>Date:</strong> ${new Date(booking.rentalDates.startDate).toLocaleDateString()}</p>
-              <p style="margin: 10px 0;"><strong>Time:</strong> 10:00 AM</p>
-              <p style="margin: 10px 0;"><strong>Location:</strong> DT Exotics Las Vegas</p>
-              <p style="margin: 10px 0; color: #666;">2687 S Sammy Davis Jr Dr, Las Vegas, NV 89109</p>
+          <!-- Main Content -->
+          <div style="padding: 40px 30px; background: #ffffff;">
+            <!-- Pickup Details -->
+            <div style="margin-bottom: 30px;">
+              <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px; font-weight: 500;">🚗 Tomorrow's Pickup</h3>
+              <div style="background: #f8f8f8; padding: 20px; border-left: 4px solid #00ffff;">
+                <p style="margin: 0 0 10px 0; font-size: 20px; font-weight: 600; color: #333;">${booking.car.brand} ${booking.car.model}</p>
+                <p style="margin: 0 0 5px 0; color: #666;">Year: ${booking.car.year}</p>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                  <tr><td style="padding: 8px 0; color: #666;">Date:</td><td style="padding: 8px 0; color: #333; font-weight: 500;">${new Date(booking.rentalDates.startDate).toLocaleDateString()}</td></tr>
+                  <tr><td style="padding: 8px 0; color: #666;">Time:</td><td style="padding: 8px 0; color: #333; font-weight: 500;">10:00 AM</td></tr>
+                  <tr><td style="padding: 8px 0; color: #666;">Location:</td><td style="padding: 8px 0; color: #333; font-weight: 500;">DT Exotics Las Vegas</td></tr>
+                  <tr><td style="padding: 8px 0; color: #666;">Address:</td><td style="padding: 8px 0; color: #333;">2687 S Sammy Davis Jr Dr, Las Vegas, NV 89109</td></tr>
+                </table>
+              </div>
             </div>
             
-            <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #0066cc; margin-top: 0;">📋 Pickup Checklist</h3>
-              <ul style="margin: 10px 0; padding-left: 20px; color: #0066cc;">
-                <li><strong>Valid Driver's License</strong> (must be 25+)</li>
-                <li><strong>Credit Card</strong> (for security deposit)</li>
-                <li><strong>Remaining Balance:</strong> $${booking.pricing.finalAmount - booking.pricing.depositAmount}</li>
-                <li><strong>Arrive 15 minutes early</strong> for vehicle inspection</li>
-              </ul>
+            <!-- Pickup Checklist -->
+            <div style="margin-bottom: 30px;">
+              <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px; font-weight: 500;">📋 Pickup Checklist</h3>
+              <div style="background: #fff8e1; padding: 20px; border-radius: 4px;">
+                <ul style="margin: 0; padding-left: 20px; color: #5d4037;">
+                  <li style="margin-bottom: 10px;"><strong>Valid Driver's License</strong> (must be 25+)</li>
+                  <li style="margin-bottom: 10px;"><strong>Credit Card</strong> (for security deposit)</li>
+                  <li style="margin-bottom: 10px;"><strong>Remaining Balance:</strong> $${booking.pricing.finalAmount - booking.pricing.depositAmount}</li>
+                  <li style="margin-bottom: 0;"><strong>Arrive 15 minutes early</strong> for vehicle inspection</li>
+                </ul>
+              </div>
             </div>
             
-            <div style="text-align: center; margin-top: 30px;">
-              <p style="color: #666; margin-bottom: 20px;">Questions or need to reschedule?</p>
-              <a href="tel:+17025180924" 
-                 style="background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-                Call Us Now
-              </a>
+            <!-- Contact Buttons -->
+            <div style="text-align: center; padding: 20px 0; border-top: 1px solid #e0e0e0;">
+              <p style="color: #666; margin: 0 0 20px 0; font-size: 14px;">Questions or need to reschedule?</p>
+              <div>
+                <a href="tel:+17025180924" 
+                   style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 0 5px; font-size: 14px; letter-spacing: 0.5px;">
+                  📞 Call Now
+                </a>
+                <a href="sms:+17025180924" 
+                   style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 0 5px; font-size: 14px; letter-spacing: 0.5px;">
+                  💬 Text Us
+                </a>
+              </div>
+              <p style="margin: 15px 0 0 0; color: #999; font-size: 12px;">Our team is available to assist you</p>
             </div>
           </div>
           
-          <div style="background: #333; padding: 20px; text-align: center;">
-            <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
-            <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">We can't wait to see you tomorrow!</p>
+          <!-- Footer -->
+          <div style="background: #f8f8f8; padding: 30px; text-align: center; border-top: 1px solid #e0e0e0;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics" style="width: 100px; height: auto; margin-bottom: 15px;">
+            <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">DT Exotics Las Vegas</p>
+            <p style="color: #999; margin: 0; font-size: 12px;">We can't wait to see you tomorrow!</p>
           </div>
         </div>
       `,
@@ -689,77 +810,16 @@ Pickup Checklist:
 - Arrive 15 minutes early for vehicle inspection
 
 Questions or need to reschedule? Call us at +1 (702) 518-0924
-
-DT Exotics Las Vegas - We can't wait to see you tomorrow!`
-    };
-  }
-
-  private getCustomerBookingConfirmedTemplate(booking: any): EmailTemplate {
-    return {
-      subject: `🎉 Booking Confirmed - Your ${booking.car.brand} ${booking.car.model} is Ready!`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
-            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
-            <h1 style="color: #00ff00; margin: 0; font-size: 28px;">Booking Confirmed!</h1>
-            <p style="color: #ffffff; margin: 10px 0; font-size: 16px;">Your luxury rental is officially confirmed</p>
-          </div>
-          
-          <div style="padding: 30px; background: #f8f9fa;">
-            <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #00ff00;">
-              <h3 style="color: #155724; margin-top: 0;">✅ You're All Set!</h3>
-              <p style="margin: 10px 0;">Great news! Our team has reviewed and confirmed your booking. Your <strong>${booking.car.brand} ${booking.car.model}</strong> is reserved and ready for your adventure!</p>
-            </div>
-            
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #00ffff; margin-top: 0;">Booking Details</h3>
-              <p style="margin: 5px 0;"><strong>Vehicle:</strong> ${booking.car.brand} ${booking.car.model} (${booking.car.year})</p>
-              <p style="margin: 5px 0;"><strong>Pickup Date:</strong> ${new Date(booking.rentalDates.startDate).toLocaleDateString()}</p>
-              <p style="margin: 5px 0;"><strong>Return Date:</strong> ${new Date(booking.rentalDates.endDate).toLocaleDateString()}</p>
-              <p style="margin: 5px 0;"><strong>Total Amount:</strong> $${booking.pricing.finalAmount}</p>
-              <p style="margin: 5px 0;"><strong>Deposit Paid:</strong> $${booking.pricing.depositAmount}</p>
-              <p style="margin: 5px 0;"><strong>Balance Due at Pickup:</strong> $${booking.pricing.finalAmount - booking.pricing.depositAmount}</p>
-            </div>
-            
-            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #856404; margin-top: 0;">📋 Next Steps</h3>
-              <p style="margin: 10px 0;">1. <strong>Bring valid driver's license</strong> and credit card for security deposit</p>
-              <p style="margin: 10px 0;">2. <strong>Arrive 15 minutes early</strong> for vehicle inspection and paperwork</p>
-              <p style="margin: 10px 0;">3. <strong>Complete remaining balance</strong> of $${booking.pricing.finalAmount - booking.pricing.depositAmount} at pickup</p>
-            </div>
-            
-            <div style="text-align: center; margin-top: 30px;">
-              <p style="color: #666; margin-bottom: 20px;">Questions about your booking?</p>
-              <a href="tel:+17025180924" 
-                 style="background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-right: 10px;">
-                Call Us
-              </a>
-              <a href="sms:+17025180924" 
-                 style="background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-                Text Us
-              </a>
-            </div>
-          </div>
-          
-          <div style="background: #333; padding: 20px; text-align: center;">
-            <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
-            <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">Get ready for the drive of a lifetime!</p>
-          </div>
-        </div>
-      `,
-      text: `Booking Confirmed!
-      
-Great news! Our team has reviewed and confirmed your booking. Your ${booking.car.brand} ${booking.car.model} is reserved and ready for your adventure!
-
-Booking Details:
-Vehicle: ${booking.car.brand} ${booking.car.model} (${booking.car.year})
 Pickup Date: ${new Date(booking.rentalDates.startDate).toLocaleDateString()}
 Return Date: ${new Date(booking.rentalDates.endDate).toLocaleDateString()}
 Total Amount: $${booking.pricing.finalAmount}
 Deposit Paid: $${booking.pricing.depositAmount}
 Balance Due at Pickup: $${booking.pricing.finalAmount - booking.pricing.depositAmount}
 
-Next Steps:
+Actions:
+Call Customer: ${formattedCustomerPhone}
+Email Customer: ${booking.customer.email}
+View Dashboard: https://dtexoticslv.com/admin/bookings`
 1. Bring valid driver's license and credit card for security deposit
 2. Arrive 15 minutes early for vehicle inspection and paperwork
 3. Complete remaining balance of $${booking.pricing.finalAmount - booking.pricing.depositAmount} at pickup
@@ -772,65 +832,79 @@ Get ready for the drive of a lifetime!`
   }
 
   private getCustomerEventConfirmationTemplate(inquiry: any): EmailTemplate {
+    const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
+    
     return {
       subject: `Thank you for your ${inquiry.eventType} request - DT Exotics Las Vegas`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
-            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
-            <h1 style="color: #00ffff; margin: 0; font-size: 28px;">Thank You!</h1>
-            <p style="color: #ffffff; margin: 10px 0; font-size: 16px;">Your ${inquiry.eventType.toLowerCase()} request has been received</p>
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 40px 30px; text-align: center;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="width: 300px; max-width: 100%; height: auto; margin-bottom: 20px;">
+            <h1 style="color: #00ffff; margin: 0; font-size: 32px; font-weight: 300; letter-spacing: 1px;">Thank You!</h1>
+            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Your ${inquiry.eventType.toLowerCase()} request has been received</p>
           </div>
           
-          <div style="padding: 30px; background: #f8f9fa;">
-            <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #00ff00;">
-              <h3 style="color: #155724; margin-top: 0;">✅ Request Received!</h3>
-              <p style="margin: 10px 0;">Thank you for choosing DT Exotics Las Vegas for your ${inquiry.eventType.toLowerCase()}! Our team has received your request and will review the details to create the perfect luxury experience for you.</p>
-              
-              <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #c3e6cb;">
-                <p style="margin: 5px 0; color: #155724;"><strong>Event Type:</strong> ${inquiry.eventType}</p>
-                <p style="margin: 5px 0; color: #155724;"><strong>Contact:</strong> ${inquiry.customerName}</p>
-                <p style="margin: 5px 0; color: #155724;"><strong>Email:</strong> ${inquiry.customerEmail}</p>
-                <p style="margin: 5px 0; color: #155724;"><strong>Phone:</strong> ${inquiry.customerPhone}</p>
-                <p style="margin: 5px 0; color: #155724;"><strong>Submitted:</strong> ${new Date(inquiry.submittedAt).toLocaleDateString()}</p>
+          <!-- Main Content -->
+          <div style="padding: 40px 30px; background: #ffffff;">
+            <!-- Request Confirmation -->
+            <div style="margin-bottom: 30px;">
+              <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px; font-weight: 500;">✅ Request Received!</h3>
+              <div style="background: #e8f5e9; padding: 20px; border-left: 4px solid #00ffff;">
+                <p style="margin: 0 0 15px 0; color: #333;">Thank you for choosing DT Exotics Las Vegas for your ${inquiry.eventType.toLowerCase()}! Our team has received your request and will review the details to create the perfect luxury experience for you.</p>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr><td style="padding: 5px 0; color: #666;">Event Type:</td><td style="padding: 5px 0; color: #333; font-weight: 500;">${inquiry.eventType}</td></tr>
+                  <tr><td style="padding: 5px 0; color: #666;">Contact:</td><td style="padding: 5px 0; color: #333; font-weight: 500;">${inquiry.customerName}</td></tr>
+                  <tr><td style="padding: 5px 0; color: #666;">Email:</td><td style="padding: 5px 0; color: #333;">${inquiry.customerEmail}</td></tr>
+                  <tr><td style="padding: 5px 0; color: #666;">Phone:</td><td style="padding: 5px 0; color: #333;">${inquiry.customerPhone}</td></tr>
+                  <tr><td style="padding: 5px 0; color: #666;">Submitted:</td><td style="padding: 5px 0; color: #333;">${new Date(inquiry.submittedAt).toLocaleDateString()}</td></tr>
+                </table>
               </div>
             </div>
             
-            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #856404; margin-top: 0;">📞 What's Next?</h3>
-              <p style="margin: 10px 0;">1. <strong>Our team will review</strong> your inquiry within 2-4 hours during business hours</p>
-              <p style="margin: 10px 0;">2. <strong>We'll contact you</strong> at ${inquiry.customerPhone} to discuss your event details</p>
-              <p style="margin: 10px 0;">3. <strong>Custom proposal</strong> tailored to your ${inquiry.eventType.toLowerCase()} needs</p>
-              <p style="margin: 10px 0;">4. <strong>Book your experience</strong> and get ready for luxury!</p>
+            <!-- What's Next -->
+            <div style="margin-bottom: 30px;">
+              <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px; font-weight: 500;">📞 What's Next?</h3>
+              <div style="background: #fff8e1; padding: 20px; border-radius: 4px;">
+                <ol style="margin: 0; padding-left: 20px; color: #5d4037;">
+                  <li style="margin-bottom: 10px;"><strong>Our team will review</strong> your inquiry within 2-4 hours during business hours</li>
+                  <li style="margin-bottom: 10px;"><strong>We'll contact you</strong> at ${inquiry.customerPhone} to discuss your event details</li>
+                  <li style="margin-bottom: 10px;"><strong>Custom proposal</strong> tailored to your ${inquiry.eventType.toLowerCase()} needs</li>
+                  <li style="margin-bottom: 0;"><strong>Book your experience</strong> and get ready for luxury!</li>
+                </ol>
+              </div>
             </div>
             
-            <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #0066cc; margin-top: 0;">🚗 Why Choose DT Exotics?</h3>
-              <ul style="margin: 10px 0; padding-left: 20px; color: #0066cc;">
-                <li><strong>Premium Fleet:</strong> Lamborghini, McLaren, Ferrari & more</li>
-                <li><strong>Professional Service:</strong> White-glove concierge experience</li>
-                <li><strong>Event Specialists:</strong> Tailored packages for every occasion</li>
-                <li><strong>Insurance:</strong> All self-drive rentals require renter-provided full coverage insurance that transfers to a rental vehicle. Chauffeur-driven services are insured by our partners. Fuel included.</li>
-                <li><strong>Photography:</strong> Professional photos of your experience</li>
-              </ul>
+            <!-- Why Choose DT Exotics -->
+            <div style="margin-bottom: 30px;">
+              <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px; font-weight: 500;">🚗 Why Choose DT Exotics?</h3>
+              <div style="background: #f0f8ff; padding: 20px; border-radius: 4px;">
+                <ul style="margin: 0; padding-left: 20px; color: #333;">
+                  <li style="margin-bottom: 8px;"><strong>Premium Fleet:</strong> Lamborghini, McLaren, Ferrari & more</li>
+                  <li style="margin-bottom: 8px;"><strong>Professional Service:</strong> White-glove concierge experience</li>
+                  <li style="margin-bottom: 8px;"><strong>Event Specialists:</strong> Tailored packages for every occasion</li>
+                  <li style="margin-bottom: 8px;"><strong>Insurance:</strong> All self-drive rentals require renter-provided full coverage insurance that transfers to a rental vehicle. Chauffeur-driven services are insured by our partners. Fuel included.</li>
+                  <li style="margin-bottom: 0;"><strong>Photography:</strong> Professional photos of your experience</li>
+                </ul>
+              </div>
             </div>
             
-            <div style="text-align: center; margin-top: 30px;">
-              <p style="color: #666; margin-bottom: 20px;">Need immediate assistance?</p>
-              <div style="display: inline-block; text-align: center;">
+            <!-- Contact Buttons -->
+            <div style="text-align: center; padding: 20px 0; border-top: 1px solid #e0e0e0;">
+              <p style="color: #666; margin: 0 0 20px 0; font-size: 14px;">Need immediate assistance?</p>
+              <div>
                 <a href="tel:+17025180924" 
-                   style="display: inline-block; background: #00ffff; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 120px; text-align: center;">
-                  📞 Call Us Now
+                   style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 0 5px; font-size: 14px; letter-spacing: 0.5px;">
+                  📞 Call Now
                 </a>
                 <a href="sms:+17025180924" 
-                   style="display: inline-block; background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 120px; text-align: center;">
+                   style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 0 5px; font-size: 14px; letter-spacing: 0.5px;">
                   💬 Text Us
                 </a>
               </div>
-              <div style="margin-top: 15px; font-size: 14px; color: #666;">
-                <p style="margin: 5px 0;">📞 <a href="tel:+17025180924" style="color: #00ffff; text-decoration: none;">(702) 518-0924</a></p>
-                <p style="margin: 5px 0;">📧 <a href="mailto:contact@dtexoticslv.com" style="color: #00ffff; text-decoration: none;">contact@dtexoticslv.com</a></p>
-              </div>
+              <p style="margin: 15px 0 0 0; color: #999; font-size: 12px;">
+                📞 ${formattedBusinessPhone} | 📧 contact@dtexoticslv.com
+              </p>
             </div>
           </div>
           
@@ -943,7 +1017,7 @@ We can't wait to make your ${inquiry.eventType.toLowerCase()} unforgettable!`
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
-            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="height: 60px; margin-bottom: 20px;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="width: 300px; max-width: 100%; height: auto; margin-bottom: 20px;">
             <h1 style="color: #00ffff; margin: 0; font-size: 28px;">New Event Inquiry!</h1>
             <p style="color: #ffffff; margin: 10px 0; font-size: 16px;">${inquiry.eventType} Request</p>
           </div>
@@ -998,7 +1072,7 @@ We can't wait to make your ${inquiry.eventType.toLowerCase()} unforgettable!`
         
         <div style="background: #333; padding: 20px; text-align: center;">
           <div style="margin-bottom: 15px;">
-            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 24px; opacity: 0.7;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="width: 100px; height: auto; margin-bottom: 15px;">
           </div>
           <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
           <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">New event inquiry received!</p>
