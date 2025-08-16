@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { formatCurrency } from '../../lib/rental-utils'
 import { RentalBooking } from '../../types/rental'
 import { SimpleAuth } from '../../lib/simple-auth'
-import { Calendar, Search, Filter, Download, Eye, Edit, CreditCard, X, Clock, CheckCircle, AlertCircle, Plus, DollarSign, CalendarDays, Trash2, FileText, ExternalLink, Mail } from 'lucide-react'
+import { Calendar, Search, Filter, Download, Eye, Edit, CreditCard, X, Clock, CheckCircle, AlertCircle, Plus, DollarSign, CalendarDays, Trash2, FileText, ExternalLink, Mail, Send } from 'lucide-react'
 import RentalAgreementModal from '../components/RentalAgreementModal'
 import { RentalAgreement } from '../../types/rental-agreement'
 
@@ -927,162 +927,153 @@ export default function BookingsManagement() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full table-fixed">
                 <thead className="bg-dark-metal/30">
                   <tr>
-                    <th className="text-left py-4 px-6 text-gray-400 font-tech">Booking ID</th>
-                    <th className="text-left py-4 px-6 text-gray-400 font-tech">Customer</th>
-                    <th className="text-left py-4 px-6 text-gray-400 font-tech">Vehicle</th>
-                    <th className="text-left py-4 px-6 text-gray-400 font-tech">Rental Period</th>
-                    <th className="text-left py-4 px-6 text-gray-400 font-tech">Amount</th>
-                    <th className="text-left py-4 px-6 text-gray-400 font-tech">Status</th>
-                    <th className="text-left py-4 px-6 text-gray-400 font-tech">Agreement</th>
-                    <th className="text-left py-4 px-6 text-gray-400 font-tech">Actions</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-20">ID</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-36">Customer</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-32">Vehicle</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-28">Dates</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-24">Amount</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-24">Status</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-20">Agreement</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-32">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredBookings.map((booking) => (
                     <tr key={booking.id} className="border-b border-gray-700/50 hover:bg-gray-600/5">
-                      <td className="py-4 px-6">
-                        <div className="text-white font-tech text-sm">{booking.id.slice(0, 8)}</div>
+                      <td className="py-3 px-3">
+                        <div className="text-white font-tech text-xs truncate" title={booking.id}>
+                          {booking.id.slice(0, 6)}
+                        </div>
                         <div className="text-gray-400 text-xs">
-                          {new Date(booking.createdAt).toLocaleDateString()}
+                          {new Date(booking.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                         </div>
                       </td>
-                      <td className="py-4 px-6">
-                        <div className="text-white font-medium">
+                      <td className="py-3 px-3">
+                        <div className="text-white font-medium text-sm truncate" title={`${booking.customer.firstName} ${booking.customer.lastName}`}>
                           {booking.customer.firstName} {booking.customer.lastName}
                         </div>
-                        <div className="text-gray-400 text-sm">{booking.customer.email}</div>
-                        <div className="text-gray-400 text-xs">{booking.customer.phone}</div>
+                        <div className="text-gray-400 text-xs truncate" title={booking.customer.email}>
+                          {booking.customer.email}
+                        </div>
                       </td>
-                      <td className="py-4 px-6">
-                        <div className="text-white font-medium">
+                      <td className="py-3 px-3">
+                        <div className="text-white font-medium text-sm truncate" title={`${booking.car.brand} ${booking.car.model}`}>
                           {booking.car.brand} {booking.car.model}
                         </div>
-                        <div className="text-gray-400 text-sm">{booking.car.year}</div>
+                        <div className="text-gray-400 text-xs">{booking.car.year}</div>
                       </td>
-                      <td className="py-4 px-6">
-                        <div className="text-white">
-                          {new Date(booking.rentalDates.startDate).toLocaleDateString()}
-                        </div>
-                        <div className="text-gray-400 text-sm">
-                          to {new Date(booking.rentalDates.endDate).toLocaleDateString()}
+                      <td className="py-3 px-3">
+                        <div className="text-white text-xs">
+                          {new Date(booking.rentalDates.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                         </div>
                         <div className="text-gray-400 text-xs">
-                          {booking.pricing.totalDays} days
+                          {new Date(booking.rentalDates.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </div>
+                        <div className="text-gray-400 text-xs">
+                          {booking.pricing.totalDays}d
                         </div>
                       </td>
-                      <td className="py-4 px-6">
-                        <div className="text-white font-tech font-semibold">
+                      <td className="py-3 px-3">
+                        <div className="text-white font-tech text-sm">
                           {formatCurrency(booking.pricing.finalAmount)}
                         </div>
                         <div className="text-gray-400 text-xs">
-                          Deposit: {formatCurrency(booking.pricing.depositAmount)}
+                          ${booking.pricing.depositAmount}
                         </div>
                       </td>
-                      <td className="py-4 px-6">
-                        <div className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg text-sm font-medium ${getStatusColor(booking.status)}`}>
+                      <td className="py-3 px-3">
+                        <div className={`inline-flex items-center space-x-1 px-2 py-1 rounded text-xs font-medium ${getStatusColor(booking.status)}`}>
                           {getStatusIcon(booking.status)}
-                          <span>{booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}</span>
+                          <span className="truncate">{booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}</span>
                         </div>
-                        <div className="text-gray-400 text-xs mt-2">
-                          {booking.payment.depositStatus === 'pending' && '💳 Payment Pending'}
-                          {booking.payment.depositStatus === 'authorized' && '✅ Payment Ready'}
-                          {booking.payment.depositStatus === 'captured' && '💰 Payment Captured'}
+                        <div className="text-gray-400 text-xs mt-1">
+                          {booking.payment.depositStatus === 'pending' && '💳 Pending'}
+                          {booking.payment.depositStatus === 'authorized' && '✅ Ready'}
+                          {booking.payment.depositStatus === 'captured' && '💰 Paid'}
                         </div>
                       </td>
-                      <td className="py-4 px-6">
+                      <td className="py-3 px-3">
                         {(() => {
                           const agreementInfo = getAgreementStatusInfo(booking.id, booking.status)
                           return (
-                            <div className="space-y-2">
-                              <div className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg text-sm font-medium ${agreementInfo.bgColor} ${agreementInfo.color}`}>
-                                <FileText className="w-4 h-4" />
-                                <span>{agreementInfo.label}</span>
-                              </div>
-                              {agreementInfo.agreement && (
-                                <div className="flex items-center space-x-2">
-                                  <a
-                                    href={`/rental-agreement/${agreementInfo.agreement.id}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs text-neon-blue hover:text-neon-blue/80 transition-colors flex items-center space-x-1"
-                                    title="View Agreement"
-                                  >
-                                    <ExternalLink className="w-3 h-3" />
-                                    <span>View</span>
-                                  </a>
-                                  {agreementInfo.agreement.completedAt && (
-                                    <span className="text-xs text-gray-400">
-                                      📝 Signed {new Date(agreementInfo.agreement.completedAt).toLocaleDateString()}
-                                    </span>
-                                  )}
-                                </div>
-                              )}
+                            <div className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${agreementInfo.bgColor} ${agreementInfo.color}`}>
+                              <span className="truncate">{agreementInfo.text}</span>
                             </div>
                           )
-                        })()}
+                        })()
+                        )}
                       </td>
-                      <td className="py-4 px-6">
-                        <div className="flex items-center space-x-2">
+                      <td className="py-3 px-3">
+                        <div className="flex items-center space-x-1 flex-wrap">
                           <button 
-                            onClick={() => window.location.href = `/admin/bookings/${booking.id}`}
-                            className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
-                            title="View Details"
+                            onClick={() => handleRescheduleBooking(booking)}
+                            className="p-1.5 text-gray-400 hover:text-neon-blue transition-colors"
+                            title="Reschedule Booking"
                           >
-                            <Eye className="w-4 h-4" />
+                            <CalendarDays className="w-3.5 h-3.5" />
                           </button>
-                          {booking.status !== 'cancelled' && booking.status !== 'completed' && (
-                            <button 
-                              onClick={() => handleRescheduleBooking(booking)}
-                              className="p-2 text-gray-400 hover:text-neon-blue transition-colors"
-                              title="Reschedule Booking"
-                            >
-                              <CalendarDays className="w-4 h-4" />
-                            </button>
-                          )}
                           <button 
                             onClick={() => handlePricingAdjustment(booking)}
-                            className="p-2 text-gray-400 hover:text-yellow-400 transition-colors"
-                            title="Charge Client"
+                            className="p-1.5 text-gray-400 hover:text-yellow-400 transition-colors"
+                            title="Adjust Pricing"
                           >
-                            <CreditCard className="w-4 h-4" />
+                            <Edit className="w-3.5 h-3.5" />
                           </button>
+                          {booking.payment.finalStatus === 'pending' && (
+                            <button 
+                              onClick={() => handleChargeFinal(booking.id)}
+                              className="p-1.5 text-gray-400 hover:text-green-400 transition-colors"
+                              title="Charge Final Payment"
+                            >
+                              <CreditCard className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          {booking.payment.depositStatus === 'pending' && (
+                            <button 
+                              onClick={() => handleChargeFinal(booking.id)}
+                              className="p-1.5 text-gray-400 hover:text-green-400 transition-colors"
+                              title="Charge Final Payment"
+                            >
+                              <CreditCard className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                           {booking.payment.depositStatus === 'authorized' && (
                             <button 
                               onClick={() => handleCaptureDeposit(booking.id)}
-                              className="p-2 text-gray-400 hover:text-green-400 transition-colors"
+                              className="p-1.5 text-gray-400 hover:text-green-400 transition-colors"
                               title="Capture Deposit"
                             >
-                              <DollarSign className="w-4 h-4" />
+                              <DollarSign className="w-3.5 h-3.5" />
                             </button>
                           )}
                           {booking.status === 'pending' && (
                             <button 
                               onClick={() => handleConfirmBooking(booking)}
-                              className="p-2 text-gray-400 hover:text-green-400 transition-colors"
+                              className="p-1.5 text-gray-400 hover:text-green-400 transition-colors"
                               title="Confirm Booking"
                             >
-                              <CheckCircle className="w-4 h-4" />
+                              <CheckCircle className="w-3.5 h-3.5" />
                             </button>
                           )}
                           {(booking.status === 'confirmed' || booking.status === 'pending') && (
                             <button 
                               onClick={() => handleRentalAgreementModal(booking)}
-                              className="p-2 text-gray-400 hover:text-purple-400 transition-colors"
+                              className="p-1.5 text-gray-400 hover:text-blue-400 transition-colors"
                               title="Send Rental Agreement"
                             >
-                              <Mail className="w-4 h-4" />
+                              <Send className="w-3.5 h-3.5" />
                             </button>
                           )}
                           {booking.status !== 'cancelled' && booking.status !== 'completed' && (
                             <button 
                               onClick={() => handleCancelBookingModal(booking)}
-                              className="p-2 text-gray-400 hover:text-red-400 transition-colors"
+                              className="p-1.5 text-gray-400 hover:text-red-400 transition-colors"
                               title="Cancel Booking"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           )}
                         </div>
@@ -1296,25 +1287,49 @@ export default function BookingsManagement() {
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       New Start Date
                     </label>
-                    <input
-                      type="date"
-                      value={rescheduleStartDate}
-                      onChange={(e) => setRescheduleStartDate(e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full px-3 py-2 bg-dark-gray border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    />
+                    <div className="relative">
+                      <input
+                        type="date"
+                        value={rescheduleStartDate}
+                        onChange={(e) => setRescheduleStartDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                        className="w-full px-3 py-2 bg-dark-gray border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none cursor-pointer"
+                        onClick={(e) => e.currentTarget.showPicker?.()}
+                      />
+                      <div 
+                        className="absolute inset-0 cursor-pointer"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          const input = e.currentTarget.previousElementSibling as HTMLInputElement
+                          input?.showPicker?.()
+                          input?.focus()
+                        }}
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       New End Date
                     </label>
-                    <input
-                      type="date"
-                      value={rescheduleEndDate}
-                      onChange={(e) => setRescheduleEndDate(e.target.value)}
-                      min={rescheduleStartDate}
-                      className="w-full px-3 py-2 bg-dark-gray border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
-                    />
+                    <div className="relative">
+                      <input
+                        type="date"
+                        value={rescheduleEndDate}
+                        onChange={(e) => setRescheduleEndDate(e.target.value)}
+                        min={rescheduleStartDate}
+                        className="w-full px-3 py-2 bg-dark-gray border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none cursor-pointer"
+                        onClick={(e) => e.currentTarget.showPicker?.()}
+                      />
+                      <div 
+                        className="absolute inset-0 cursor-pointer"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          const input = e.currentTarget.previousElementSibling as HTMLInputElement
+                          input?.showPicker?.()
+                          input?.focus()
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
 

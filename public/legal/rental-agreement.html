@@ -206,6 +206,56 @@
             <p>For questions or concerns, contact us at 702-964-4409 or contact@dtexoticslv.com</p>
             <p><em>Document generated: January 2025</em></p>
         </div>
+
+        <!-- Complete Agreement Button -->
+        <div class="agreement-completion" style="text-align: center; margin: 30px 0; padding: 20px;">
+            <button 
+                id="completeAgreementBtn"
+                class="complete-agreement-btn"
+                onclick="completeAgreement()"
+                style="
+                    background: #00ffff;
+                    color: #000000;
+                    border: none;
+                    padding: 15px 40px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    font-family: Arial, sans-serif;
+                "
+                onmouseover="this.style.background='#00e6e6'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0, 255, 255, 0.4)'"
+                onmouseout="this.style.background='#00ffff'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0, 255, 255, 0.3)'"
+            >
+                Complete Agreement
+            </button>
+        </div>
+
+        <script>
+            function completeAgreement() {
+                // This function can be customized based on integration needs
+                // For now, it will show a confirmation and could redirect or trigger an API call
+                
+                const confirmed = confirm('Are you ready to complete and submit this rental agreement?');
+                
+                if (confirmed) {
+                    // You can customize this behavior:
+                    // - Redirect to a completion page
+                    // - Make an API call to mark agreement as completed
+                    // - Show a success message
+                    
+                    alert('Agreement completed successfully! You will be contacted shortly with next steps.');
+                    
+                    // Example: Redirect to a thank you page or close window
+                    // window.location.href = '/agreement-completed';
+                    // window.close();
+                }
+            }
+        </script>
     </div>
 </body>
 </html>
