@@ -378,7 +378,7 @@ export default function BookingsManagement() {
     
     if (status === 'confirmed') {
       if (depositStatus === 'captured') {
-        if (finalPaymentStatus === 'captured') {
+        if (finalPaymentStatus === 'succeeded') {
           return {
             label: 'Fully Paid',
             sublabel: 'All payments complete',
@@ -394,6 +394,15 @@ export default function BookingsManagement() {
             color: 'text-yellow-400',
             bgColor: 'bg-yellow-500/10 border-yellow-500/20',
             icon: <CreditCard className="w-3 h-3" />
+          }
+        }
+        if (finalPaymentStatus === 'failed') {
+          return {
+            label: 'Payment Failed',
+            sublabel: 'Final payment failed',
+            color: 'text-red-400',
+            bgColor: 'bg-red-500/10 border-red-500/20',
+            icon: <X className="w-3 h-3" />
           }
         }
         return {
