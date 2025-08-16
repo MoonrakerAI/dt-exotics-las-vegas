@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import Navbar from '../components/navigation/Navbar'
@@ -96,17 +96,15 @@ export default function BlogPage() {
                 <h2 className="text-2xl font-tech font-bold text-white mb-6">Featured Article</h2>
                 <Link href={`/blog/${featuredPost.slug}`} className="block">
                   <div className="glass-panel bg-dark-metal/50 p-8 border border-gray-600/30 rounded-2xl hover:border-neon-blue/50 transition-all duration-500 cursor-pointer">
-                    {featuredPost.featuredImage && (
+                    {featuredPost.featuredImage && featuredPost.featuredImage.trim() !== '' && (
                       <div className="mb-6 rounded-lg overflow-hidden">
-                        <Image
+                        <img
                           src={featuredPost.featuredImage}
                           alt={featuredPost.title}
-                          width={800}
-                          height={400}
                           className="w-full h-64 object-cover"
                           onError={(e) => {
-                            console.log('Featured image failed to load:', featuredPost.featuredImage);
-                            e.currentTarget.style.display = 'none';
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
                           }}
                         />
                       </div>
@@ -145,17 +143,15 @@ export default function BlogPage() {
                   .map((post) => (
                   <Link key={post.id} href={`/blog/${post.slug}`} className="block">
                     <article className="glass-panel bg-dark-metal/50 p-6 border border-gray-600/30 rounded-lg hover:border-neon-blue/50 transition-all duration-500 cursor-pointer">
-                      {post.featuredImage && (
+                      {post.featuredImage && post.featuredImage.trim() !== '' && (
                         <div className="mb-4 rounded-lg overflow-hidden">
-                          <Image
+                          <img
                             src={post.featuredImage}
                             alt={post.title}
-                            width={400}
-                            height={200}
                             className="w-full h-40 object-cover"
                             onError={(e) => {
-                              console.log('Blog post image failed to load:', post.featuredImage);
-                              e.currentTarget.style.display = 'none';
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
                             }}
                           />
                         </div>
