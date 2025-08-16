@@ -1079,11 +1079,10 @@ export default function BookingsManagement() {
               <table className="w-full table-fixed">
                 <thead className="bg-dark-metal/30">
                   <tr>
-                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-20">ID</th>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-36">Customer</th>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-32">Vehicle</th>
-                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-28">Dates</th>
-                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-24">Amount</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-36">Dates</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-32">Amount</th>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-32">Status</th>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-20">Agreement</th>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-32">Actions</th>
@@ -1092,14 +1091,6 @@ export default function BookingsManagement() {
                 <tbody>
                   {filteredBookings.map((booking) => (
                     <tr key={booking.id} className="border-b border-gray-700/50 hover:bg-gray-600/5">
-                      <td className="py-3 px-3">
-                        <div className="text-white font-tech text-xs truncate" title={booking.id}>
-                          {booking.id.slice(0, 6)}
-                        </div>
-                        <div className="text-gray-400 text-xs">
-                          {new Date(booking.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        </div>
-                      </td>
                       <td className="py-3 px-3">
                         <div className="text-white font-medium text-sm truncate" title={`${booking.customer.firstName} ${booking.customer.lastName}`}>
                           {booking.customer.firstName} {booking.customer.lastName}
