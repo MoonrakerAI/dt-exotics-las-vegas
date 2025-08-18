@@ -201,18 +201,6 @@ export default function RentalAgreementModal({
             </div>
           </div>
 
-          {/* Agreement Info */}
-          <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-lg mb-6">
-            <h4 className="text-blue-400 font-medium mb-2">📋 What's Included in the Agreement</h4>
-            <ul className="text-sm text-blue-300 space-y-1">
-              <li>• Personal information and emergency contact</li>
-              <li>• Driver's license verification</li>
-              <li>• Insurance and liability acknowledgment</li>
-              <li>• Vehicle condition acceptance</li>
-              <li>• Rental terms and conditions</li>
-              <li>• Digital signature</li>
-            </ul>
-          </div>
 
           {/* Status Messages */}
           {error && (

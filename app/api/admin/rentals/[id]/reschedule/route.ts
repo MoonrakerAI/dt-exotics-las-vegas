@@ -98,7 +98,7 @@ export async function POST(
         depositAmount: newDepositAmount,
         finalAmount: newFinalAmount
       },
-      status: 'confirmed' as const, // Reset to confirmed after rescheduling
+      // Keep original status - don't auto-confirm
       updatedAt: new Date().toISOString(),
       rescheduleHistory: [
         ...(rental.rescheduleHistory || []),

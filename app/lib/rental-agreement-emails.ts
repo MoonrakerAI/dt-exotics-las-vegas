@@ -49,93 +49,75 @@ export class RentalAgreementEmailService {
     return {
       subject,
       html: `
-        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; background: #f5f5f5;">
-          <div style="background: linear-gradient(135deg, #1a1a1a, #333); padding: 30px; text-align: center;">
-            <h1 style="color: #00ffff; margin: 0; font-size: 28px; font-weight: bold;">DT EXOTICS LAS VEGAS</h1>
-            <p style="color: #ccc; margin: 10px 0 0 0; font-size: 16px;">Premium Supercar Rentals</p>
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 40px 30px; text-align: center;">
+            <img src="https://dtexoticslv.com/images/logo/dt-exotics-logo.png" alt="DT Exotics" style="width: 300px; max-width: 100%; height: auto; margin-bottom: 20px;">
+            <h1 style="color: #00ffff; margin: 0; font-size: 32px; font-weight: 300; letter-spacing: 1px;">${data.isReminder ? 'Agreement Reminder' : 'Complete Your Agreement'}</h1>
+            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Rental Agreement Required</p>
           </div>
           
-          <div style="padding: 30px; background: #f8f9fa;">
-            <h2 style="color: #333; margin-top: 0;">${data.isReminder ? '⏰ Reminder: ' : ''}Complete Your Rental Agreement</h2>
-            
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #00ffff; margin-top: 0;">📋 Agreement Required</h3>
-              <p style="color: #333; line-height: 1.6;">Hi ${data.customerName},</p>
-              <p style="color: #333; line-height: 1.6;">
+          <!-- Main Content -->
+          <div style="padding: 40px 30px; background: #ffffff;">
+            <!-- Greeting & Main Message -->
+            <div style="margin-bottom: 30px;">
+              <p style="color: #333; margin: 0 0 15px 0; font-size: 16px; line-height: 1.6;">Hi ${data.customerName},</p>
+              <p style="color: #333; margin: 0; font-size: 16px; line-height: 1.6;">
                 ${data.isReminder 
-                  ? 'This is a friendly reminder that your rental agreement is still pending completion.' 
+                  ? 'This is a friendly reminder that your rental agreement is still pending completion. Please complete it to finalize your reservation.' 
                   : 'Your rental booking has been confirmed! To finalize your reservation, please complete your rental agreement.'}
               </p>
-              
-              <div style="background: #e8f4fd; padding: 15px; border-radius: 6px; margin: 15px 0;">
-                <h4 style="color: #0066cc; margin: 0 0 10px 0;">🚗 Rental Details</h4>
-                <p style="margin: 5px 0; color: #0066cc;"><strong>Vehicle:</strong> ${data.vehicleInfo}</p>
-                <p style="margin: 5px 0; color: #0066cc;"><strong>Rental Period:</strong> ${startDate} - ${endDate}</p>
-                <p style="margin: 5px 0; color: #0066cc;"><strong>Booking ID:</strong> ${data.bookingId}</p>
-              </div>
-              
-              ${data.customMessage ? `
-                <div style="background: #fff3cd; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #ffc107;">
-                  <h4 style="color: #856404; margin: 0 0 10px 0;">📝 Special Instructions</h4>
-                  <p style="margin: 0; color: #856404;">${data.customMessage}</p>
-                </div>
-              ` : ''}
             </div>
-            
-            <div style="text-align: center; margin: 30px 0;">
+
+            <!-- Rental Details -->
+            <div style="background: #f8f8f8; padding: 20px; border-left: 4px solid #00ffff; margin-bottom: 30px;">
+              <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px; font-weight: 500;">🚗 Rental Details</h3>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr><td style="padding: 8px 0; color: #666; font-size: 14px;">Vehicle:</td><td style="padding: 8px 0; color: #333; font-weight: 500; font-size: 14px;">${data.vehicleInfo}</td></tr>
+                <tr><td style="padding: 8px 0; color: #666; font-size: 14px;">Rental Period:</td><td style="padding: 8px 0; color: #333; font-weight: 500; font-size: 14px;">${startDate} - ${endDate}</td></tr>
+                <tr><td style="padding: 8px 0; color: #666; font-size: 14px;">Booking ID:</td><td style="padding: 8px 0; color: #333; font-weight: 500; font-size: 14px;">${data.bookingId}</td></tr>
+                <tr><td style="padding: 8px 0; color: #666; font-size: 14px;">Expires:</td><td style="padding: 8px 0; color: #d32f2f; font-weight: 600; font-size: 14px;">${expiryDate}</td></tr>
+              </table>
+            </div>
+
+            ${data.customMessage ? `
+            <!-- Special Instructions -->
+            <div style="background: #fff8e1; padding: 20px; border-radius: 4px; margin-bottom: 30px; border-left: 4px solid #ffc107;">
+              <h3 style="color: #f57c00; margin: 0 0 10px 0; font-size: 16px; font-weight: 500;">📝 Special Instructions</h3>
+              <p style="margin: 0; color: #5d4037; font-size: 14px; line-height: 1.6;">${data.customMessage}</p>
+            </div>
+            ` : ''}
+
+            <!-- Main CTA -->
+            <div style="text-align: center; padding: 30px 0; border-top: 1px solid #e0e0e0; border-bottom: 1px solid #e0e0e0;">
               <a href="${data.agreementUrl}" 
-                 style="display: inline-block; background: #00ffff; color: #000; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 18px; margin: 10px;">
+                 style="display: inline-block; background: #00ffff; color: #000000; padding: 18px 36px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 18px; letter-spacing: 0.5px;">
                 📝 Complete Agreement Now
               </a>
+              <p style="margin: 15px 0 0 0; color: #999; font-size: 12px;">Required before pickup - expires ${expiryDate}</p>
             </div>
-            
-            <div style="background: #fff; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #dc3545; margin-top: 0;">⚠️ Important Information</h3>
-              <ul style="color: #333; line-height: 1.6; margin: 10px 0; padding-left: 20px;">
-                <li><strong>Agreement expires:</strong> ${expiryDate}</li>
-                <li><strong>Required for pickup:</strong> Must be completed before rental</li>
-                <li><strong>Digital signature:</strong> Legally binding electronic signature required</li>
-                <li><strong>Valid ID required:</strong> Bring driver's license matching agreement</li>
-              </ul>
-            </div>
-            
-            <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #0066cc; margin-top: 0;">📋 What's Included in the Agreement</h3>
-              <ul style="margin: 10px 0; padding-left: 20px; color: #0066cc;">
-                <li>Personal information and emergency contact</li>
-                <li>Driver's license verification</li>
-                <li>Insurance and liability acknowledgment</li>
-                <li>Vehicle condition acceptance</li>
-                <li>Rental terms and conditions</li>
-                <li>Digital signature</li>
-              </ul>
-            </div>
-            
-            <div style="text-align: center; margin-top: 30px;">
-              <p style="color: #666; margin-bottom: 20px;">Questions about your agreement?</p>
-              <div style="display: inline-block; text-align: center;">
+
+            <!-- Contact Buttons -->
+            <div style="text-align: center; padding: 20px 0;">
+              <p style="color: #666; margin: 0 0 20px 0; font-size: 14px;">Questions about your agreement?</p>
+              <div>
                 <a href="tel:${formattedBusinessPhone}" 
-                   style="display: inline-block; background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 120px; text-align: center;">
+                   style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 0 5px; font-size: 14px; letter-spacing: 0.5px;">
                   📞 Call Us
                 </a>
                 <a href="sms:${formattedBusinessPhone}" 
-                   style="display: inline-block; background: #007bff; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 5px 5px; min-width: 120px; text-align: center;">
+                   style="display: inline-block; background: #00ffff; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 4px; font-weight: 600; margin: 0 5px; font-size: 14px; letter-spacing: 0.5px;">
                   💬 Text Us
                 </a>
-              </div>
-              <div style="margin-top: 15px; font-size: 14px; color: #666;">
-                <p style="margin: 5px 0;">📞 <a href="tel:${formattedBusinessPhone}" style="color: #00ffff; text-decoration: none;">${formattedBusinessPhone}</a></p>
-                <p style="margin: 5px 0;">📧 <a href="mailto:contact@dtexoticslv.com" style="color: #00ffff; text-decoration: none;">contact@dtexoticslv.com</a></p>
               </div>
             </div>
           </div>
           
-          <div style="background: #333; padding: 20px; text-align: center;">
-            <div style="margin-bottom: 15px;">
-              <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics Icon" style="height: 40px; opacity: 0.7;">
-            </div>
-            <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
-            <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">2687 S Sammy Davis Jr Dr, Las Vegas NV 89109, USA</p>
+          <!-- Footer -->
+          <div style="background: #f8f8f8; padding: 30px; text-align: center; border-top: 1px solid #e0e0e0;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics" style="width: 100px; height: auto; margin-bottom: 15px;">
+            <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">DT Exotics Las Vegas</p>
+            <p style="color: #999; margin: 0; font-size: 12px;">Premium Supercar Rentals</p>
           </div>
         </div>
       `,

@@ -511,8 +511,6 @@ export default function BookingsManagement() {
     setSelectedBookingForAdjustment(booking)
     setAdjustmentAmount('')
     setAdjustmentMemo('')
-    setChargeNow(false)
-    setSelectedChargeTypes([])
     setShowPricingModal(true)
   }
 
@@ -534,7 +532,7 @@ export default function BookingsManagement() {
         body: JSON.stringify({
           amount: parseFloat(adjustmentAmount),
           memo: adjustmentMemo.trim() || (parseFloat(adjustmentAmount) > 0 ? 'Additional charge' : 'Discount/Refund'),
-          chargeNow: chargeNow
+          chargeNow: true
         })
       })
 
@@ -550,7 +548,6 @@ export default function BookingsManagement() {
       setShowPricingModal(false)
       setAdjustmentAmount('')
       setAdjustmentMemo('')
-      setChargeNow(false)
       
       alert(result.message || 'Pricing adjustment processed successfully!')
     } catch (err) {
@@ -1081,11 +1078,11 @@ export default function BookingsManagement() {
                   <tr>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-36">Customer</th>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-32">Vehicle</th>
-                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-24">Dates</th>
-                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-24">Amount</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-20">Dates</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-20">Amount</th>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-32">Status</th>
                     <th className="text-left py-3 px-3 text-gray-400 font-tech w-28">Agreement</th>
-                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-32">Actions</th>
+                    <th className="text-left py-3 px-3 text-gray-400 font-tech w-40">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1203,7 +1200,7 @@ export default function BookingsManagement() {
                               className="p-1.5 text-gray-400 hover:text-red-400 transition-colors"
                               title="Cancel Booking"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <X className="w-3.5 h-3.5" />
                             </button>
                           )}
                           <button 
@@ -1256,86 +1253,25 @@ export default function BookingsManagement() {
                   </p>
                 </div>
 
-                {/* Charge Type Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-3">
-                    Charge Type(s) - Select all that apply
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { id: 'deposit', label: 'Deposit', description: 'Security deposit' },
-                      { id: 'final-payment', label: 'Final Payment', description: 'Remaining balance' },
-                      { id: 'extra-services', label: 'Extra Services', description: 'Additional charges' },
-                      { id: 'damage-fee', label: 'Damage Fee', description: 'Vehicle damage' },
-                      { id: 'late-fee', label: 'Late Fee', description: 'Late return' },
-                      { id: 'discount', label: 'Discount', description: 'Price reduction' }
-                    ].map((chargeType) => {
-                      const isSelected = selectedChargeTypes.includes(chargeType.id)
-                      return (
-                        <button
-                          key={chargeType.id}
-                          type="button"
-                          onClick={() => {
-                            if (isSelected) {
-                              setSelectedChargeTypes(prev => prev.filter(id => id !== chargeType.id))
-                            } else {
-                              setSelectedChargeTypes(prev => [...prev, chargeType.id])
-                            }
-                            // Update memo based on selected types
-                            const newTypes = isSelected 
-                              ? selectedChargeTypes.filter(id => id !== chargeType.id)
-                              : [...selectedChargeTypes, chargeType.id]
-                            
-                            const typeLabels = newTypes.map(id => {
-                              const type = [
-                                { id: 'deposit', label: 'Deposit' },
-                                { id: 'final-payment', label: 'Final Payment' },
-                                { id: 'extra-services', label: 'Additional services' },
-                                { id: 'damage-fee', label: 'Damage fee' },
-                                { id: 'late-fee', label: 'Late return fee' },
-                                { id: 'discount', label: 'Customer discount' }
-                              ].find(t => t.id === id)
-                              return type?.label || ''
-                            }).filter(Boolean)
-                            
-                            setAdjustmentMemo(typeLabels.join(', '))
-                          }}
-                          className={`p-3 border rounded-lg text-left transition-colors ${
-                            isSelected 
-                              ? 'bg-neon-blue/20 border-neon-blue text-white' 
-                              : 'bg-dark-gray border-gray-600 hover:border-neon-blue'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <div className="text-white font-medium text-sm">{chargeType.label}</div>
-                              <div className="text-gray-400 text-xs">{chargeType.description}</div>
-                            </div>
-                            {isSelected && (
-                              <div className="w-4 h-4 bg-neon-blue rounded-full flex items-center justify-center">
-                                <div className="w-2 h-2 bg-black rounded-full"></div>
-                              </div>
-                            )}
-                          </div>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
 
                 {/* Amount Input */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Amount ($)
+                    Total Charge Amount ($)
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     value={adjustmentAmount}
                     onChange={(e) => setAdjustmentAmount(e.target.value)}
-                    placeholder="Enter amount (positive for charges, negative for refunds)"
+                    placeholder="Enter total amount to charge"
                     className="w-full px-4 py-3 bg-dark-gray border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   />
+                  {selectedBookingForAdjustment.payment.depositStatus === 'pending' && adjustmentAmount && !isNaN(parseFloat(adjustmentAmount)) && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      💡 Suggested 30% deposit: {formatCurrency(parseFloat(adjustmentAmount) * 0.3)}
+                    </p>
+                  )}
                 </div>
 
                 {/* Memo Input */}
@@ -1352,23 +1288,6 @@ export default function BookingsManagement() {
                   />
                 </div>
 
-                {/* Payment Options */}
-                <div className="border border-gray-600 rounded-lg p-4">
-                  <label className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={chargeNow}
-                      onChange={(e) => setChargeNow(e.target.checked)}
-                      className="w-4 h-4 text-neon-blue bg-dark-gray border-gray-600 rounded focus:ring-neon-blue focus:ring-2"
-                    />
-                    <div>
-                      <span className="text-white font-medium">Process payment immediately</span>
-                      <p className="text-xs text-gray-400">
-                        Charge the customer's saved payment method now. If unchecked, only adjusts booking total.
-                      </p>
-                    </div>
-                  </label>
-                </div>
 
                 {/* Current Total */}
                 <div className="bg-gray-700/30 p-3 rounded-lg border border-gray-600/20">
@@ -1395,22 +1314,6 @@ export default function BookingsManagement() {
                   )}
                 </div>
 
-                {/* Warnings */}
-                {chargeNow && parseFloat(adjustmentAmount) > 0 && (
-                  <div className="bg-yellow-500/10 border border-yellow-500/20 p-3 rounded-lg">
-                    <p className="text-yellow-400 text-sm">
-                      ⚠️ This will charge the customer's saved payment method immediately.
-                    </p>
-                  </div>
-                )}
-
-                {!chargeNow && (
-                  <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg">
-                    <p className="text-blue-400 text-sm">
-                      ℹ️ Pricing will be adjusted manually. You can process payment separately if needed.
-                    </p>
-                  </div>
-                )}
               </div>
 
               {/* Action Buttons */}
@@ -1446,7 +1349,7 @@ export default function BookingsManagement() {
                       ) : (
                         <>
                           <CreditCard className="w-4 h-4" />
-                          <span>Update Total</span>
+                          <span>Charge Customer</span>
                         </>
                       )}
                     </>

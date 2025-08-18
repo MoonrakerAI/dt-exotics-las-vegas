@@ -905,15 +905,14 @@ Get ready for the drive of a lifetime!`
                   💬 Text Us
                 </a>
               </div>
-              <p style="margin: 15px 0 0 0; color: #999; font-size: 12px;">
-                📞 ${formattedBusinessPhone} | 📧 contact@dtexoticslv.com
-              </p>
             </div>
           </div>
           
-          <div style="background: #333; padding: 20px; text-align: center;">
-            <p style="color: #999; margin: 0; font-size: 14px;">DT Exotics Las Vegas - Premium Supercar Rentals</p>
-            <p style="color: #999; margin: 5px 0 0 0; font-size: 12px;">We can't wait to make your ${inquiry.eventType.toLowerCase()} unforgettable!</p>
+          <!-- Footer -->
+          <div style="background: #f8f8f8; padding: 30px; text-align: center; border-top: 1px solid #e0e0e0;">
+            <img src="https://dtexoticslv.com/images/logo/DT Exotics Logo Icon Black.png" alt="DT Exotics" style="width: 100px; height: auto; margin-bottom: 15px;">
+            <p style="color: #666; margin: 0 0 5px 0; font-size: 14px;">DT Exotics Las Vegas</p>
+            <p style="color: #999; margin: 0; font-size: 12px;">We can't wait to make your ${inquiry.eventType.toLowerCase()} unforgettable!</p>
           </div>
         </div>
       `,
