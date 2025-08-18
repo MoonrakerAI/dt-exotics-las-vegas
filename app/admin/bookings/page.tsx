@@ -679,7 +679,7 @@ export default function BookingsManagement() {
     setShowRentalAgreementModal(true)
   }
 
-  // Confirm booking and then prompt to send rental agreement
+  // Confirm booking and automatically charge deposit
   const handleConfirmBooking = async (booking: RentalBooking) => {
     // Add verification step
     const confirmed = window.confirm(
@@ -687,8 +687,8 @@ export default function BookingsManagement() {
       `Customer: ${booking.customer.firstName} ${booking.customer.lastName}\n` +
       `Vehicle: ${booking.car.brand} ${booking.car.model}\n` +
       `Dates: ${booking.rentalDates.startDate} to ${booking.rentalDates.endDate}\n` +
-      `Total: ${formatCurrency(booking.pricing.subtotal)}\n\n` +
-      `This will confirm the booking and allow the customer to proceed with their rental.`
+      `Deposit: ${formatCurrency(booking.pricing.depositAmount)}\n\n` +
+      `This will confirm the booking and automatically charge the deposit.`
     )
 
     if (!confirmed) {
@@ -702,7 +702,8 @@ export default function BookingsManagement() {
         return
       }
 
-      const response = await fetch(`/api/admin/rentals/${booking.id}/confirm`, {
+      // First confirm the booking
+      const confirmResponse = await fetch(`/api/admin/rentals/${booking.id}/confirm`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -710,15 +711,29 @@ export default function BookingsManagement() {
         }
       })
 
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}))
+      if (!confirmResponse.ok) {
+        const err = await confirmResponse.json().catch(() => ({}))
         throw new Error(err.error || 'Failed to confirm booking')
       }
 
-      await fetchBookings()
+      // Then automatically capture the deposit
+      const captureResponse = await fetch(`/api/admin/rentals/${booking.id}/capture-deposit`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
 
-      // Show success message
-      alert('Booking confirmed successfully! The customer has been notified.')
+      if (!captureResponse.ok) {
+        const captureErr = await captureResponse.json().catch(() => ({}))
+        console.warn('Deposit capture failed:', captureErr.error)
+        alert(`Booking confirmed but deposit capture failed: ${captureErr.error || 'Unknown error'}. Please capture manually.`)
+      } else {
+        alert('Booking confirmed and deposit charged successfully! Customer has been notified.')
+      }
+
+      await fetchBookings()
 
       // Auto-open rental agreement modal as next step
       setSelectedBookingForAgreement(booking)
@@ -1240,7 +1255,7 @@ export default function BookingsManagement() {
               <div className="space-y-4">
                 {/* Booking Info */}
                 <div className="bg-dark-gray/50 p-4 rounded-lg border border-gray-600/20">
-                  <p className="text-sm text-gray-400">Charging customer:</p>
+                  <p className="text-sm text-gray-400">Additional charge for:</p>
                   <p className="text-white font-medium">
                     {selectedBookingForAdjustment.customer.firstName} {selectedBookingForAdjustment.customer.lastName}
                   </p>
@@ -1251,6 +1266,13 @@ export default function BookingsManagement() {
                   <p className="text-gray-400 text-xs mt-1">
                     Booking ID: {selectedBookingForAdjustment.id.slice(0, 8)}...
                   </p>
+                  {selectedBookingForAdjustment.payment.depositStatus === 'pending' && (
+                    <div className="mt-2 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded">
+                      <p className="text-yellow-400 text-xs">
+                        ⚠️ Deposit not yet charged. Use "Confirm Booking" to charge deposit first.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
 
@@ -1267,11 +1289,6 @@ export default function BookingsManagement() {
                     placeholder="Enter total amount to charge"
                     className="w-full px-4 py-3 bg-dark-gray border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
                   />
-                  {selectedBookingForAdjustment.payment.depositStatus === 'pending' && adjustmentAmount && !isNaN(parseFloat(adjustmentAmount)) && (
-                    <p className="text-xs text-gray-400 mt-1">
-                      💡 Suggested 30% deposit: {formatCurrency(parseFloat(adjustmentAmount) * 0.3)}
-                    </p>
-                  )}
                 </div>
 
                 {/* Memo Input */}
@@ -1289,30 +1306,17 @@ export default function BookingsManagement() {
                 </div>
 
 
-                {/* Current Total */}
-                <div className="bg-gray-700/30 p-3 rounded-lg border border-gray-600/20">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Current Total:</span>
-                    <span className="text-white">{formatCurrency(selectedBookingForAdjustment.pricing.finalAmount)}</span>
+                {/* Charge Summary */}
+                {adjustmentAmount && !isNaN(parseFloat(adjustmentAmount)) && (
+                  <div className="bg-gray-700/30 p-3 rounded-lg border border-gray-600/20">
+                    <div className="flex justify-between font-medium">
+                      <span className="text-gray-300">Amount to Charge:</span>
+                      <span className="text-neon-blue">
+                        {formatCurrency(parseFloat(adjustmentAmount))}
+                      </span>
+                    </div>
                   </div>
-                  {adjustmentAmount && !isNaN(parseFloat(adjustmentAmount)) && (
-                    <>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">Adjustment:</span>
-                        <span className={parseFloat(adjustmentAmount) >= 0 ? "text-yellow-400" : "text-green-400"}>
-                          {parseFloat(adjustmentAmount) >= 0 ? '+' : ''}{formatCurrency(parseFloat(adjustmentAmount))}
-                        </span>
-                      </div>
-                      <hr className="border-gray-600/50 my-2" />
-                      <div className="flex justify-between font-medium">
-                        <span className="text-gray-300">New Total:</span>
-                        <span className="text-neon-blue">
-                          {formatCurrency(selectedBookingForAdjustment.pricing.finalAmount + parseFloat(adjustmentAmount))}
-                        </span>
-                      </div>
-                    </>
-                  )}
-                </div>
+                )}
 
               </div>
 
