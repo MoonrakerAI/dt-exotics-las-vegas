@@ -11,7 +11,8 @@ import {
   LogOut, 
   User,
   Calendar,
-  CreditCard
+  CreditCard,
+  Mail
 } from 'lucide-react'
 import { SimpleAuth } from '../../lib/simple-auth'
 
@@ -51,6 +52,12 @@ const navItems = [
     label: 'Notifications', 
     icon: Bell,
     description: 'Email notification settings'
+  },
+  { 
+    href: '/admin/email-test', 
+    label: 'Email Test', 
+    icon: Mail,
+    description: 'Test email notifications'
   }
 ]
 
