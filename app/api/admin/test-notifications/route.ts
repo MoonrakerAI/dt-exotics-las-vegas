@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyJWT } from '@/app/lib/jwt';
+import { verifyJWT } from '@/app/lib/auth';
 import notificationService from '@/app/lib/notifications';
 
 // Mock booking data for testing

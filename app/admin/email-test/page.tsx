@@ -55,7 +55,7 @@ export default function EmailTestPage() {
     }
   };
 
-  const testEmail = async (emailType: string) => {
+  const testEmailFunction = async (emailType: string) => {
     setLoading(true);
     setError('');
 
@@ -100,7 +100,7 @@ export default function EmailTestPage() {
 
     for (const emailType of emailTypes) {
       try {
-        await testEmail(emailType.id);
+        await testEmailFunction(emailType.id);
         // Small delay between emails
         await new Promise(resolve => setTimeout(resolve, 500));
       } catch (error) {
@@ -174,7 +174,7 @@ export default function EmailTestPage() {
               <h3 className="text-lg font-semibold text-cyan-400 mb-2">{emailType.name}</h3>
               <p className="text-gray-400 text-sm mb-4">{emailType.description}</p>
               <button
-                onClick={() => testEmail(emailType.id)}
+                onClick={() => testEmailFunction(emailType.id)}
                 disabled={loading}
                 className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 text-white rounded-lg font-medium transition-colors"
               >
