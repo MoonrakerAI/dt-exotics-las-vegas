@@ -112,20 +112,12 @@ export async function POST(request: NextRequest) {
         break;
 
       case 'payment-success-admin':
-        result = await notificationService.sendPaymentNotification({
-          type: 'payment_success',
-          booking: mockBookingData,
-          payment: mockPaymentData
-        });
+        result = await notificationService.sendPaymentNotification(mockPaymentData, true);
         emailDescription = 'Admin payment success notification';
         break;
 
       case 'payment-failed-admin':
-        result = await notificationService.sendPaymentNotification({
-          type: 'payment_failed',
-          booking: mockBookingData,
-          payment: { ...mockPaymentData, status: 'failed' }
-        });
+        result = await notificationService.sendPaymentNotification({ ...mockPaymentData, status: 'failed' }, false);
         emailDescription = 'Admin payment failed notification';
         break;
 
