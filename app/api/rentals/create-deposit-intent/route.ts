@@ -201,6 +201,38 @@ export async function POST(request: NextRequest) {
       await kvRentalDB.createRental(rental);
       console.log(`[DEPOSIT-INTENT] Created rental booking: ${rentalId}`);
       
+      // Send initial booking notification emails
+      try {
+        const bookingData = {
+          id: rental.id,
+          car: {
+            brand: car.brand,
+            model: car.model,
+            year: car.year
+          },
+          customer: rental.customer,
+          startDate: rental.rentalDates.startDate,
+          endDate: rental.rentalDates.endDate,
+          depositAmount: rental.pricing.depositAmount,
+          totalAmount: rental.pricing.subtotal,
+          status: rental.status
+        };
+
+        console.log('[DEPOSIT-INTENT] Sending booking notification emails...');
+        
+        // Send admin notification
+        await notificationService.sendBookingNotification(bookingData);
+        console.log('[DEPOSIT-INTENT] Admin booking notification sent');
+
+        // Send customer confirmation
+        await notificationService.sendCustomerBookingConfirmation(bookingData);
+        console.log('[DEPOSIT-INTENT] Customer booking confirmation sent');
+        
+      } catch (emailError) {
+        console.error('[DEPOSIT-INTENT] Failed to send booking notification emails:', emailError);
+        // Don't fail the booking creation if email fails
+      }
+      
       // Return client secret to confirm payment on client side
       return NextResponse.json({
         success: true,

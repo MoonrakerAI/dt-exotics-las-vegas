@@ -207,7 +207,7 @@ async function handlePaymentIntentAuthorized(paymentIntent: any) {
     rental = await kvRentalDB.createRental(rentalData)
     console.log('Created new rental:', rental.id)
 
-    // Send booking confirmation emails
+    // Send booking confirmation emails (only for new rentals created from webhook)
     try {
       const bookingData = {
         id: rental.id,
@@ -316,43 +316,9 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
       console.error('Error stack:', emailError instanceof Error ? emailError.stack : 'No stack trace');
     }
 
-    // Send booking confirmation emails (for new bookings)
-    try {
-      console.log('=== BOOKING CONFIRMATION EMAILS START ===');
-      const bookingData = {
-        bookingId: rental.id,
-        customerName: `${rental.customer.firstName} ${rental.customer.lastName}`,
-        customerEmail: rental.customer.email,
-        customerPhone: rental.customer.phone,
-        vehicleName: `${car.brand} ${car.model}`,
-        vehicleYear: car.year,
-        startDate: rental.rentalDates.startDate,
-        endDate: rental.rentalDates.endDate,
-        totalAmount: rental.pricing.subtotal,
-        depositAmount: rental.pricing.depositAmount,
-        remainingAmount: rental.pricing.finalAmount,
-        dailyRate: rental.pricing.dailyRate,
-        totalDays: rental.pricing.totalDays
-      };
-      console.log('Booking data prepared:', JSON.stringify(bookingData, null, 2));
-
-      // Send admin booking notification
-      console.log('Sending admin booking notification...');
-      const adminBookingResult = await notificationService.sendBookingNotification(bookingData);
-      console.log('Admin booking notification result:', adminBookingResult);
-
-      // Send customer booking confirmation
-      console.log('Sending customer booking confirmation...');
-      const customerBookingResult = await notificationService.sendCustomerBookingConfirmation(bookingData);
-      console.log('Customer booking confirmation result:', customerBookingResult);
-      
-      console.log('Booking confirmation emails completed');
-      console.log('=== BOOKING CONFIRMATION EMAILS END ===');
-    } catch (emailError) {
-      console.error('=== BOOKING CONFIRMATION EMAILS ERROR ===');
-      console.error('Failed to send booking confirmation emails:', emailError);
-      console.error('Error stack:', emailError instanceof Error ? emailError.stack : 'No stack trace');
-    }
+    // Note: Booking confirmation emails are now sent during booking creation
+    // This webhook only handles payment status updates
+    console.log('Skipping booking confirmation emails - already sent during booking creation');
   } else if (rental.payment.finalPaymentIntentId === paymentIntent.id) {
     // Final payment succeeded
     await kvRentalDB.updateRental(rental.id, {
