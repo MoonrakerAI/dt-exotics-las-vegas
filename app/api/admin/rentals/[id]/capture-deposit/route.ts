@@ -67,11 +67,13 @@ export async function POST(
     }
 
     // Capture the deposit payment with idempotency key
+    // Default to the rental's deposit amount if no specific capture amount provided
+    const amountToCapture = captureAmount || rental.pricing.depositAmount;
     const idempotencyKey = `capture_${rental.id}_${Date.now()}`;
     const capturedPaymentIntent = await stripe.paymentIntents.capture(
       rental.payment.depositPaymentIntentId,
       {
-        amount_to_capture: captureAmount ? captureAmount * 100 : undefined
+        amount_to_capture: amountToCapture * 100 // Convert to cents
       },
       {
         idempotencyKey
