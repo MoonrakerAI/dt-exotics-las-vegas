@@ -1263,16 +1263,6 @@ export default function BookingsManagement() {
                     {selectedBookingForAdjustment.car.brand} {selectedBookingForAdjustment.car.model} 
                     ({selectedBookingForAdjustment.car.year})
                   </p>
-                  <p className="text-gray-400 text-xs mt-1">
-                    Booking ID: {selectedBookingForAdjustment.id.slice(0, 8)}...
-                  </p>
-                  {selectedBookingForAdjustment.payment.depositStatus === 'pending' && (
-                    <div className="mt-2 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded">
-                      <p className="text-yellow-400 text-xs">
-                        ⚠️ Deposit not yet charged. Use "Confirm Booking" to charge deposit first.
-                      </p>
-                    </div>
-                  )}
                 </div>
 
 
