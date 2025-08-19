@@ -681,7 +681,7 @@ export default function BookingsManagement() {
     setShowRentalAgreementModal(true)
   }
 
-  // Confirm booking and automatically charge deposit
+  // Confirm booking (status update and email only)
   const handleConfirmBooking = async (booking: RentalBooking) => {
     // Add verification step
     const confirmed = window.confirm(
@@ -690,7 +690,8 @@ export default function BookingsManagement() {
       `Vehicle: ${booking.car.brand} ${booking.car.model}\n` +
       `Dates: ${booking.rentalDates.startDate} to ${booking.rentalDates.endDate}\n` +
       `Deposit: ${formatCurrency(booking.pricing.depositAmount)}\n\n` +
-      `This will confirm the booking and automatically charge the deposit.`
+      `This will confirm the booking and send confirmation emails.\n` +
+      `Use the "Charge Customer" button to capture the deposit payment.`
     )
 
     if (!confirmed) {
@@ -704,7 +705,7 @@ export default function BookingsManagement() {
         return
       }
 
-      // First confirm the booking
+      // Confirm the booking (status update and emails only)
       const confirmResponse = await fetch(`/api/admin/rentals/${booking.id}/confirm`, {
         method: 'POST',
         headers: {
@@ -718,19 +719,8 @@ export default function BookingsManagement() {
         throw new Error(err.error || 'Failed to confirm booking')
       }
 
-      // Refresh bookings first to get updated state, then capture deposit
       await fetchBookings()
-      
-      // Now attempt to capture the deposit with the updated booking state
-      try {
-        await handleCaptureDeposit(booking.id)
-        alert('Booking confirmed and deposit charged successfully! Customer has been notified.')
-      } catch (captureError) {
-        console.error('Deposit capture failed after confirmation:', captureError)
-        alert('Booking confirmed but deposit capture failed. Please use the Capture Deposit button manually.')
-      }
-
-      await fetchBookings()
+      alert('Booking confirmed successfully! Customer has been notified.\n\nNext: Use "Charge Customer" button to capture the authorized deposit amount.')
 
       // Auto-open rental agreement modal as next step
       setSelectedBookingForAgreement(booking)
@@ -1205,12 +1195,12 @@ export default function BookingsManagement() {
                             <CreditCard className="w-3.5 h-3.5" />
                           </button>
                           
-                          {/* Legacy: Capture Deposit (for authorized deposits) */}
+                          {/* Capture Deposit (for authorized deposits) */}
                           {booking.payment.depositStatus === 'authorized' && (
                             <button 
                               onClick={() => handleCaptureDeposit(booking.id)}
                               className="p-1.5 text-gray-400 hover:text-green-400 transition-colors"
-                              title="Capture Deposit"
+                              title="Capture Authorized Deposit - Use this to charge the exact authorized amount"
                             >
                               <DollarSign className="w-3.5 h-3.5" />
                             </button>
@@ -1261,6 +1251,24 @@ export default function BookingsManagement() {
                   <X className="w-5 h-5" />
                 </button>
               </div>
+              
+              {/* Important Note for First Payment */}
+              {selectedBookingForAdjustment?.payment.depositStatus === 'authorized' && (
+                <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                  <div className="flex items-start space-x-3">
+                    <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h4 className="text-yellow-400 font-semibold mb-1">First Payment - Use Authorized Amount</h4>
+                      <p className="text-yellow-300 text-sm">
+                        For the first payment, use the exact authorized deposit amount: <strong>{formatCurrency(selectedBookingForAdjustment.pricing.depositAmount)}</strong>
+                      </p>
+                      <p className="text-yellow-300 text-sm mt-1">
+                        This ensures you capture only what was pre-authorized by the customer's bank.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-4">
                 {/* Booking Info */}
