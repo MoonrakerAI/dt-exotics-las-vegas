@@ -59,21 +59,48 @@ export async function POST(
       rental.payment.depositPaymentIntentId
     );
 
-    if (paymentIntent.status !== 'requires_capture') {
+    // Check if payment intent is in a capturable state
+    const capturableStatuses = ['requires_capture', 'succeeded'];
+    if (!capturableStatuses.includes(paymentIntent.status)) {
       return NextResponse.json(
-        { error: 'Payment intent is not in a capturable state' },
+        { 
+          error: `Payment intent is not in a capturable state. Current status: ${paymentIntent.status}`,
+          currentStatus: paymentIntent.status,
+          amountCapturable: paymentIntent.amount_capturable,
+          totalAmount: paymentIntent.amount
+        },
+        { status: 400 }
+      );
+    }
+
+    // If already succeeded, check if it was already captured
+    if (paymentIntent.status === 'succeeded' && paymentIntent.amount_capturable === 0) {
+      return NextResponse.json(
+        { error: 'Payment has already been fully captured' },
         { status: 400 }
       );
     }
 
     // Capture the deposit payment with idempotency key
-    // Default to the rental's deposit amount if no specific capture amount provided
-    const amountToCapture = captureAmount || rental.pricing.depositAmount;
+    // Use the amount_capturable from Stripe to ensure we don't exceed authorized amount
+    const maxCapturable = paymentIntent.amount_capturable / 100; // Convert from cents
+    const requestedAmount = captureAmount || rental.pricing.depositAmount;
+    const amountToCapture = Math.min(requestedAmount, maxCapturable);
+    
+    console.log(`Capture details: requested=${requestedAmount}, max_capturable=${maxCapturable}, final=${amountToCapture}`);
+    
+    if (amountToCapture <= 0) {
+      return NextResponse.json(
+        { error: 'No amount available to capture' },
+        { status: 400 }
+      );
+    }
+
     const idempotencyKey = `capture_${rental.id}_${Date.now()}`;
     const capturedPaymentIntent = await stripe.paymentIntents.capture(
       rental.payment.depositPaymentIntentId,
       {
-        amount_to_capture: amountToCapture * 100 // Convert to cents
+        amount_to_capture: Math.round(amountToCapture * 100) // Convert to cents and round
       },
       {
         idempotencyKey
