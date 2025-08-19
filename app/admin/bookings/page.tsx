@@ -455,7 +455,9 @@ export default function BookingsManagement() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to capture deposit')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Capture deposit API error:', errorData)
+        throw new Error(errorData.error || `Failed to capture deposit (${response.status})`)
       }
 
       // Refresh bookings
@@ -716,8 +718,17 @@ export default function BookingsManagement() {
         throw new Error(err.error || 'Failed to confirm booking')
       }
 
-      // Use the same logic as handleCaptureDeposit for consistency
-      await handleCaptureDeposit(booking.id)
+      // Refresh bookings first to get updated state, then capture deposit
+      await fetchBookings()
+      
+      // Now attempt to capture the deposit with the updated booking state
+      try {
+        await handleCaptureDeposit(booking.id)
+        alert('Booking confirmed and deposit charged successfully! Customer has been notified.')
+      } catch (captureError) {
+        console.error('Deposit capture failed after confirmation:', captureError)
+        alert('Booking confirmed but deposit capture failed. Please use the Capture Deposit button manually.')
+      }
 
       await fetchBookings()
 
