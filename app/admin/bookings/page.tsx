@@ -1223,7 +1223,7 @@ export default function BookingsManagement() {
                             className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
                             title="Delete Booking (Permanent)"
                           >
-                            <X className="w-3.5 h-3.5" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </td>
