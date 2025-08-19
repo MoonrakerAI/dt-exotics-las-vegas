@@ -1168,6 +1168,7 @@ export default function BookingsManagement() {
                       </td>
                       <td className="py-3 px-3">
                         <div className="flex items-center space-x-1 flex-wrap">
+                          {/* 1. Reschedule */}
                           <button 
                             onClick={() => handleRescheduleBooking(booking)}
                             className="p-1.5 text-gray-400 hover:text-neon-blue transition-colors"
@@ -1175,31 +1176,8 @@ export default function BookingsManagement() {
                           >
                             <CalendarDays className="w-3.5 h-3.5" />
                           </button>
-                          {(booking.status === 'confirmed' || booking.status === 'pending') && (
-                            <button 
-                              onClick={() => handleRentalAgreementModal(booking)}
-                              className="p-1.5 text-gray-400 hover:text-blue-400 transition-colors"
-                              title="Send Rental Agreement"
-                            >
-                              <Send className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                          <button 
-                            onClick={() => handlePricingAdjustment(booking)}
-                            className="p-1.5 text-gray-400 hover:text-green-400 transition-colors"
-                            title="Charge Customer"
-                          >
-                            <CreditCard className="w-3.5 h-3.5" />
-                          </button>
-                          {booking.payment.depositStatus === 'authorized' && (
-                            <button 
-                              onClick={() => handleCaptureDeposit(booking.id)}
-                              className="p-1.5 text-gray-400 hover:text-green-400 transition-colors"
-                              title="Capture Deposit"
-                            >
-                              <DollarSign className="w-3.5 h-3.5" />
-                            </button>
-                          )}
+                          
+                          {/* 2. Confirm Booking */}
                           {booking.status === 'pending' && (
                             <button 
                               onClick={() => handleConfirmBooking(booking)}
@@ -1209,6 +1187,39 @@ export default function BookingsManagement() {
                               <CheckCircle className="w-3.5 h-3.5" />
                             </button>
                           )}
+                          
+                          {/* 3. Send Agreement */}
+                          {(booking.status === 'confirmed' || booking.status === 'pending') && (
+                            <button 
+                              onClick={() => handleRentalAgreementModal(booking)}
+                              className="p-1.5 text-gray-400 hover:text-blue-400 transition-colors"
+                              title="Send Rental Agreement"
+                            >
+                              <Send className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          
+                          {/* 4. Charge Customer */}
+                          <button 
+                            onClick={() => handlePricingAdjustment(booking)}
+                            className="p-1.5 text-gray-400 hover:text-green-400 transition-colors"
+                            title="Charge Customer"
+                          >
+                            <CreditCard className="w-3.5 h-3.5" />
+                          </button>
+                          
+                          {/* Legacy: Capture Deposit (for authorized deposits) */}
+                          {booking.payment.depositStatus === 'authorized' && (
+                            <button 
+                              onClick={() => handleCaptureDeposit(booking.id)}
+                              className="p-1.5 text-gray-400 hover:text-green-400 transition-colors"
+                              title="Capture Deposit"
+                            >
+                              <DollarSign className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          
+                          {/* 5. Cancel */}
                           {booking.status !== 'cancelled' && booking.status !== 'completed' && (
                             <button 
                               onClick={() => handleCancelBookingModal(booking)}
@@ -1218,6 +1229,8 @@ export default function BookingsManagement() {
                               <X className="w-3.5 h-3.5" />
                             </button>
                           )}
+                          
+                          {/* 6. Delete */}
                           <button 
                             onClick={() => handleDeleteBooking(booking)}
                             className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
