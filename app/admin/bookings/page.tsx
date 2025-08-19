@@ -692,13 +692,13 @@ export default function BookingsManagement() {
     )
 
     if (!confirmed) {
-      return // User cancelled the confirmation
+      return
     }
 
     try {
       const token = localStorage.getItem('dt-admin-token')
       if (!token) {
-        alert('Admin not authenticated')
+        alert('Authentication required')
         return
       }
 
@@ -716,22 +716,8 @@ export default function BookingsManagement() {
         throw new Error(err.error || 'Failed to confirm booking')
       }
 
-      // Then automatically capture the deposit
-      const captureResponse = await fetch(`/api/admin/rentals/${booking.id}/capture-deposit`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-
-      if (!captureResponse.ok) {
-        const captureErr = await captureResponse.json().catch(() => ({}))
-        console.warn('Deposit capture failed:', captureErr.error)
-        alert(`Booking confirmed but deposit capture failed: ${captureErr.error || 'Unknown error'}. Please capture manually.`)
-      } else {
-        alert('Booking confirmed and deposit charged successfully! Customer has been notified.')
-      }
+      // Use the same logic as handleCaptureDeposit for consistency
+      await handleCaptureDeposit(booking.id)
 
       await fetchBookings()
 
