@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { SimpleAuth } from '../../lib/simple-auth';
 
 interface EmailType {
   id: string;
@@ -26,12 +27,17 @@ export default function EmailTestPage() {
   const router = useRouter();
 
   useEffect(() => {
+    // Check authentication first
+    if (!SimpleAuth.getCurrentUser()) {
+      router.push('/admin/login');
+      return;
+    }
     loadEmailTypes();
   }, []);
 
   const loadEmailTypes = async () => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem('dt-admin-token');
       if (!token) {
         router.push('/admin/login');
         return;
@@ -60,7 +66,7 @@ export default function EmailTestPage() {
     setError('');
 
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem('dt-admin-token');
       if (!token) {
         router.push('/admin/login');
         return;
