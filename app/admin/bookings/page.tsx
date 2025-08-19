@@ -1251,24 +1251,6 @@ export default function BookingsManagement() {
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              
-              {/* Important Note for First Payment */}
-              {selectedBookingForAdjustment?.payment.depositStatus === 'authorized' && (
-                <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                  <div className="flex items-start space-x-3">
-                    <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <h4 className="text-yellow-400 font-semibold mb-1">First Payment - Use Authorized Amount</h4>
-                      <p className="text-yellow-300 text-sm">
-                        For the first payment, use the exact authorized deposit amount: <strong>{formatCurrency(selectedBookingForAdjustment.pricing.depositAmount)}</strong>
-                      </p>
-                      <p className="text-yellow-300 text-sm mt-1">
-                        This ensures you capture only what was pre-authorized by the customer's bank.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               <div className="space-y-4">
                 {/* Booking Info */}
