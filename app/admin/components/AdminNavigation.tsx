@@ -53,12 +53,6 @@ const navItems = [
     icon: Bell,
     description: 'Email notification settings'
   },
-  { 
-    href: '/admin/email-test', 
-    label: 'Email Test', 
-    icon: Mail,
-    description: 'Test email notifications'
-  }
 ]
 
 export default function AdminNavigation() {
