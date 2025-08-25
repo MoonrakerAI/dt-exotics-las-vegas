@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCcw, Play } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, Play, Maximize2 } from 'lucide-react'
 import { Car } from '@/app/data/cars'
 import { extractYouTubeVideoId, getYouTubeThumbnailUrl, isYouTubeUrl, getYouTubeEmbedUrl } from '@/app/lib/youtube-utils'
 
@@ -18,11 +18,7 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
   const [isMobile, setIsMobile] = useState(false)
-  const [zoom, setZoom] = useState(1)
-  const [panX, setPanX] = useState(0)
-  const [panY, setPanY] = useState(0)
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const [isFullPageZoom, setIsFullPageZoom] = useState(false)
   const [lastTap, setLastTap] = useState(0)
   const imageRef = useRef<HTMLImageElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -84,18 +80,14 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
       setMediaItems(galleryMedia)
       setMediaTypes(galleryTypes)
       setCurrentIndex(0)
-      // Reset zoom and pan when modal opens or car changes
-      setZoom(1)
-      setPanX(0)
-      setPanY(0)
+      // Reset full page zoom when modal opens or car changes
+      setIsFullPageZoom(false)
     }
   }, [car, isOpen])
 
-  // Reset zoom and pan when image changes
+  // Reset full page zoom when image changes
   useEffect(() => {
-    setZoom(1)
-    setPanX(0)
-    setPanY(0)
+    setIsFullPageZoom(false)
   }, [currentIndex])
 
   useEffect(() => {
@@ -132,99 +124,59 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
     setCurrentIndex((prev) => (prev === mediaItems.length - 1 ? 0 : prev + 1))
   }
 
-  // Zoom functions
-  const handleZoomIn = () => {
-    setZoom(prev => Math.min(prev * 1.5, 4)) // Max zoom 4x
+  // Full page zoom functions
+  const handleFullPageZoom = () => {
+    setIsFullPageZoom(true)
   }
 
-  const handleZoomOut = () => {
-    setZoom(prev => Math.max(prev / 1.5, 1)) // Min zoom 1x
+  const handleCloseFullPageZoom = () => {
+    setIsFullPageZoom(false)
   }
 
-  const handleZoomReset = () => {
-    setZoom(1)
-    setPanX(0)
-    setPanY(0)
-  }
-
-  // Mouse/touch pan handlers
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (zoom > 1) {
-      setIsDragging(true)
-      setDragStart({ x: e.clientX - panX, y: e.clientY - panY })
+  // Image click handler for full page zoom
+  const handleImageClick = () => {
+    if (mediaTypes[currentIndex] === 'image') {
+      handleFullPageZoom()
     }
   }
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && zoom > 1) {
-      setPanX(e.clientX - dragStart.x)
-      setPanY(e.clientY - dragStart.y)
-    }
-  }
-
-  const handleMouseUp = () => {
-    setIsDragging(false)
-  }
-
-  // Double-tap zoom for mobile
+  // Double-tap for full page zoom on mobile
   const handleDoubleTap = () => {
     const now = Date.now()
     const DOUBLE_TAP_DELAY = 300
     
-    if (now - lastTap < DOUBLE_TAP_DELAY) {
-      if (zoom === 1) {
-        setZoom(2)
-      } else {
-        handleZoomReset()
-      }
+    if (now - lastTap < DOUBLE_TAP_DELAY && mediaTypes[currentIndex] === 'image') {
+      handleFullPageZoom()
     }
     setLastTap(now)
   }
 
   // Touch event handlers
   const onTouchStart = (e: React.TouchEvent) => {
-    if (zoom > 1) {
-      // Handle panning when zoomed
-      const touch = e.targetTouches[0]
-      setDragStart({ x: touch.clientX - panX, y: touch.clientY - panY })
-      setIsDragging(true)
-    } else {
-      // Handle swipe navigation when not zoomed
-      setTouchEnd(null)
-      setTouchStart(e.targetTouches[0].clientX)
-    }
+    // Handle swipe navigation
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientX)
     
     // Handle double-tap
     handleDoubleTap()
   }
 
   const onTouchMove = (e: React.TouchEvent) => {
-    if (zoom > 1 && isDragging) {
-      // Handle panning
-      const touch = e.targetTouches[0]
-      setPanX(touch.clientX - dragStart.x)
-      setPanY(touch.clientY - dragStart.y)
-    } else if (zoom === 1) {
-      // Handle swipe detection
-      setTouchEnd(e.targetTouches[0].clientX)
-    }
+    // Handle swipe detection
+    setTouchEnd(e.targetTouches[0].clientX)
   }
 
   const onTouchEnd = () => {
-    if (zoom > 1) {
-      setIsDragging(false)
-    } else {
-      // Handle swipe navigation
-      if (!touchStart || !touchEnd) return
-      const distance = touchStart - touchEnd
-      const isLeftSwipe = distance > 50
-      const isRightSwipe = distance < -50
+    // Handle swipe navigation
+    if (!touchStart || !touchEnd) return
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > 50
+    const isRightSwipe = distance < -50
 
-      if (isLeftSwipe) {
-        handleNext()
-      } else if (isRightSwipe) {
-        handlePrevious()
-      }
+    if (isLeftSwipe) {
+      handleNext()
+    } else if (isRightSwipe) {
+      handlePrevious()
     }
   }
 
@@ -276,14 +228,10 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                   onTouchStart={onTouchStart}
                   onTouchMove={onTouchMove}
                   onTouchEnd={onTouchEnd}
-                  onMouseDown={handleMouseDown}
-                  onMouseMove={handleMouseMove}
-                  onMouseUp={handleMouseUp}
-                  onMouseLeave={handleMouseUp}
                   style={{
                     maxHeight: isMobile ? 'calc(100vh - 420px)' : 'calc(100vh - 380px)',
                     minHeight: '150px',
-                    cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
+                    cursor: 'default'
                   }}
                 >
                   {/* Render content based on media type */}
@@ -319,14 +267,11 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                     ref={imageRef}
                     src={mediaItems[currentIndex]} 
                     alt={`${car.brand} ${car.model} - Image ${currentIndex + 1}`}
-                    className="max-w-full max-h-full object-contain select-none transition-transform duration-200"
+                    className="max-w-full max-h-full object-contain select-none cursor-pointer hover:opacity-90 transition-opacity duration-200"
                     draggable={false}
                     loading="eager"
                     decoding="async"
-                    style={{
-                      transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`,
-                      transformOrigin: 'center center'
-                    }}
+                    onClick={handleImageClick}
                   />
                   )}
                   
@@ -348,8 +293,8 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                     </>
                   )}
                   
-                  {/* Navigation Arrows - only show when not zoomed */}
-                  {mediaItems.length > 1 && zoom === 1 && (
+                  {/* Navigation Arrows */}
+                  {mediaItems.length > 1 && (
                     <>
                       <button
                         onClick={handlePrevious}
@@ -366,40 +311,19 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                     </>
                   )}
 
-                  {/* Zoom Controls - only show for images */}
+                  {/* Full Page Zoom Button - only show for images */}
                   {mediaTypes[currentIndex] === 'image' && (
-                  <div className="absolute top-4 right-4 flex flex-col gap-2">
+                  <div className="absolute top-4 right-4">
                     <button
-                      onClick={handleZoomIn}
-                      disabled={zoom >= 4}
-                      className="p-2 bg-black/50 hover:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
+                      onClick={handleFullPageZoom}
+                      className="p-2 bg-black/50 hover:bg-black/70 rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
+                      title="View full size"
                     >
-                      <ZoomIn className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
+                      <Maximize2 className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
                     </button>
-                    <button
-                      onClick={handleZoomOut}
-                      disabled={zoom <= 1}
-                      className="p-2 bg-black/50 hover:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
-                    >
-                      <ZoomOut className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
-                    </button>
-                    {zoom > 1 && (
-                      <button
-                        onClick={handleZoomReset}
-                        className="p-2 bg-black/50 hover:bg-black/70 rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
-                      >
-                        <RotateCcw className="w-5 h-5 text-gray-400 group-hover:text-neon-blue" />
-                      </button>
-                    )}
                   </div>
                   )}
 
-                  {/* Zoom indicator */}
-                  {zoom > 1 && (
-                    <div className="absolute bottom-4 left-4 px-3 py-1 bg-black/70 rounded-full border border-gray-600">
-                      <span className="text-neon-blue text-sm font-tech">{Math.round(zoom * 100)}%</span>
-                    </div>
-                  )}
                 </div>
                 
                 {/* Thumbnail Navigation */}
@@ -487,6 +411,56 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
           </div>
         </div>
       </div>
+      
+      {/* Full Page Zoom Modal */}
+      {isFullPageZoom && (
+        <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center">
+          {/* Close button */}
+          <button
+            onClick={handleCloseFullPageZoom}
+            className="absolute top-4 right-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
+          >
+            <X className="w-6 h-6 text-gray-400 group-hover:text-white" />
+          </button>
+          
+          {/* Navigation arrows */}
+          {mediaItems.length > 1 && (
+            <>
+              <button
+                onClick={handlePrevious}
+                className="absolute left-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
+              >
+                <ChevronLeft className="w-6 h-6 text-gray-400 group-hover:text-neon-blue" />
+              </button>
+              <button
+                onClick={handleNext}
+                className="absolute right-16 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
+              >
+                <ChevronRight className="w-6 h-6 text-gray-400 group-hover:text-neon-blue" />
+              </button>
+            </>
+          )}
+          
+          {/* Full size image */}
+          <img 
+            src={mediaItems[currentIndex]} 
+            alt={`${car.brand} ${car.model} - Full Size Image ${currentIndex + 1}`}
+            className="max-w-full max-h-full object-contain select-none"
+            draggable={false}
+            onClick={handleCloseFullPageZoom}
+            style={{ cursor: 'zoom-out' }}
+          />
+          
+          {/* Image counter */}
+          {mediaItems.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-black/70 rounded-full border border-gray-600">
+              <span className="text-white text-sm font-tech">
+                {currentIndex + 1} / {mediaItems.length}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

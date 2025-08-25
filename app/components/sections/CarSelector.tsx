@@ -231,7 +231,9 @@ export default function CarSelector() {
         throw new Error('Failed to fetch cars')
     }
       const data = await response.json()
-      setCars(data.cars || [])
+      // Sort cars by daily price from most expensive to least expensive
+      const sortedCars = (data.cars || []).sort((a, b) => b.price.daily - a.price.daily)
+      setCars(sortedCars)
     } catch (err) {
       console.error('Error fetching cars:', err)
       setError('Failed to load vehicles. Please try again later.')
