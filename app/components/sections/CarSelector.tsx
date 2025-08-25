@@ -232,7 +232,7 @@ export default function CarSelector() {
     }
       const data = await response.json()
       // Sort cars by daily price from most expensive to least expensive
-      const sortedCars = (data.cars || []).sort((a, b) => b.price.daily - a.price.daily)
+      const sortedCars = (data.cars || []).sort((a: Car, b: Car) => b.price.daily - a.price.daily)
       setCars(sortedCars)
     } catch (err) {
       console.error('Error fetching cars:', err)
