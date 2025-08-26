@@ -244,7 +244,7 @@ export default function CarSelector() {
       ]
       
       const sortedCars = (data.cars || [])
-        .map(car => {
+        .map((car: Car) => {
           // Rename Range Rover to Discovery
           if (car.model && car.model.toLowerCase().includes('range rover')) {
             return { ...car, model: car.model.replace(/Range Rover/gi, 'Discovery') }
