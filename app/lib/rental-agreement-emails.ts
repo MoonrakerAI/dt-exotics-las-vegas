@@ -157,7 +157,7 @@ Phone: ${formattedBusinessPhone}
 Email: contact@dtexoticslv.com
 
 DT Exotics Las Vegas - Premium Supercar Rentals
-2687 S Sammy Davis Jr Dr, Las Vegas NV 89109, USA`
+9620 Las Vegas Blvd S STE E4 #508, Las Vegas NV 89123, USA`
     };
   }
 

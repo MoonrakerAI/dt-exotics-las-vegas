@@ -704,7 +704,7 @@ export default function RentalAgreementPage() {
                 <p className="mb-4">
                   This Terms & Conditions for the Car Rental Agreement (this "<strong>Agreement</strong>") is entered into and effective as of 
                   the "<strong>Effective Date</strong>" by and between DT EXOTICS LAS VEGAS, a Nevada entity with offices located at 
-                  2687 S Sammy Davis Jr Dr, Las Vegas NV 89109 ("<strong>Owner</strong>"), and you (the "<strong>Renter</strong>") 
+                  9620 Las Vegas Blvd S STE E4 #508, Las Vegas NV 89123 ("<strong>Owner</strong>"), and you (the "<strong>Renter</strong>") 
                   (each a "<strong>Party</strong>" and collectively the "<strong>Parties</strong>").
                 </p>
                 

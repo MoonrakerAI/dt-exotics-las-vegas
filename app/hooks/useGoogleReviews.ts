@@ -79,7 +79,7 @@ export function useGoogleReviews(): UseGoogleReviewsReturn {
           name: 'DT Exotics',
           rating: 5.0,
           totalReviews: 1,
-          address: '9620 Las Vegas Blvd S, Las Vegas, NV 89123',
+          address: '9620 Las Vegas Blvd S STE E4 #508, Las Vegas, NV 89123',
           phone: '(702) 518-0924',
           website: 'https://dtexoticslv.com',
           isOpen: true,

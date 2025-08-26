@@ -15,6 +15,7 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
   const [currentIndex, setCurrentIndex] = useState(0)
   const [mediaItems, setMediaItems] = useState<string[]>([])
   const [mediaTypes, setMediaTypes] = useState<('image' | 'video' | 'youtube')[]>([])
+  const [imageLoadingStates, setImageLoadingStates] = useState<{[key: string]: boolean}>({})
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
   const [isMobile, setIsMobile] = useState(false)
@@ -77,18 +78,38 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
       
       console.log('Final gallery media items:', galleryMedia)
       console.log('Final gallery media types:', galleryTypes)
+      
+      // Clear previous loading states and reset everything cleanly
+      setImageLoadingStates({})
+      setCurrentIndex(0)
+      setIsFullPageZoom(false)
+      
+      // Clear any stale image references
+      if (imageRef.current) {
+        imageRef.current.src = ''
+        imageRef.current.onload = null
+        imageRef.current.onerror = null
+      }
+      
+      // Set new media items after cleanup
       setMediaItems(galleryMedia)
       setMediaTypes(galleryTypes)
-      setCurrentIndex(0)
-      // Reset full page zoom when modal opens or car changes
-      setIsFullPageZoom(false)
+      
+      // Preload first few images for smooth experience
+      galleryMedia.slice(0, 3).forEach((item, index) => {
+        if (galleryTypes[index] === 'image') {
+          const img = new Image()
+          img.onload = () => {
+            setImageLoadingStates(prev => ({ ...prev, [item]: true }))
+          }
+          img.src = item
+        }
+      })
     }
   }, [car, isOpen])
 
-  // Reset full page zoom when image changes
-  useEffect(() => {
-    setIsFullPageZoom(false)
-  }, [currentIndex])
+  // Don't reset fullscreen when navigating in fullscreen mode
+  // This effect is removed to maintain fullscreen state during navigation
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -122,6 +143,17 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev === mediaItems.length - 1 ? 0 : prev + 1))
+  }
+
+  // Navigation handlers that maintain fullscreen state
+  const handlePreviousInFullscreen = () => {
+    handlePrevious()
+    // Keep fullscreen state active
+  }
+
+  const handleNextInFullscreen = () => {
+    handleNext()
+    // Keep fullscreen state active
   }
 
   // Full page zoom functions
@@ -272,6 +304,16 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                     loading="eager"
                     decoding="async"
                     onClick={handleImageClick}
+                    onLoad={() => {
+                      setImageLoadingStates(prev => ({ ...prev, [mediaItems[currentIndex]]: true }))
+                    }}
+                    onError={() => {
+                      console.error('Failed to load image:', mediaItems[currentIndex])
+                    }}
+                    style={{
+                      opacity: imageLoadingStates[mediaItems[currentIndex]] ? 1 : 0,
+                      transition: 'opacity 0.2s ease-in-out'
+                    }}
                   />
                   )}
                   
@@ -427,13 +469,13 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
           {mediaItems.length > 1 && (
             <>
               <button
-                onClick={handlePrevious}
+                onClick={handlePreviousInFullscreen}
                 className="absolute left-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
               >
                 <ChevronLeft className="w-6 h-6 text-gray-400 group-hover:text-neon-blue" />
               </button>
               <button
-                onClick={handleNext}
+                onClick={handleNextInFullscreen}
                 className="absolute right-16 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
               >
                 <ChevronRight className="w-6 h-6 text-gray-400 group-hover:text-neon-blue" />

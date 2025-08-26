@@ -95,7 +95,7 @@ class AIKnowledgeBaseManager {
 DT Exotics Las Vegas specializes in luxury supercar rentals and VIP experiences in Las Vegas. We create unforgettable memories for special occasions, corporate events, and luxury tourism.
 
 ## LOCATION & SERVICE AREA
-- Primary Location: Las Vegas, Nevada
+- Primary Location: 9620 Las Vegas Blvd S STE E4 #508, Las Vegas NV 89123
 - Service Area: Las Vegas Strip, Downtown, and surrounding areas
 - Delivery available to hotels, events, and private locations
 - Professional meet-and-greet service included`;

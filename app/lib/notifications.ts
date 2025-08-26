@@ -487,11 +487,11 @@ Go to Dashboard: https://dtexoticslv.com/admin`
             <div style="background: #f0f9ff; padding: 20px; border-radius: 4px; margin-bottom: 30px;">
               <h3 style="color: #0066cc; margin: 0 0 10px 0; font-size: 16px; font-weight: 500;">📍 Pickup Location</h3>
               <p style="margin: 0 0 5px 0;">
-                <a href="https://www.google.com/maps/place/2687+S+Sammy+Davis+Jr+Dr,+Las+Vegas,+NV+89109,+USA/@36.1404573,-115.1673474,17z/data=!4m16!1m9!3m8!1s0x80c8c40b702b2785:0x8fd53ce1d3a5f2cd!2s2687+S+Sammy+Davis+Jr+Dr,+Las+Vegas,+NV+89109,+USA!3b1!8m2!3d36.140366!4d-115.1674489!10e5!16s%2Fg%2F11rtyhh5db!3m5!1s0x80c8c40b702b2785:0x8fd53ce1d3a5f2cd!8m2!3d36.140366!4d-115.1674489!16s%2Fg%2F11rtyhh5db!5m1!1e4?entry=ttu&g_ep=EgoyMDI1MDczMC4wIKXMDSoASAFQAw%3D%3D" 
+                <a href="https://www.google.com/maps/place/9620+Las+Vegas+Blvd+S+STE+E4+%23508,+Las+Vegas,+NV+89123" 
                    style="color: #0066cc; text-decoration: none; font-weight: 600;" 
                    target="_blank">DT Exotics Las Vegas</a>
               </p>
-              <p style="margin: 0 0 5px 0; color: #666;">2687 S Sammy Davis Jr Dr, Las Vegas, NV 89109</p>
+              <p style="margin: 0 0 5px 0; color: #666;">9620 Las Vegas Blvd S STE E4 #508, Las Vegas, NV 89123</p>
               <p style="margin: 0; color: #666;">Phone: ${formattedBusinessPhone}</p>
             </div>
             
@@ -544,7 +544,7 @@ Remaining Balance: $${booking.pricing.finalAmount - booking.pricing.depositAmoun
 
 Pickup Location:
 DT Exotics Las Vegas
-2687 S Sammy Davis Jr Dr, Las Vegas, NV 89109
+9620 Las Vegas Blvd S STE E4 #508, Las Vegas, NV 89123
 Phone: +1 (702) 518-0924
 
 Important Reminders:
@@ -752,7 +752,7 @@ DT Exotics Las Vegas - Premium Supercar Rentals`
                   <tr><td style="padding: 8px 0; color: #666;">Date:</td><td style="padding: 8px 0; color: #333; font-weight: 500;">${new Date(booking.rentalDates.startDate).toLocaleDateString()}</td></tr>
                   <tr><td style="padding: 8px 0; color: #666;">Time:</td><td style="padding: 8px 0; color: #333; font-weight: 500;">10:00 AM</td></tr>
                   <tr><td style="padding: 8px 0; color: #666;">Location:</td><td style="padding: 8px 0; color: #333; font-weight: 500;">DT Exotics Las Vegas</td></tr>
-                  <tr><td style="padding: 8px 0; color: #666;">Address:</td><td style="padding: 8px 0; color: #333;">2687 S Sammy Davis Jr Dr, Las Vegas, NV 89109</td></tr>
+                  <tr><td style="padding: 8px 0; color: #666;">Address:</td><td style="padding: 8px 0; color: #333;">9620 Las Vegas Blvd S STE E4 #508, Las Vegas, NV 89123</td></tr>
                 </table>
               </div>
             </div>
@@ -802,7 +802,7 @@ Vehicle: ${booking.car.brand} ${booking.car.model} (${booking.car.year})
 Date: ${new Date(booking.rentalDates.startDate).toLocaleDateString()}
 Time: 10:00 AM
 Location: DT Exotics Las Vegas
-2687 S Sammy Davis Jr Dr, Las Vegas, NV 89109
+9620 Las Vegas Blvd S STE E4 #508, Las Vegas, NV 89123
 
 Pickup Checklist:
 - Valid Driver's License (must be 25+)

@@ -233,13 +233,19 @@ export default function CarSelector() {
       const data = await response.json()
       // Custom sort order for specific fleet arrangement
       const customSortOrder = [
-        // Row 1: Most expensive (Lamborghini, McLaren, etc.)
-        'lamborghini-h-2015', 'mclaren-720s', 'ferrari-488',
-        // Row 2: 911, Cayman, Corvette
-        'porsche-911', 'porsche-cayman', 'corvette-c8',
-        // Row 3: Discovery (formerly Range Rover), G550, GLC
-        'land-rover-discovery', 'mercedes-g550', 'mercedes-glc',
-        // Row 4: S5, SQ8
+        // Lamborghinis first
+        'lamborghini-h-2015', 'lamborghini-aventador', 'lamborghini-gallardo',
+        // R8
+        'audi-r8',
+        // Porsches
+        'porsche-911', 'porsche-cayman',
+        // Corvette
+        'corvette-c8',
+        // Range Rover (keeping original name for ID matching)
+        'range-rover-sport', 'land-rover-range-rover', 'range-rover-evoque',
+        // Both Mercedes
+        'mercedes-g550', 'mercedes-glc',
+        // Both other Audis
         'audi-s5', 'audi-sq8'
       ]
       
