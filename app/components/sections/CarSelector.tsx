@@ -231,24 +231,6 @@ export default function CarSelector() {
         throw new Error('Failed to fetch cars')
     }
       const data = await response.json()
-      // Custom sort order for specific fleet arrangement
-      const customSortOrder = [
-        // Lamborghinis first
-        'lamborghini-h-2015', 'lamborghini-aventador', 'lamborghini-gallardo',
-        // R8
-        'audi-r8',
-        // Porsches
-        'porsche-911', 'porsche-cayman',
-        // Corvette
-        'corvette-c8',
-        // Range Rover (keeping original name for ID matching)
-        'range-rover-sport', 'land-rover-range-rover', 'range-rover-evoque',
-        // Both Mercedes
-        'mercedes-g550', 'mercedes-glc',
-        // Both other Audis
-        'audi-s5', 'audi-sq8'
-      ]
-      
       const sortedCars = (data.cars || [])
         .map((car: Car) => {
           // Rename Range Rover to Discovery
@@ -258,19 +240,12 @@ export default function CarSelector() {
           return car
         })
         .sort((a: Car, b: Car) => {
-          const aIndex = customSortOrder.indexOf(a.id)
-          const bIndex = customSortOrder.indexOf(b.id)
-          
-          // If both cars are in the custom order, sort by their position
-          if (aIndex !== -1 && bIndex !== -1) {
-            return aIndex - bIndex
+          // Sort by displayOrder if available, otherwise by price (most expensive first)
+          if (a.displayOrder !== undefined && b.displayOrder !== undefined) {
+            return a.displayOrder - b.displayOrder
           }
-          
-          // If only one car is in the custom order, prioritize it
-          if (aIndex !== -1) return -1
-          if (bIndex !== -1) return 1
-          
-          // For cars not in custom order, sort by price (most expensive first)
+          if (a.displayOrder !== undefined) return -1
+          if (b.displayOrder !== undefined) return 1
           return b.price.daily - a.price.daily
         })
       setCars(sortedCars)

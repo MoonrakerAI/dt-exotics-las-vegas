@@ -54,6 +54,18 @@ class CarDatabase {
     return updatedCar;
   }
 
+  // Update display order for multiple cars
+  async updateCarDisplayOrders(carOrders: { carId: string; displayOrder: number }[]): Promise<void> {
+    const updatePromises = carOrders.map(async ({ carId, displayOrder }) => {
+      const car = await this.getCar(carId);
+      if (car) {
+        await this.updateCar(carId, { displayOrder });
+      }
+    });
+    
+    await Promise.all(updatePromises);
+  }
+
   // Delete a car
   async deleteCar(carId: string): Promise<boolean> {
     const car = await this.getCar(carId);
@@ -82,7 +94,16 @@ class CarDatabase {
       const car = await this.getCar(id as string);
       if (car) cars.push(car);
     }
-    return cars;
+    
+    // Sort by displayOrder if available, otherwise by price (most expensive first)
+    return cars.sort((a, b) => {
+      if (a.displayOrder !== undefined && b.displayOrder !== undefined) {
+        return a.displayOrder - b.displayOrder;
+      }
+      if (a.displayOrder !== undefined) return -1;
+      if (b.displayOrder !== undefined) return 1;
+      return b.price.daily - a.price.daily;
+    });
   }
 
   // Set per-day availability (unavailable dates)

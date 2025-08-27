@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { SimpleAuth } from '../../lib/simple-auth'
-import { Plus, Edit, Trash2, Car as CarIcon, Calendar, DollarSign, Settings, Eye, EyeOff } from 'lucide-react'
+import { Plus, Edit, Trash2, Car as CarIcon, Calendar, DollarSign, Settings, Eye, EyeOff, ArrowUpDown } from 'lucide-react'
 import { getCarImage } from '../../lib/image-utils'
 import { Car } from '../../data/cars'
 import CarForm from '../components/CarForm'
 import CarAvailabilityCalendar from '../components/CarAvailabilityCalendar'
+import DragDropCarList from '../components/DragDropCarList'
 
 interface CarAvailabilityStatus {
   [carId: string]: {
@@ -31,6 +32,9 @@ export default function FleetAdmin() {
   // Calendar state
   const [showCalendar, setShowCalendar] = useState(false)
   const [calendarCar, setCalendarCar] = useState<Car | null>(null)
+
+  // Reorder state
+  const [showReorderModal, setShowReorderModal] = useState(false)
 
   useEffect(() => {
     fetchCars()
@@ -306,6 +310,42 @@ export default function FleetAdmin() {
     setEditingCar(null)
   }
 
+  const handleReorderCars = async (reorderedCars: Car[]) => {
+    try {
+      const token = localStorage.getItem('dt-admin-token')
+      if (!token) {
+        alert('No admin token found')
+        return
+      }
+
+      // Create the order array with displayOrder values
+      const carOrders = reorderedCars.map((car, index) => ({
+        carId: car.id,
+        displayOrder: index + 1
+      }))
+
+      const response = await fetch('/api/admin/fleet/reorder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ carOrders })
+      })
+
+      if (response.ok) {
+        setShowReorderModal(false)
+        await fetchCars() // Refresh the list
+      } else {
+        const error = await response.json()
+        alert(`Error: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error reordering cars:', error)
+      alert('Error reordering cars')
+    }
+  }
+
   const getAvailabilityBadge = (available: boolean) => {
     return available 
       ? 'bg-green-500/20 text-green-300 border border-green-500/30'
@@ -342,10 +382,19 @@ export default function FleetAdmin() {
                 Manage vehicle inventory, pricing, and availability
               </p>
             </div>
-          <button onClick={handleAddCar} className="btn-primary flex items-center space-x-2">
+          <div className="flex gap-4">
+            <button 
+              onClick={() => setShowReorderModal(true)}
+              className="bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600/30 transition-all duration-300 px-4 py-2 rounded-lg flex items-center space-x-2"
+            >
+              <ArrowUpDown className="w-5 h-5" />
+              <span>Reorder Fleet</span>
+            </button>
+            <button onClick={handleAddCar} className="btn-primary flex items-center space-x-2">
               <Plus className="w-5 h-5" />
               <span>Add Vehicle</span>
             </button>
+          </div>
         </div>
 
         <div className="glass-panel bg-dark-metal/20 p-6 mb-6 border border-gray-600/30 rounded-2xl backdrop-blur-sm">
@@ -538,6 +587,15 @@ export default function FleetAdmin() {
             carId={calendarCar.id}
             carName={`${calendarCar.brand} ${calendarCar.model} (${calendarCar.year})`}
             onClose={handleCloseCalendar}
+          />
+        )}
+
+        {/* Reorder Cars Modal */}
+        {showReorderModal && (
+          <DragDropCarList
+            cars={cars}
+            onSave={handleReorderCars}
+            onCancel={() => setShowReorderModal(false)}
           />
         )}
       </div>

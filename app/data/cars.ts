@@ -32,6 +32,7 @@ export interface Car {
   }
   available: boolean
   showOnHomepage?: boolean
+  displayOrder?: number // For custom ordering in admin
 }
 
 export const cars: Car[] = [
