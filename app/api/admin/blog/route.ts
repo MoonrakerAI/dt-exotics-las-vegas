@@ -4,6 +4,10 @@ import blogDB from '@/app/lib/blog-database';
 import { validateBlogPost } from '@/app/lib/validation';
 import { adminApiRateLimiter, getClientIdentifier } from '@/app/lib/rate-limit';
 
+function isKvConfigured() {
+  return !!(process.env.VERCEL_KV_REST_API_URL && process.env.VERCEL_KV_REST_API_TOKEN)
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Apply rate limiting
@@ -35,6 +39,11 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
+
+    // Ensure KV configured for blog storage
+    if (!isKvConfigured()) {
+      return NextResponse.json({ error: 'KV is not configured. Blog storage unavailable.' }, { status: 503 })
+    }
 
     let posts;
     
@@ -94,6 +103,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
+    // Ensure KV configured for blog storage
+    if (!isKvConfigured()) {
+      return NextResponse.json({ error: 'KV is not configured. Blog storage unavailable.' }, { status: 503 })
+    }
+
     const body = await request.json();
 
     // Validate blog post data
@@ -137,6 +151,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(newPost, { status: 201 });
 
   } catch (error) {
+    if (!isKvConfigured()) {
+      return NextResponse.json({ error: 'KV is not configured. Blog storage unavailable.' }, { status: 503 })
+    }
     console.error('Blog POST error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

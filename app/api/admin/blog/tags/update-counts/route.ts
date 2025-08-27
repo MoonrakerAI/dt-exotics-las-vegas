@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyJWT } from '@/app/lib/auth'
 import blogDB from '@/app/lib/blog-database'
 
+function isKvConfigured() {
+  return !!(process.env.VERCEL_KV_REST_API_URL && process.env.VERCEL_KV_REST_API_TOKEN)
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Verify JWT token
@@ -14,6 +18,11 @@ export async function POST(request: NextRequest) {
     const user = await verifyJWT(token)
     if (!user) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    }
+
+    // Ensure KV configured
+    if (!isKvConfigured()) {
+      return NextResponse.json({ error: 'KV is not configured. Blog storage unavailable.' }, { status: 503 })
     }
 
     // Update tag post counts

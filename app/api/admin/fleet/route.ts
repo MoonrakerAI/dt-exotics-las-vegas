@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-// Removed verifyJWT import
+import { verifyJWT } from '@/app/lib/auth';
 import carDB from '@/app/lib/car-database';
 import { validateCarId } from '@/app/lib/validation';
 import { adminApiRateLimiter, getClientIdentifier } from '@/app/lib/rate-limit';
 import { Car } from '@/app/data/cars';
+
+function isKvConfigured() {
+  return !!(process.env.VERCEL_KV_REST_API_URL && process.env.VERCEL_KV_REST_API_TOKEN)
+}
 
 // GET: List all cars
 export async function GET(request: NextRequest) {
@@ -20,9 +24,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const token = authHeader.substring(7);
-    // Simple token validation
-    if (!token || token.length < 10) {
+    const user = await verifyJWT(token)
+    if (!user) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+    if (!isKvConfigured()) {
+      return NextResponse.json({ error: 'KV is not configured. Fleet storage unavailable.' }, { status: 503 })
     }
     // List all cars
     const cars = await carDB.getAllCars();
@@ -46,9 +53,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const token = authHeader.substring(7);
-    // Simple token validation
-    if (!token || token.length < 10) {
+    const user = await verifyJWT(token)
+    if (!user) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+    if (!isKvConfigured()) {
+      return NextResponse.json({ error: 'KV is not configured. Fleet storage unavailable.' }, { status: 503 })
     }
     const body = await request.json();
     // Validate car ID
@@ -79,9 +89,12 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const token = authHeader.substring(7);
-    // Simple token validation
-    if (!token || token.length < 10) {
+    const user = await verifyJWT(token)
+    if (!user) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+    if (!isKvConfigured()) {
+      return NextResponse.json({ error: 'KV is not configured. Fleet storage unavailable.' }, { status: 503 })
     }
     const { searchParams } = new URL(request.url);
     const carId = searchParams.get('id');
@@ -113,9 +126,12 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const token = authHeader.substring(7);
-    // Simple token validation
-    if (!token || token.length < 10) {
+    const user = await verifyJWT(token)
+    if (!user) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+    if (!isKvConfigured()) {
+      return NextResponse.json({ error: 'KV is not configured. Fleet storage unavailable.' }, { status: 503 })
     }
     const { searchParams } = new URL(request.url);
     const carId = searchParams.get('id');
