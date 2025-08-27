@@ -189,19 +189,21 @@ export async function getEnrichedUser(userId: string): Promise<User & { avatar?:
 }
 
 // JWT verification function for API routes
-export async function verifyJWT(token: string): Promise<any> {
+export async function verifyJWT(token: string): Promise<any | null> {
   try {
     if (!JWT_SECRET) {
-      throw new Error('JWT_SECRET is required for verifying tokens')
+      // Missing secret means we cannot verify tokens; treat as unauthenticated
+      return null
     }
     const payload = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] }) as any
-    
-    if (payload.exp < Math.floor(Date.now() / 1000)) {
-      throw new Error('Invalid or expired token')
+
+    if (!payload || payload.exp < Math.floor(Date.now() / 1000)) {
+      return null
     }
-    
+
     return payload
-  } catch (error) {
-    throw new Error('Invalid or expired token')
+  } catch {
+    // Do not throw; callers should handle null and return 401
+    return null
   }
 }

@@ -20,7 +20,7 @@ function getStripe(mode: 'live' | 'test' = 'live') {
   const testKey = process.env.STRIPE_TEST_SECRET_KEY || process.env.STRIPE_SECRET_KEY
   const apiKey = mode === 'test' ? testKey : liveKey
   if (!apiKey) {
-    throw new Error('Stripe API key not configured')
+    return null as unknown as Stripe
   }
   return new Stripe(apiKey)
 }
@@ -43,15 +43,24 @@ export async function GET(request: NextRequest) {
     const mode: 'live' | 'test' = modeParam === 'test' ? 'test' : 'live'
     const { from, to } = parseRange(searchParams)
 
-    // KV cache lookup with versioned key
-    const version = (await kv.get<number>(`stripe:metrics:version:${mode}`)) || 0
-    const cacheKey = `stripe:metrics:overview:${mode}:v${version}:${from}:${to}`
-    const cached = await kv.get<any>(cacheKey)
-    if (cached) {
-      return NextResponse.json(cached)
+    // KV cache lookup with versioned key (best-effort)
+    let version = 0
+    let cacheKey = ''
+    try {
+      version = (await kv.get<number>(`stripe:metrics:version:${mode}`)) || 0
+      cacheKey = `stripe:metrics:overview:${mode}:v${version}:${from}:${to}`
+      const cached = await kv.get<any>(cacheKey)
+      if (cached) {
+        return NextResponse.json(cached)
+      }
+    } catch {
+      // KV not configured or transient failure; continue without cache
     }
 
     const stripe = getStripe(mode)
+    if (!stripe) {
+      return NextResponse.json({ error: 'Stripe API key not configured' }, { status: 503 })
+    }
 
     // Gross volume and payments count from succeeded charges
     let grossVolume = 0
@@ -119,8 +128,14 @@ export async function GET(request: NextRequest) {
       },
     }
 
-    // store in cache for short TTL (90s)
-    await kv.set(cacheKey, payload, { ex: 90 })
+    // store in cache for short TTL (90s) – best-effort
+    try {
+      if (cacheKey) {
+        await kv.set(cacheKey, payload, { ex: 90 })
+      }
+    } catch {
+      // ignore cache write failures
+    }
     return NextResponse.json(payload)
   } catch (err) {
     console.error('Metrics overview error:', err)
