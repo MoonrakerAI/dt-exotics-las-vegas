@@ -87,17 +87,36 @@ class CarDatabase {
 
   // List all cars
   async getAllCars(): Promise<Car[]> {
-    const carIds = await kv.smembers(this.CAR_LIST_KEY);
-    if (!carIds.length) return [];
-    const cars: Car[] = [];
-    for (const id of carIds) {
-      const car = await this.getCar(id as string);
-      if (car) cars.push(car);
-    }
-    
-    // Sort by displayOrder if available, otherwise by price (most expensive first)
-    return cars.sort((a, b) => {
-      if (a.displayOrder !== undefined && b.displayOrder !== undefined) {
+    try {
+      console.log('Fetching car IDs from KV store...');
+      const carIds = await kv.smembers(this.CAR_LIST_KEY);
+      console.log(`Found ${carIds.length} car IDs`);
+      
+      if (!carIds.length) {
+        console.log('No car IDs found in the KV store');
+        return [];
+      }
+      
+      const cars: Car[] = [];
+      for (const id of carIds) {
+        try {
+          console.log(`Fetching car with ID: ${id}`);
+          const car = await this.getCar(id as string);
+          if (car) {
+            cars.push(car);
+          } else {
+            console.warn(`Car with ID ${id} not found in KV store`);
+          }
+        } catch (error) {
+          console.error(`Error fetching car with ID ${id}:`, error);
+        }
+      }
+      
+      console.log(`Successfully fetched ${cars.length} cars`);
+      
+      // Sort by displayOrder if available, otherwise by price (most expensive first)
+      return cars.sort((a, b) => {
+        if (a.displayOrder !== undefined && b.displayOrder !== undefined) {
         return a.displayOrder - b.displayOrder;
       }
       if (a.displayOrder !== undefined) return -1;

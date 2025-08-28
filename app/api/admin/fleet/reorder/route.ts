@@ -3,19 +3,35 @@ import { verifyJWT } from '@/app/lib/auth';
 import carDB from '@/app/lib/car-database';
 
 function isKvConfigured() {
-  const restUrl = process.env.VERCEL_KV_REST_API_URL || process.env.KV_REST_API_URL;
-  const restToken = process.env.VERCEL_KV_REST_API_TOKEN || process.env.KV_REST_API_TOKEN || process.env.VERCEL_KV_REST_API_READ_ONLY_TOKEN || process.env.KV_REST_API_READ_ONLY_TOKEN;
-  const urlOnly = process.env.KV_URL || process.env.REDIS_URL;
-  return !!((restUrl && restToken) || urlOnly);
+  try {
+    // Check for environment variables
+    const hasRestConfig = (
+      (process.env.VERCEL_KV_REST_API_URL || process.env.KV_REST_API_URL) &&
+      (process.env.VERCEL_KV_REST_API_TOKEN || process.env.KV_REST_API_TOKEN || 
+       process.env.VERCEL_KV_REST_API_READ_ONLY_TOKEN || process.env.KV_REST_API_READ_ONLY_TOKEN)
+    );
+    
+    const hasUrlConfig = process.env.KV_URL || process.env.REDIS_URL;
+    
+    return hasRestConfig || hasUrlConfig;
+  } catch (error) {
+    console.error('Error checking KV configuration:', error);
+    return false;
+  }
 }
 
 function isKvWriteCapable() {
-  return !!(
-    process.env.VERCEL_KV_REST_API_TOKEN ||
-    process.env.KV_REST_API_TOKEN ||
-    process.env.KV_URL ||
-    process.env.REDIS_URL
-  );
+  try {
+    return !!(
+      process.env.VERCEL_KV_REST_API_TOKEN ||
+      process.env.KV_REST_API_TOKEN ||
+      process.env.KV_URL ||
+      process.env.REDIS_URL
+    );
+  } catch (error) {
+    console.error('Error checking KV write capability:', error);
+    return false;
+  }
 }
 
 export async function POST(request: NextRequest) {
