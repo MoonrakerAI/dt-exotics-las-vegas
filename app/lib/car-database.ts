@@ -117,12 +117,16 @@ class CarDatabase {
       // Sort by displayOrder if available, otherwise by price (most expensive first)
       return cars.sort((a, b) => {
         if (a.displayOrder !== undefined && b.displayOrder !== undefined) {
-        return a.displayOrder - b.displayOrder;
-      }
-      if (a.displayOrder !== undefined) return -1;
-      if (b.displayOrder !== undefined) return 1;
-      return b.price.daily - a.price.daily;
-    });
+          return a.displayOrder - b.displayOrder;
+        }
+        if (a.displayOrder !== undefined) return -1;
+        if (b.displayOrder !== undefined) return 1;
+        return b.price.daily - a.price.daily;
+      });
+    } catch (error) {
+      console.error('Error in getAllCars:', error);
+      return [];
+    }
   }
 
   // Set per-day availability (unavailable dates)
