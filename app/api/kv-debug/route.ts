@@ -28,7 +28,7 @@ export async function GET() {
     const retrievedValue = await kv.get(testKey);
     
     // Try to list keys (this might be restricted in some KV plans)
-    let keys = [];
+    let keys: string[] = [];
     try {
       console.log('Attempting to list keys...');
       // This might not work in all KV plans
