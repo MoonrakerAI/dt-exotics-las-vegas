@@ -4,10 +4,17 @@ import blogDB from '@/app/lib/blog-database';
 import { adminApiRateLimiter, getClientIdentifier } from '@/app/lib/rate-limit';
 
 function isKvConfigured() {
-  const restUrl = process.env.VERCEL_KV_REST_API_URL || process.env.KV_REST_API_URL;
-  const restToken = process.env.VERCEL_KV_REST_API_TOKEN || process.env.KV_REST_API_TOKEN;
-  const urlOnly = process.env.KV_URL || process.env.REDIS_URL;
-  return !!((restUrl && restToken) || urlOnly);
+  const env = process.env as Record<string, string | undefined>;
+  const hasRest =
+    (env.VERCEL_KV_REST_API_URL || env.KV_REST_API_URL) &&
+    (env.VERCEL_KV_REST_API_TOKEN || env.KV_REST_API_TOKEN || env.VERCEL_KV_REST_API_READ_ONLY_TOKEN || env.KV_REST_API_READ_ONLY_TOKEN);
+  const hasUrl = env.KV_URL || env.REDIS_URL;
+  return Boolean(hasRest || hasUrl);
+}
+
+function isKvWriteCapable() {
+  const env = process.env as Record<string, string | undefined>;
+  return Boolean(env.VERCEL_KV_REST_API_TOKEN || env.KV_REST_API_TOKEN || env.KV_URL || env.REDIS_URL);
 }
 
 export async function GET(request: NextRequest) {
@@ -35,7 +42,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    // Ensure KV configured
+    // Ensure KV configured (read-only allowed)
     if (!isKvConfigured()) {
       return NextResponse.json({ error: 'KV is not configured. Blog storage unavailable.' }, { status: 503 })
     }

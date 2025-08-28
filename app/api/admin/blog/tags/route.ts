@@ -4,7 +4,17 @@ import blogDB from '@/app/lib/blog-database';
 import { adminApiRateLimiter, getClientIdentifier } from '@/app/lib/rate-limit';
 
 function isKvConfigured() {
-  return !!(process.env.VERCEL_KV_REST_API_URL && process.env.VERCEL_KV_REST_API_TOKEN)
+  const env = process.env as Record<string, string | undefined>;
+  const hasRest =
+    (env.VERCEL_KV_REST_API_URL || env.KV_REST_API_URL) &&
+    (env.VERCEL_KV_REST_API_TOKEN || env.KV_REST_API_TOKEN || env.VERCEL_KV_REST_API_READ_ONLY_TOKEN || env.KV_REST_API_READ_ONLY_TOKEN);
+  const hasUrl = env.KV_URL || env.REDIS_URL;
+  return Boolean(hasRest || hasUrl);
+}
+
+function isKvWriteCapable() {
+  const env = process.env as Record<string, string | undefined>;
+  return Boolean(env.VERCEL_KV_REST_API_TOKEN || env.KV_REST_API_TOKEN || env.KV_URL || env.REDIS_URL);
 }
 
 export async function GET(request: NextRequest) {
@@ -32,7 +42,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    // Ensure KV configured
+    // Ensure KV configured (read-only allowed for GET)
     if (!isKvConfigured()) {
       return NextResponse.json({ error: 'KV is not configured. Blog storage unavailable.' }, { status: 503 })
     }

@@ -3,6 +3,20 @@ import { verifyJWT } from '@/app/lib/auth';
 import { kv } from '@vercel/kv';
 import { Invoice, UpdateInvoiceRequest } from '@/app/types/invoice';
 
+function isKvConfigured(): boolean {
+  const env = process.env as Record<string, string | undefined>;
+  const hasRest =
+    (env.VERCEL_KV_REST_API_URL || env.KV_REST_API_URL) &&
+    (env.VERCEL_KV_REST_API_TOKEN || env.KV_REST_API_TOKEN || env.VERCEL_KV_REST_API_READ_ONLY_TOKEN || env.KV_REST_API_READ_ONLY_TOKEN);
+  const hasUrl = env.KV_URL || env.REDIS_URL;
+  return Boolean(hasRest || hasUrl);
+}
+
+function isKvWriteCapable(): boolean {
+  const env = process.env as Record<string, string | undefined>;
+  return Boolean(env.VERCEL_KV_REST_API_TOKEN || env.KV_REST_API_TOKEN || env.KV_URL || env.REDIS_URL);
+}
+
 // Secure admin authentication using JWT
 async function isAdminAuthenticated(request: NextRequest): Promise<{user: any} | null> {
   const authHeader = request.headers.get('authorization');
@@ -53,6 +67,9 @@ export async function GET(
   }
 
   try {
+    if (!isKvConfigured()) {
+      return NextResponse.json({ error: 'KV is not configured. Invoice storage unavailable.' }, { status: 503 });
+    }
     const { id } = await params;
     const invoice = await kv.get(`invoice:${id}`);
     
@@ -91,6 +108,12 @@ export async function PUT(
   }
 
   try {
+    if (!isKvConfigured()) {
+      return NextResponse.json({ error: 'KV is not configured. Invoice storage unavailable.' }, { status: 503 });
+    }
+    if (!isKvWriteCapable()) {
+      return NextResponse.json({ error: 'KV is read-only. Write operations are unavailable.' }, { status: 503 });
+    }
     const { id } = await params;
     const existingInvoice = await kv.get(`invoice:${id}`) as Invoice;
     
@@ -177,6 +200,12 @@ export async function PUT(
     });
 
   } catch (error) {
+    if (!isKvConfigured()) {
+      return NextResponse.json({ error: 'KV is not configured. Invoice storage unavailable.' }, { status: 503 });
+    }
+    if (!isKvWriteCapable()) {
+      return NextResponse.json({ error: 'KV is read-only. Write operations are unavailable.' }, { status: 503 });
+    }
     console.error('Invoice update error:', error);
     return NextResponse.json(
       { error: 'Failed to update invoice' },
@@ -227,6 +256,12 @@ export async function DELETE(
     });
 
   } catch (error) {
+    if (!isKvConfigured()) {
+      return NextResponse.json({ error: 'KV is not configured. Invoice storage unavailable.' }, { status: 503 });
+    }
+    if (!isKvWriteCapable()) {
+      return NextResponse.json({ error: 'KV is read-only. Write operations are unavailable.' }, { status: 503 });
+    }
     console.error('Invoice deletion error:', error);
     return NextResponse.json(
       { error: 'Failed to delete invoice' },

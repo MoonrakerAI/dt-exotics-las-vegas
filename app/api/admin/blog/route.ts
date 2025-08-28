@@ -5,10 +5,22 @@ import { validateBlogPost } from '@/app/lib/validation';
 import { adminApiRateLimiter, getClientIdentifier } from '@/app/lib/rate-limit';
 
 function isKvConfigured() {
-  const restUrl = process.env.VERCEL_KV_REST_API_URL || process.env.KV_REST_API_URL;
-  const restToken = process.env.VERCEL_KV_REST_API_TOKEN || process.env.KV_REST_API_TOKEN;
-  const urlOnly = process.env.KV_URL || process.env.REDIS_URL;
-  return !!((restUrl && restToken) || urlOnly);
+  const env = process.env as Record<string, string | undefined>;
+  const hasRest =
+    (env.VERCEL_KV_REST_API_URL || env.KV_REST_API_URL) &&
+    (env.VERCEL_KV_REST_API_TOKEN || env.KV_REST_API_TOKEN || env.VERCEL_KV_REST_API_READ_ONLY_TOKEN || env.KV_REST_API_READ_ONLY_TOKEN);
+  const hasUrl = env.KV_URL || env.REDIS_URL;
+  return Boolean(hasRest || hasUrl);
+}
+
+function isKvWriteCapable() {
+  const env = process.env as Record<string, string | undefined>;
+  return Boolean(
+    env.VERCEL_KV_REST_API_TOKEN ||
+      env.KV_REST_API_TOKEN ||
+      env.KV_URL ||
+      env.REDIS_URL
+  );
 }
 
 export async function GET(request: NextRequest) {
@@ -43,7 +55,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    // Ensure KV configured for blog storage
+    // Ensure KV configured for blog storage (read-only allowed)
     if (!isKvConfigured()) {
       return NextResponse.json({ error: 'KV is not configured. Blog storage unavailable.' }, { status: 503 })
     }
@@ -156,6 +168,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (!isKvConfigured()) {
       return NextResponse.json({ error: 'KV is not configured. Blog storage unavailable.' }, { status: 503 })
+    }
+    if (!isKvWriteCapable()) {
+      return NextResponse.json({ error: 'KV is read-only. Write operations are unavailable.' }, { status: 503 })
     }
     console.error('Blog POST error:', error);
     return NextResponse.json(

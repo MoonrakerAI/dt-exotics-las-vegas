@@ -3,6 +3,20 @@ import { verifyJWT } from '@/app/lib/auth';
 import { kv } from '@vercel/kv';
 import { Invoice, CreateInvoiceRequest, InvoiceFilters } from '@/app/types/invoice';
 
+function isKvConfigured(): boolean {
+  const env = process.env as Record<string, string | undefined>;
+  const hasRest =
+    (env.VERCEL_KV_REST_API_URL || env.KV_REST_API_URL) &&
+    (env.VERCEL_KV_REST_API_TOKEN || env.KV_REST_API_TOKEN || env.VERCEL_KV_REST_API_READ_ONLY_TOKEN || env.KV_REST_API_READ_ONLY_TOKEN);
+  const hasUrl = env.KV_URL || env.REDIS_URL;
+  return Boolean(hasRest || hasUrl);
+}
+
+function isKvWriteCapable(): boolean {
+  const env = process.env as Record<string, string | undefined>;
+  return Boolean(env.VERCEL_KV_REST_API_TOKEN || env.KV_REST_API_TOKEN || env.KV_URL || env.REDIS_URL);
+}
+
 // Secure admin authentication using JWT
 async function isAdminAuthenticated(request: NextRequest): Promise<{user: any} | null> {
   const authHeader = request.headers.get('authorization');
@@ -57,6 +71,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    if (!isKvConfigured()) {
+      return NextResponse.json({ error: 'KV is not configured. Invoice storage unavailable.' }, { status: 503 });
+    }
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status') as Invoice['status'] | null;
     const serviceType = searchParams.get('serviceType') as Invoice['serviceType'] | null;
@@ -135,6 +152,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    if (!isKvConfigured()) {
+      return NextResponse.json({ error: 'KV is not configured. Invoice storage unavailable.' }, { status: 503 });
+    }
+    if (!isKvWriteCapable()) {
+      return NextResponse.json({ error: 'KV is read-only. Write operations are unavailable.' }, { status: 503 });
+    }
     const { user } = authResult;
     const body: CreateInvoiceRequest = await request.json();
 
