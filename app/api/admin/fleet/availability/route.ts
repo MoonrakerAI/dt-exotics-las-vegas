@@ -5,9 +5,18 @@ import { adminApiRateLimiter, getClientIdentifier } from '@/app/lib/rate-limit';
 
 function isKvConfigured() {
   const restUrl = process.env.VERCEL_KV_REST_API_URL || process.env.KV_REST_API_URL;
-  const restToken = process.env.VERCEL_KV_REST_API_TOKEN || process.env.KV_REST_API_TOKEN;
+  const restToken = process.env.VERCEL_KV_REST_API_TOKEN || process.env.KV_REST_API_TOKEN || process.env.VERCEL_KV_REST_API_READ_ONLY_TOKEN || process.env.KV_REST_API_READ_ONLY_TOKEN;
   const urlOnly = process.env.KV_URL || process.env.REDIS_URL;
   return !!((restUrl && restToken) || urlOnly);
+}
+
+function isKvWriteCapable() {
+  return !!(
+    process.env.VERCEL_KV_REST_API_TOKEN ||
+    process.env.KV_REST_API_TOKEN ||
+    process.env.KV_URL ||
+    process.env.REDIS_URL
+  );
 }
 
 // GET: Get unavailable dates for a car
@@ -67,6 +76,9 @@ export async function POST(request: NextRequest) {
     }
     if (!isKvConfigured()) {
       return NextResponse.json({ error: 'KV is not configured. Availability storage unavailable.' }, { status: 503 })
+    }
+    if (!isKvWriteCapable()) {
+      return NextResponse.json({ error: 'KV is read-only. Write operations are disabled.' }, { status: 503 })
     }
     await carDB.setCarAvailability(id, unavailableDates);
     return NextResponse.json({ success: true });

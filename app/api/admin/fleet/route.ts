@@ -7,9 +7,18 @@ import { Car } from '@/app/data/cars';
 
 function isKvConfigured() {
   const restUrl = process.env.VERCEL_KV_REST_API_URL || process.env.KV_REST_API_URL;
-  const restToken = process.env.VERCEL_KV_REST_API_TOKEN || process.env.KV_REST_API_TOKEN;
+  const restToken = process.env.VERCEL_KV_REST_API_TOKEN || process.env.KV_REST_API_TOKEN || process.env.VERCEL_KV_REST_API_READ_ONLY_TOKEN || process.env.KV_REST_API_READ_ONLY_TOKEN;
   const urlOnly = process.env.KV_URL || process.env.REDIS_URL;
   return !!((restUrl && restToken) || urlOnly);
+}
+
+function isKvWriteCapable() {
+  return !!(
+    process.env.VERCEL_KV_REST_API_TOKEN ||
+    process.env.KV_REST_API_TOKEN ||
+    process.env.KV_URL ||
+    process.env.REDIS_URL
+  );
 }
 
 // GET: List all cars
@@ -71,6 +80,9 @@ export async function POST(request: NextRequest) {
     if (!isKvConfigured()) {
       return NextResponse.json({ error: 'KV is not configured. Fleet storage unavailable.' }, { status: 503 })
     }
+    if (!isKvWriteCapable()) {
+      return NextResponse.json({ error: 'KV is read-only. Write operations are disabled.' }, { status: 503 })
+    }
     const body = await request.json();
     // Validate car ID
     const idValidation = validateCarId(body.id);
@@ -106,6 +118,9 @@ export async function PUT(request: NextRequest) {
     }
     if (!isKvConfigured()) {
       return NextResponse.json({ error: 'KV is not configured. Fleet storage unavailable.' }, { status: 503 })
+    }
+    if (!isKvWriteCapable()) {
+      return NextResponse.json({ error: 'KV is read-only. Write operations are disabled.' }, { status: 503 })
     }
     const { searchParams } = new URL(request.url);
     const carId = searchParams.get('id');
@@ -144,6 +159,9 @@ export async function DELETE(request: NextRequest) {
     if (!isKvConfigured()) {
       return NextResponse.json({ error: 'KV is not configured. Fleet storage unavailable.' }, { status: 503 })
     }
+    if (!isKvWriteCapable()) {
+      return NextResponse.json({ error: 'KV is read-only. Write operations are disabled.' }, { status: 503 })
+    }
     const { searchParams } = new URL(request.url);
     const carId = searchParams.get('id');
     if (!carId) {
@@ -158,4 +176,5 @@ export async function DELETE(request: NextRequest) {
     console.error('Fleet DELETE error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}
+ 

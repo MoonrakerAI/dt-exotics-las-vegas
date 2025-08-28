@@ -1,6 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SimpleAuth } from '@/app/lib/simple-auth';
+import { verifyJWT } from '@/app/lib/auth';
 import carDB from '@/app/lib/car-database';
+
+function isKvConfigured() {
+  const restUrl = process.env.VERCEL_KV_REST_API_URL || process.env.KV_REST_API_URL;
+  const restToken = process.env.VERCEL_KV_REST_API_TOKEN || process.env.KV_REST_API_TOKEN || process.env.VERCEL_KV_REST_API_READ_ONLY_TOKEN || process.env.KV_REST_API_READ_ONLY_TOKEN;
+  const urlOnly = process.env.KV_URL || process.env.REDIS_URL;
+  return !!((restUrl && restToken) || urlOnly);
+}
+
+function isKvWriteCapable() {
+  return !!(
+    process.env.VERCEL_KV_REST_API_TOKEN ||
+    process.env.KV_REST_API_TOKEN ||
+    process.env.KV_URL ||
+    process.env.REDIS_URL
+  );
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,9 +27,16 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.split(' ')[1];
-    // Simple token validation - check if token exists and has reasonable length
-    if (!token || token.length < 10) {
+    const user = await verifyJWT(token);
+    if (!user) {
       return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
+    }
+
+    if (!isKvConfigured()) {
+      return NextResponse.json({ error: 'KV is not configured. Fleet storage unavailable.' }, { status: 503 })
+    }
+    if (!isKvWriteCapable()) {
+      return NextResponse.json({ error: 'KV is read-only. Write operations are disabled.' }, { status: 503 })
     }
 
     const body = await request.json();
