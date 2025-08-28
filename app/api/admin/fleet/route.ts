@@ -6,7 +6,10 @@ import { adminApiRateLimiter, getClientIdentifier } from '@/app/lib/rate-limit';
 import { Car } from '@/app/data/cars';
 
 function isKvConfigured() {
-  return !!(process.env.VERCEL_KV_REST_API_URL && process.env.VERCEL_KV_REST_API_TOKEN)
+  const restUrl = process.env.VERCEL_KV_REST_API_URL || process.env.KV_REST_API_URL;
+  const restToken = process.env.VERCEL_KV_REST_API_TOKEN || process.env.KV_REST_API_TOKEN;
+  const urlOnly = process.env.KV_URL || process.env.REDIS_URL;
+  return !!((restUrl && restToken) || urlOnly);
 }
 
 // GET: List all cars
