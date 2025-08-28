@@ -1,7 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-// Removed verifyJWT import
+import { verifyJWT } from '@/app/lib/auth';
 import kvRentalDB from '@/app/lib/kv-database';
 import { adminApiRateLimiter, getClientIdentifier } from '@/app/lib/rate-limit';
+
+// Helper to determine if KV is configured across multiple env var naming conventions
+function isKvConfigured(): boolean {
+  const env = process.env as Record<string, string | undefined>;
+  return Boolean(
+    // Vercel KV style
+    (env.VERCEL_KV_REST_API_URL && env.VERCEL_KV_REST_API_TOKEN) ||
+      // Generic Upstash style
+      (env.KV_REST_API_URL && env.KV_REST_API_TOKEN) ||
+      // URL-only styles
+      env.KV_URL ||
+      env.REDIS_URL
+  );
+}
 
 // GET: Get rental bookings for a car
 export async function GET(request: NextRequest) {
@@ -18,8 +32,8 @@ export async function GET(request: NextRequest) {
     }
     
     const token = authHeader.substring(7);
-    // Simple token validation
-    if (!token || token.length < 10) {
+    const user = await verifyJWT(token);
+    if (!user) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
     
@@ -30,6 +44,14 @@ export async function GET(request: NextRequest) {
     
     if (!carId) {
       return NextResponse.json({ error: 'Missing car ID' }, { status: 400 });
+    }
+    
+    // Ensure KV is available before making DB calls
+    if (!isKvConfigured()) {
+      return NextResponse.json(
+        { error: 'KV not configured', details: 'Set VERCEL_KV_* or KV_REST_API_* or KV_URL/REDIS_URL' },
+        { status: 503 }
+      );
     }
     
     // Get all rentals for date range or all rentals
@@ -83,4 +105,5 @@ export async function GET(request: NextRequest) {
     console.error('Fleet bookings GET error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}
+ 
