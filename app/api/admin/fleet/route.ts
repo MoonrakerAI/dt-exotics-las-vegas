@@ -35,8 +35,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'KV is not configured. Fleet storage unavailable.' }, { status: 503 })
     }
     // List all cars
-    const cars = await carDB.getAllCars();
-    return NextResponse.json({ cars });
+    try {
+      const cars = await carDB.getAllCars();
+      return NextResponse.json({ cars });
+    } catch (e) {
+      console.error('Fleet GET KV/read error:', e);
+      return NextResponse.json(
+        { error: 'Fleet storage unavailable', details: e instanceof Error ? e.message : 'Unknown KV error' },
+        { status: 503 }
+      );
+    }
   } catch (error) {
     console.error('Fleet GET error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
