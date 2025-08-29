@@ -88,31 +88,37 @@ class CarDatabase {
   // List all cars
   async getAllCars(): Promise<Car[]> {
     try {
-      console.log('Fetching car IDs from KV store...');
+      const reqId = (globalThis as any).crypto?.randomUUID?.() || `r_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      console.log(`[carDB.getAllCars][${reqId}] fetching ids...`);
       const carIds = await kv.smembers(this.CAR_LIST_KEY);
-      console.log(`Found ${carIds.length} car IDs`);
+      console.log(`[carDB.getAllCars][${reqId}] idCount=${carIds.length}`);
       
       if (!carIds.length) {
-        console.log('No car IDs found in the KV store');
+        console.log(`[carDB.getAllCars][${reqId}] no ids`);
         return [];
       }
       
+      // Fetch all cars in parallel to avoid per-item latency and function timeouts
+      const results = await Promise.allSettled(
+        carIds.map((id) => this.getCar(id as string))
+      );
       const cars: Car[] = [];
-      for (const id of carIds) {
-        try {
-          console.log(`Fetching car with ID: ${id}`);
-          const car = await this.getCar(id as string);
+      let failures = 0;
+      results.forEach((res, idx) => {
+        const id = carIds[idx];
+        if (res.status === 'fulfilled') {
+          const car = res.value;
           if (car) {
             cars.push(car);
           } else {
-            console.warn(`Car with ID ${id} not found in KV store`);
+            console.warn(`[carDB.getAllCars][${reqId}] missing car`, { id });
           }
-        } catch (error) {
-          console.error(`Error fetching car with ID ${id}:`, error);
+        } else {
+          failures += 1;
+          console.error(`[carDB.getAllCars][${reqId}] fetch error for id`, { id, error: res.reason });
         }
-      }
-      
-      console.log(`Successfully fetched ${cars.length} cars`);
+      });
+      console.log(`[carDB.getAllCars][${reqId}] fetched=${cars.length} failures=${failures}`);
       
       // Sort by displayOrder if available, otherwise by price (most expensive first)
       return cars.sort((a, b) => {

@@ -129,16 +129,22 @@ class BlogDatabase {
   }
 
   async getAllPosts(): Promise<BlogPost[]> {
+    const reqId = (globalThis as any).crypto?.randomUUID?.() || `r_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const postIds = await kv.smembers(this.POST_LIST_KEY);
-    
     if (postIds.length === 0) return [];
-
+    const results = await Promise.allSettled(postIds.map((id) => this.getPost(id as string)));
     const posts: BlogPost[] = [];
-    for (const id of postIds) {
-      const post = await this.getPost(id as string);
-      if (post) posts.push(post);
-    }
-
+    let failures = 0;
+    results.forEach((res, idx) => {
+      const id = postIds[idx];
+      if (res.status === 'fulfilled') {
+        if (res.value) posts.push(res.value);
+      } else {
+        failures += 1;
+        console.error(`[blogDB.getAllPosts][${reqId}] fetch error`, { id, error: res.reason });
+      }
+    });
+    if (failures) console.warn(`[blogDB.getAllPosts][${reqId}] failures`, { failures, total: postIds.length });
     return posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
@@ -227,16 +233,22 @@ class BlogDatabase {
   }
 
   async getAllCategories(): Promise<BlogCategory[]> {
+    const reqId = (globalThis as any).crypto?.randomUUID?.() || `r_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const categoryIds = await kv.smembers(this.CATEGORY_LIST_KEY);
-    
     if (categoryIds.length === 0) return [];
-
+    const results = await Promise.allSettled(categoryIds.map((id) => this.getCategory(id as string)));
     const categories: BlogCategory[] = [];
-    for (const id of categoryIds) {
-      const category = await this.getCategory(id as string);
-      if (category) categories.push(category);
-    }
-
+    let failures = 0;
+    results.forEach((res, idx) => {
+      const id = categoryIds[idx];
+      if (res.status === 'fulfilled') {
+        if (res.value) categories.push(res.value);
+      } else {
+        failures += 1;
+        console.error(`[blogDB.getAllCategories][${reqId}] fetch error`, { id, error: res.reason });
+      }
+    });
+    if (failures) console.warn(`[blogDB.getAllCategories][${reqId}] failures`, { failures, total: categoryIds.length });
     return categories.sort((a, b) => a.name.localeCompare(b.name));
   }
 
@@ -295,16 +307,22 @@ class BlogDatabase {
   }
 
   async getAllTags(): Promise<BlogTag[]> {
+    const reqId = (globalThis as any).crypto?.randomUUID?.() || `r_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const tagIds = await kv.smembers(this.TAG_LIST_KEY);
-    
     if (tagIds.length === 0) return [];
-
+    const results = await Promise.allSettled(tagIds.map((id) => this.getTag(id as string)));
     const tags: BlogTag[] = [];
-    for (const id of tagIds) {
-      const tag = await this.getTag(id as string);
-      if (tag) tags.push(tag);
-    }
-
+    let failures = 0;
+    results.forEach((res, idx) => {
+      const id = tagIds[idx];
+      if (res.status === 'fulfilled') {
+        if (res.value) tags.push(res.value);
+      } else {
+        failures += 1;
+        console.error(`[blogDB.getAllTags][${reqId}] fetch error`, { id, error: res.reason });
+      }
+    });
+    if (failures) console.warn(`[blogDB.getAllTags][${reqId}] failures`, { failures, total: tagIds.length });
     return tags.sort((a, b) => a.name.localeCompare(b.name));
   }
 
