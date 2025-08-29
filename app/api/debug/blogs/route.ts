@@ -7,12 +7,16 @@ export async function GET() {
     const postIds = await kv.smembers('blog:posts:all');
     
     // Get all blog posts
-    const posts = await Promise.all(
-      postIds.map(async (id: string) => {
-        const post = await kv.get<Record<string, any>>(`blog:post:${id}`);
-        return post ? { id, ...post } : null;
-      })
-    ).then(posts => posts.filter(Boolean));
+    const posts = (
+      await Promise.all(
+        postIds.map(async (id: string) => {
+          const post = await kv.get<Record<string, any>>(`blog:post:${id}`);
+          return post ? { id, ...post } : null;
+        })
+      )
+    ).filter(
+      (p): p is { id: string } & Record<string, any> => p !== null
+    );
 
     // Get all blog-related keys
     const blogKeys = await kv.keys('blog:*');
@@ -26,7 +30,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       postIds,
-      posts: posts.filter(post => post.id), // Filter out null/undefined
+      posts,
       blogKeys,
       categories,
       tags,
