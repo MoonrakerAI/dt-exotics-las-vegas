@@ -9,10 +9,10 @@ export async function GET() {
     // Get all blog posts
     const posts = await Promise.all(
       postIds.map(async (id: string) => {
-        const post = await kv.get(`blog:post:${id}`);
-        return { id, ...post };
+        const post = await kv.get<Record<string, any>>(`blog:post:${id}`);
+        return post ? { id, ...post } : null;
       })
-    );
+    ).then(posts => posts.filter(Boolean));
 
     // Get all blog-related keys
     const blogKeys = await kv.keys('blog:*');
