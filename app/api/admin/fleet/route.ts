@@ -40,38 +40,47 @@ function isKvWriteCapable() {
 // GET: List all cars
 export async function GET(request: NextRequest) {
   try {
+    // Correlate logs per request
+    const reqId = (globalThis as any).crypto?.randomUUID?.() || `r_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    console.log(`[Fleet GET][${reqId}] start`);
     // Rate limiting
     const clientId = getClientIdentifier(request);
     const rateLimitResult = await adminApiRateLimiter.checkLimit(clientId);
     if (!rateLimitResult.success) {
+      console.warn(`[Fleet GET][${reqId}] rate limited`, { clientId });
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
     }
     // Auth
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.warn(`[Fleet GET][${reqId}] missing/invalid auth header`);
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const token = authHeader.substring(7);
     const user = await verifyJWT(token)
     if (!user) {
+      console.warn(`[Fleet GET][${reqId}] JWT verification failed`);
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
+    console.log(`[Fleet GET][${reqId}] auth ok`, { userId: (user as any).userId || (user as any).id });
     if (!isKvConfigured()) {
+      console.error(`[Fleet GET][${reqId}] KV not configured`);
       return NextResponse.json({ error: 'KV is not configured. Fleet storage unavailable.' }, { status: 503 })
     }
     // List all cars
     try {
       const cars = await carDB.getAllCars();
+      console.log(`[Fleet GET][${reqId}] results`, { returned: cars.length });
       return NextResponse.json({ cars });
     } catch (e) {
-      console.error('Fleet GET KV/read error:', e);
+      console.error(`[Fleet GET][${reqId}] KV/read error`, e);
       return NextResponse.json(
         { error: 'Fleet storage unavailable', details: e instanceof Error ? e.message : 'Unknown KV error' },
         { status: 503 }
       );
     }
   } catch (error) {
-    console.error('Fleet GET error:', error);
+    console.error('[Fleet GET] error', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -25,11 +25,15 @@ function isKvWriteCapable() {
 
 export async function GET(request: NextRequest) {
   try {
+    // Correlate logs per request
+    const reqId = (globalThis as any).crypto?.randomUUID?.() || `r_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    console.log(`[Blog GET][${reqId}] start`);
     // Apply rate limiting
     const clientId = getClientIdentifier(request);
     const rateLimitResult = await adminApiRateLimiter.checkLimit(clientId);
     
     if (!rateLimitResult.success) {
+      console.warn(`[Blog GET][${reqId}] rate limited`, { clientId });
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
         { status: 429 }
@@ -39,14 +43,17 @@ export async function GET(request: NextRequest) {
     // Verify JWT token
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.warn(`[Blog GET][${reqId}] missing/invalid auth header`);
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const token = authHeader.substring(7);
     const user = await verifyJWT(token);
     if (!user) {
+      console.warn(`[Blog GET][${reqId}] JWT verification failed`);
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
+    console.log(`[Blog GET][${reqId}] auth ok`, { userId: (user as any).userId || (user as any).id });
 
     // Get query parameters
     const { searchParams } = new URL(request.url);
@@ -57,22 +64,27 @@ export async function GET(request: NextRequest) {
 
     // Ensure KV configured for blog storage (read-only allowed)
     if (!isKvConfigured()) {
+      console.error(`[Blog GET][${reqId}] KV not configured`);
       return NextResponse.json({ error: 'KV is not configured. Blog storage unavailable.' }, { status: 503 })
     }
 
     let posts;
     
     if (search) {
+      console.log(`[Blog GET][${reqId}] path=search`, { q: search });
       posts = await blogDB.searchPosts(search);
     } else if (status) {
+      console.log(`[Blog GET][${reqId}] path=status`, { status });
       posts = await blogDB.getPostsByStatus(status);
     } else {
+      console.log(`[Blog GET][${reqId}] path=all`);
       posts = await blogDB.getAllPosts();
     }
 
     // Apply pagination
     const paginatedPosts = posts.slice(offset, offset + limit);
     const total = posts.length;
+    console.log(`[Blog GET][${reqId}] results`, { total, limit, offset, returned: paginatedPosts.length });
 
     return NextResponse.json({
       posts: paginatedPosts,
@@ -85,7 +97,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Blog GET error:', error);
+    console.error('[Blog GET] error', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
