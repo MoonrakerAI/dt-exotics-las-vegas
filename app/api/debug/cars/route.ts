@@ -7,12 +7,16 @@ export async function GET() {
     const carIds = await kv.smembers('cars:all');
     
     // Get all car data
-    const cars = await Promise.all(
+  const cars = (
+    await Promise.all(
       carIds.map(async (id: string) => {
-        const car = await kv.get(`car:${id}`);
-        return { id, ...car };
+        const car = await kv.get<Record<string, any>>(`car:${id}`);
+        return car ? { id, ...car } : null;
       })
-    );
+    )
+  ).filter(
+    (c): c is { id: string } & Record<string, any> => c !== null
+  );
 
     // Get all keys matching car:* pattern
     const allCarKeys = await kv.keys('car:*');
@@ -28,7 +32,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       carIds,
-      cars: cars.filter(car => car.id), // Filter out null/undefined
+      cars,
       allCarKeys,
       allCarData: allCarData.filter(item => item.data) // Filter out null/undefined
     });

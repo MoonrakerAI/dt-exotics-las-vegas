@@ -7,11 +7,15 @@ export async function GET() {
     const invoiceIds = await kv.smembers('invoices:all');
     
     // Get all invoice data
-    const invoices = await Promise.all(
-      invoiceIds.map(async (id: string) => {
-        const invoice = await kv.get(`invoice:${id}`);
-        return { id, ...invoice };
-      })
+    const invoices = (
+      await Promise.all(
+        invoiceIds.map(async (id: string) => {
+          const invoice = await kv.get<Record<string, any>>(`invoice:${id}`);
+          return invoice ? { id, ...invoice } : null;
+        })
+      )
+    ).filter(
+      (inv): inv is { id: string } & Record<string, any> => inv !== null
     );
 
     // Get all invoice-related keys
@@ -22,7 +26,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       invoiceIds,
-      invoices: invoices.filter(invoice => invoice.id), // Filter out null/undefined
+      invoices,
       allKeys,
       counts: {
         invoices: invoices.length,
