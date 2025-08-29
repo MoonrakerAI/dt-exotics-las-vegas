@@ -61,9 +61,12 @@ function calculateInvoiceTotals(lineItems: any[], taxRate: number, discountAmoun
 }
 
 export async function GET(request: NextRequest) {
+  const reqId = (globalThis as any).crypto?.randomUUID?.() || `r_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  console.log(`[Invoices GET][${reqId}] start`);
   const authResult = await isAdminAuthenticated(request);
   
   if (!authResult) {
+    console.warn(`[Invoices GET][${reqId}] unauthorized`);
     return NextResponse.json(
       { error: 'Unauthorized' },
       { status: 401 }
@@ -72,6 +75,7 @@ export async function GET(request: NextRequest) {
 
   try {
     if (!isKvConfigured()) {
+      console.error(`[Invoices GET][${reqId}] KV not configured`);
       return NextResponse.json({ error: 'KV is not configured. Invoice storage unavailable.' }, { status: 503 });
     }
     const { searchParams } = new URL(request.url);
@@ -83,6 +87,7 @@ export async function GET(request: NextRequest) {
 
     // Get all invoice IDs
     const invoiceIds = await kv.smembers('invoices:all') || [];
+    console.log(`[Invoices GET][${reqId}] ids`, { count: invoiceIds.length });
     
     // Fetch all invoices
     const invoices: Invoice[] = [];
@@ -92,6 +97,7 @@ export async function GET(request: NextRequest) {
         invoices.push(invoice as Invoice);
       }
     }
+    console.log(`[Invoices GET][${reqId}] fetched`, { invoices: invoices.length });
 
     // Apply filters
     let filteredInvoices = invoices;
@@ -121,6 +127,7 @@ export async function GET(request: NextRequest) {
     const paginatedInvoices = filteredInvoices.slice(offset, offset + limit);
     const total = filteredInvoices.length;
 
+    console.log(`[Invoices GET][${reqId}] results`, { total, limit, offset, returned: paginatedInvoices.length });
     return NextResponse.json({
       success: true,
       invoices: paginatedInvoices,
@@ -133,7 +140,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Invoice fetch error:', error);
+    console.error('[Invoices GET] error', error);
     return NextResponse.json(
       { error: 'Failed to fetch invoices' },
       { status: 500 }

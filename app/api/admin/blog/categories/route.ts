@@ -19,11 +19,14 @@ function isKvWriteCapable() {
 
 export async function GET(request: NextRequest) {
   try {
+    const reqId = (globalThis as any).crypto?.randomUUID?.() || `r_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    console.log(`[Blog Categories GET][${reqId}] start`);
     // Apply rate limiting
     const clientId = getClientIdentifier(request);
     const rateLimitResult = await adminApiRateLimiter.checkLimit(clientId);
     
     if (!rateLimitResult.success) {
+      console.warn(`[Blog Categories GET][${reqId}] rate limited`, { clientId });
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
         { status: 429 }
@@ -33,27 +36,32 @@ export async function GET(request: NextRequest) {
     // Verify JWT token
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.warn(`[Blog Categories GET][${reqId}] missing/invalid auth header`);
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const token = authHeader.substring(7);
     const user = await verifyJWT(token);
     if (!user) {
+      console.warn(`[Blog Categories GET][${reqId}] JWT verification failed`);
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
+    console.log(`[Blog Categories GET][${reqId}] auth ok`, { userId: (user as any).userId || (user as any).id });
 
     // Ensure KV configured (read-only allowed)
     if (!isKvConfigured()) {
+      console.error(`[Blog Categories GET][${reqId}] KV not configured`);
       return NextResponse.json({ error: 'KV is not configured. Blog storage unavailable.' }, { status: 503 })
     }
 
     // Get all categories
     const categories = await blogDB.getAllCategories();
+    console.log(`[Blog Categories GET][${reqId}] results`, { returned: categories.length });
 
     return NextResponse.json(categories);
 
   } catch (error) {
-    console.error('Categories GET error:', error);
+    console.error('[Blog Categories GET] error', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -19,11 +19,14 @@ function isKvWriteCapable() {
 
 export async function GET(request: NextRequest) {
   try {
+    const reqId = (globalThis as any).crypto?.randomUUID?.() || `r_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    console.log(`[Blog Tags GET][${reqId}] start`);
     // Apply rate limiting
     const clientId = getClientIdentifier(request);
     const rateLimitResult = await adminApiRateLimiter.checkLimit(clientId);
     
     if (!rateLimitResult.success) {
+      console.warn(`[Blog Tags GET][${reqId}] rate limited`, { clientId });
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
         { status: 429 }
@@ -33,26 +36,31 @@ export async function GET(request: NextRequest) {
     // Verify JWT token
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.warn(`[Blog Tags GET][${reqId}] missing/invalid auth header`);
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const token = authHeader.substring(7);
     const user = await verifyJWT(token);
     if (!user) {
+      console.warn(`[Blog Tags GET][${reqId}] JWT verification failed`);
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
+    console.log(`[Blog Tags GET][${reqId}] auth ok`, { userId: (user as any).userId || (user as any).id });
 
     // Ensure KV configured (read-only allowed for GET)
     if (!isKvConfigured()) {
+      console.error(`[Blog Tags GET][${reqId}] KV not configured`);
       return NextResponse.json({ error: 'KV is not configured. Blog storage unavailable.' }, { status: 503 })
     }
     // Get all tags
     const tags = await blogDB.getAllTags();
+    console.log(`[Blog Tags GET][${reqId}] results`, { returned: tags.length });
 
     return NextResponse.json(tags);
 
   } catch (error) {
-    console.error('Tags GET error:', error);
+    console.error('[Blog Tags GET] error', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
