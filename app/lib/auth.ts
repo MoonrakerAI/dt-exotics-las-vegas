@@ -193,17 +193,27 @@ export async function verifyJWT(token: string): Promise<any | null> {
   try {
     if (!JWT_SECRET) {
       // Missing secret means we cannot verify tokens; treat as unauthenticated
+      console.warn('[verifyJWT] JWT_SECRET is missing – cannot verify tokens')
       return null
     }
     const payload = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] }) as any
 
-    if (!payload || payload.exp < Math.floor(Date.now() / 1000)) {
+    if (!payload) {
+      console.warn('[verifyJWT] jwt.verify returned empty payload')
+      return null
+    }
+
+    const now = Math.floor(Date.now() / 1000)
+    if (typeof payload.exp === 'number' && payload.exp < now) {
+      console.warn('[verifyJWT] token expired', { exp: payload.exp, now })
       return null
     }
 
     return payload
-  } catch {
+  } catch (err) {
     // Do not throw; callers should handle null and return 401
+    const msg = err instanceof Error ? err.message : String(err)
+    console.warn('[verifyJWT] verification error', { error: msg })
     return null
   }
 }
