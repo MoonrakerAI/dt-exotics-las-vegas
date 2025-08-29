@@ -29,8 +29,8 @@ export async function GET(request: NextRequest) {
       // Get all cars (filtered by homepage visibility if requested)
       const allCars = await carDB.getAllCars();
       const filteredHomepage = showOnHomepage ? allCars.filter(car => car.showOnHomepage !== false) : allCars;
-      // Also filter by general availability flag
-      cars = filteredHomepage.filter(car => car.available);
+      // Treat undefined availability as available (backward compatibility)
+      cars = filteredHomepage.filter(car => car.available !== false);
       console.log(`[Cars GET][${reqId}] all/no-dates`, { all: allCars.length, homepage: filteredHomepage.length, available: cars.length });
     }
     

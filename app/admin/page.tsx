@@ -151,11 +151,19 @@ export default function AdminDashboard() {
   const [topCustomers, setTopCustomers] = useState<TopCustomer[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // Defer auth check to client mount to avoid hydration flicker
+  const [mounted, setMounted] = useState(false)
+  const [authUser, setAuthUser] = useState<any>(null)
 
   useEffect(() => {
     fetchStripeMetrics()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, range.from, range.to])
+
+  useEffect(() => {
+    setMounted(true)
+    setAuthUser(SimpleAuth.getCurrentUser())
+  }, [])
 
   const fetchStripeMetrics = async () => {
     setLoading(true)
@@ -211,8 +219,19 @@ export default function AdminDashboard() {
     setRange({ from, to: now })
   }
 
-  if (!SimpleAuth.getCurrentUser()) {
-  return (
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-dark-gray flex items-center justify-center">
+        <div className="text-center text-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neon-blue mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading admin...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!authUser) {
+    return (
       <div className="min-h-screen bg-dark-gray flex items-center justify-center">
         <div className="text-center text-white">
           <h1 className="text-2xl font-tech mb-4">Access Denied</h1>
