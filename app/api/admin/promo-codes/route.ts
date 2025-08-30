@@ -17,17 +17,28 @@ export async function GET(request: NextRequest) {
     const user = await verifyJWT(token)
     if (!user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
 
-    const promos = await promoDB.listPromos()
-    // attach stats
-    const withStats = await Promise.all(promos.map(async p => ({
-      ...p,
-      stats: await promoDB.getStats(p.code)
-    })))
+    let promos: PromoRecord[] = []
+    try {
+      promos = await promoDB.listPromos()
+    } catch (e) {
+      console.warn('[ADMIN PROMO GET] listPromos failed, returning empty list', e)
+      promos = []
+    }
+    // attach stats (best-effort)
+    const withStats = await Promise.all(promos.map(async p => {
+      try {
+        return { ...p, stats: await promoDB.getStats(p.code) }
+      } catch (e) {
+        console.warn('[ADMIN PROMO GET] getStats failed', { code: p.code, e })
+        return { ...p, stats: { totalUses: 0 } }
+      }
+    }))
 
     return NextResponse.json({ promos: withStats })
   } catch (err) {
     console.error('[ADMIN PROMO GET] error', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    return NextResponse.json({ error: 'Failed to list promos', details: msg }, { status: 500 })
   }
 }
 
@@ -62,45 +73,61 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Provide either percentOff or amountOff' }, { status: 400 })
     }
 
-    // Create Stripe coupon
-    const coupon = await stripe.coupons.create({
-      percent_off: percentOff ?? undefined,
-      amount_off: amountOff != null ? Math.round(amountOff * 100) : undefined,
-      currency: amountOff != null ? currency : undefined,
-      duration: 'forever',
-      metadata: {
-        partner_id: partnerId || '',
-        partner_name: partnerName || '',
-      }
-    })
+    // If Stripe secret is missing, fall back to local-only record (no Stripe objects)
+    const hasStripe = !!process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.startsWith('sk_')
 
-    // Create Promotion Code with provided human-readable code
-    const promo = await stripe.promotionCodes.create({
-      code: String(code).toUpperCase(),
-      coupon: coupon.id,
-      active,
-      max_redemptions: maxRedemptions ?? undefined,
-      restrictions: {},
-      expires_at: expiresAt ? Math.floor(new Date(expiresAt).getTime() / 1000) : undefined,
-      metadata: {
-        partner_id: partnerId || '',
-        partner_name: partnerName || '',
-      }
-    })
+    let stripeCouponId: string | undefined
+    let stripePromotionCodeId: string | undefined
+
+    if (hasStripe) {
+      // Create Stripe coupon
+      const coupon = await stripe.coupons.create({
+        percent_off: percentOff ?? undefined,
+        amount_off: amountOff != null ? Math.round(amountOff * 100) : undefined,
+        currency: amountOff != null ? currency : undefined,
+        duration: 'forever',
+        metadata: {
+          partner_id: partnerId || '',
+          partner_name: partnerName || '',
+        }
+      })
+
+      // Create Promotion Code with provided human-readable code
+      const promo = await stripe.promotionCodes.create({
+        code: String(code).toUpperCase(),
+        coupon: coupon.id,
+        active,
+        max_redemptions: maxRedemptions ?? undefined,
+        restrictions: {},
+        expires_at: expiresAt ? Math.floor(new Date(expiresAt).getTime() / 1000) : undefined,
+        metadata: {
+          partner_id: partnerId || '',
+          partner_name: partnerName || '',
+        }
+      })
+
+      stripeCouponId = coupon.id
+      stripePromotionCodeId = promo.id
+    } else {
+      // Local fallback identifiers
+      stripeCouponId = `local_coupon_${String(code).toUpperCase()}`
+      stripePromotionCodeId = `local_promo_${String(code).toUpperCase()}`
+      console.warn('[ADMIN PROMO POST] STRIPE_SECRET_KEY not configured; created local-only promo', { code })
+    }
 
     const now = new Date().toISOString()
     const record: PromoRecord = {
       code: String(code).toUpperCase(),
-      stripeCouponId: coupon.id,
-      stripePromotionCodeId: promo.id,
+      stripeCouponId,
+      stripePromotionCodeId,
       partnerId,
       partnerName,
       percentOff: percentOff ?? undefined,
       amountOff: amountOff ?? undefined,
       currency: amountOff != null ? currency : undefined,
-      active: promo.active ?? true,
-      maxRedemptions: promo.max_redemptions ?? maxRedemptions,
-      expiresAt: expiresAt ?? (promo.expires_at ? new Date(promo.expires_at * 1000).toISOString() : undefined),
+      active: active,
+      maxRedemptions: maxRedemptions,
+      expiresAt: expiresAt ?? undefined,
       createdAt: now,
       updatedAt: now,
     }

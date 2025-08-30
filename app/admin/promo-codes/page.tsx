@@ -53,8 +53,12 @@ export default function AdminPromoCodesPage() {
         headers: { Authorization: `Bearer ${token}` },
         cache: 'no-store',
       })
-      if (!res.ok) throw new Error(`Failed: ${res.status}`)
-      const json = await res.json()
+      let json: any = {}
+      try { json = await res.json() } catch {}
+      if (!res.ok) {
+        const details = json?.details ? ` – ${json.details}` : ''
+        throw new Error(`Failed: ${res.status}${details}`)
+      }
       setPromos(json.promos || [])
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load')
