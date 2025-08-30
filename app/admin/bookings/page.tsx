@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { formatCurrency } from '../../lib/rental-utils'
 import { RentalBooking } from '../../types/rental'
 import { SimpleAuth } from '../../lib/simple-auth'
@@ -852,6 +853,13 @@ export default function BookingsManagement() {
             </p>
           </div>
           <div className="flex items-center space-x-4">
+            <Link
+              href="/admin/promo-codes"
+              className="btn-primary flex items-center space-x-2"
+              title="Manage Promo Codes"
+            >
+              <span>Promo Codes</span>
+            </Link>
             <button
               onClick={handleExportBookings}
               className="btn-secondary flex items-center space-x-2"

@@ -7,11 +7,9 @@ interface AdminPromoRecord {
   code: string
   percentOff?: number
   amountOff?: number
-  currency?: string
   active: boolean
   maxRedemptions?: number
   expiresAt?: string
-  partnerId?: string
   partnerName?: string
   stats?: { totalUses: number; lastUsedAt?: string }
 }
@@ -28,8 +26,6 @@ export default function AdminPromoCodesPage() {
     code: '',
     percentOff: '',
     amountOff: '',
-    currency: 'usd',
-    partnerId: '',
     partnerName: '',
     maxRedemptions: '',
     expiresAt: '', // ISO
@@ -87,14 +83,19 @@ export default function AdminPromoCodesPage() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      // Basic validation: require exactly one of percentOff or amountOff
+      const hasPercent = !!form.percentOff
+      const hasAmount = !!form.amountOff
+      if ((hasPercent && hasAmount) || (!hasPercent && !hasAmount)) {
+        alert('Provide either Percent Off or Amount Off (but not both).')
+        return
+      }
       const payload: any = {
         code: form.code.trim().toUpperCase(),
-        currency: form.currency,
         active: form.active,
       }
       if (form.percentOff) payload.percentOff = Number(form.percentOff)
       if (form.amountOff) payload.amountOff = Number(form.amountOff)
-      if (form.partnerId) payload.partnerId = form.partnerId
       if (form.partnerName) payload.partnerName = form.partnerName
       if (form.maxRedemptions) payload.maxRedemptions = Number(form.maxRedemptions)
       if (form.expiresAt) payload.expiresAt = form.expiresAt
@@ -109,7 +110,7 @@ export default function AdminPromoCodesPage() {
       })
       const json = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(json.error || `Create failed: ${res.status}`)
-      setForm({ code: '', percentOff: '', amountOff: '', currency: 'usd', partnerId: '', partnerName: '', maxRedemptions: '', expiresAt: '', active: true })
+      setForm({ code: '', percentOff: '', amountOff: '', partnerName: '', maxRedemptions: '', expiresAt: '', active: true })
       await fetchPromos()
     } catch (e) {
       alert(e instanceof Error ? e.message : 'Failed to create')
@@ -158,18 +159,8 @@ export default function AdminPromoCodesPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Currency</label>
-                <input value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} className="w-full bg-dark-metal border border-gray-700 rounded-lg px-3 py-2 text-white" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm text-gray-400 mb-1">Partner ID</label>
-                  <input value={form.partnerId} onChange={(e) => setForm({ ...form, partnerId: e.target.value })} className="w-full bg-dark-metal border border-gray-700 rounded-lg px-3 py-2 text-white" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-400 mb-1">Partner Name</label>
-                  <input value={form.partnerName} onChange={(e) => setForm({ ...form, partnerName: e.target.value })} className="w-full bg-dark-metal border border-gray-700 rounded-lg px-3 py-2 text-white" />
-                </div>
+                <label className="block text-sm text-gray-400 mb-1">Partner Name</label>
+                <input value={form.partnerName} onChange={(e) => setForm({ ...form, partnerName: e.target.value })} className="w-full bg-dark-metal border border-gray-700 rounded-lg px-3 py-2 text-white" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -220,7 +211,7 @@ export default function AdminPromoCodesPage() {
                       <tr key={p.code} className="border-b border-gray-800">
                         <td className="py-2 pr-4 text-white font-tech">{p.code}</td>
                         <td className="py-2 pr-4 text-gray-200">
-                          {p.percentOff != null ? `${p.percentOff}%` : p.amountOff != null ? `${p.currency?.toUpperCase() || 'USD'} ${p.amountOff}` : '—'}
+                          {p.percentOff != null ? `${p.percentOff}%` : p.amountOff != null ? `USD ${p.amountOff}` : '—'}
                         </td>
                         <td className="py-2 pr-4">
                           <span className={`px-2 py-1 rounded text-xs ${p.active ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300'}`}>{p.active ? 'Active' : 'Inactive'}</span>
