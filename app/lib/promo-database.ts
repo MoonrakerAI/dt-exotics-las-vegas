@@ -51,8 +51,8 @@ async function listPromos(): Promise<PromoRecord[]> {
     // For now, rely on KV scan prefix
     const iter = kv.scanIterator({ match: 'promo:code:*' }) as any
     const results: PromoRecord[] = []
-    for await (const { key } of iter) {
-      const rec = await kv.get<PromoRecord>(key)
+    for await (const key of iter) {
+      const rec = await kv.get<PromoRecord>(key as string)
       if (rec) results.push(rec as any)
     }
     // Newest first

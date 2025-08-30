@@ -4,7 +4,22 @@ export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyJWT } from '@/app/lib/auth'
 import { adminApiRateLimiter, getClientIdentifier } from '@/app/lib/rate-limit'
-import promoDB, { PromoRecord } from '@/app/lib/promo-database'
+// Defer KV-heavy promo database import to runtime within handlers
+type PromoRecord = {
+  code: string
+  stripeCouponId?: string
+  stripePromotionCodeId?: string
+  partnerId?: string
+  partnerName?: string
+  percentOff?: number
+  amountOff?: number
+  currency?: string
+  active: boolean
+  maxRedemptions?: number
+  expiresAt?: string
+  createdAt: string
+  updatedAt: string
+}
 
 // GET: list promo codes
 export async function GET(request: NextRequest) {
@@ -19,6 +34,8 @@ export async function GET(request: NextRequest) {
     const user = await verifyJWT(token)
     if (!user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
 
+    // Lazy import promo DB to avoid module-evaluation errors if KV is misbundled
+    const promoDB = (await import('@/app/lib/promo-database')).default
     let promos: PromoRecord[] = []
     try {
       promos = await promoDB.listPromos()
@@ -119,6 +136,7 @@ export async function POST(request: NextRequest) {
       console.warn('[ADMIN PROMO POST] STRIPE_SECRET_KEY not configured; created local-only promo', { code })
     }
 
+    const promoDB = (await import('@/app/lib/promo-database')).default
     const now = new Date().toISOString()
     const record: PromoRecord = {
       code: String(code).toUpperCase(),
