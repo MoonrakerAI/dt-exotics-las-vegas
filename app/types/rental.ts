@@ -22,6 +22,17 @@ export interface RentalBooking {
     finalAmount: number;
     additionalCharges?: number;
   };
+  // Optional promotion/partner code details for attribution & reporting
+  promo?: {
+    code: string;
+    stripePromotionCodeId?: string;
+    stripeCouponId?: string;
+    partnerId?: string;
+    partnerName?: string;
+    percentOff?: number;
+    amountOff?: number;
+    currency?: string;
+  };
   customer: {
     firstName: string;
     lastName: string;

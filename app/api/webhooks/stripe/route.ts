@@ -13,6 +13,7 @@ import type { RentalBooking } from '@/app/types/rental';
 import crypto from 'crypto';
 import { headers } from 'next/headers';
 import { kv } from '@vercel/kv';
+import promoDB from '@/app/lib/promo-database';
 
 // Lazy initialize Stripe to avoid build-time errors
 let stripe: Stripe | null = null;
@@ -193,6 +194,13 @@ async function handlePaymentIntentAuthorized(paymentIntent: any) {
         depositAmount: paymentIntent.amount / 100, // Convert from cents
         finalAmount: car.price.daily * parseInt(metadata.rental_days || '1')
       },
+      ...(metadata.promo_code ? {
+        promo: {
+          code: metadata.promo_code,
+          partnerId: metadata.promo_partner_id || undefined,
+          partnerName: metadata.promo_partner_name || undefined,
+        }
+      } : {}),
       payment: {
         depositPaymentIntentId: paymentIntent.id,
         depositStatus: 'authorized' as const,
@@ -319,6 +327,26 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
     // Note: Booking confirmation emails are now sent during booking creation
     // This webhook only handles payment status updates
     console.log('Skipping booking confirmation emails - already sent during booking creation');
+
+    // Increment promo stats if promo code was used
+    const code = (paymentIntent.metadata && paymentIntent.metadata.promo_code) ? String(paymentIntent.metadata.promo_code).toUpperCase() : ''
+    if (code) {
+      try {
+        await promoDB.incrementStats(code)
+      } catch (e) {
+        console.warn('[WEBHOOK] Failed to increment promo stats', { code, error: e instanceof Error ? e.message : String(e) })
+      }
+      // Persist promo metadata on rental if not already present
+      if (!rental.promo) {
+        await kvRentalDB.updateRental(rental.id, {
+          promo: {
+            code,
+            partnerId: paymentIntent.metadata?.promo_partner_id || undefined,
+            partnerName: paymentIntent.metadata?.promo_partner_name || undefined,
+          }
+        } as any)
+      }
+    }
   } else if (rental.payment.finalPaymentIntentId === paymentIntent.id) {
     // Final payment succeeded
     await kvRentalDB.updateRental(rental.id, {

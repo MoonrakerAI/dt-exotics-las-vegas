@@ -36,6 +36,7 @@ function BookingFormInner() {
     carId: preselectedCarId || '',
     startDate: '',
     endDate: '',
+    promoCode: '',
     customer: {
       firstName: '',
       lastName: '',
@@ -256,6 +257,10 @@ function BookingFormInner() {
     // Ensure pricing is calculated before moving to step 3
     calculatePricing()
     setStep(3)
+  }
+
+  const updatePromoCode = (code: string) => {
+    setFormData(prev => ({ ...prev, promoCode: code.trim().toUpperCase() }))
   }
 
   const createDepositIntent = async () => {
@@ -601,6 +606,7 @@ function BookingFormInner() {
           pricing={pricing}
           onBack={() => setStep(2)}
           createDepositIntent={createDepositIntent}
+          updatePromoCode={updatePromoCode}
         />
   )
   }
@@ -616,12 +622,16 @@ function BookingForm() {
   )
 }
 
-function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
+function PaymentStep({ formData, pricing, onBack, createDepositIntent, updatePromoCode }: any) {
   const stripe = useStripe()
   const elements = useElements()
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [succeeded, setSucceeded] = useState(false)
+  const [promoCodeInput, setPromoCodeInput] = useState<string>(formData.promoCode || '')
+  const [promoLoading, setPromoLoading] = useState(false)
+  const [promoMessage, setPromoMessage] = useState<string>('')
+  const [promoValid, setPromoValid] = useState<boolean>(!!formData.promoCode)
 
   console.log('PaymentStep received pricing:', pricing)
 
@@ -682,6 +692,45 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
     }
   }
 
+  const handleValidatePromo = async () => {
+    const code = (promoCodeInput || '').trim().toUpperCase()
+    if (!code) {
+      setPromoValid(false)
+      setPromoMessage('Enter a code to validate')
+      return
+    }
+    setPromoLoading(true)
+    setPromoMessage('')
+    setPromoValid(false)
+    try {
+      const res = await fetch('/api/promo/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.valid) {
+        setPromoValid(false)
+        setPromoMessage(data.error || 'Invalid or expired code')
+        updatePromoCode('')
+      } else {
+        setPromoValid(true)
+        updatePromoCode(code)
+        const details: string[] = []
+        if (typeof data.percentOff === 'number') details.push(`${data.percentOff}% off`)
+        if (typeof data.amountOff === 'number') details.push(`$${data.amountOff.toFixed(2)} off`)
+        if (data.partnerName) details.push(`Partner: ${data.partnerName}`)
+        setPromoMessage(details.join(' • ') || 'Code applied')
+      }
+    } catch (e) {
+      setPromoValid(false)
+      setPromoMessage('Failed to validate code')
+      updatePromoCode('')
+    } finally {
+      setPromoLoading(false)
+    }
+  }
+
   if (succeeded) {
     return (
       <div className="max-w-4xl mx-auto">
@@ -707,6 +756,30 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent }: any) {
     <div className="max-w-4xl mx-auto">
     <div className="glass-panel p-8 mb-8">
         <h2 className="text-2xl font-tech font-bold text-white mb-6">Payment Information</h2>
+      
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-300 mb-2">Promotion Code (optional)</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={promoCodeInput}
+              onChange={(e) => setPromoCodeInput(e.target.value)}
+              placeholder="ENTER CODE"
+              className="flex-1 px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none uppercase"
+            />
+            <button
+              type="button"
+              onClick={handleValidatePromo}
+              disabled={promoLoading}
+              className="btn-secondary whitespace-nowrap"
+            >
+              {promoLoading ? 'Checking...' : 'Apply'}
+            </button>
+          </div>
+          {promoMessage && (
+            <p className={`text-sm mt-2 ${promoValid ? 'text-green-400' : 'text-red-400'}`}>{promoMessage}</p>
+          )}
+        </div>
       
         {pricing && (
           <div className="bg-dark-metal/30 p-6 rounded-lg mb-6">

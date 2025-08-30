@@ -5,6 +5,8 @@ import kvRentalDB from '@/app/lib/kv-database';
 import { calculateRentalPricing } from '@/app/lib/rental-utils';
 import notificationService from '@/app/lib/notifications';
 import type { RentalBooking } from '@/app/types/rental';
+import promoDB from '@/app/lib/promo-database';
+import type Stripe from 'stripe';
 
 // Enhanced test version with request handling
 export async function POST(request: NextRequest) {
@@ -94,8 +96,70 @@ export async function POST(request: NextRequest) {
       body.endDate
     );
 
+    // Optional: apply promotion code to deposit only
+    let promoMeta: {
+      code: string;
+      stripePromotionCodeId?: string;
+      stripeCouponId?: string;
+      partnerId?: string;
+      partnerName?: string;
+      percentOff?: number;
+      amountOff?: number;
+      currency?: string;
+    } | undefined;
+    let depositCents = Math.round(pricing.depositAmount * 100);
+
+    const inputCode = typeof body.promoCode === 'string' ? body.promoCode.trim().toUpperCase() : '';
+    if (inputCode) {
+      console.log('[DEPOSIT-INTENT] Validating promo code:', inputCode);
+      // Prefer local record for partner metadata
+      const local = await promoDB.getPromo(inputCode);
+      // Find Stripe promotion code
+      let promoCode: Stripe.PromotionCode | null = null;
+      if (local?.stripePromotionCodeId) {
+        try { promoCode = await stripe.promotionCodes.retrieve(local.stripePromotionCodeId); } catch {}
+      }
+      if (!promoCode) {
+        const list = await stripe.promotionCodes.list({ code: inputCode, limit: 1 });
+        promoCode = list.data[0] || null;
+      }
+      if (promoCode && (promoCode.active || local?.active)) {
+        // Check expiry
+        const expiresAt = promoCode.expires_at ? new Date(promoCode.expires_at * 1000) : (local?.expiresAt ? new Date(local.expiresAt) : undefined);
+        if (!expiresAt || Date.now() <= +expiresAt) {
+          // Load coupon to get percent/amount off
+          const coupon: Stripe.Coupon = typeof promoCode.coupon === 'string'
+            ? await stripe.coupons.retrieve(promoCode.coupon)
+            : promoCode.coupon as Stripe.Coupon;
+          const percent = coupon.percent_off ?? local?.percentOff;
+          const amountOff = coupon.amount_off != null ? coupon.amount_off : (local?.amountOff != null ? Math.round(local.amountOff * 100) : undefined);
+          // Compute deposit discount (deposit only)
+          if (percent != null) {
+            const discounted = Math.round(depositCents * (1 - percent / 100));
+            depositCents = Math.max(0, discounted);
+          } else if (amountOff != null) {
+            depositCents = Math.max(0, depositCents - amountOff);
+          }
+          promoMeta = {
+            code: inputCode,
+            stripePromotionCodeId: promoCode.id,
+            stripeCouponId: typeof promoCode.coupon === 'string' ? promoCode.coupon : promoCode.coupon.id,
+            partnerId: local?.partnerId,
+            partnerName: local?.partnerName,
+            percentOff: coupon.percent_off ?? undefined,
+            amountOff: coupon.amount_off != null ? coupon.amount_off / 100 : undefined,
+            currency: coupon.currency || local?.currency || 'usd',
+          };
+        } else {
+          console.warn('[DEPOSIT-INTENT] Promo code expired:', inputCode);
+        }
+      } else {
+        console.warn('[DEPOSIT-INTENT] Promo code invalid/inactive:', inputCode);
+      }
+    }
+
     console.log(`[DEPOSIT-INTENT] Creating payment intent for ${car.brand} ${car.model}`);
-    console.log(`[DEPOSIT-INTENT] Amount: $${pricing.depositAmount} (${pricing.depositAmount * 100} cents)`);
+    console.log(`[DEPOSIT-INTENT] Amount (final deposit): $${(depositCents / 100).toFixed(2)} (${depositCents} cents)`);
     
     try {
       // Create or retrieve Stripe customer
@@ -123,7 +187,7 @@ export async function POST(request: NextRequest) {
 
       // Create payment intent
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(pricing.depositAmount * 100), // Convert to cents
+        amount: depositCents, // already in cents
         currency: 'usd',
         customer: customer.id,
         metadata: {
@@ -137,7 +201,10 @@ export async function POST(request: NextRequest) {
           customer_last_name: body.customer.lastName,
           customer_phone: body.customer.phone,
           daily_rate: car.price.daily.toString(),
-          total_days: pricing.totalDays.toString()
+          total_days: pricing.totalDays.toString(),
+          promo_code: promoMeta?.code || '',
+          promo_partner_id: promoMeta?.partnerId || '',
+          promo_partner_name: promoMeta?.partnerName || ''
         },
         description: `Deposit for ${car.brand} ${car.model} rental (${body.startDate} to ${body.endDate})`,
         // For testing, you can add test cards: https://stripe.com/docs/testing#cards
@@ -190,9 +257,10 @@ export async function POST(request: NextRequest) {
           dailyRate: pricing.dailyRate,
           totalDays: pricing.totalDays,
           subtotal: pricing.subtotal,
-          depositAmount: pricing.depositAmount,
-          finalAmount: pricing.subtotal - pricing.depositAmount
+          depositAmount: depositCents / 100,
+          finalAmount: pricing.subtotal - (depositCents / 100)
         },
+        ...(promoMeta ? { promo: promoMeta } : {}),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
