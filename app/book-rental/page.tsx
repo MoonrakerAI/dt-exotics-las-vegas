@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
@@ -632,6 +632,7 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent, updatePro
   const [promoLoading, setPromoLoading] = useState(false)
   const [promoMessage, setPromoMessage] = useState<string>('')
   const [promoValid, setPromoValid] = useState<boolean>(!!formData.promoCode)
+  const [promoDetails, setPromoDetails] = useState<any | null>(null)
 
   console.log('PaymentStep received pricing:', pricing)
 
@@ -697,6 +698,7 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent, updatePro
     if (!code) {
       setPromoValid(false)
       setPromoMessage('Enter a code to validate')
+      setPromoDetails(null)
       return
     }
     setPromoLoading(true)
@@ -712,10 +714,12 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent, updatePro
       if (!res.ok || !data.valid) {
         setPromoValid(false)
         setPromoMessage(data.error || 'Invalid or expired code')
+        setPromoDetails(null)
         updatePromoCode('')
       } else {
         setPromoValid(true)
         updatePromoCode(code)
+        setPromoDetails(data)
         const details: string[] = []
         if (typeof data.percentOff === 'number') details.push(`${data.percentOff}% off`)
         if (typeof data.amountOff === 'number') details.push(`$${data.amountOff.toFixed(2)} off`)
@@ -725,11 +729,25 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent, updatePro
     } catch (e) {
       setPromoValid(false)
       setPromoMessage('Failed to validate code')
+      setPromoDetails(null)
       updatePromoCode('')
     } finally {
       setPromoLoading(false)
     }
   }
+
+  const estimatedDepositAfterPromo = useMemo(() => {
+    if (!pricing || !promoValid || !promoDetails) return null
+    const base = Number(pricing.depositAmount) || 0
+    let est = base
+    if (typeof promoDetails.percentOff === 'number') {
+      est = base * (1 - promoDetails.percentOff / 100)
+    } else if (typeof promoDetails.amountOff === 'number') {
+      est = base - promoDetails.amountOff
+    }
+    if (!isFinite(est)) return null
+    return Math.max(0, est)
+  }, [pricing, promoValid, promoDetails])
 
   if (succeeded) {
     return (
@@ -802,6 +820,12 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent, updatePro
                   <span className="text-white font-semibold">Deposit (30%):</span>
                   <span className="text-yellow-400 font-bold">{formatCurrency(pricing.depositAmount)}</span>
           </div>
+                {estimatedDepositAfterPromo != null && (
+                  <div className="flex justify-between text-sm mt-1">
+                    <span className="text-green-400">Estimated deposit after promo:</span>
+                    <span className="text-green-300 font-medium">{formatCurrency(estimatedDepositAfterPromo)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Remaining balance due at pickup:</span>
                   <span className="text-gray-300">{formatCurrency(pricing.finalAmount)}</span>
