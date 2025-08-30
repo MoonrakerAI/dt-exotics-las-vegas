@@ -187,7 +187,7 @@ export default function AdminPromoCodesPage() {
           <div className="lg:col-span-2 glass-panel bg-dark-metal/50 p-6 border border-gray-700/40 rounded-2xl">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-tech text-white">Existing Promos</h2>
-              <button onClick={fetchPromos} className="btn-secondary">Refresh</button>
+              <button onClick={fetchPromos} className="btn-secondary px-4 py-1.5 text-sm">Refresh</button>
             </div>
             {loading ? (
               <div className="text-gray-400">Loading…</div>
@@ -197,35 +197,35 @@ export default function AdminPromoCodesPage() {
               <div className="text-gray-400">No promos found</div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full table-fixed text-sm">
                   <thead>
                     <tr className="text-left text-gray-400 border-b border-gray-700">
-                      <th className="py-2 pr-4">Code</th>
-                      <th className="py-2 pr-4">Discount</th>
-                      <th className="py-2 pr-4">Status</th>
-                      <th className="py-2 pr-4">Max</th>
-                      <th className="py-2 pr-4">Used</th>
-                      <th className="py-2 pr-4">Partner</th>
-                      <th className="py-2 pr-4">Expires</th>
-                      <th className="py-2 pr-4">Actions</th>
+                      <th className="py-1 pr-3">Code</th>
+                      <th className="py-1 pr-3">Discount</th>
+                      <th className="py-1 pr-3">Status</th>
+                      <th className="py-1 pr-3">Max</th>
+                      <th className="py-1 pr-3">Used</th>
+                      <th className="py-1 pr-3">Partner</th>
+                      <th className="py-1 pr-3">Expires</th>
+                      <th className="py-1 pr-3">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {promos.map((p) => (
                       <tr key={p.code} className="border-b border-gray-800">
-                        <td className="py-2 pr-4 text-white font-tech">{p.code}</td>
-                        <td className="py-2 pr-4 text-gray-200">
+                        <td className="py-1 pr-3 text-white font-tech">{p.code}</td>
+                        <td className="py-1 pr-3 text-gray-200">
                           {p.percentOff != null ? `${p.percentOff}%` : p.amountOff != null ? `USD ${p.amountOff}` : '—'}
                         </td>
-                        <td className="py-2 pr-4">
-                          <span className={`px-2 py-1 rounded text-xs ${p.active ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300'}`}>{p.active ? 'Active' : 'Inactive'}</span>
+                        <td className="py-1 pr-3">
+                          <span className={`px-2 py-0.5 rounded text-[11px] ${p.active ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300'}`}>{p.active ? 'Active' : 'Inactive'}</span>
                         </td>
-                        <td className="py-2 pr-4 text-gray-300">{p.maxRedemptions ?? '—'}</td>
-                        <td className="py-2 pr-4 text-gray-300">{p.stats?.totalUses ?? 0}</td>
-                        <td className="py-2 pr-4 text-gray-300">{p.partnerName || '—'}</td>
-                        <td className="py-2 pr-4 text-gray-300">{p.expiresAt ? new Date(p.expiresAt).toLocaleString() : '—'}</td>
-                        <td className="py-2 pr-4">
-                          <button onClick={() => toggleActive(p.code, !p.active)} className="btn-secondary">
+                        <td className="py-1 pr-3 text-gray-300">{p.maxRedemptions ?? '—'}</td>
+                        <td className="py-1 pr-3 text-gray-300">{p.stats?.totalUses ?? 0}</td>
+                        <td className="py-1 pr-3 text-gray-300">{p.partnerName || '—'}</td>
+                        <td className="py-1 pr-3 text-gray-300">{p.expiresAt ? new Date(p.expiresAt).toLocaleString() : '—'}</td>
+                        <td className="py-1 pr-3">
+                          <button onClick={() => toggleActive(p.code, !p.active)} className="btn-secondary px-3 py-1 text-sm">
                             {p.active ? 'Disable' : 'Enable'}
                           </button>
                         </td>
