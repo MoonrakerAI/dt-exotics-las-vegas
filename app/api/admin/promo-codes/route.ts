@@ -1,5 +1,7 @@
+// Ensure Node.js runtime for Stripe SDK compatibility
+export const runtime = 'nodejs'
+
 import { NextRequest, NextResponse } from 'next/server'
-import stripe from '@/app/lib/stripe'
 import { verifyJWT } from '@/app/lib/auth'
 import { adminApiRateLimiter, getClientIdentifier } from '@/app/lib/rate-limit'
 import promoDB, { PromoRecord } from '@/app/lib/promo-database'
@@ -80,6 +82,8 @@ export async function POST(request: NextRequest) {
     let stripePromotionCodeId: string | undefined
 
     if (hasStripe) {
+      // Import Stripe lazily to avoid Edge/runtime issues on routes that don't need it
+      const stripe = (await import('@/app/lib/stripe')).default
       // Create Stripe coupon
       const coupon = await stripe.coupons.create({
         percent_off: percentOff ?? undefined,
