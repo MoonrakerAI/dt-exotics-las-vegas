@@ -202,12 +202,11 @@ export default function AdminPromoCodesPage() {
                     <tr className="text-left text-gray-400 border-b border-gray-700">
                       <th className="py-1 pr-3">Code</th>
                       <th className="py-1 pr-3">Discount</th>
-                      <th className="py-1 pr-3">Status</th>
                       <th className="py-1 pr-3">Max</th>
                       <th className="py-1 pr-3">Used</th>
                       <th className="py-1 pr-3">Partner</th>
                       <th className="py-1 pr-3">Expires</th>
-                      <th className="py-1 pr-3">Actions</th>
+                      <th className="py-1 pr-3">Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -217,16 +216,18 @@ export default function AdminPromoCodesPage() {
                         <td className="py-1 pr-3 text-gray-200">
                           {p.percentOff != null ? `${p.percentOff}%` : p.amountOff != null ? `USD ${p.amountOff}` : '—'}
                         </td>
-                        <td className="py-1 pr-3">
-                          <span className={`px-2 py-0.5 rounded text-[11px] ${p.active ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300'}`}>{p.active ? 'Active' : 'Inactive'}</span>
-                        </td>
                         <td className="py-1 pr-3 text-gray-300">{p.maxRedemptions ?? '—'}</td>
                         <td className="py-1 pr-3 text-gray-300">{p.stats?.totalUses ?? 0}</td>
                         <td className="py-1 pr-3 text-gray-300">{p.partnerName || '—'}</td>
                         <td className="py-1 pr-3 text-gray-300">{p.expiresAt ? new Date(p.expiresAt).toLocaleString() : '—'}</td>
                         <td className="py-1 pr-3">
-                          <button onClick={() => toggleActive(p.code, !p.active)} className="btn-secondary px-3 py-1 text-sm">
-                            {p.active ? 'Disable' : 'Enable'}
+                          <button
+                            onClick={() => toggleActive(p.code, !p.active)}
+                            className={`px-3 py-1 rounded text-[11px] font-medium border transition-colors
+                              ${p.active ? 'border-green-500/40 bg-green-500/10 text-green-300 hover:bg-green-500/20' : 'border-gray-500/40 bg-gray-500/10 text-gray-300 hover:bg-gray-500/20'}`}
+                            title={p.active ? 'Click to set Inactive' : 'Click to set Active'}
+                          >
+                            {p.active ? 'Active' : 'Inactive'}
                           </button>
                         </td>
                       </tr>
