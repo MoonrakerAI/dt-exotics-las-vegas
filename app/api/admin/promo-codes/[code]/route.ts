@@ -5,7 +5,7 @@ import { adminApiRateLimiter, getClientIdentifier } from '@/app/lib/rate-limit'
 import promoDB from '@/app/lib/promo-database'
 
 // PATCH: update/toggle promo code by code
-export async function PATCH(request: NextRequest, { params }: { params: { code: string } }) {
+export async function PATCH(request: NextRequest, context: any) {
   try {
     const clientId = getClientIdentifier(request)
     const rl = await adminApiRateLimiter.checkLimit(clientId)
@@ -17,7 +17,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { code: 
     const user = await verifyJWT(token)
     if (!user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
 
-    const code = String(params.code || '').toUpperCase()
+    const code = String(context?.params?.code || '').toUpperCase()
     const body = await request.json().catch(() => ({}))
 
     const existing = await promoDB.getPromo(code)
