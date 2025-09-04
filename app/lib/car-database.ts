@@ -45,7 +45,7 @@ class CarDatabase {
     if (!existing) {
       console.warn(`[updateCar] Direct lookup failed for ${carId}, checking full list...`);
       const allCars = await this.getAllCars();
-      existing = allCars.find(car => car.id === carId);
+      existing = allCars.find(car => car.id === carId) || null;
       
       if (!existing) {
         console.error(`[updateCar] Car ${carId} not found in full list either`);
