@@ -497,11 +497,19 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
     }))
   }
 
-  const handleSave = async () => {
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    
+    console.log('CarForm: handleSave called, formData:', formData)
     setSaving(true)
     try {
       const url = mode === 'create' ? '/api/admin/fleet' : `/api/admin/fleet?id=${car?.id}`
       const method = mode === 'create' ? 'POST' : 'PUT'
+      
+      console.log('CarForm: Making API call to:', url, 'with method:', method)
       
       const response = await fetch(url, {
         method,
@@ -512,6 +520,8 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
         body: JSON.stringify(formData)
       })
 
+      console.log('CarForm: API response status:', response.status)
+
       if (response.ok) {
         const savedCar = await response.json()
         console.log('CarForm: Save successful, response:', savedCar)
@@ -521,6 +531,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
         }
       } else {
         const error = await response.json()
+        console.error('CarForm: API error:', error)
         alert(`Error: ${error.error}`)
       }
     } catch (error) {
@@ -886,6 +897,8 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                   <label className="block text-sm font-medium text-gray-300 mb-2">Daily Rate ($)</label>
                   <input
                     type="number"
+                    name="daily-rate"
+                    id="daily-rate"
                     value={formData.price.daily}
                     onChange={(e) => updateFormField('price.daily', parseInt(e.target.value) || 0)}
                     className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
@@ -895,6 +908,8 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
                   <label className="block text-sm font-medium text-gray-300 mb-2">Weekly Rate ($)</label>
                   <input
                     type="number"
+                    name="weekly-rate"
+                    id="weekly-rate"
                     value={formData.price.weekly}
                     onChange={(e) => updateFormField('price.weekly', parseInt(e.target.value) || 0)}
                     className="w-full px-4 py-3 bg-dark-metal border border-gray-600 rounded-lg text-white focus:border-neon-blue focus:outline-none"
