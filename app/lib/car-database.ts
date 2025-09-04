@@ -38,36 +38,63 @@ class CarDatabase {
 
   // Update a car
   async updateCar(carId: string, updates: Partial<Car>): Promise<Car | null> {
+    const reqId = (globalThis as any).crypto?.randomUUID?.() || `u_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    console.log(`[updateCar][${reqId}] Starting update for ${carId}`, { updates });
+    
     let existing = await this.getCar(carId);
     
     // If car not found via direct lookup, try to find it in the full list
     // This handles KV storage inconsistencies where the car exists in the list but not as individual key
     if (!existing) {
-      console.warn(`[updateCar] Direct lookup failed for ${carId}, checking full list...`);
+      console.warn(`[updateCar][${reqId}] Direct lookup failed for ${carId}, checking full list...`);
       const allCars = await this.getAllCars();
       existing = allCars.find(car => car.id === carId) || null;
       
       if (!existing) {
-        console.error(`[updateCar] Car ${carId} not found in full list either`);
+        console.error(`[updateCar][${reqId}] Car ${carId} not found in full list either`);
         return null;
       }
       
-      console.log(`[updateCar] Found ${carId} in full list, will recreate KV entry`);
+      console.log(`[updateCar][${reqId}] Found ${carId} in full list, will recreate KV entry`);
+    } else {
+      console.log(`[updateCar][${reqId}] Found ${carId} via direct lookup`);
     }
     
     const updatedCar: Car = { ...existing, ...updates };
+    console.log(`[updateCar][${reqId}] Merged car data:`, { 
+      id: updatedCar.id, 
+      brand: updatedCar.brand, 
+      model: updatedCar.model,
+      available: updatedCar.available,
+      showOnHomepage: updatedCar.showOnHomepage 
+    });
     
     // Store the updated car data
-    await kv.set(this.CAR_PREFIX + carId, updatedCar);
+    try {
+      await kv.set(this.CAR_PREFIX + carId, updatedCar);
+      console.log(`[updateCar][${reqId}] Successfully stored updated car data`);
+      
+      // Verify the storage
+      const verification = await kv.get(this.CAR_PREFIX + carId);
+      if (verification) {
+        console.log(`[updateCar][${reqId}] Verification successful - car data stored correctly`);
+      } else {
+        console.error(`[updateCar][${reqId}] Verification failed - car data not found after storage`);
+      }
+    } catch (error) {
+      console.error(`[updateCar][${reqId}] Failed to store car data:`, error);
+      throw error;
+    }
     
     // Update AI knowledge base with updated fleet information
     try {
       await aiKB.updateKnowledgeBase();
-      console.log('AI Knowledge Base updated after updating car:', carId);
+      console.log(`[updateCar][${reqId}] AI Knowledge Base updated after updating car:`, carId);
     } catch (error) {
-      console.error('Failed to update AI Knowledge Base after updating car:', error);
+      console.error(`[updateCar][${reqId}] Failed to update AI Knowledge Base after updating car:`, error);
     }
     
+    console.log(`[updateCar][${reqId}] Update completed successfully for ${carId}`);
     return updatedCar;
   }
 

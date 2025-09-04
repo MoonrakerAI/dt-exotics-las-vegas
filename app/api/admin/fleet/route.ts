@@ -126,40 +126,66 @@ export async function POST(request: NextRequest) {
 
 // PUT: Update a car (expects ?id=carId)
 export async function PUT(request: NextRequest) {
+  const reqId = (globalThis as any).crypto?.randomUUID?.() || `p_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  
   try {
+    console.log(`[Fleet PUT][${reqId}] Starting request`);
+    
     const clientId = getClientIdentifier(request);
     const rateLimitResult = await adminApiRateLimiter.checkLimit(clientId);
     if (!rateLimitResult.success) {
+      console.warn(`[Fleet PUT][${reqId}] Rate limited`, { clientId });
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
     }
+    
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.warn(`[Fleet PUT][${reqId}] Missing/invalid auth header`);
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    
     const token = authHeader.substring(7);
     const user = await verifyJWT(token)
     if (!user) {
+      console.warn(`[Fleet PUT][${reqId}] JWT verification failed`);
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
+    
+    console.log(`[Fleet PUT][${reqId}] Auth successful`, { userId: (user as any).userId || (user as any).id });
+    
     if (!isKvConfigured()) {
+      console.error(`[Fleet PUT][${reqId}] KV not configured`);
       return NextResponse.json({ error: 'KV is not configured. Fleet storage unavailable.' }, { status: 503 })
     }
     if (!isKvWriteCapable()) {
+      console.error(`[Fleet PUT][${reqId}] KV read-only`);
       return NextResponse.json({ error: 'KV is read-only. Write operations are disabled.' }, { status: 503 })
     }
+    
     const { searchParams } = new URL(request.url);
     const carId = searchParams.get('id');
     if (!carId) {
+      console.error(`[Fleet PUT][${reqId}] Missing car ID`);
       return NextResponse.json({ error: 'Missing car ID' }, { status: 400 });
     }
+    
     const body = await request.json();
+    console.log(`[Fleet PUT][${reqId}] Update request for car ${carId}`, { updates: body });
+    
     const updatedCar = await carDB.updateCar(carId, body);
     if (!updatedCar) {
+      console.error(`[Fleet PUT][${reqId}] Car not found: ${carId}`);
       return NextResponse.json({ error: 'Car not found' }, { status: 404 });
     }
+    
+    console.log(`[Fleet PUT][${reqId}] Update successful for car ${carId}`, { 
+      available: updatedCar.available,
+      showOnHomepage: updatedCar.showOnHomepage 
+    });
+    
     return NextResponse.json({ car: updatedCar });
   } catch (error) {
-    console.error('Fleet PUT error:', error);
+    console.error(`[Fleet PUT][${reqId}] Error:`, error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
