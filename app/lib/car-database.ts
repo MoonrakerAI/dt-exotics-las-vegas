@@ -38,10 +38,28 @@ class CarDatabase {
 
   // Update a car
   async updateCar(carId: string, updates: Partial<Car>): Promise<Car | null> {
-    const existing = await this.getCar(carId);
-    if (!existing) return null;
+    let existing = await this.getCar(carId);
+    
+    // If car not found via direct lookup, try to find it in the full list
+    // This handles KV storage inconsistencies where the car exists in the list but not as individual key
+    if (!existing) {
+      console.warn(`[updateCar] Direct lookup failed for ${carId}, checking full list...`);
+      const allCars = await this.getAllCars();
+      existing = allCars.find(car => car.id === carId);
+      
+      if (!existing) {
+        console.error(`[updateCar] Car ${carId} not found in full list either`);
+        return null;
+      }
+      
+      console.log(`[updateCar] Found ${carId} in full list, will recreate KV entry`);
+    }
+    
     const updatedCar: Car = { ...existing, ...updates };
+    
+    // Ensure the car is properly stored in KV with both individual key and list membership
     await kv.set(this.CAR_PREFIX + carId, updatedCar);
+    await kv.sadd(this.CAR_LIST_KEY, carId); // Ensure it's in the list
     
     // Update AI knowledge base with updated fleet information
     try {
