@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { 
   Save, 
   X, 
@@ -160,7 +160,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
   }, [formData.brand, formData.model, formData.year, formData.id])
 
   // Fetch vehicle suggestions when user types
-  const fetchVehicleSuggestions = async (make: string, model?: string) => {
+  const fetchVehicleSuggestions = useCallback(async (make: string, model?: string) => {
     if (make.length < 2) {
       setVehicleSuggestions({ makes: [], models: [] })
       return
@@ -185,7 +185,7 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
     } catch (error) {
       console.error('Error fetching suggestions:', error)
     }
-  }
+  }, [])
 
   // Debounced suggestion fetching
   useEffect(() => {
@@ -196,7 +196,8 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
     }, 300)
 
     return () => clearTimeout(timer)
-  }, [formData.brand, formData.model])
+  }, [formData.brand, formData.model, fetchVehicleSuggestions])
+
 
      // Auto-populate vehicle data
    const handleAutoPopulate = async () => {
