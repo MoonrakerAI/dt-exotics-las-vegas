@@ -83,7 +83,7 @@ export default function AdminNavigation() {
     
     return () => {
       window.removeEventListener('storage', handleStorageChange)
-      window.removeEventListener('profileUpdated', handleProfileUpdate)
+      window.removeEventListener('profileUpdated', handleProfileUpdate as EventListener)
     }
   }, [])
 
