@@ -74,11 +74,12 @@ export default function AdminNavigation() {
     window.addEventListener('storage', handleStorageChange)
     
     // Also listen for custom profile update events
-    const handleProfileUpdate = () => {
-      checkAuth()
+    const handleProfileUpdate = (event: CustomEvent) => {
+      // Update user state directly from event data instead of calling checkAuth
+      setUser(event.detail)
     }
     
-    window.addEventListener('profileUpdated', handleProfileUpdate)
+    window.addEventListener('profileUpdated', handleProfileUpdate as EventListener)
     
     return () => {
       window.removeEventListener('storage', handleStorageChange)
@@ -88,16 +89,16 @@ export default function AdminNavigation() {
 
   const checkAuth = async () => {
     try {
-      // First check localStorage for immediate display
+      // Only check localStorage for immediate display
       const localUser = SimpleAuth.getCurrentUser()
       if (localUser) {
         setUser(localUser)
-      }
-      
-      // Then refresh from backend for production persistence
-      const refreshedUser = await SimpleAuth.refreshUserProfile()
-      if (refreshedUser) {
-        setUser(refreshedUser)
+      } else {
+        // Only call backend if no local user found
+        const refreshedUser = await SimpleAuth.refreshUserProfile()
+        if (refreshedUser) {
+          setUser(refreshedUser)
+        }
       }
     } catch (error) {
       console.error('Auth check failed:', error)
