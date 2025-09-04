@@ -38,7 +38,7 @@ async function repairCarKV() {
             },
             stats: {
               horsepower: 254,
-              torque: '269 lb-ft',
+              torque: 269,
               topSpeed: 130,
               acceleration: 7.7,
               engine: '2.0L Turbo I4',
