@@ -299,10 +299,21 @@ export default function FleetAdmin() {
     checkCarAvailability()
   }
 
-  const handleFormSave = async () => {
+  const handleFormSave = async (updatedCar?: Car) => {
     setShowCarForm(false)
     setEditingCar(null)
-    await fetchCars() // Refresh the list
+    
+    if (updatedCar) {
+      // Update the specific car in the local state immediately
+      setCars(prevCars => 
+        prevCars.map(car => 
+          car.id === updatedCar.id ? updatedCar : car
+        )
+      )
+    }
+    
+    // Also refresh from server to ensure consistency
+    await fetchCars()
   }
 
   const handleFormCancel = () => {
