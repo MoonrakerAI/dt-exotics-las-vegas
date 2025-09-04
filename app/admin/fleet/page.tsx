@@ -298,16 +298,14 @@ export default function FleetAdmin() {
     setShowCarForm(false)
     setEditingCar(null)
     
-    if (updatedCar) {
-      setCars(prevCars => {
-        const newCars = prevCars.map(car => 
-          car.id === updatedCar.id ? updatedCar : car
-        )
-        return newCars
-      })
-    }
-    
+    // Force a fresh fetch to ensure we get the latest data from KV storage
+    console.log('Fleet Admin: Car form saved, refreshing fleet data...')
     await fetchCars()
+    
+    // Also refresh availability status
+    if (cars.length > 0) {
+      await checkCarAvailability()
+    }
   }
 
   const handleFormCancel = () => {

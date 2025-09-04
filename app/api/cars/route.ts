@@ -34,10 +34,32 @@ export async function GET(request: NextRequest) {
       console.log(`[Cars GET][${reqId}] all/no-dates`, { all: allCars.length, homepage: filteredHomepage.length, available: cars.length });
     }
     
-    return NextResponse.json({ 
+    // Log specific car data for debugging (Land Rover Discovery)
+    const landRover = cars.find(car => car.id === 'land-rover-d-2019');
+    if (landRover) {
+      console.log(`[Cars GET][${reqId}] Land Rover Discovery data:`, {
+        id: landRover.id,
+        brand: landRover.brand,
+        model: landRover.model,
+        price: landRover.price,
+        available: landRover.available,
+        showOnHomepage: landRover.showOnHomepage
+      });
+    } else {
+      console.log(`[Cars GET][${reqId}] Land Rover Discovery not found in results`);
+    }
+    
+    const response = NextResponse.json({ 
       cars,
       total: cars.length 
     });
+    
+    // Add cache headers to prevent stale data
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    
+    return response;
     
   } catch (error) {
     console.error('Cars API error:', error);
