@@ -514,6 +514,8 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
 
       if (response.ok) {
         const savedCar = await response.json()
+        console.log('CarForm: Save successful, response:', savedCar)
+        console.log('CarForm: Calling onSave with:', savedCar.car || savedCar)
         if (onSave) {
           onSave(savedCar.car || savedCar)
         }

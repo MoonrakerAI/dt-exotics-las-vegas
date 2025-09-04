@@ -300,19 +300,24 @@ export default function FleetAdmin() {
   }
 
   const handleFormSave = async (updatedCar?: Car) => {
+    console.log('Fleet: handleFormSave called with:', updatedCar)
     setShowCarForm(false)
     setEditingCar(null)
     
     if (updatedCar) {
+      console.log('Fleet: Updating local state with car:', updatedCar)
       // Update the specific car in the local state immediately
-      setCars(prevCars => 
-        prevCars.map(car => 
+      setCars(prevCars => {
+        const newCars = prevCars.map(car => 
           car.id === updatedCar.id ? updatedCar : car
         )
-      )
+        console.log('Fleet: Updated cars array:', newCars)
+        return newCars
+      })
     }
     
     // Also refresh from server to ensure consistency
+    console.log('Fleet: Refreshing from server...')
     await fetchCars()
   }
 
