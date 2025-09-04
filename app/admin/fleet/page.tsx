@@ -262,6 +262,26 @@ export default function FleetAdmin() {
     }
   }
 
+  const handleSaveCar = (savedCar: Car) => {
+    console.log('FleetAdmin: Received saved car:', savedCar)
+    
+    // If we're editing an existing car, update it in the list
+    if (editingCar) {
+      setCars(prev => 
+        prev.map(car => 
+          car.id === savedCar.id ? { ...savedCar } : car
+        )
+      )
+    } else {
+      // If we're creating a new car, add it to the list
+      setCars(prev => [...prev, savedCar])
+    }
+    
+    // Close the form
+    setShowCarForm(false)
+    setEditingCar(null)
+  }
+
   const handleToggleHomepageVisibility = async (car: Car) => {
     // Optimistically update the UI immediately
     const newVisibility = !car.showOnHomepage
@@ -597,25 +617,53 @@ export default function FleetAdmin() {
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-        )}
 
-        {/* Car Form Modal */}
-        {showCarForm && (
-          <CarForm
-            car={editingCar || undefined}
-            mode={formMode}
-            onSave={handleFormSave}
-            onCancel={handleFormCancel}
-          />
-        )}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <div className="bg-dark-metal/30 p-3 rounded-lg border border-gray-600/20">
+                  <div className="text-sm text-gray-400">Daily Rate</div>
+                  <div className="text-lg font-tech font-semibold text-white">
+                    ${car.price.daily}
+                  </div>
+                </div>
+                <div className="bg-dark-metal/30 p-3 rounded-lg border border-gray-600/20">
+                  <div className="text-sm text-gray-400">Weekly Rate</div>
+                  <div className="text-lg font-tech font-semibold text-white">
+                    ${car.price.weekly}
+                  </div>
+                </div>
+                <div className="bg-dark-metal/30 p-3 rounded-lg border border-gray-600/20">
+                  <div className="text-sm text-gray-400">Doors</div>
+                  <div className="text-lg font-tech font-semibold text-white">
+                    {car.stats.doors}
+                  </div>
+                </div>
+                <div className="bg-dark-metal/30 p-3 rounded-lg border border-gray-600/20">
+                  <div className="text-sm text-gray-400">Category</div>
+                  <div className="text-lg font-tech font-semibold text-white">
+                    {car.category.charAt(0).toUpperCase() + car.category.slice(1)}
+                  </div>
+                </div>
+              </div>
 
-        {/* Availability Calendar Modal */}
-        {showCalendar && calendarCar && (
-          <CarAvailabilityCalendar
-            carId={calendarCar.id}
-            carName={`${calendarCar.brand} ${calendarCar.model} (${calendarCar.year})`}
+              <div className="flex justify-center gap-4 mb-4">
+                {/* Rental Availability Toggle */}
+                <button
+                  onClick={() => handleToggleAvailability(car)}
+                  className={`flex items-center space-x-2 px-4 py-2 border transition-all duration-300 rounded-lg ${
+                    car.available 
+                      ? 'bg-green-500/20 text-green-300 border-green-500/30 hover:bg-green-500/30'
+                      : 'bg-red-500/20 text-red-300 border-red-500/30 hover:bg-red-500/30'
+                  }`}
+                >
+                  <div className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors duration-200 ${
+                    car.available ? 'bg-green-500' : 'bg-red-500'
+                  }`}>
+                    <span className={`inline-block h-2 w-2 transform rounded-full bg-white transition-transform duration-200 ${
+                      car.available ? 'translate-x-4' : 'translate-x-1'
+                    }`} />
+                  </div>
+                  <span>Rental Available</span>
+                </button>
             onClose={handleCloseCalendar}
           />
         )}
