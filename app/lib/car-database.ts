@@ -57,9 +57,8 @@ class CarDatabase {
     
     const updatedCar: Car = { ...existing, ...updates };
     
-    // Ensure the car is properly stored in KV with both individual key and list membership
+    // Store the updated car data
     await kv.set(this.CAR_PREFIX + carId, updatedCar);
-    await kv.sadd(this.CAR_LIST_KEY, carId); // Ensure it's in the list
     
     // Update AI knowledge base with updated fleet information
     try {
