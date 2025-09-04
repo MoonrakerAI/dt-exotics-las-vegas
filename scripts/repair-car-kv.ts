@@ -55,12 +55,12 @@ async function repairCarKV() {
               ]
             },
             videos: {
-              showcase: [],
-              youtube: []
+              showcase: undefined,
+              youtube: undefined
             },
             audio: {
-              startup: '',
-              rev: ''
+              startup: undefined,
+              rev: undefined
             },
             available: true,
             showOnHomepage: true,
