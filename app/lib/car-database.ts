@@ -71,18 +71,35 @@ class CarDatabase {
     
     // Store the updated car data
     try {
-      await kv.set(this.CAR_PREFIX + carId, updatedCar);
-      console.log(`[updateCar][${reqId}] Successfully stored updated car data`);
+      console.log(`[updateCar][${reqId}] Attempting to store car data to key: ${this.CAR_PREFIX + carId}`);
+      console.log(`[updateCar][${reqId}] Data to store:`, JSON.stringify(updatedCar, null, 2));
       
-      // Verify the storage
+      const setResult = await kv.set(this.CAR_PREFIX + carId, updatedCar);
+      console.log(`[updateCar][${reqId}] KV set result:`, setResult);
+      
+      // Immediate verification
       const verification = await kv.get(this.CAR_PREFIX + carId);
       if (verification) {
-        console.log(`[updateCar][${reqId}] Verification successful - car data stored correctly`);
+        const verifiedPrice = (verification as Car).price;
+        console.log(`[updateCar][${reqId}] Verification successful - stored price: daily $${verifiedPrice.daily}, weekly $${verifiedPrice.weekly}`);
+        
+        // Double-check the price specifically
+        if (verifiedPrice.daily === updatedCar.price.daily) {
+          console.log(`[updateCar][${reqId}] ✅ Price verification passed - daily rate matches`);
+        } else {
+          console.error(`[updateCar][${reqId}] ❌ Price verification failed - expected $${updatedCar.price.daily}, got $${verifiedPrice.daily}`);
+        }
       } else {
-        console.error(`[updateCar][${reqId}] Verification failed - car data not found after storage`);
+        console.error(`[updateCar][${reqId}] ❌ Verification failed - car data not found after storage`);
+        throw new Error('Car data not found after storage - KV operation may have failed');
       }
     } catch (error) {
       console.error(`[updateCar][${reqId}] Failed to store car data:`, error);
+      console.error(`[updateCar][${reqId}] Error details:`, {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
       throw error;
     }
     
