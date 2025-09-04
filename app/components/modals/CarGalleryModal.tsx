@@ -234,8 +234,8 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
       }}>
         <div className="bg-dark-metal border border-neon-blue/30 rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(0,255,255,0.3)] flex flex-col h-full">
           {/* Header */}
-          <div className="bg-black/50 px-6 py-4 flex items-center justify-between border-b border-gray-800 flex-shrink-0">
-            <div>
+          <div className="bg-black/50 px-4 sm:px-6 py-4 flex items-center justify-between border-b border-gray-800 flex-shrink-0">
+            <div className="flex-1">
               <h2 className="text-2xl font-tech font-bold text-white">
                 {car.brand} {car.model}
               </h2>
@@ -243,9 +243,9 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-800 rounded-lg transition-colors duration-200 group"
+              className={`p-2 hover:bg-gray-800 rounded-lg transition-colors duration-200 group ${isMobile ? 'mr-2' : ''}`}
             >
-              <X className="w-6 h-6 text-gray-400 group-hover:text-white" />
+              <X className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-gray-400 group-hover:text-white`} />
             </button>
           </div>
           
@@ -340,13 +340,13 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
                     <>
                       <button
                         onClick={handlePrevious}
-                        className="absolute left-4 p-2 bg-black/50 hover:bg-black/70 rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
+                        className="absolute left-2 sm:left-4 p-2 bg-black/50 hover:bg-black/70 rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
                       >
                         <ChevronLeft className="w-6 h-6 text-gray-400 group-hover:text-neon-blue" />
                       </button>
                       <button
                         onClick={handleNext}
-                        className="absolute right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
+                        className="absolute right-2 sm:right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full border border-gray-600 hover:border-neon-blue transition-all duration-200 group"
                       >
                         <ChevronRight className="w-6 h-6 text-gray-400 group-hover:text-neon-blue" />
                       </button>
