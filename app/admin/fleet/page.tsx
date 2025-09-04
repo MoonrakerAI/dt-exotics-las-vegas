@@ -44,7 +44,7 @@ export default function FleetAdmin() {
     if (cars.length > 0) {
       checkCarAvailability()
     }
-  }, [cars])
+  }, [cars.length]) // Only depend on cars.length, not the entire cars array
 
   const fetchCars = async () => {
     setLoading(true)
@@ -76,7 +76,9 @@ export default function FleetAdmin() {
 
   const checkCarAvailability = async () => {
     const token = localStorage.getItem('dt-admin-token')
-    if (!token) return
+    if (!token || cars.length === 0) return
+
+    console.log('Fleet: Checking availability for', cars.length, 'cars')
 
     const today = new Date()
     const nextWeek = new Date(today)
@@ -87,45 +89,57 @@ export default function FleetAdmin() {
 
     const availabilityStatus: CarAvailabilityStatus = {}
 
-    for (const car of cars) {
-      try {
-        // Check for bookings
-        const bookingsRes = await fetch(`/api/admin/fleet/bookings?carId=${car.id}&startDate=${startDate}&endDate=${endDate}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
-        
-        // Check for custom blocks
-        const blocksRes = await fetch(`/api/admin/fleet/availability?id=${car.id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
+    // Process cars in batches to avoid overwhelming the server
+    const batchSize = 3
+    for (let i = 0; i < cars.length; i += batchSize) {
+      const batch = cars.slice(i, i + batchSize)
+      
+      await Promise.all(batch.map(async (car) => {
+        try {
+          // Check for bookings
+          const bookingsRes = await fetch(`/api/admin/fleet/bookings?carId=${car.id}&startDate=${startDate}&endDate=${endDate}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+          
+          // Check for custom blocks
+          const blocksRes = await fetch(`/api/admin/fleet/availability?id=${car.id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
 
-        const hasBookings = bookingsRes.ok ? (await bookingsRes.json()).bookedDates?.length > 0 : false
-        const customBlocks = blocksRes.ok ? (await blocksRes.json()).unavailableDates || [] : []
-        
-        // Check if any custom blocks fall within the next week
-        const hasCustomBlocks = customBlocks.some((date: string) => {
-          const blockDate = new Date(date)
-          return blockDate >= today && blockDate <= nextWeek
-        })
+          const hasBookings = bookingsRes.ok ? (await bookingsRes.json()).bookedDates?.length > 0 : false
+          const customBlocks = blocksRes.ok ? (await blocksRes.json()).unavailableDates || [] : []
+          
+          // Check if any custom blocks fall within the next week
+          const hasCustomBlocks = customBlocks.some((date: string) => {
+            const blockDate = new Date(date)
+            return blockDate >= today && blockDate <= nextWeek
+          })
 
-        const isGenerallyAvailable = car.available
-        const isRealTimeAvailable = isGenerallyAvailable && !hasBookings && !hasCustomBlocks
+          const isGenerallyAvailable = car.available
+          const isRealTimeAvailable = isGenerallyAvailable && !hasBookings && !hasCustomBlocks
 
-        availabilityStatus[car.id] = {
-          available: isRealTimeAvailable,
-          hasBookings,
-          hasCustomBlocks
+          availabilityStatus[car.id] = {
+            available: isRealTimeAvailable,
+            hasBookings,
+            hasCustomBlocks
+          }
+        } catch (error) {
+          console.error(`Error checking availability for ${car.id}:`, error)
+          availabilityStatus[car.id] = {
+            available: car.available,
+            hasBookings: false,
+            hasCustomBlocks: false
+          }
         }
-      } catch (error) {
-        console.error(`Error checking availability for ${car.id}:`, error)
-        availabilityStatus[car.id] = {
-          available: car.available,
-          hasBookings: false,
-          hasCustomBlocks: false
-        }
+      }))
+
+      // Small delay between batches to prevent overwhelming the server
+      if (i + batchSize < cars.length) {
+        await new Promise(resolve => setTimeout(resolve, 100))
       }
     }
 
+    console.log('Fleet: Availability check complete, setting status for', Object.keys(availabilityStatus).length, 'cars')
     setCarAvailability(availabilityStatus)
   }
 
