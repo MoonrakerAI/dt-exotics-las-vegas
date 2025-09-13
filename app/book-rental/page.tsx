@@ -401,7 +401,7 @@ function BookingFormInner() {
                 <option value="">Choose a car...</option>
                 {availableCars.map(car => (
                   <option key={car.id} value={car.id}>
-                    {car.brand} {car.model} ({car.year}) - {formatCurrency(car.price.daily)}/day
+                    {car.brand} {car.model} - {formatCurrency(car.price.daily)}/day
                   </option>
                 ))}
               </select>
@@ -431,7 +431,7 @@ function BookingFormInner() {
                   <h3 className="text-xl font-tech font-bold text-white">
                     {selectedCar.brand} {selectedCar.model}
                   </h3>
-                  <p className="text-gray-400">{selectedCar.year} • {selectedCar.category.charAt(0).toUpperCase() + selectedCar.category.slice(1)}</p>
+                  <p className="text-gray-400">{selectedCar.category.charAt(0).toUpperCase() + selectedCar.category.slice(1)}</p>
                 </div>
               </div>
               

@@ -239,7 +239,7 @@ export default function CarGalleryModal({ car, isOpen, onClose }: CarGalleryModa
               <h2 className="text-2xl font-tech font-bold text-white">
                 {car.brand} {car.model}
               </h2>
-              <p className="text-neon-blue font-tech">{car.year}</p>
+              <p className="text-neon-blue font-tech">{car.category.charAt(0).toUpperCase() + car.category.slice(1)}</p>
             </div>
             <button
               onClick={onClose}

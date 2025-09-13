@@ -67,7 +67,7 @@ function CarCard({ car, onOpenModal, onPlaySound, playingAudio }: {
             <h3 className="text-xl font-tech font-bold text-white uppercase">
               {car.model}
             </h3>
-            <p className="text-neon-blue text-lg font-tech">{car.year}</p>
+            <p className="text-neon-blue text-lg font-tech">{car.brand}</p>
           </div>
 
           {/* Stats */}
