@@ -9,7 +9,7 @@ import Footer from '../components/sections/Footer'
 import CustomerCalendar from '../components/ui/CustomerCalendar'
 import { Car } from '../data/cars'
 import { stripePublishableKey } from '../lib/stripe'
-import { formatCurrency, validateRentalDates } from '../lib/rental-utils'
+import { formatCurrency, validateRentalDates, calculateDepositAmount } from '../lib/rental-utils'
 import { getCarImage } from '../lib/image-utils'
 import { CreateRentalRequest } from '../types/rental'
 
@@ -147,7 +147,7 @@ function BookingFormInner() {
     
     if (totalDays > 0) {
       const subtotal = totalDays * selectedCar.price.daily
-      const depositAmount = Math.round(subtotal * 0.30)
+      const depositAmount = calculateDepositAmount(selectedCar.price.daily)
       const finalAmount = subtotal - depositAmount
       
       const newPricing = {
@@ -207,7 +207,7 @@ function BookingFormInner() {
           
           if (totalDays > 0) {
             const subtotal = totalDays * updatedCar.price.daily;
-            const depositAmount = Math.round(subtotal * 0.30);
+            const depositAmount = calculateDepositAmount(updatedCar.price.daily);
             const finalAmount = subtotal - depositAmount;
             
             const newPricing = {
@@ -451,7 +451,7 @@ function BookingFormInner() {
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-yellow-400">{formatCurrency(pricing.depositAmount)}</div>
-                    <div className="text-sm text-gray-400">Deposit (30%)</div>
+                    <div className="text-sm text-gray-400">Deposit</div>
                   </div>
                 </div>
               )}
@@ -817,7 +817,7 @@ function PaymentStep({ formData, pricing, onBack, createDepositIntent, updatePro
           </div>
               <div className="border-t border-gray-600 pt-2 mt-2">
                 <div className="flex justify-between text-lg">
-                  <span className="text-white font-semibold">Deposit (30%):</span>
+                  <span className="text-white font-semibold">Deposit:</span>
                   <span className="text-yellow-400 font-bold">{formatCurrency(pricing.depositAmount)}</span>
           </div>
                 {estimatedDepositAfterPromo != null && (

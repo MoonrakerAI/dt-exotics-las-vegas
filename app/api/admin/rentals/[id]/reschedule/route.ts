@@ -85,7 +85,8 @@ export async function POST(
     // Calculate new pricing based on new dates
     const totalDays = Math.ceil((newEndDate.getTime() - newStartDate.getTime()) / (1000 * 60 * 60 * 24));
     const newSubtotal = rental.pricing.dailyRate * totalDays;
-    const newDepositAmount = Math.round(newSubtotal * 0.3); // 30% deposit
+    // Use tiered deposit: $500 for cars <$500/day, $1000 for cars >=$500/day
+    const newDepositAmount = rental.pricing.dailyRate < 500 ? 500 : 1000;
     const newFinalAmount = newSubtotal;
 
     // Create updated rental object

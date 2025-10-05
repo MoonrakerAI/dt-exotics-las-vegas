@@ -1,5 +1,14 @@
 import { Car } from '../data/cars';
 
+/**
+ * Calculate deposit amount based on daily rate
+ * - Cars under $500/day: $500 flat deposit
+ * - Cars $500/day and above: $1000 flat deposit
+ */
+export function calculateDepositAmount(dailyRate: number): number {
+  return dailyRate < 500 ? 500 : 1000;
+}
+
 export function calculateRentalPricing(car: Car, startDate: string, endDate: string) {
   const start = new Date(startDate);
   const end = new Date(endDate);
@@ -11,8 +20,8 @@ export function calculateRentalPricing(car: Car, startDate: string, endDate: str
   // Calculate subtotal
   const subtotal = totalDays * car.price.daily;
   
-  // Calculate deposit (30% of total)
-  const depositAmount = Math.round(subtotal * 0.30);
+  // Calculate deposit using tiered flat-rate system
+  const depositAmount = calculateDepositAmount(car.price.daily);
   
   // Final amount is remaining balance
   const finalAmount = subtotal - depositAmount;
