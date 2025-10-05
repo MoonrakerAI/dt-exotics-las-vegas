@@ -68,6 +68,15 @@ export async function POST(request: NextRequest) {
     );
   }
   try {
+    // Load notification settings from KV store
+    const savedSettings = await kv.get('notification_settings');
+    if (savedSettings) {
+      notificationService.updateSettings(savedSettings as any);
+      console.log('[WEBHOOK] Notification settings loaded:', savedSettings);
+    } else {
+      console.log('[WEBHOOK] No saved notification settings found, using defaults');
+    }
+
     const body = await request.text();
     const headersList = await headers();
     const signature = headersList.get('stripe-signature');

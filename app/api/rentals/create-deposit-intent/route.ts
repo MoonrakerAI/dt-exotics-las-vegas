@@ -7,10 +7,22 @@ import notificationService from '@/app/lib/notifications';
 import type { RentalBooking } from '@/app/types/rental';
 import promoDB from '@/app/lib/promo-database';
 import type Stripe from 'stripe';
+import kv from '@/app/lib/kv-database';
 
 // Enhanced test version with request handling
 export async function POST(request: NextRequest) {
+  console.log('[DEPOSIT-INTENT] === Starting deposit intent creation ===');
+  
   try {
+    // Load notification settings from KV store
+    const savedSettings = await kv.get('notification_settings');
+    if (savedSettings) {
+      notificationService.updateSettings(savedSettings as any);
+      console.log('[DEPOSIT-INTENT] Notification settings loaded');
+    } else {
+      console.log('[DEPOSIT-INTENT] No saved notification settings found, using defaults');
+    }
+    
     console.log('[DEPOSIT-INTENT] Request received');
     
     // Log request headers for debugging

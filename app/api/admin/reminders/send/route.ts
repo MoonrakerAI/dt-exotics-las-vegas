@@ -6,6 +6,15 @@ import notificationService from '@/app/lib/notifications';
 
 export async function POST(request: NextRequest) {
   try {
+    // Load notification settings from KV store
+    const savedSettings = await kv.get('notification_settings');
+    if (savedSettings) {
+      notificationService.updateSettings(savedSettings as any);
+      console.log('[REMINDERS] Notification settings loaded');
+    } else {
+      console.log('[REMINDERS] No saved notification settings found, using defaults');
+    }
+
     // Get current date and tomorrow's date for reminder window
     const now = new Date();
     const tomorrow = new Date(now);

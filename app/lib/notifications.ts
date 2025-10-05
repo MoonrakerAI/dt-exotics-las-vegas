@@ -395,7 +395,16 @@ Go to Dashboard: https://dtexoticslv.com/admin`
 
   // Main notification methods
   public async sendBookingNotification(booking: any): Promise<boolean> {
+    console.log('🔔 [NOTIFICATION] sendBookingNotification called');
+    console.log('🔔 [NOTIFICATION] Settings:', { 
+      emailNotifications: this.settings.emailNotifications, 
+      bookingAlerts: this.settings.bookingAlerts 
+    });
+    
     if (!this.settings.emailNotifications || !this.settings.bookingAlerts) {
+      console.warn('⚠️ [NOTIFICATION] Booking notification BLOCKED by settings');
+      console.warn('⚠️ [NOTIFICATION] emailNotifications:', this.settings.emailNotifications);
+      console.warn('⚠️ [NOTIFICATION] bookingAlerts:', this.settings.bookingAlerts);
       return false;
     }
 
@@ -403,13 +412,22 @@ Go to Dashboard: https://dtexoticslv.com/admin`
       const template = this.getBookingConfirmationTemplate(booking);
       return await this.sendEmailToAdmins(template);
     } catch (error) {
-      console.error('Failed to send booking notification:', error);
+      console.error('❌ [NOTIFICATION] Failed to send booking notification:', error);
       return false;
     }
   }
 
   public async sendPaymentNotification(payment: any, success: boolean): Promise<boolean> {
+    console.log('🔔 [NOTIFICATION] sendPaymentNotification called');
+    console.log('🔔 [NOTIFICATION] Settings:', { 
+      emailNotifications: this.settings.emailNotifications, 
+      paymentAlerts: this.settings.paymentAlerts 
+    });
+    
     if (!this.settings.emailNotifications || !this.settings.paymentAlerts) {
+      console.warn('⚠️ [NOTIFICATION] Payment notification BLOCKED by settings');
+      console.warn('⚠️ [NOTIFICATION] emailNotifications:', this.settings.emailNotifications);
+      console.warn('⚠️ [NOTIFICATION] paymentAlerts:', this.settings.paymentAlerts);
       return false;
     }
 
@@ -419,13 +437,22 @@ Go to Dashboard: https://dtexoticslv.com/admin`
         : this.getPaymentFailedTemplate(payment);
       return await this.sendEmailToAdmins(template);
     } catch (error) {
-      console.error('Failed to send payment notification:', error);
+      console.error('❌ [NOTIFICATION] Failed to send payment notification:', error);
       return false;
     }
   }
 
   public async sendSystemAlert(alert: any): Promise<boolean> {
+    console.log('🔔 [NOTIFICATION] sendSystemAlert called');
+    console.log('🔔 [NOTIFICATION] Settings:', { 
+      emailNotifications: this.settings.emailNotifications, 
+      systemAlerts: this.settings.systemAlerts 
+    });
+    
     if (!this.settings.emailNotifications || !this.settings.systemAlerts) {
+      console.warn('⚠️ [NOTIFICATION] System alert BLOCKED by settings');
+      console.warn('⚠️ [NOTIFICATION] emailNotifications:', this.settings.emailNotifications);
+      console.warn('⚠️ [NOTIFICATION] systemAlerts:', this.settings.systemAlerts);
       return false;
     }
 
@@ -433,7 +460,7 @@ Go to Dashboard: https://dtexoticslv.com/admin`
       const template = this.getSystemAlertTemplate(alert);
       return await this.sendEmailToAdmins(template);
     } catch (error) {
-      console.error('Failed to send system alert:', error);
+      console.error('❌ [NOTIFICATION] Failed to send system alert:', error);
       return false;
     }
   }
@@ -1217,11 +1244,17 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
 
   private async sendEmail(to: string, template: EmailTemplate): Promise<boolean> {
     if (!resend) {
-      console.error('Resend not configured - missing API key');
+      console.error('❌ [NOTIFICATION] Resend not configured - missing RESEND_API_KEY environment variable');
+      console.error('❌ [NOTIFICATION] Email NOT sent to:', to);
+      console.error('❌ [NOTIFICATION] Subject:', template.subject);
       return false;
     }
 
     try {
+      console.log('📧 [NOTIFICATION] Attempting to send email...');
+      console.log('📧 [NOTIFICATION] To:', to);
+      console.log('📧 [NOTIFICATION] Subject:', template.subject);
+      
       const result = await resend.emails.send({
         from: 'DT Exotics <notifications@dtexoticslv.com>',
         to: [to],
@@ -1230,10 +1263,14 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
         text: template.text
       });
 
-      console.log('Email sent successfully:', result);
+      console.log('✅ [NOTIFICATION] Email sent successfully!');
+      console.log('✅ [NOTIFICATION] Result:', JSON.stringify(result, null, 2));
       return true;
     } catch (error) {
-      console.error('Failed to send email:', error);
+      console.error('❌ [NOTIFICATION] Failed to send email to:', to);
+      console.error('❌ [NOTIFICATION] Subject:', template.subject);
+      console.error('❌ [NOTIFICATION] Error:', error);
+      console.error('❌ [NOTIFICATION] Error details:', error instanceof Error ? error.message : 'Unknown error');
       return false;
     }
   }
