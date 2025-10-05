@@ -24,7 +24,7 @@ const nextConfig = {
   // Override default transpilation to target modern browsers
   transpilePackages: [],
   
-  // Configure headers for better caching
+  // Configure headers for security and caching
   async headers() {
     return [
       {
@@ -37,6 +37,18 @@ const nextConfig = {
           {
             key: 'X-Frame-Options',
             value: 'DENY'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin'
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'geolocation=(), microphone=(), camera=()'
           }
         ],
       },

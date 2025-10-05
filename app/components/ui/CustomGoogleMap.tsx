@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useGoogleReviews } from '@/app/hooks/useGoogleReviews'
+import { getVerifiedPhoneLink } from '@/app/lib/phone-utils'
 
 declare global {
   interface Window {
@@ -400,7 +401,7 @@ export default function CustomGoogleMap() {
                onmouseout="this.style.background='linear-gradient(135deg, #333 0%, #444 100%)'; this.style.transform='translateY(0)'">
               Directions
             </a>
-            <a href="sms:+17025180924" style="
+            <a href="${getVerifiedPhoneLink('+17025180924', 'sms') || '#'}" style="
               background: linear-gradient(135deg, #00FFFF 0%, #00CCCC 100%);
               color: #000;
               padding: 10px 16px;

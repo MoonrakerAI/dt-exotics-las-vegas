@@ -14,7 +14,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
   siteDescription: 'Luxury Exotic Car Rentals in Las Vegas',
   contactEmail: 'info@dtexoticslv.com',
   supportEmail: 'support@dtexoticslv.com',
-  phoneNumber: '+1 (702) 123-4567'
+  phoneNumber: '+1 (702) 518-0924' // Verified business number
 }
 
 // Cache for settings to avoid repeated database calls

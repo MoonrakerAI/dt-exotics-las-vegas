@@ -5,6 +5,7 @@ import { MessageCircle, Send, Loader2, Sparkles } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
+import SafePhoneLink from '@/app/components/ui/SafePhoneLink'
 
 interface Message {
   id: string
@@ -273,7 +274,7 @@ export default function EmbeddedChat() {
           {/* Footer */}
           <div className="flex items-center justify-end mt-4 pt-4 border-t border-gray-600/20">
             <p className="text-xs text-gray-500">
-              For urgent needs: <a href="sms:+17025180924" className="text-neon-blue hover:underline">(702) 518-0924</a>
+              For urgent needs: <SafePhoneLink phoneNumber="+17025180924" type="sms" className="text-neon-blue hover:underline" />
             </p>
           </div>
         </div>

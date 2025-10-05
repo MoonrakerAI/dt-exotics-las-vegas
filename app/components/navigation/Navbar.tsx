@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { formatPhoneForLink } from '../../lib/site-settings'
 import type { SiteSettings } from '../../lib/site-settings'
+import SafePhoneLink from '@/app/components/ui/SafePhoneLink'
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -60,10 +61,9 @@ export default function Navbar() {
     setIsMobileMenuOpen(!isMobileMenuOpen)
   }
 
-  // Get phone number for SMS link (with fallback)
-  const getPhoneForSMS = () => {
-    const phoneNumber = siteSettings?.phoneNumber || '+1 (702) 123-4567'
-    return `sms:${formatPhoneForLink(phoneNumber)}`
+  // Get verified phone number (with fallback to verified number)
+  const getPhoneNumber = () => {
+    return siteSettings?.phoneNumber || '+17025180924'
   }
 
   return (
@@ -110,12 +110,13 @@ export default function Navbar() {
 
             {/* CTA Button */}
             <div className="hidden lg:flex items-center">
-              <a 
-                href={getPhoneForSMS()} 
+              <SafePhoneLink 
+                phoneNumber={getPhoneNumber()} 
+                type="sms"
                 className="btn-primary text-sm px-6 py-3"
               >
                 TEXT US NOW
-              </a>
+              </SafePhoneLink>
             </div>
 
             {/* Mobile Menu Button */}
@@ -187,13 +188,13 @@ export default function Navbar() {
 
             {/* Footer CTA */}
             <div className="p-6 border-t border-gray-800">
-              <a 
-                href={getPhoneForSMS()} 
+              <SafePhoneLink 
+                phoneNumber={getPhoneNumber()} 
+                type="sms"
                 className="btn-primary w-full text-center"
-                onClick={toggleMobileMenu}
               >
                 TEXT US NOW
-              </a>
+              </SafePhoneLink>
             </div>
           </div>
         </div>

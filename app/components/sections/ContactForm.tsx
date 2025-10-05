@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { Car } from '@/app/data/cars'
+import SafePhoneLink from '@/app/components/ui/SafePhoneLink'
 
 export default function ContactForm() {
   const [cars, setCars] = useState<Car[]>([])
@@ -117,9 +118,11 @@ export default function ContactForm() {
                   </div>
                   <div>
                     <p className="text-white font-semibold">TEXT US</p>
-                    <a href="sms:+17025180924" className="text-neon-blue hover:underline">
-                      (702) 518-0924
-                    </a>
+                    <SafePhoneLink 
+                      phoneNumber="+17025180924" 
+                      type="sms"
+                      className="text-neon-blue hover:underline"
+                    />
                   </div>
                 </div>
                 

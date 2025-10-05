@@ -1,5 +1,7 @@
 'use client'
 
+import SafePhoneLink from '@/app/components/ui/SafePhoneLink'
+
 export default function ExperienceSection() {
   return (
     <section className="py-20 px-4 relative">
@@ -30,12 +32,13 @@ export default function ExperienceSection() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a 
-            href="sms:+17025180924" 
+          <SafePhoneLink 
+            phoneNumber="+17025180924" 
+            type="sms"
             className="btn-primary inline-block"
           >
             TEXT US NOW
-          </a>
+          </SafePhoneLink>
           <a href="/book-rental" className="btn-secondary inline-block">
             BOOK ONLINE
           </a>

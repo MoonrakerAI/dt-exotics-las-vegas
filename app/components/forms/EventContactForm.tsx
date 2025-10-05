@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Send, CheckCircle, AlertTriangle, User, Mail, Phone, Calendar, Users, MapPin, Car, MessageSquare, TrendingUp } from 'lucide-react'
+import SafePhoneLink from '@/app/components/ui/SafePhoneLink'
 
 interface FormField {
   name: string
@@ -281,18 +282,20 @@ export default function EventContactForm({
               Prefer to talk directly? We're here to help!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="tel:+17025180924" 
+              <SafePhoneLink 
+                phoneNumber="+17025180924" 
+                type="tel"
                 className="text-neon-blue hover:text-neon-blue/80 transition-colors font-medium"
               >
                 📞 (702) 518-0924
-              </a>
-              <a 
-                href="sms:+17025180924" 
+              </SafePhoneLink>
+              <SafePhoneLink 
+                phoneNumber="+17025180924" 
+                type="sms"
                 className="text-neon-blue hover:text-neon-blue/80 transition-colors font-medium"
               >
                 💬 Text Us
-              </a>
+              </SafePhoneLink>
             </div>
           </div>
         </div>

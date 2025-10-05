@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import ClientChatWrapper from './components/ui/ClientChatWrapper'
+import LazyResourceLoader from './components/utils/LazyResourceLoader'
 
 export const metadata: Metadata = {
   title: 'DT Exotics Las Vegas - Premium Supercar Rentals',
@@ -25,35 +26,21 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        {/* Critical preconnect hints for faster resource loading */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://maps.googleapis.com" />
-        <link rel="preconnect" href="https://maps.gstatic.com" />
-        <link rel="preconnect" href="https://images.unsplash.com" />
-        <link rel="preconnect" href="https://b9c4kbeqsdvzvtpz.public.blob.vercel-storage.com" crossOrigin="anonymous" />
-        
-        {/* DNS prefetch for additional performance */}
-        <link rel="dns-prefetch" href="https://www.youtube.com" />
-        <link rel="dns-prefetch" href="https://i.ytimg.com" />
-        
-        {/* Preload critical hero video for faster LCP - with error handling */}
+        {/* Preload critical hero video for faster LCP */}
         <link rel="preload" href="/videos/hero/Hero Background.mp4" as="video" type="video/mp4" crossOrigin="anonymous" />
         
-        {/* Optimized font loading - removed problematic preload URLs causing 404 errors */}
-        
-        {/* Load fonts with optimized display strategy to reduce flash */}
+        {/* Load fonts with optimized display strategy - SRI will be added via script */}
         <link
           href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap"
           rel="stylesheet"
         />
-        
-
       </head>
       <body className="min-h-screen antialiased">
-        <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-metal-gray/20 via-dark-gray to-dark-gray pointer-events-none" />
-        {children}
-        <ClientChatWrapper />
+        <LazyResourceLoader>
+          <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-metal-gray/20 via-dark-gray to-dark-gray pointer-events-none" />
+          {children}
+          <ClientChatWrapper />
+        </LazyResourceLoader>
       </body>
     </html>
   )
