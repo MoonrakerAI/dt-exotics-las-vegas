@@ -7,7 +7,7 @@ import notificationService from '@/app/lib/notifications';
 import type { RentalBooking } from '@/app/types/rental';
 import promoDB from '@/app/lib/promo-database';
 import type Stripe from 'stripe';
-import kv from '@/app/lib/kv-database';
+import { kv } from '@vercel/kv';
 
 // Enhanced test version with request handling
 export async function POST(request: NextRequest) {
