@@ -124,16 +124,25 @@ export async function POST(request: NextRequest) {
           amount_off: amountOff,
           currency,
         })
-        const coupon = await stripe.coupons.create({
-          percent_off: percentOff ?? undefined,
-          amount_off: amountOff != null ? Math.round(amountOff * 100) : undefined,
-          currency: amountOff != null ? currency : undefined,
-          duration: 'forever',
+        
+        // Stripe only allows 'forever' duration with percent_off coupons
+        // For amount_off coupons, we use 'once' duration
+        const couponParams: any = {
+          duration: percentOff != null ? 'forever' : 'once',
           metadata: {
             partner_id: partnerId || '',
             partner_name: partnerName || '',
           }
-        })
+        }
+        
+        if (percentOff != null) {
+          couponParams.percent_off = percentOff
+        } else if (amountOff != null) {
+          couponParams.amount_off = Math.round(amountOff * 100)
+          couponParams.currency = currency
+        }
+        
+        const coupon = await stripe.coupons.create(couponParams)
         console.log('[ADMIN PROMO POST] Stripe coupon created:', coupon.id)
 
         // Create Promotion Code with provided human-readable code
