@@ -444,31 +444,6 @@ export default function BookingsManagement() {
     }
   }
 
-  const handleCaptureDeposit = async (bookingId: string) => {
-    try {
-      const token = localStorage.getItem('dt-admin-token')
-      const response = await fetch(`/api/admin/rentals/${bookingId}/capture-deposit`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        console.error('Capture deposit API error:', errorData)
-        throw new Error(errorData.error || `Failed to capture deposit (${response.status})`)
-      }
-
-      // Refresh bookings
-      await fetchBookings()
-      alert('Deposit captured successfully!')
-    } catch (err) {
-      console.error('Deposit capture error:', err)
-      alert('Failed to capture deposit: ' + (err instanceof Error ? err.message : 'Unknown error'))
-    }
-  }
 
   const handleChargeFinal = async (bookingId: string) => {
     const booking = bookings.find(b => b.id === bookingId)
@@ -682,7 +657,7 @@ export default function BookingsManagement() {
     setShowRentalAgreementModal(true)
   }
 
-  // Confirm booking (status update and email only)
+  // Confirm booking (status update, automatic deposit capture, and emails)
   const handleConfirmBooking = async (booking: RentalBooking) => {
     // Add verification step
     const confirmed = window.confirm(
@@ -691,8 +666,10 @@ export default function BookingsManagement() {
       `Vehicle: ${booking.car.brand} ${booking.car.model}\n` +
       `Dates: ${booking.rentalDates.startDate} to ${booking.rentalDates.endDate}\n` +
       `Deposit: ${formatCurrency(booking.pricing.depositAmount)}\n\n` +
-      `This will confirm the booking and send confirmation emails.\n` +
-      `Use the "Charge Customer" button to capture the deposit payment.`
+      `This will:\n` +
+      `• Confirm the booking\n` +
+      `• Automatically capture the authorized deposit\n` +
+      `• Send confirmation and payment receipt emails to customer`
     )
 
     if (!confirmed) {
@@ -706,7 +683,7 @@ export default function BookingsManagement() {
         return
       }
 
-      // Confirm the booking (status update and emails only)
+      // Confirm the booking (includes automatic deposit capture)
       const confirmResponse = await fetch(`/api/admin/rentals/${booking.id}/confirm`, {
         method: 'POST',
         headers: {
@@ -720,8 +697,11 @@ export default function BookingsManagement() {
         throw new Error(err.error || 'Failed to confirm booking')
       }
 
+      const result = await confirmResponse.json()
       await fetchBookings()
-      alert('Booking confirmed successfully! Customer has been notified.\n\nNext: Use "Charge Customer" button to capture the authorized deposit amount.')
+      
+      // Show success message with capture status
+      alert(result.message || 'Booking confirmed successfully! Customer has been notified.')
 
       // Auto-open rental agreement modal as next step
       setSelectedBookingForAgreement(booking)
@@ -1202,17 +1182,6 @@ export default function BookingsManagement() {
                           >
                             <CreditCard className="w-3.5 h-3.5" />
                           </button>
-                          
-                          {/* Capture Deposit (for authorized deposits) */}
-                          {booking.payment.depositStatus === 'authorized' && (
-                            <button 
-                              onClick={() => handleCaptureDeposit(booking.id)}
-                              className="p-1.5 text-gray-400 hover:text-green-400 transition-colors"
-                              title="Capture Authorized Deposit - Use this to charge the exact authorized amount"
-                            >
-                              <DollarSign className="w-3.5 h-3.5" />
-                            </button>
-                          )}
                           
                           {/* 5. Cancel */}
                           {booking.status !== 'cancelled' && booking.status !== 'completed' && (
