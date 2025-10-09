@@ -75,6 +75,8 @@ export async function POST(request: NextRequest) {
     if (!user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
 
     const body = await request.json()
+    console.log('[ADMIN PROMO POST] Request body:', JSON.stringify(body, null, 2))
+    
     const {
       code,
       percentOff,
@@ -92,12 +94,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Provide either percentOff or amountOff' }, { status: 400 })
     }
 
+    console.log('[ADMIN PROMO POST] Checking for existing promo:', code)
+    
     // Check if promo code already exists
     const promoDB = (await import('@/app/lib/promo-database')).default
     const existing = await promoDB.getPromo(String(code).toUpperCase())
     if (existing) {
+      console.log('[ADMIN PROMO POST] Promo code already exists:', code)
       return NextResponse.json({ error: 'Promo code already exists' }, { status: 409 })
     }
+    
+    console.log('[ADMIN PROMO POST] Promo code does not exist, proceeding with creation')
 
     // If Stripe secret is missing, fall back to local-only record (no Stripe objects)
     const hasStripe = !!process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.startsWith('sk_')
@@ -107,9 +114,16 @@ export async function POST(request: NextRequest) {
 
     if (hasStripe) {
       try {
+        console.log('[ADMIN PROMO POST] Creating Stripe coupon and promotion code')
         // Import Stripe lazily to avoid Edge/runtime issues on routes that don't need it
         const stripe = (await import('@/app/lib/stripe')).default
+        
         // Create Stripe coupon
+        console.log('[ADMIN PROMO POST] Creating Stripe coupon with:', {
+          percent_off: percentOff,
+          amount_off: amountOff,
+          currency,
+        })
         const coupon = await stripe.coupons.create({
           percent_off: percentOff ?? undefined,
           amount_off: amountOff != null ? Math.round(amountOff * 100) : undefined,
@@ -120,8 +134,10 @@ export async function POST(request: NextRequest) {
             partner_name: partnerName || '',
           }
         })
+        console.log('[ADMIN PROMO POST] Stripe coupon created:', coupon.id)
 
         // Create Promotion Code with provided human-readable code
+        console.log('[ADMIN PROMO POST] Creating Stripe promotion code')
         const promo = await stripe.promotionCodes.create({
           code: String(code).toUpperCase(),
           coupon: coupon.id,
@@ -134,6 +150,7 @@ export async function POST(request: NextRequest) {
             partner_name: partnerName || '',
           }
         })
+        console.log('[ADMIN PROMO POST] Stripe promotion code created:', promo.id)
 
         stripeCouponId = coupon.id
         stripePromotionCodeId = promo.id

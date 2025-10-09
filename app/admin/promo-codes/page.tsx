@@ -123,7 +123,8 @@ export default function AdminPromoCodesPage() {
       if (form.amountOff) payload.amountOff = Number(form.amountOff)
       if (form.partnerName) payload.partnerName = form.partnerName
       if (form.maxRedemptions) payload.maxRedemptions = Number(form.maxRedemptions)
-      if (form.expiresAt) payload.expiresAt = form.expiresAt
+      // Convert datetime-local to ISO string
+      if (form.expiresAt) payload.expiresAt = new Date(form.expiresAt).toISOString()
 
       const res = await fetch('/api/admin/promo-codes', {
         method: 'POST',
@@ -134,10 +135,16 @@ export default function AdminPromoCodesPage() {
         body: JSON.stringify(payload),
       })
       const json = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(json.error || `Create failed: ${res.status}`)
+      if (!res.ok) {
+        const errorMsg = json.error || `Create failed: ${res.status}`
+        const details = json.details ? `\n\nDetails: ${json.details}` : ''
+        throw new Error(errorMsg + details)
+      }
       setForm({ code: '', percentOff: '', amountOff: '', partnerName: '', maxRedemptions: '', expiresAt: '', active: true })
       await fetchPromos()
+      alert('Promo code created successfully!')
     } catch (e) {
+      console.error('Create promo error:', e)
       alert(e instanceof Error ? e.message : 'Failed to create')
     }
   }
