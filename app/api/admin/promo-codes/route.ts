@@ -92,6 +92,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Provide either percentOff or amountOff' }, { status: 400 })
     }
 
+    // Check if promo code already exists
+    const promoDB = (await import('@/app/lib/promo-database')).default
+    const existing = await promoDB.getPromo(String(code).toUpperCase())
+    if (existing) {
+      return NextResponse.json({ error: 'Promo code already exists' }, { status: 409 })
+    }
+
     // If Stripe secret is missing, fall back to local-only record (no Stripe objects)
     const hasStripe = !!process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.startsWith('sk_')
 
@@ -99,36 +106,42 @@ export async function POST(request: NextRequest) {
     let stripePromotionCodeId: string | undefined
 
     if (hasStripe) {
-      // Import Stripe lazily to avoid Edge/runtime issues on routes that don't need it
-      const stripe = (await import('@/app/lib/stripe')).default
-      // Create Stripe coupon
-      const coupon = await stripe.coupons.create({
-        percent_off: percentOff ?? undefined,
-        amount_off: amountOff != null ? Math.round(amountOff * 100) : undefined,
-        currency: amountOff != null ? currency : undefined,
-        duration: 'forever',
-        metadata: {
-          partner_id: partnerId || '',
-          partner_name: partnerName || '',
-        }
-      })
+      try {
+        // Import Stripe lazily to avoid Edge/runtime issues on routes that don't need it
+        const stripe = (await import('@/app/lib/stripe')).default
+        // Create Stripe coupon
+        const coupon = await stripe.coupons.create({
+          percent_off: percentOff ?? undefined,
+          amount_off: amountOff != null ? Math.round(amountOff * 100) : undefined,
+          currency: amountOff != null ? currency : undefined,
+          duration: 'forever',
+          metadata: {
+            partner_id: partnerId || '',
+            partner_name: partnerName || '',
+          }
+        })
 
-      // Create Promotion Code with provided human-readable code
-      const promo = await stripe.promotionCodes.create({
-        code: String(code).toUpperCase(),
-        coupon: coupon.id,
-        active,
-        max_redemptions: maxRedemptions ?? undefined,
-        restrictions: {},
-        expires_at: expiresAt ? Math.floor(new Date(expiresAt).getTime() / 1000) : undefined,
-        metadata: {
-          partner_id: partnerId || '',
-          partner_name: partnerName || '',
-        }
-      })
+        // Create Promotion Code with provided human-readable code
+        const promo = await stripe.promotionCodes.create({
+          code: String(code).toUpperCase(),
+          coupon: coupon.id,
+          active,
+          max_redemptions: maxRedemptions ?? undefined,
+          restrictions: {},
+          expires_at: expiresAt ? Math.floor(new Date(expiresAt).getTime() / 1000) : undefined,
+          metadata: {
+            partner_id: partnerId || '',
+            partner_name: partnerName || '',
+          }
+        })
 
-      stripeCouponId = coupon.id
-      stripePromotionCodeId = promo.id
+        stripeCouponId = coupon.id
+        stripePromotionCodeId = promo.id
+      } catch (stripeErr) {
+        console.error('[ADMIN PROMO POST] Stripe error', stripeErr)
+        const stripeMsg = stripeErr instanceof Error ? stripeErr.message : 'Stripe API error'
+        return NextResponse.json({ error: 'Failed to create Stripe promo code', details: stripeMsg }, { status: 500 })
+      }
     } else {
       // Local fallback identifiers
       stripeCouponId = `local_coupon_${String(code).toUpperCase()}`
@@ -136,7 +149,6 @@ export async function POST(request: NextRequest) {
       console.warn('[ADMIN PROMO POST] STRIPE_SECRET_KEY not configured; created local-only promo', { code })
     }
 
-    const promoDB = (await import('@/app/lib/promo-database')).default
     const now = new Date().toISOString()
     const record: PromoRecord = {
       code: String(code).toUpperCase(),

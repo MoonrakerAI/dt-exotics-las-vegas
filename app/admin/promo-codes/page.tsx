@@ -84,6 +84,27 @@ export default function AdminPromoCodesPage() {
     }
   }
 
+  const deletePromo = async (code: string) => {
+    if (!confirm(`Are you sure you want to delete promo code "${code}"? This action cannot be undone.`)) {
+      return
+    }
+    try {
+      const res = await fetch(`/api/admin/promo-codes/${encodeURIComponent(code)}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}))
+        throw new Error(json.error || `Delete failed: ${res.status}`)
+      }
+      await fetchPromos()
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Failed to delete')
+    }
+  }
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
@@ -197,7 +218,7 @@ export default function AdminPromoCodesPage() {
               <div className="text-gray-400">No promos found</div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full table-fixed text-sm">
+                <table className="w-full text-sm">
                   <thead>
                     <tr className="text-left text-gray-400 border-b border-gray-700">
                       <th className="py-1 pr-3">Code</th>
@@ -207,6 +228,7 @@ export default function AdminPromoCodesPage() {
                       <th className="py-1 pr-3">Partner</th>
                       <th className="py-1 pr-3">Expires</th>
                       <th className="py-1 pr-3">Status</th>
+                      <th className="py-1 pr-3">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -228,6 +250,15 @@ export default function AdminPromoCodesPage() {
                             title={p.active ? 'Click to set Inactive' : 'Click to set Active'}
                           >
                             {p.active ? 'Active' : 'Inactive'}
+                          </button>
+                        </td>
+                        <td className="py-1 pr-3">
+                          <button
+                            onClick={() => deletePromo(p.code)}
+                            className="px-3 py-1 rounded text-[11px] font-medium border border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/20 transition-colors"
+                            title="Delete promo code"
+                          >
+                            Delete
                           </button>
                         </td>
                       </tr>

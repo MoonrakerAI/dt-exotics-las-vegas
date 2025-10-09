@@ -98,6 +98,20 @@ async function getStats(code: string): Promise<PromoStats> {
   }
 }
 
+async function deletePromo(code: string): Promise<boolean> {
+  try {
+    const upperCode = code.toUpperCase()
+    await kv.del(codeKey(upperCode))
+    await kv.del(statsKey(upperCode))
+    return true
+  } catch (e) {
+    const upperCode = code.toUpperCase()
+    memStore.delete(upperCode)
+    memStatsStore.delete(upperCode)
+    return true
+  }
+}
+
 export default {
   getPromo,
   setPromo,
@@ -105,4 +119,5 @@ export default {
   updatePromo,
   incrementStats,
   getStats,
+  deletePromo,
 }
