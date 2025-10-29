@@ -153,11 +153,18 @@ export default function CarForm({ car, onSave, onCancel, mode }: CarFormProps) {
 
   // Auto-generate ID from brand and model
   useEffect(() => {
-    if (!formData.id && formData.brand && formData.model) {
-      const id = `${formData.brand.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${formData.model.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${formData.year}`
-      setFormData(prev => ({ ...prev, id }))
+    if (mode === 'create' && formData.brand && formData.model) {
+      // Always regenerate ID to ensure it's valid (no spaces or invalid chars)
+      const sanitizedBrand = formData.brand.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+      const sanitizedModel = formData.model.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+      const id = `${sanitizedBrand}-${sanitizedModel}-${formData.year}`
+      
+      // Only update if the ID has changed to avoid infinite loops
+      if (formData.id !== id) {
+        setFormData(prev => ({ ...prev, id }))
+      }
     }
-  }, [formData.brand, formData.model, formData.year, formData.id])
+  }, [formData.brand, formData.model, formData.year, formData.id, mode])
 
   // Fetch vehicle suggestions when user types
   const fetchVehicleSuggestions = useCallback(async (make: string, model?: string) => {
