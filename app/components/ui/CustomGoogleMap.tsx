@@ -310,26 +310,6 @@ export default function CustomGoogleMap() {
             `}
           </div>
           
-          <!-- Address -->
-          <div style="
-            margin-bottom: 16px;
-            padding: 12px;
-            background: rgba(0, 255, 255, 0.05);
-            border-radius: 8px;
-            border: 1px solid rgba(0, 255, 255, 0.2);
-          ">
-            <div style="
-              display: flex;
-              align-items: center;
-              color: #e0e0e0;
-              font-size: 13px;
-              font-weight: 500;
-            ">
-              <span style="margin-right: 8px; color: #00FFFF;">📍</span>
-              <span>9620 Las Vegas Blvd S STE E4 #508, Las Vegas, NV 89123</span>
-            </div>
-          </div>
-          
           <!-- Individual Reviews -->
           ${reviewsData && reviewsData.reviews && reviewsData.reviews.length > 0 ? `
             <div style="
