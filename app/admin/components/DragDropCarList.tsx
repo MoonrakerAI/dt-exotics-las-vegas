@@ -15,10 +15,14 @@ export default function DragDropCarList({ cars, onSave, onCancel }: DragDropCarL
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [reorderedCars, setReorderedCars] = useState<Car[]>(cars)
   const [saving, setSaving] = useState(false)
+  const [hasChanges, setHasChanges] = useState(false)
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
+    console.log('Drag started:', index)
     setDraggedIndex(index)
     e.dataTransfer.effectAllowed = 'move'
+    // Set data to make drag work in all browsers
+    e.dataTransfer.setData('text/plain', index.toString())
   }
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -32,6 +36,7 @@ export default function DragDropCarList({ cars, onSave, onCancel }: DragDropCarL
 
   const handleDrop = (e: React.DragEvent, dropIndex: number) => {
     e.preventDefault()
+    console.log('Drop at index:', dropIndex, 'from:', draggedIndex)
     
     if (draggedIndex === null || draggedIndex === dropIndex) {
       setDraggedIndex(null)
@@ -42,8 +47,10 @@ export default function DragDropCarList({ cars, onSave, onCancel }: DragDropCarL
     const [draggedCar] = newCars.splice(draggedIndex, 1)
     newCars.splice(dropIndex, 0, draggedCar)
     
+    console.log('Reordered cars:', newCars.map(c => c.model))
     setReorderedCars(newCars)
     setDraggedIndex(null)
+    setHasChanges(true)
   }
 
   const handleSave = async () => {
@@ -68,6 +75,11 @@ export default function DragDropCarList({ cars, onSave, onCancel }: DragDropCarL
               <p className="text-gray-400">
                 Drag and drop cars to change their order on the homepage
               </p>
+              {hasChanges && (
+                <p className="text-neon-blue text-sm mt-2">
+                  ⚡ Changes detected - click Save to apply
+                </p>
+              )}
             </div>
             <button
               onClick={onCancel}
@@ -84,12 +96,16 @@ export default function DragDropCarList({ cars, onSave, onCancel }: DragDropCarL
             {reorderedCars.map((car, index) => (
               <div
                 key={car.id}
-                draggable
+                draggable={true}
                 onDragStart={(e) => handleDragStart(e, index)}
                 onDragOver={handleDragOver}
                 onDragEnter={handleDragEnter}
                 onDrop={(e) => handleDrop(e, index)}
-                className={`bg-dark-metal/50 border border-gray-600/30 rounded-lg p-4 cursor-move transition-all duration-200 ${
+                onDragEnd={() => {
+                  console.log('Drag ended')
+                  setDraggedIndex(null)
+                }}
+                className={`bg-dark-metal/50 border border-gray-600/30 rounded-lg p-4 cursor-move transition-all duration-200 select-none ${
                   draggedIndex === index 
                     ? 'opacity-50 scale-95' 
                     : 'hover:border-neon-blue/50 hover:shadow-[0_0_10px_rgba(0,255,255,0.2)]'
@@ -155,11 +171,15 @@ export default function DragDropCarList({ cars, onSave, onCancel }: DragDropCarL
           </button>
           <button
             onClick={handleSave}
-            disabled={saving}
-            className="btn-primary flex items-center gap-2"
+            disabled={saving || !hasChanges}
+            className={`flex items-center gap-2 px-6 py-2 rounded-lg transition-colors ${
+              hasChanges && !saving
+                ? 'bg-neon-blue text-dark-gray hover:bg-neon-blue/90'
+                : 'bg-gray-600/30 text-gray-500 cursor-not-allowed'
+            }`}
           >
             <Save className="w-4 h-4" />
-            {saving ? 'Saving...' : 'Save Order'}
+            {saving ? 'Saving...' : hasChanges ? 'Save Order' : 'No Changes'}
           </button>
         </div>
       </div>

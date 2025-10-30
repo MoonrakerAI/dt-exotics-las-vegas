@@ -598,7 +598,15 @@ export default function FleetAdmin() {
         {/* Reorder Cars Modal */}
         {showReorderModal && (
           <DragDropCarList
-            cars={cars}
+            cars={[...cars].sort((a, b) => {
+              // Sort by displayOrder if available, otherwise by original order
+              if (a.displayOrder !== undefined && b.displayOrder !== undefined) {
+                return a.displayOrder - b.displayOrder;
+              }
+              if (a.displayOrder !== undefined) return -1;
+              if (b.displayOrder !== undefined) return 1;
+              return 0;
+            })}
             onSave={handleReorderCars}
             onCancel={() => setShowReorderModal(false)}
           />
