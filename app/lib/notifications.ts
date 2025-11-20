@@ -32,6 +32,12 @@ export class NotificationService {
       adminEmails: ['admin@dtexoticslv.com'],
       adminEmail: 'admin@dtexoticslv.com' // Backward compatibility
     };
+
+    if (!process.env.RESEND_API_KEY) {
+      console.warn('⚠️ [NOTIFICATION] RESEND_API_KEY is missing. Email notifications will NOT be sent.');
+    } else {
+      console.log('✅ [NOTIFICATION] Service initialized with API key');
+    }
   }
 
   public static getInstance(): NotificationService {
@@ -69,7 +75,7 @@ export class NotificationService {
     const results = await Promise.allSettled(
       adminEmails.map(email => this.sendEmail(email, template))
     );
-    
+
     // Return true if at least one email was sent successfully
     return results.some(result => result.status === 'fulfilled' && result.value === true);
   }
@@ -78,14 +84,14 @@ export class NotificationService {
   private formatPhoneNumber(phone: string): string {
     // Remove all non-digits
     const digits = phone.replace(/\D/g, '');
-    
+
     // If it's a US number (10 digits) or already has country code (11 digits starting with 1)
     if (digits.length === 10) {
       return `+1 ${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
     } else if (digits.length === 11 && digits.startsWith('1')) {
       return `+1 ${digits.slice(1, 4)}-${digits.slice(4, 7)}-${digits.slice(7)}`;
     }
-    
+
     // Return original if format is unclear
     return phone;
   }
@@ -94,7 +100,7 @@ export class NotificationService {
   private getBookingConfirmationTemplate(booking: any): EmailTemplate {
     const formattedCustomerPhone = this.formatPhoneNumber(booking.customer.phone);
     const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
-    
+
     return {
       subject: `New Booking Confirmed - ${booking.car.brand} ${booking.car.model}`,
       html: `
@@ -182,7 +188,7 @@ View in Admin Dashboard: https://dtexoticslv.com/admin/bookings`
   private getPaymentSuccessTemplate(payment: any): EmailTemplate {
     const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
     const formattedCustomerPhone = payment.customerPhone ? this.formatPhoneNumber(payment.customerPhone) : '';
-    
+
     return {
       subject: `Payment Successful - $${payment.amount}`,
       html: `
@@ -263,7 +269,7 @@ Time: ${new Date().toLocaleString()}`
   private getPaymentFailedTemplate(payment: any): EmailTemplate {
     const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
     const formattedCustomerPhone = payment.customerPhone ? this.formatPhoneNumber(payment.customerPhone) : '';
-    
+
     return {
       subject: `Payment Failed - Action Required`,
       html: `
@@ -396,11 +402,11 @@ Go to Dashboard: https://dtexoticslv.com/admin`
   // Main notification methods
   public async sendBookingNotification(booking: any): Promise<boolean> {
     console.log('🔔 [NOTIFICATION] sendBookingNotification called');
-    console.log('🔔 [NOTIFICATION] Settings:', { 
-      emailNotifications: this.settings.emailNotifications, 
-      bookingAlerts: this.settings.bookingAlerts 
+    console.log('🔔 [NOTIFICATION] Settings:', {
+      emailNotifications: this.settings.emailNotifications,
+      bookingAlerts: this.settings.bookingAlerts
     });
-    
+
     if (!this.settings.emailNotifications || !this.settings.bookingAlerts) {
       console.warn('⚠️ [NOTIFICATION] Booking notification BLOCKED by settings');
       console.warn('⚠️ [NOTIFICATION] emailNotifications:', this.settings.emailNotifications);
@@ -419,11 +425,11 @@ Go to Dashboard: https://dtexoticslv.com/admin`
 
   public async sendPaymentNotification(payment: any, success: boolean): Promise<boolean> {
     console.log('🔔 [NOTIFICATION] sendPaymentNotification called');
-    console.log('🔔 [NOTIFICATION] Settings:', { 
-      emailNotifications: this.settings.emailNotifications, 
-      paymentAlerts: this.settings.paymentAlerts 
+    console.log('🔔 [NOTIFICATION] Settings:', {
+      emailNotifications: this.settings.emailNotifications,
+      paymentAlerts: this.settings.paymentAlerts
     });
-    
+
     if (!this.settings.emailNotifications || !this.settings.paymentAlerts) {
       console.warn('⚠️ [NOTIFICATION] Payment notification BLOCKED by settings');
       console.warn('⚠️ [NOTIFICATION] emailNotifications:', this.settings.emailNotifications);
@@ -432,7 +438,7 @@ Go to Dashboard: https://dtexoticslv.com/admin`
     }
 
     try {
-      const template = success 
+      const template = success
         ? this.getPaymentSuccessTemplate(payment)
         : this.getPaymentFailedTemplate(payment);
       return await this.sendEmailToAdmins(template);
@@ -444,11 +450,11 @@ Go to Dashboard: https://dtexoticslv.com/admin`
 
   public async sendSystemAlert(alert: any): Promise<boolean> {
     console.log('🔔 [NOTIFICATION] sendSystemAlert called');
-    console.log('🔔 [NOTIFICATION] Settings:', { 
-      emailNotifications: this.settings.emailNotifications, 
-      systemAlerts: this.settings.systemAlerts 
+    console.log('🔔 [NOTIFICATION] Settings:', {
+      emailNotifications: this.settings.emailNotifications,
+      systemAlerts: this.settings.systemAlerts
     });
-    
+
     if (!this.settings.emailNotifications || !this.settings.systemAlerts) {
       console.warn('⚠️ [NOTIFICATION] System alert BLOCKED by settings');
       console.warn('⚠️ [NOTIFICATION] emailNotifications:', this.settings.emailNotifications);
@@ -468,7 +474,7 @@ Go to Dashboard: https://dtexoticslv.com/admin`
   // Customer Email Templates
   private getCustomerBookingConfirmationTemplate(booking: any): EmailTemplate {
     const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
-    
+
     return {
       subject: `Booking Confirmed - Your ${booking.car.brand} ${booking.car.model} Rental`,
       html: `
@@ -585,7 +591,7 @@ Questions? Call or text us at +1 (702) 518-0924`
 
   private getCustomerPaymentReceiptTemplate(payment: any): EmailTemplate {
     const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
-    
+
     return {
       subject: `Payment Receipt - $${payment.amount} for ${payment.vehicleName}`,
       html: `
@@ -674,7 +680,7 @@ DT Exotics Las Vegas - Premium Supercar Rentals`
 
   private getCustomerPaymentFailedTemplate(payment: any): EmailTemplate {
     const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
-    
+
     return {
       subject: `Payment Issue - Action Required for Your ${payment.vehicleName} Rental`,
       html: `
@@ -755,7 +761,7 @@ DT Exotics Las Vegas - Premium Supercar Rentals`
   private getCustomerReminderTemplate(booking: any): EmailTemplate {
     const formattedCustomerPhone = this.formatPhoneNumber(booking.customer.phone);
     const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
-    
+
     return {
       subject: `Reminder: Your ${booking.car.brand} ${booking.car.model} pickup is tomorrow!`,
       html: `
@@ -863,7 +869,7 @@ Get ready for the drive of a lifetime!`
 
   private getCustomerEventConfirmationTemplate(inquiry: any): EmailTemplate {
     const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
-    
+
     return {
       subject: `Thank you for your ${inquiry.eventType} request - DT Exotics Las Vegas`,
       html: `
@@ -1040,7 +1046,7 @@ We can't wait to make your ${inquiry.eventType.toLowerCase()} unforgettable!`
   private getEventInquiryTemplate(inquiry: any): EmailTemplate {
     const formattedCustomerPhone = this.formatPhoneNumber(inquiry.customerPhone);
     const formattedBusinessPhone = this.formatPhoneNumber('+17025180924');
-    
+
     return {
       subject: `New ${inquiry.eventType} Inquiry - ${inquiry.customerName}`,
       html: `
@@ -1066,11 +1072,11 @@ We can't wait to make your ${inquiry.eventType.toLowerCase()} unforgettable!`
             <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
               <h3 style="color: #00ffff; margin-top: 0;">Event Details</h3>
               ${Object.entries(inquiry.formData)
-                .filter(([key]) => !['fullName', 'email', 'phone'].includes(key))
-                .map(([key, value]) => {
-                  const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())
-                  return `<p style="margin: 5px 0;"><strong>${label}:</strong> ${value || 'Not specified'}</p>`
-                }).join('')}
+          .filter(([key]) => !['fullName', 'email', 'phone'].includes(key))
+          .map(([key, value]) => {
+            const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())
+            return `<p style="margin: 5px 0;"><strong>${label}:</strong> ${value || 'Not specified'}</p>`
+          }).join('')}
             </div>
             
             <div style="text-align: center; margin-top: 30px;">
@@ -1118,11 +1124,11 @@ Submitted: ${new Date(inquiry.submittedAt).toLocaleString()}
 
 Event Details:
 ${Object.entries(inquiry.formData)
-  .filter(([key]) => !['fullName', 'email', 'phone'].includes(key))
-  .map(([key, value]) => {
-    const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())
-    return `${label}: ${value || 'Not specified'}`
-  }).join('\n')}
+          .filter(([key]) => !['fullName', 'email', 'phone'].includes(key))
+          .map(([key, value]) => {
+            const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())
+            return `${label}: ${value || 'Not specified'}`
+          }).join('\n')}
 
 Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
     };
@@ -1145,7 +1151,7 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
   public async sendTestEmail(type: string): Promise<boolean> {
     // Get the first admin email for admin test emails
     const firstAdminEmail = this.getAdminEmails()[0];
-    
+
     const testData = {
       booking: {
         car: { brand: 'Lamborghini', model: 'Huracán', year: 2024 },
@@ -1210,7 +1216,7 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
         return await this.sendPaymentNotification(testData.adminPayment, false);
       case 'system':
         return await this.sendSystemAlert(testData.alert);
-      
+
       // Customer notifications (sent to admin emails for testing)
       case 'customer_booking': {
         const template = this.getCustomerBookingConfirmationTemplate(testData.booking);
@@ -1236,7 +1242,7 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
         const template = this.getCustomerEventConfirmationTemplate(testData.eventInquiry);
         return await this.sendEmailToAdmins(template);
       }
-      
+
       default:
         return false;
     }
@@ -1254,7 +1260,7 @@ Contact customer at: ${inquiry.customerPhone} or ${inquiry.customerEmail}`
       console.log('📧 [NOTIFICATION] Attempting to send email...');
       console.log('📧 [NOTIFICATION] To:', to);
       console.log('📧 [NOTIFICATION] Subject:', template.subject);
-      
+
       const result = await resend.emails.send({
         from: 'DT Exotics <notifications@dtexoticslv.com>',
         to: [to],

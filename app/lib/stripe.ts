@@ -3,19 +3,21 @@ import Stripe from 'stripe';
 // Create a function to get Stripe instance with runtime environment variables
 function getStripeInstance(): Stripe {
   const secretKey = process.env.STRIPE_SECRET_KEY;
-  
+
   // Log the key status for debugging (only first 7 chars for security)
   if (secretKey) {
     console.log('[STRIPE] Initializing with key:', secretKey.substring(0, 7) + '...');
   } else {
-    console.error('[STRIPE] WARNING: No STRIPE_SECRET_KEY found in environment');
+    console.error('[STRIPE] CRITICAL ERROR: No STRIPE_SECRET_KEY found in environment');
+    // In production, we want to fail hard if the key is missing to avoid processing payments with a dummy key
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('STRIPE_SECRET_KEY is missing in production environment');
+    }
   }
-  
-  // Use the actual key or a dummy one
-  // The dummy key prevents build errors but will fail at runtime with clear errors
+
+  // Use the actual key or a dummy one for build time/dev only
   return new Stripe(secretKey || 'sk_test_dummy', {
-    // Keep SDK-typed version to satisfy TypeScript; fallback logic will avoid runtime Stripe calls if key is missing
-    apiVersion: '2025-06-30.basil',
+    apiVersion: '2024-06-20' as any,
     typescript: true,
   });
 }

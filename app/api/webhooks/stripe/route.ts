@@ -21,7 +21,7 @@ let stripe: Stripe | null = null;
 function getStripe(): Stripe {
   if (!stripe && process.env.STRIPE_SECRET_KEY) {
     stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2025-06-30.basil',
+      apiVersion: '2024-06-20' as any,
     });
   }
   if (!stripe) {
@@ -109,16 +109,16 @@ export async function POST(request: NextRequest) {
         await handlePaymentIntentSucceeded(event.data.object);
         await bumpMetricsCacheVersion(event.livemode)
         break;
-      
+
       case 'payment_intent.payment_failed':
         await handlePaymentIntentFailed(event.data.object);
         await bumpMetricsCacheVersion(event.livemode)
         break;
-      
+
       case 'payment_intent.requires_action':
         await handlePaymentIntentRequiresAction(event.data.object);
         break;
-      
+
       case 'payment_intent.canceled':
         await handlePaymentIntentCanceled(event.data.object);
         await bumpMetricsCacheVersion(event.livemode)
@@ -141,14 +141,14 @@ export async function POST(request: NextRequest) {
 
 async function handlePaymentIntentAuthorized(paymentIntent: any) {
   console.log('Payment authorized (amount capturable updated):', paymentIntent.id)
-  
+
   // Try to get rental from database first
   let rental = await kvRentalDB.getRentalByPaymentIntent(paymentIntent.id)
-  
+
   // If no rental exists, create one from payment intent metadata
   if (!rental) {
     console.log('No existing rental found, creating from payment intent metadata')
-    
+
     const metadata = paymentIntent.metadata
     if (!metadata || !metadata.car_id || !metadata.start_date || !metadata.end_date || !metadata.customer_email) {
       console.error('Payment intent missing required metadata for rental creation:', paymentIntent.id)
@@ -248,7 +248,7 @@ async function handlePaymentIntentAuthorized(paymentIntent: any) {
       // Send customer confirmation
       console.log('Sending customer booking confirmation...')
       await notificationService.sendCustomerBookingConfirmation(bookingData)
-      
+
       console.log('Booking confirmation emails sent successfully')
     } catch (emailError) {
       console.error('Failed to send booking confirmation emails:', emailError)
@@ -271,7 +271,7 @@ async function handlePaymentIntentAuthorized(paymentIntent: any) {
 
 async function handlePaymentIntentSucceeded(paymentIntent: any) {
   console.log('Payment succeeded:', paymentIntent.id);
-  
+
   const rental = await kvRentalDB.getRentalByPaymentIntent(paymentIntent.id);
   if (!rental) {
     console.error('Rental not found for payment intent:', paymentIntent.id);
@@ -324,7 +324,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
       console.log('Sending customer payment receipt...');
       const customerResult = await notificationService.sendCustomerPaymentReceipt(paymentData);
       console.log('Customer payment receipt result:', customerResult);
-      
+
       console.log('Payment success notifications completed');
       console.log('=== PAYMENT SUCCESS NOTIFICATIONS END ===');
     } catch (emailError) {
@@ -387,7 +387,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
       // Send customer payment receipt
       console.log('Sending customer final payment receipt...');
       await notificationService.sendCustomerPaymentReceipt(paymentData);
-      
+
       console.log('Final payment success notifications sent successfully');
     } catch (emailError) {
       console.error('Failed to send final payment success notifications:', emailError);
@@ -397,7 +397,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: any) {
 
 async function handlePaymentIntentFailed(paymentIntent: any) {
   console.log('Payment failed:', paymentIntent.id);
-  
+
   const rental = await kvRentalDB.getRentalByPaymentIntent(paymentIntent.id);
   if (!rental) {
     console.error('Rental not found for payment intent:', paymentIntent.id);
@@ -445,7 +445,7 @@ async function handlePaymentIntentFailed(paymentIntent: any) {
       // Send customer payment failed notification
       console.log('Sending customer payment failed notification...');
       await notificationService.sendCustomerPaymentFailed(paymentData);
-      
+
       console.log('Payment failure notifications sent successfully');
     } catch (emailError) {
       console.error('Failed to send payment failure notifications:', emailError);
@@ -482,7 +482,7 @@ async function handlePaymentIntentFailed(paymentIntent: any) {
       // Send customer payment failed notification
       console.log('Sending customer final payment failed notification...');
       await notificationService.sendCustomerPaymentFailed(paymentData);
-      
+
       console.log('Final payment failure notifications sent successfully');
     } catch (emailError) {
       console.error('Failed to send final payment failure notifications:', emailError);
@@ -492,7 +492,7 @@ async function handlePaymentIntentFailed(paymentIntent: any) {
 
 async function handlePaymentIntentRequiresAction(paymentIntent: any) {
   console.log('Payment requires action:', paymentIntent.id);
-  
+
   const rental = await kvRentalDB.getRentalByPaymentIntent(paymentIntent.id);
   if (!rental) {
     console.error('Rental not found for payment intent:', paymentIntent.id);
@@ -505,7 +505,7 @@ async function handlePaymentIntentRequiresAction(paymentIntent: any) {
 
 async function handlePaymentIntentCanceled(paymentIntent: any) {
   console.log('Payment canceled:', paymentIntent.id);
-  
+
   const rental = await kvRentalDB.getRentalByPaymentIntent(paymentIntent.id);
   if (!rental) {
     console.error('Rental not found for payment intent:', paymentIntent.id);
