@@ -171,8 +171,7 @@ export default function CustomGoogleMap() {
     }
   ]
 
-  // Business location coordinates (DT Exotics - 9620 Las Vegas Blvd S STE E4 #508, Las Vegas, NV 89123)
-  // Exact coordinates for precise marker positioning
+  // Business location coordinates (kept for map marker positioning)
   const businessLocation = {
     lat: 36.0395,
     lng: -115.1726
@@ -363,7 +362,7 @@ export default function CustomGoogleMap() {
             gap: 8px;
             margin-bottom: 12px;
           ">
-            <a href="https://www.google.com/maps/dir//9620+Las+Vegas+Blvd+S+STE+E4+%23508,+Las+Vegas,+NV+89123" target="_blank" style="
+            <a href="/contact" style="
               background: linear-gradient(135deg, #333 0%, #444 100%);
               color: white;
               padding: 10px 16px;
@@ -379,7 +378,7 @@ export default function CustomGoogleMap() {
               letter-spacing: 0.5px;
             " onmouseover="this.style.background='linear-gradient(135deg, #444 0%, #555 100%)'; this.style.transform='translateY(-1px)'"
                onmouseout="this.style.background='linear-gradient(135deg, #333 0%, #444 100%)'; this.style.transform='translateY(0)'">
-              Directions
+              Contact Us
             </a>
             <a href="${getVerifiedPhoneLink('+17025180924', 'sms') || '#'}" style="
               background: linear-gradient(135deg, #00FFFF 0%, #00CCCC 100%);
@@ -413,16 +412,8 @@ export default function CustomGoogleMap() {
               <span style="font-weight: 500;">(702) 518-0924</span>
             </div>
             <div style="display: flex; align-items: center;">
-              <span style="color: #00FFFF; margin-right: 8px;">🌐</span>
-              <a href="/book-rental" style="
-                color: #00FFFF;
-                text-decoration: none;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                transition: all 0.3s ease;
-              " onmouseover="this.style.color='#00DDDD'; this.style.textShadow='0 0 8px rgba(0, 255, 255, 0.6)'"
-                 onmouseout="this.style.color='#00FFFF'; this.style.textShadow='none'">Book Online</a>
+              <span style="color: #00FFFF; margin-right: 8px;">📍</span>
+              <span style="font-weight: 500;">Reach out for our current showroom location.</span>
             </div>
           </div>
         </div>
